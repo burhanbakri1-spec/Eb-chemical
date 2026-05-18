@@ -1,0 +1,517 @@
+import React from "react";
+import AdminOrdersTable from "../components/AdminOrdersTable.jsx";
+import AdminProductForm from "../components/AdminProductForm.jsx";
+import AdminProductTable from "../components/AdminProductTable.jsx";
+import StatusBadge from "../components/StatusBadge.jsx";
+import WorkTimer from "../components/WorkTimer.jsx";
+import { hasPermission, permissionGroups } from "../data/permissions.js";
+
+const statuses = ["Pending", "Processing", "Completed", "Cancelled"];
+
+const emptyCustomer = {
+  name: "",
+  phone: "",
+  city: "",
+  address: "",
+  notes: "",
+};
+
+function EmployeeDashboardPage({
+  currentUser,
+  language,
+  onCreateOrder,
+  onDeleteOrder,
+  onDeleteProduct,
+  onNavigate,
+  onSaveProduct,
+  onStatusChange,
+  orders,
+  products,
+  t,
+  workSession,
+}) {
+  const [activeTab, setActiveTab] = React.useState("overview");
+  const [editingProduct, setEditingProduct] = React.useState(null);
+  const [customer, setCustomer] = React.useState(emptyCustomer);
+  const [selectedProductId, setSelectedProductId] = React.useState("");
+  const [selectedSize, setSelectedSize] = React.useState("");
+  const [quantity, setQuantity] = React.useState(1);
+  const [draftItems, setDraftItems] = React.useState([]);
+  const [message, setMessage] = React.useState(null);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+
+  if (currentUser?.role !== "employee") {
+    return (
+      <section className="page-shell">
+        <div className="empty-panel">
+          <h1>{t("admin.accessDenied")}</h1>
+          <p>{t("admin.employeeOnly")}</p>
+          <button className="primary-action" onClick={() => onNavigate("login")}>
+            {t("auth.login")}
+          </button>
+        </div>
+      </section>
+    );
+  }
+
+  const canViewProducts = hasPermission(currentUser, "products.view");
+  const canCreateProducts = hasPermission(currentUser, "products.create");
+  const canUpdateProducts = hasPermission(currentUser, "products.update");
+  const canDeleteProducts = hasPermission(currentUser, "products.delete");
+  const canViewOrders = hasPermission(currentUser, "orders.view");
+  const canCreateOrders = hasPermission(currentUser, "orders.create");
+  const canUpdateOrderStatus = hasPermission(currentUser, "orders.updateStatus");
+  const canDeleteOrders = hasPermission(currentUser, "orders.delete");
+  const hasProductPermission =
+    canViewProducts || canCreateProducts || canUpdateProducts || canDeleteProducts;
+  const hasOrderPermission =
+    canViewOrders || canCreateOrders || canUpdateOrderStatus || canDeleteOrders;
+  const hasAnyPermission = currentUser.permissions?.length > 0;
+
+  const assignedOrders = orders.filter(
+    (order) => order.handledByEmployeeId === currentUser.id
+  );
+  const pendingOrders = assignedOrders.filter((order) => order.status === "Pending");
+  const today = new Date().toISOString().slice(0, 10);
+  const completedToday = assignedOrders.filter(
+    (order) =>
+      order.status === "Completed" && order.createdAt?.slice(0, 10) === today
+  );
+  const allowedPermissions = permissionGroups.flatMap((group) =>
+    group.permissions.filter((permission) =>
+      currentUser.permissions?.includes(permission.key)
+    )
+  );
+  const selectedProduct = products.find((product) => product.id === selectedProductId);
+  const selectedSizeOption = selectedProduct?.sizes.find(
+    (sizeOption) => sizeOption.size === selectedSize
+  );
+  const draftTotal = draftItems.reduce((sum, item) => sum + item.lineTotal, 0);
+
+  React.useEffect(() => {
+    if (!selectedProductId && products.length > 0) {
+      setSelectedProductId(products[0].id);
+      setSelectedSize(products[0].sizes[0]?.size || "");
+    }
+  }, [products, selectedProductId]);
+
+  React.useEffect(() => {
+    if (selectedProduct && !selectedProduct.sizes.some((item) => item.size === selectedSize)) {
+      setSelectedSize(selectedProduct.sizes[0]?.size || "");
+    }
+  }, [selectedProduct, selectedSize]);
+
+  function showMessage(type, text) {
+    setMessage({ type, text });
+  }
+
+  async function handleProductSave(product) {
+    if (!onSaveProduct) {
+      showMessage("error", t("employee.noPermissionAction"));
+      return;
+    }
+
+    setIsSubmitting(true);
+    const result = await onSaveProduct(product);
+    setIsSubmitting(false);
+
+    if (result?.ok) {
+      setEditingProduct(null);
+      showMessage("success", result.message);
+    } else {
+      showMessage("error", result?.message || t("employee.missingPermission"));
+    }
+
+    return result;
+  }
+
+  async function handleProductDelete(productId) {
+    if (!onDeleteProduct) {
+      showMessage("error", t("employee.noPermissionAction"));
+      return;
+    }
+
+    const result = await onDeleteProduct(productId);
+    showMessage(result?.ok ? "success" : "error", result?.message || "");
+  }
+
+  async function handleStatusChange(orderId, status) {
+    if (!onStatusChange) {
+      showMessage("error", t("employee.noPermissionAction"));
+      return;
+    }
+
+    const result = await onStatusChange(orderId, status);
+    showMessage(
+      result?.ok ? "success" : "error",
+      result?.message || t("employee.missingPermission")
+    );
+  }
+
+  async function handleDeleteOrder(orderId) {
+    if (!onDeleteOrder) {
+      showMessage("error", t("employee.noPermissionAction"));
+      return;
+    }
+
+    const result = await onDeleteOrder(orderId);
+    showMessage(result?.ok ? "success" : "error", result?.message || "");
+  }
+
+  function handleCustomerChange(event) {
+    const { name, value } = event.target;
+    setCustomer((currentCustomer) => ({
+      ...currentCustomer,
+      [name]: value,
+    }));
+  }
+
+  function handleAddDraftItem(event) {
+    event.preventDefault();
+
+    if (!selectedProduct || !selectedSizeOption) {
+      showMessage("error", t("employee.missingPermission"));
+      return;
+    }
+
+    setDraftItems((currentItems) => [
+      ...currentItems,
+      {
+        productId: selectedProduct.id,
+        productName: selectedProduct.name[language],
+        slug: selectedProduct.slug,
+        selectedSize: selectedSizeOption.size,
+        size: selectedSizeOption.size,
+        quantity: Number(quantity || 1),
+        price: selectedSizeOption.price,
+        lineTotal: selectedSizeOption.price * Number(quantity || 1),
+        label: selectedProduct.name[language],
+      },
+    ]);
+    setQuantity(1);
+  }
+
+  async function handleSubmitOrder(event) {
+    event.preventDefault();
+
+    if (draftItems.length === 0) {
+      showMessage("error", t("cart.emptyTitle"));
+      return;
+    }
+
+    setIsSubmitting(true);
+    if (!onCreateOrder) {
+      showMessage("error", t("employee.noPermissionAction"));
+      setIsSubmitting(false);
+      return;
+    }
+
+    const result = await onCreateOrder({
+      customer,
+      items: draftItems,
+      total: draftTotal,
+    });
+    setIsSubmitting(false);
+
+    if (result?.ok) {
+      setCustomer(emptyCustomer);
+      setDraftItems([]);
+      showMessage("success", result.message);
+      setActiveTab("orders");
+    } else {
+      showMessage("error", result?.message || t("employee.missingPermission"));
+    }
+  }
+
+  if (!hasAnyPermission) {
+    return (
+      <section className="page-shell employee-page">
+        <div className="empty-panel">
+          <h1>{t("admin.employeeDashboard")}</h1>
+          <p>{t("employee.noPermissionsAssigned")}</p>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="page-shell employee-page">
+      <div className="page-heading">
+        <p className="eyebrow">{t("admin.employeeDashboard")}</p>
+        <h1>
+          {t("admin.welcome")}, {currentUser.name}
+        </h1>
+      </div>
+
+      {message && (
+        <div className={`message-panel ${message.type}`}>{message.text}</div>
+      )}
+
+      <div className="dashboard-grid">
+        <article className="dashboard-card">
+          <WorkTimer session={workSession} t={t} />
+        </article>
+        <article className="dashboard-card">
+          <span>{t("admin.assignedOrders")}</span>
+          <strong>{assignedOrders.length}</strong>
+        </article>
+        <article className="dashboard-card">
+          <span>{t("admin.pendingOrders")}</span>
+          <strong>{pendingOrders.length}</strong>
+        </article>
+        <article className="dashboard-card">
+          <span>{t("employee.completedToday")}</span>
+          <strong>{completedToday.length}</strong>
+        </article>
+        {canViewProducts && (
+          <article className="dashboard-card">
+            <span>{t("admin.totalProducts")}</span>
+            <strong>{products.length}</strong>
+          </article>
+        )}
+      </div>
+
+      <div className="dashboard-tabs">
+        <button
+          className={activeTab === "overview" ? "nav-link active" : "nav-link"}
+          onClick={() => setActiveTab("overview")}
+          type="button"
+        >
+          {t("employee.myTasks")}
+        </button>
+        {hasProductPermission && (
+          <button
+            className={activeTab === "products" ? "nav-link active" : "nav-link"}
+            onClick={() => setActiveTab("products")}
+            type="button"
+          >
+            {t("admin.productsManagement")}
+          </button>
+        )}
+        {hasOrderPermission && (
+          <button
+            className={activeTab === "orders" ? "nav-link active" : "nav-link"}
+            onClick={() => setActiveTab("orders")}
+            type="button"
+          >
+            {t("admin.ordersManagement")}
+          </button>
+        )}
+        {canCreateOrders && (
+          <button
+            className={activeTab === "create-order" ? "nav-link active" : "nav-link"}
+            onClick={() => setActiveTab("create-order")}
+            type="button"
+          >
+            {t("employee.createCustomerOrder")}
+          </button>
+        )}
+      </div>
+
+      {activeTab === "overview" && (
+        <>
+          <section className="admin-section">
+            <div className="section-heading">
+              <p className="eyebrow">{t("admin.permissions")}</p>
+              <h2>{t("admin.allowedActions")}</h2>
+            </div>
+            <div className="permission-chip-list">
+              {allowedPermissions.map((permission) => (
+                <span className="permission-chip" key={permission.key}>
+                  {t(permission.labelKey)}
+                </span>
+              ))}
+            </div>
+          </section>
+
+          <section className="admin-section">
+            <div className="section-heading">
+              <p className="eyebrow">{t("admin.ordersManagement")}</p>
+              <h2>{t("admin.assignedOrders")}</h2>
+            </div>
+            {assignedOrders.length === 0 ? (
+              <div className="empty-panel compact-empty">
+                {t("employee.noAssignedOrdersYet")}
+              </div>
+            ) : (
+              <div className="customer-order-list">
+                {assignedOrders.map((order) => (
+                  <article className="customer-order-card" key={order.id}>
+                    <div>
+                      <strong>{order.id}</strong>
+                      <StatusBadge status={order.status} t={t} />
+                    </div>
+                    <p>{order.customer.name}</p>
+                    <strong>
+                      {order.total} {t("common.ils")}
+                    </strong>
+                  </article>
+                ))}
+              </div>
+            )}
+          </section>
+        </>
+      )}
+
+      {activeTab === "products" && hasProductPermission && (
+        <section className="admin-section">
+          <div className="section-heading">
+            <p className="eyebrow">{t("admin.productsManagement")}</p>
+            <h2>{t("admin.productsManagement")}</h2>
+          </div>
+          {(canCreateProducts || (canUpdateProducts && editingProduct)) && (
+            <AdminProductForm
+              editingProduct={editingProduct}
+              language={language}
+              onCancel={() => setEditingProduct(null)}
+              onSave={handleProductSave}
+              t={t}
+            />
+          )}
+          {canViewProducts ? (
+            <AdminProductTable
+              canDelete={canDeleteProducts}
+              canEdit={canUpdateProducts}
+              language={language}
+              onDelete={handleProductDelete}
+              onEdit={setEditingProduct}
+              products={products}
+              t={t}
+            />
+          ) : (
+            <div className="empty-panel compact-empty">
+              {t("employee.noPermissionAction")}
+            </div>
+          )}
+        </section>
+      )}
+
+      {activeTab === "orders" && hasOrderPermission && (
+        <section className="admin-section">
+          <div className="section-heading">
+            <p className="eyebrow">{t("admin.ordersManagement")}</p>
+            <h2>{t("admin.ordersManagement")}</h2>
+          </div>
+          {canViewOrders ? (
+            <AdminOrdersTable
+              canAssign={false}
+              canDelete={canDeleteOrders}
+              canUpdateStatus={canUpdateOrderStatus}
+              language={language}
+              onDeleteOrder={handleDeleteOrder}
+              onStatusChange={handleStatusChange}
+              orders={orders}
+              products={products}
+              t={t}
+            />
+          ) : (
+            <div className="empty-panel compact-empty">
+              {t("employee.noPermissionAction")}
+            </div>
+          )}
+        </section>
+      )}
+
+      {activeTab === "create-order" && canCreateOrders && (
+        <section className="admin-section">
+          <div className="section-heading">
+            <p className="eyebrow">{t("employee.createCustomerOrder")}</p>
+            <h2>{t("employee.createCustomerOrder")}</h2>
+          </div>
+          <form className="admin-form" onSubmit={handleSubmitOrder}>
+            <label>
+              {t("checkout.name")}
+              <input name="name" onChange={handleCustomerChange} required value={customer.name} />
+            </label>
+            <label>
+              {t("checkout.phone")}
+              <input name="phone" onChange={handleCustomerChange} required value={customer.phone} />
+            </label>
+            <label>
+              {t("checkout.city")}
+              <input name="city" onChange={handleCustomerChange} required value={customer.city} />
+            </label>
+            <label>
+              {t("checkout.address")}
+              <input name="address" onChange={handleCustomerChange} required value={customer.address} />
+            </label>
+            <label className="full-field">
+              {t("checkout.notes")}
+              <textarea name="notes" onChange={handleCustomerChange} value={customer.notes} />
+            </label>
+            <div className="draft-order-builder full-field">
+              <label>
+                {t("admin.product")}
+                <select
+                  onChange={(event) => setSelectedProductId(event.target.value)}
+                  value={selectedProductId}
+                >
+                  {products.map((product) => (
+                    <option key={product.id} value={product.id}>
+                      {product.name[language]}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                {t("productDetails.chooseSize")}
+                <select
+                  onChange={(event) => setSelectedSize(event.target.value)}
+                  value={selectedSize}
+                >
+                  {selectedProduct?.sizes.map((sizeOption) => (
+                    <option key={sizeOption.size} value={sizeOption.size}>
+                      {sizeOption.size} - {sizeOption.price} {t("common.ils")}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                {t("employee.quantity")}
+                <input
+                  min="1"
+                  onChange={(event) => setQuantity(Number(event.target.value))}
+                  type="number"
+                  value={quantity}
+                />
+              </label>
+              <button className="secondary-action" onClick={handleAddDraftItem} type="button">
+                {t("employee.addItem")}
+              </button>
+            </div>
+            <div className="draft-order full-field">
+              <h4>{t("employee.draftOrder")}</h4>
+              {draftItems.length === 0 ? (
+                <p>{t("cart.emptyTitle")}</p>
+              ) : (
+                draftItems.map((item, index) => (
+                  <div className="summary-line" key={`${item.productId}-${item.size}-${index}`}>
+                    <span>
+                      {item.label} {item.size} x{item.quantity}
+                    </span>
+                    <strong>
+                      {item.lineTotal} {t("common.ils")}
+                    </strong>
+                  </div>
+                ))
+              )}
+              <div className="summary-line total-row">
+                <span>{t("common.total")}</span>
+                <strong>
+                  {draftTotal} {t("common.ils")}
+                </strong>
+              </div>
+            </div>
+            <div className="form-actions full-field">
+              <button className="primary-action" disabled={isSubmitting} type="submit">
+                {isSubmitting ? t("common.temporaryContent") : t("employee.submitOrder")}
+              </button>
+            </div>
+          </form>
+        </section>
+      )}
+    </section>
+  );
+}
+
+export default EmployeeDashboardPage;
