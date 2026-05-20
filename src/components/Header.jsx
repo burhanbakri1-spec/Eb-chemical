@@ -304,7 +304,7 @@ function Header({
                 <Icon name="chevron" />
               </span>
             </button>
-            <div className={isMegaOpen ? "mega-menu open" : "mega-menu"}>
+            <div className={isMegaOpen ? "mega-menu shop-mega-menu-viewport open" : "mega-menu shop-mega-menu-viewport"}>
               <nav className="mega-link-column" aria-label={shopLabel}>
                 {shopLinks.map((link) => (
                   <button key={link.key} onClick={() => handleShopLink(link)} type="button">

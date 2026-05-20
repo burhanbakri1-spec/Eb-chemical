@@ -239,7 +239,7 @@ function HomePage({
   return (
     <div className="storefront-home">
       <section className="hero-section hero-editorial">
-        <div className="hero-panel hero-panel-copy">
+        <div className="hero-panel hero-panel-copy hero-copy-panel">
           <p className="eyebrow">{brand.name}</p>
           <h1>{t("home.heroHeadline")}</h1>
           <p>{t("home.heroSubheadline")}</p>
@@ -258,10 +258,10 @@ function HomePage({
         </div>
 
         <div className="hero-panel hero-panel-visual" aria-label={brand.name}>
-          <div className="hero-image-duo">
+          <div className="hero-image-duo hero-visuals">
             {heroImages.map((product, index) => (
               <button
-                className="hero-image-panel"
+                className="hero-image-panel hero-visual-panel"
                 key={product.id}
                 onClick={() => onViewProduct(product.slug)}
                 type="button"
