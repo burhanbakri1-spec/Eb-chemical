@@ -44,20 +44,20 @@ const shopLinks = [
 ];
 
 const aboutLinks = [
-  { key: "about", labelEn: "About EB Chemical", labelAr: "عن EB Chemical", action: "about" },
   { key: "mission", labelEn: "Mission", labelAr: "رسالتنا", action: "about" },
   { key: "how", labelEn: "How it Works", labelAr: "كيف يعمل", action: "how" },
   { key: "sustainability", labelEn: "Sustainability", labelAr: "الاستدامة", action: "about" },
-  { key: "contact", labelEn: "Contact", labelAr: "تواصل معنا", action: "social" },
+  { key: "cleanups", labelEn: "Cleanups", labelAr: "حملات التنظيف", action: "cleanups" },
+  { key: "points", labelEn: "EB Points", labelAr: "نقاط EB", action: "eb-points" },
 ];
 
 const aboutFeatureCards = [
   {
     key: "start",
-    titleEn: "New to EB Chemical? Start here",
-    titleAr: "جديد على EB Chemical؟ ابدأ من هنا",
-    image: "/images/products/multi-surface-cleaner.svg",
-    action: "about",
+    titleEn: "Join the next CleanUp",
+    titleAr: "شارك في حملة التنظيف القادمة",
+    image: "/images/products/green-radiator-water.svg",
+    action: "cleanups",
   },
   {
     key: "shop",
@@ -69,11 +69,11 @@ const aboutFeatureCards = [
 ];
 
 const aboutMenuLinks = [
-  { key: "about", labelEn: "About EB Chemical", labelAr: "عن EB Chemical", action: "about" },
-  { key: "how", labelEn: "How it Works", labelAr: "كيف يعمل", action: "how" },
-  { key: "sustainability", labelEn: "Sustainability", labelAr: "الاستدامة", action: "about" },
-  { key: "reviews", labelEn: "Reviews", labelAr: "التقييمات", action: "reviews" },
-  { key: "contact", labelEn: "Contact", labelAr: "تواصل معنا", action: "social" },
+  { key: "mission", labelEn: "Mission", labelAr: "رسالتنا", action: "about", activePage: "about" },
+  { key: "how", labelEn: "How it Works", labelAr: "كيف يعمل", action: "how", activePage: "how" },
+  { key: "sustainability", labelEn: "Sustainability", labelAr: "الاستدامة", action: "about", activePage: "sustainability" },
+  { key: "cleanups", labelEn: "Cleanups", labelAr: "حملات التنظيف", action: "cleanups", activePage: "cleanups" },
+  { key: "points", labelEn: "EB Points", labelAr: "نقاط EB", action: "eb-points", activePage: "eb-points" },
 ];
 
 function Icon({ name }) {
@@ -386,7 +386,7 @@ function Header({
             onMouseLeave={scheduleCloseAboutMenu}
           >
             <button
-              className={activePage === "about" || activePage === "how" ? "nav-link active" : "nav-link"}
+              className={["about", "how", "cleanups", "eb-points"].includes(activePage) ? "nav-link active" : "nav-link"}
               onClick={() => {
                 setIsAboutOpen((open) => !open);
                 setIsMegaOpen(false);
@@ -401,7 +401,7 @@ function Header({
               <nav className="about-link-column" aria-label={aboutLabel}>
                 {aboutMenuLinks.map((link) => (
                   <button
-                    className={activePage === link.action ? "active" : ""}
+                    className={activePage === (link.activePage || link.action) ? "active" : ""}
                     key={link.key}
                     onClick={() => handleAboutLink(link)}
                     type="button"
@@ -582,10 +582,19 @@ function Header({
           </div>
         )}
         <button onClick={() => goTo("about")} type="button">
-          {aboutLabel}
+          {language === "ar" ? "رسالتنا" : "Mission"}
         </button>
         <button onClick={goToHow} type="button">
           {howLabel}
+        </button>
+        <button onClick={() => goTo("about")} type="button">
+          {language === "ar" ? "الاستدامة" : "Sustainability"}
+        </button>
+        <button onClick={() => goTo("cleanups")} type="button">
+          {language === "ar" ? "حملات التنظيف" : "Cleanups"}
+        </button>
+        <button onClick={() => goTo("eb-points")} type="button">
+          {language === "ar" ? "نقاط EB" : "EB Points"}
         </button>
         <button onClick={() => goTo("social")} type="button">
           {socialLabel}

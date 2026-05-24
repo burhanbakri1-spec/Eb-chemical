@@ -7,7 +7,9 @@ import AdminDashboardPage from "./pages/AdminDashboardPage.jsx";
 import AdminEmployeesPage from "./pages/AdminEmployeesPage.jsx";
 import CartPage from "./pages/CartPage.jsx";
 import CheckoutPage from "./pages/CheckoutPage.jsx";
+import CleanupsPage from "./pages/CleanupsPage.jsx";
 import EmployeeDashboardPage from "./pages/EmployeeDashboardPage.jsx";
+import EBPointsPage from "./pages/EBPointsPage.jsx";
 import HomePage from "./pages/HomePage.jsx";
 import HowItWorksPage from "./pages/HowItWorksPage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
@@ -64,6 +66,28 @@ import "./styles/global.css";
 
 const cartStorageKey = "epChemicalCart";
 const languageStorageKey = "epChemicalLanguage";
+const pagePaths = {
+  home: "/",
+  products: "/products",
+  about: "/about",
+  how: "/how-it-works",
+  cleanups: "/cleanups",
+  "eb-points": "/eb-points",
+  social: "/social",
+  login: "/login",
+  register: "/register",
+  account: "/account",
+  cart: "/cart",
+  checkout: "/checkout",
+  admin: "/admin",
+  employee: "/employee",
+};
+
+function getInitialPageFromPath() {
+  const pathname = window.location.pathname;
+  const entry = Object.entries(pagePaths).find(([, path]) => path === pathname);
+  return entry?.[0] || "home";
+}
 
 function getStoredCart() {
   try {
@@ -74,8 +98,15 @@ function getStoredCart() {
   }
 }
 
+function mergeCatalogDetails(products) {
+  return products.map((product) => {
+    const localProduct = initialProducts.find((item) => item.id === product.id || item.slug === product.slug);
+    return localProduct ? { ...localProduct, ...product } : product;
+  });
+}
+
 function App() {
-  const [activePage, setActivePage] = React.useState("home");
+  const [activePage, setActivePage] = React.useState(getInitialPageFromPath);
   const [activeCategory, setActiveCategory] = React.useState("All");
   const [activeProductSlug, setActiveProductSlug] = React.useState("");
   const [cartItems, setCartItems] = React.useState(getStoredCart);
@@ -108,6 +139,15 @@ function App() {
   }, []);
 
   React.useEffect(() => {
+    function handlePopState() {
+      setActivePage(getInitialPageFromPath());
+    }
+
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
+
+  React.useEffect(() => {
     loadOrders(currentUser);
     loadEmployees(currentUser);
     loadReviews(currentUser);
@@ -128,7 +168,7 @@ function App() {
 
   async function loadProducts() {
     try {
-      setDemoProducts(await fetchProducts());
+      setDemoProducts(mergeCatalogDetails(await fetchProducts()));
     } catch (error) {
       setAdminMessage(error.message);
     }
@@ -136,7 +176,7 @@ function App() {
 
   async function refreshProducts() {
     try {
-      const products = await fetchProducts();
+      const products = mergeCatalogDetails(await fetchProducts());
       setDemoProducts(products);
       return products;
     } catch (error) {
@@ -254,6 +294,10 @@ function App() {
       setActiveProductSlug(options.slug);
     }
     setActivePage(page);
+    const nextPath = pagePaths[page];
+    if (nextPath && window.location.pathname !== nextPath) {
+      window.history.pushState({}, "", nextPath);
+    }
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
@@ -593,6 +637,8 @@ function App() {
       setLastOrder(order);
       setCheckoutMessage(t("checkout.orderPlacedSuccessfully"));
       setCartItems([]);
+      const refreshedUser = await fetchCurrentUser();
+      setUser(refreshedUser);
       return order;
     } catch (error) {
       setCheckoutMessage("");
@@ -713,6 +759,18 @@ function App() {
             onNavigate={navigate}
             onViewProduct={handleViewProduct}
             products={demoProducts}
+          />
+        )}
+
+        {activePage === "cleanups" && (
+          <CleanupsPage language={language} onNavigate={navigate} />
+        )}
+
+        {activePage === "eb-points" && (
+          <EBPointsPage
+            currentUser={currentUser}
+            language={language}
+            onNavigate={navigate}
           />
         )}
 

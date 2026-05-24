@@ -15,6 +15,21 @@ export const categories = [
     },
   },
   {
+    id: "bathroom-cleaning",
+    name: {
+      en: "Bathroom Cleaning",
+      ar: "منظفات الحمام",
+    },
+    description: {
+      en: "Bathroom cleaners for taps, sinks, showers, tiles, and limescale-prone surfaces.",
+      ar: "منظفات للحمام والحنفيات والمغاسل والدش والبلاط والأسطح المعرضة للتكلسات.",
+    },
+    accent: {
+      en: "Shiny bathroom care",
+      ar: "عناية ولمعان للحمام",
+    },
+  },
+  {
     id: "car-care",
     name: {
       en: "Car Care",

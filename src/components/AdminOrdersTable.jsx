@@ -39,6 +39,7 @@ function AdminOrdersTable({
             <th>{t("checkout.phone")}</th>
             <th>{t("checkout.city")}</th>
             <th>{t("common.total")}</th>
+            <th>{language === "ar" ? "نقاط EB" : "EB Points"}</th>
             <th>{t("admin.orderStatus")}</th>
             <th>{t("admin.createdBy")}</th>
             {canAssign && <th>{t("admin.assignedEmployee")}</th>}
@@ -56,6 +57,7 @@ function AdminOrdersTable({
               <td>{order.customer.phone}</td>
               <td>{order.customer.city}</td>
               <td>{order.total} {t("common.ils")}</td>
+              <td>{Math.max(0, Number(order.pointsEarned || 0))}</td>
               <td>
                 <StatusBadge status={order.status} t={t} />
                 {canUpdateStatus && (

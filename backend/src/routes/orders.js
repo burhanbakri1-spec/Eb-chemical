@@ -28,13 +28,20 @@ router.get("/my-orders", (req, res) => {
 });
 
 router.post("/", (req, res) => {
+  const orderTotal = Number(req.body.total || req.body.subtotal || 0);
+  const pointsRedeemed = Math.max(0, Number(req.body.pointsRedeemed || 0));
+  const discountFromPoints = Math.max(0, Number(req.body.discountFromPoints || 0));
+  const pointsEarned = req.user.role === "customer" ? Math.max(0, Math.floor(orderTotal)) : 0;
   const order = {
     id: `ORD-${Date.now()}`,
     customer: req.body.customer || {},
     customerUserId: req.user.role === "customer" ? req.user.id : req.body.customerUserId || null,
     items: req.body.items || [],
-    subtotal: Number(req.body.subtotal || req.body.total || 0),
-    total: Number(req.body.total || req.body.subtotal || 0),
+    subtotal: Number(req.body.subtotal || orderTotal || 0),
+    total: orderTotal,
+    pointsEarned,
+    pointsRedeemed,
+    discountFromPoints,
     paymentMethod: req.body.paymentMethod || "Cash on delivery",
     status: "Pending",
     handledByEmployeeId: req.user.role === "employee" ? req.user.id : "",
@@ -48,6 +55,13 @@ router.post("/", (req, res) => {
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
+
+  if (req.user.role === "customer") {
+    req.user.ebPoints = Math.max(0, Number(req.user.ebPoints || 0) - pointsRedeemed) + pointsEarned;
+    req.user.totalPointsEarned = Math.max(0, Number(req.user.totalPointsEarned || 0)) + pointsEarned;
+    req.user.totalPointsRedeemed = Math.max(0, Number(req.user.totalPointsRedeemed || 0)) + pointsRedeemed;
+  }
+
   orders.unshift(order);
   persistStore();
   res.status(201).json(order);

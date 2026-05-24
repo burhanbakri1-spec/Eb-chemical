@@ -32,6 +32,10 @@ app.use(
   }),
 );
 app.use(express.json({ limit: "1mb" }));
+app.use((_req, res, next) => {
+  res.setHeader("Content-Type", "application/json; charset=utf-8");
+  next();
+});
 
 app.get("/api/health", (_req, res) => {
   res.json({ ok: true, service: "eb-chemical-backend" });

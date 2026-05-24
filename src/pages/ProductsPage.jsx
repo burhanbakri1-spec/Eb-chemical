@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { categories } from "../data/categories.js";
 import { placeholderImage } from "../data/products.js";
 
@@ -16,7 +16,7 @@ function getCategoryName(categoryId, language) {
 function matchesMainFilter(product, activeCategory) {
   if (activeCategory === "All") return true;
   if (activeCategory === "accessories") {
-    return !["home-cleaning", "car-care"].includes(product.categoryId);
+    return !["home-cleaning", "bathroom-cleaning", "car-care"].includes(product.categoryId);
   }
   return product.categoryId === activeCategory;
 }
@@ -143,6 +143,7 @@ function ProductsPage({
   const mainFilters = [
     { id: "All", label: isArabic ? "كل المنتجات" : "All products" },
     { id: "home-cleaning", label: isArabic ? "منظفات المنزل" : "Home Cleaners" },
+    { id: "bathroom-cleaning", label: isArabic ? "منظفات الحمام" : "Bathroom Cleaning" },
     { id: "car-care", label: isArabic ? "العناية بالسيارة" : "Car Care" },
     { id: "accessories", label: isArabic ? "الإكسسوارات" : "Accessories" },
   ];
@@ -214,3 +215,4 @@ function ProductsPage({
 }
 
 export default ProductsPage;
+

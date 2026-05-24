@@ -1,7 +1,149 @@
 import React from "react";
+import {
+  CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
+  Minus,
+  Plus,
+  ShoppingBag,
+  Star,
+} from "lucide-react";
 import { categories } from "../data/categories.js";
 import { placeholderImage } from "../data/products.js";
-import ProductCard from "../components/ProductCard.jsx";
+
+const productText = {
+  en: {
+    back: "Back to products",
+    type: "Product type",
+    size: "Size",
+    use: "Choose use",
+    purchase: "Purchase",
+    oneTime: "One-time purchase",
+    refillPlan: "Save with refill plan",
+    visualOnly: "Visual option only. Checkout remains standard.",
+    addToCart: "Add to cart",
+    whatYouGet: "What you get",
+    usageNote: "Usage note",
+    reviews: "Reviews",
+    ratingLine: "4.94 ★ | 66 reviews",
+    reviewed: "Verified EB Chemical review",
+    how: "How it works",
+    impact: "Helps reduce single-use packaging with every refill",
+    safe: "Safe to use on",
+    surfaceNote: "Always test on a small hidden area first and follow the product instructions.",
+    formulaTitle: "Purposeful ingredients",
+    formulaText:
+      "Every ingredient is chosen with care. Our formula is designed to remove limescale effectively while keeping the cleaning experience simple, practical, and surface-conscious.",
+    ingredients: "All ingredients",
+    related: "You may also like",
+    faqTitle: "Frequently Asked Questions",
+    faqText: "Do you have questions about this product? Here you’ll find the most frequently asked questions.",
+    productInfo: "Product information",
+    from: "From",
+  },
+  ar: {
+    back: "العودة للمنتجات",
+    type: "نوع المنتج",
+    size: "الحجم",
+    use: "اختر الاستخدام",
+    purchase: "طريقة الشراء",
+    oneTime: "شراء مرة واحدة",
+    refillPlan: "وفّر مع خطة إعادة التعبئة",
+    visualOnly: "خيار عرض فقط. الدفع يبقى بالنظام الحالي.",
+    addToCart: "أضف إلى السلة",
+    whatYouGet: "ماذا تحصل",
+    usageNote: "ملاحظة الاستخدام",
+    reviews: "التقييمات",
+    ratingLine: "4.94 ★ | 66 تقييم",
+    reviewed: "تقييم موثق من EB Chemical",
+    how: "طريقة الاستخدام",
+    impact: "يساعد على تقليل استخدام العبوات أحادية الاستخدام مع كل إعادة تعبئة",
+    safe: "آمن للاستخدام على",
+    surfaceNote: "جرّبه دائمًا على منطقة صغيرة غير ظاهرة أولًا واتبع تعليمات المنتج.",
+    formulaTitle: "مكونات فعّالة",
+    formulaText:
+      "كل مكوّن مختار بعناية. صُممت تركيبتنا لإزالة التكلسات بفعالية مع الحفاظ على تجربة تنظيف سهلة وعملية ومناسبة للأسطح.",
+    ingredients: "كل المكونات",
+    related: "قد يعجبك أيضًا",
+    faqTitle: "الأسئلة الشائعة",
+    faqText: "هل لديك أسئلة حول هذا المنتج؟ هنا ستجد أكثر الأسئلة الشائعة.",
+    productInfo: "معلومات المنتج",
+    from: "ابتداءً من",
+  },
+};
+
+function localized(value, language, fallback = "") {
+  if (!value) return fallback;
+  if (typeof value === "string") return value;
+  if (Array.isArray(value)) return value;
+  return value[language] || value.en || value.ar || fallback;
+}
+
+function safeImage(image, fallback = placeholderImage) {
+  return image || fallback;
+}
+
+function ProductImage({ alt, className = "", src, ...imageProps }) {
+  return (
+    <img
+      alt={alt}
+      className={className}
+      loading="lazy"
+      onError={(event) => {
+        event.currentTarget.src = placeholderImage;
+      }}
+      src={safeImage(src)}
+      {...imageProps}
+    />
+  );
+}
+
+function SliderButton({ direction, onClick }) {
+  const Icon = direction === "next" ? ChevronRight : ChevronLeft;
+  return (
+    <button className="detail-circle-button" onClick={onClick} type="button">
+      <Icon size={22} />
+    </button>
+  );
+}
+
+function FloatingAddToCart({ language, onAdd, product, selectedLabel, txt }) {
+  return (
+    <aside className="detail-floating-cart" aria-label={txt.addToCart}>
+      <ProductImage alt={localized(product.name, language)} src={product.image} />
+      <div>
+        <strong>{localized(product.name, language)}</strong>
+        <span>{selectedLabel}</span>
+      </div>
+      <button className="detail-accent-button" onClick={onAdd} type="button">
+        {txt.addToCart}
+      </button>
+    </aside>
+  );
+}
+
+function AccordionList({ items, language }) {
+  const [openIndex, setOpenIndex] = React.useState(0);
+
+  return (
+    <div className="detail-accordion-list">
+      {items.map((item, index) => {
+        const isOpen = openIndex === index;
+        return (
+          <article className={isOpen ? "detail-accordion-item open" : "detail-accordion-item"} key={`${localized(item.title || item.question, language)}-${index}`}>
+            <button onClick={() => setOpenIndex(isOpen ? -1 : index)} type="button">
+              <span>{localized(item.title || item.question, language)}</span>
+              {isOpen ? <Minus size={20} /> : <Plus size={20} />}
+            </button>
+            <div className="detail-accordion-content">
+              <p>{localized(item.text || item.answer, language)}</p>
+            </div>
+          </article>
+        );
+      })}
+    </div>
+  );
+}
 
 function ProductDetailsPage({
   language,
@@ -12,13 +154,56 @@ function ProductDetailsPage({
   products = [],
   t,
 }) {
-  const [selectedSize, setSelectedSize] = React.useState(product?.sizes[0]?.size || "");
+  const txt = productText[language] || productText.en;
+  const [selectedSize, setSelectedSize] = React.useState(product?.sizes?.[0]?.size || "");
   const [quantity, setQuantity] = React.useState(1);
+  const [selectedType, setSelectedType] = React.useState(product?.detailOptions?.productTypes?.[0]?.id || "standard");
+  const [selectedUse, setSelectedUse] = React.useState(product?.detailOptions?.uses?.[0]?.id || "default");
+  const [purchaseType, setPurchaseType] = React.useState("one-time");
+  const [activeStep, setActiveStep] = React.useState(0);
+  const [activeSurface, setActiveSurface] = React.useState(0);
+  const [activeStatement, setActiveStatement] = React.useState(0);
+  const [dragStart, setDragStart] = React.useState(null);
+  const [parallax, setParallax] = React.useState(0);
+  const heroGalleryRef = React.useRef(null);
+  const reviewsRef = React.useRef(null);
+  const relatedRef = React.useRef(null);
+  const impactRef = React.useRef(null);
 
   React.useEffect(() => {
-    setSelectedSize(product?.sizes[0]?.size || "");
+    setSelectedSize(product?.sizes?.[0]?.size || "");
     setQuantity(1);
+    setSelectedType(product?.detailOptions?.productTypes?.[0]?.id || "standard");
+    setSelectedUse(product?.detailOptions?.uses?.[0]?.id || "default");
+    setPurchaseType("one-time");
+    setActiveStep(0);
+    setActiveSurface(0);
+    setActiveStatement(0);
   }, [product]);
+
+  React.useEffect(() => {
+    const timer = window.setInterval(() => {
+      setActiveStatement((index) => (index + 1) % getStatements().length);
+    }, 4000);
+    return () => window.clearInterval(timer);
+  });
+
+  React.useEffect(() => {
+    function handleScroll() {
+      const section = impactRef.current;
+      if (!section) {
+        setParallax(0);
+        return;
+      }
+      const rect = section.getBoundingClientRect();
+      const viewportCenter = window.innerHeight / 2;
+      const progress = (viewportCenter - rect.top) / Math.max(rect.height, 1);
+      setParallax(Math.max(-1, Math.min(1, progress * 2 - 1)));
+    }
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   if (!product) {
     return (
@@ -34,22 +219,110 @@ function ProductDetailsPage({
     );
   }
 
-  const selectedOption =
-    product.sizes.find((option) => option.size === selectedSize) || product.sizes[0];
   const category = categories.find((item) => item.id === product.categoryId);
-  const relatedProducts = products
-    .filter((item) => item.categoryId === product.categoryId && item.id !== product.id)
-    .slice(0, 3);
-  const productDescription =
-    product.longDescription?.[language] ||
-    product.shortDescription?.[language] ||
-    (language === "ar"
-      ? "منتج من EB Chemical مصمم للاستخدام اليومي، يجمع بين الأداء العملي وسهولة الاستخدام للحصول على نتيجة نظيفة ومنعشة."
-      : "An EB Chemical product designed for daily use, practical performance, and a clean, fresh result.");
-  const detailImages = [
+  const selectedOption =
+    product.sizes?.find((option) => option.size === selectedSize) || product.sizes?.[0] || { size: "", price: 0 };
+  const typeOptions = product.detailOptions?.productTypes || [
+    { id: "standard", label: { en: "Standard bottle", ar: "العبوة الأساسية" }, image: product.image },
+  ];
+  const selectedTypeOption = typeOptions.find((item) => item.id === selectedType) || typeOptions[0];
+  const useOptions = product.detailOptions?.uses || [
+    { id: "daily", label: { en: "Daily use", ar: "استخدام يومي" } },
+  ];
+  const selectedUseOption = useOptions.find((item) => item.id === selectedUse) || useOptions[0];
+  const selectedImage = selectedTypeOption?.image || product.image;
+  const productName = localized(product.name, language, product.slug);
+  const description = localized(
+    product.longDescription,
+    language,
+    localized(product.shortDescription, language, "")
+  );
+  const features = localized(product.features, language, []);
+  const galleryImages = [
+    selectedImage,
+    ...(product.galleryImages || []),
+    product.hoverImage,
     product.image,
-    product.hoverImage || product.secondaryImage || product.gallery?.[1],
   ].filter(Boolean);
+  const uniqueGallery = [...new Set(galleryImages)];
+  const reviews = product.reviews || getFallbackReviews();
+  const steps = product.usageSteps || getFallbackSteps();
+  const safeSurfaces = product.safeSurfaces || getFallbackSurfaces();
+  const statements = getStatements();
+  const faqItems = product.faq || getFallbackFaq();
+  const productInfo = product.productInfo || getFallbackInfo();
+  const relatedProducts = getRelatedProducts();
+  const floatingLabel = `${localized(selectedTypeOption?.label, language)} / ${selectedOption.size}`;
+
+  function getStatements() {
+    return localized(product?.statements, language, [
+      language === "ar"
+        ? "منتج عملي مصمم لتنظيف فعّال وسهولة استخدام يومية."
+        : "A practical product designed for effective cleaning and everyday ease of use.",
+    ]);
+  }
+
+  function getRelatedProducts() {
+    const sameCategory = products.filter((item) => item.categoryId === product.categoryId && item.id !== product.id);
+    const rest = products.filter((item) => item.categoryId !== product.categoryId && item.id !== product.id);
+    return [...sameCategory, ...rest].slice(0, 8);
+  }
+
+  function getFallbackReviews() {
+    return [
+      {
+        rating: 5,
+        title: { en: "Great product", ar: "منتج ممتاز" },
+        text: {
+          en: "Easy to use and leaves the surface clean with a fresh finish.",
+          ar: "سهل الاستخدام ويترك السطح نظيفًا بلمسة منعشة.",
+        },
+        customerName: { en: "EB Customer", ar: "عميل EB" },
+      },
+    ];
+  }
+
+  function getFallbackSteps() {
+    return [
+      { title: { en: "Apply the product", ar: "ضع المنتج" }, image: product.hoverImage || product.image },
+      { title: { en: "Wipe the surface", ar: "امسح السطح" }, image: product.image },
+      { title: { en: "Enjoy a clean result", ar: "استمتع بنتيجة نظيفة" }, image: product.hoverImage || product.image },
+    ];
+  }
+
+  function getFallbackSurfaces() {
+    return [
+      {
+        id: "general",
+        label: { en: "Suitable surfaces", ar: "الأسطح المناسبة" },
+        tags: { en: ["Washable surfaces", "Tiles", "Metal"], ar: ["الأسطح القابلة للغسل", "البلاط", "المعادن"] },
+      },
+    ];
+  }
+
+  function getFallbackFaq() {
+    return [
+      {
+        question: { en: "How do I use this product?", ar: "كيف أستخدم هذا المنتج؟" },
+        answer: {
+          en: "Follow the product instructions, test on a hidden area first, then rinse or wipe as recommended.",
+          ar: "اتبع تعليمات المنتج، جرّبه على منطقة مخفية أولًا، ثم اشطف أو امسح حسب التوصية.",
+        },
+      },
+    ];
+  }
+
+  function getFallbackInfo() {
+    return [
+      {
+        title: { en: "Usage instructions", ar: "طريقة الاستخدام" },
+        text: {
+          en: "Apply as directed and test on a small hidden area first.",
+          ar: "استخدمه حسب التعليمات وجرّبه على منطقة صغيرة غير ظاهرة أولًا.",
+        },
+      },
+    ];
+  }
 
   function handleAddSelectedToCart() {
     for (let count = 0; count < quantity; count += 1) {
@@ -57,111 +330,346 @@ function ProductDetailsPage({
     }
   }
 
+  function scrollTrack(ref, direction) {
+    const track = ref.current;
+    if (!track) return;
+    const amount = track.clientWidth * 0.82;
+    track.scrollBy({ left: direction * amount * (language === "ar" ? -1 : 1), behavior: "smooth" });
+  }
+
+  function handleStatementDragEnd(clientX) {
+    if (dragStart === null) return;
+    const delta = clientX - dragStart;
+    if (Math.abs(delta) > 48) {
+      setActiveStatement((current) =>
+        delta > 0
+          ? (current - 1 + statements.length) % statements.length
+          : (current + 1) % statements.length
+      );
+    }
+    setDragStart(null);
+  }
+
+  function handleHeroWheel(event) {
+    const gallery = heroGalleryRef.current;
+    if (!gallery || gallery.scrollHeight <= gallery.clientHeight + 2) return;
+
+    const rect = gallery.getBoundingClientRect();
+    const galleryIsActive =
+      rect.top <= window.innerHeight * 0.12 &&
+      rect.bottom >= window.innerHeight * 0.5;
+
+    if (!galleryIsActive) return;
+
+    const scrollingDown = event.deltaY > 0;
+    const atTop = gallery.scrollTop <= 1;
+    const atBottom =
+      gallery.scrollTop + gallery.clientHeight >= gallery.scrollHeight - 2;
+
+    if ((scrollingDown && !atBottom) || (!scrollingDown && !atTop)) {
+      event.preventDefault();
+      gallery.scrollTop += event.deltaY;
+    }
+  }
+
   return (
-    <>
-      <section className="product-detail-page">
-        <div className="product-detail-media">
-          {product.badge && <span className="product-badge detail-floating-badge">{product.badge[language]}</span>}
-          <img
-            alt={product.name[language]}
-            onError={(event) => {
-              event.currentTarget.src = product.fallbackImage || placeholderImage;
-            }}
-            src={product.image || placeholderImage}
-          />
-          {detailImages.length > 1 && (
-            <div className="product-detail-gallery">
-              {detailImages.map((image, index) => (
-                <img
-                  alt={`${product.name[language]} ${index + 1}`}
-                  key={`${image}-${index}`}
-                  onError={(event) => {
-                    event.currentTarget.src = product.fallbackImage || placeholderImage;
-                  }}
-                  src={image}
-                />
-              ))}
-            </div>
-          )}
+    <main className="product-detail-redesign">
+      <section className="detail-hero-grid" onWheel={handleHeroWheel}>
+        <div className="detail-packshot-column">
+          {product.badge && <span className="detail-subscribe-badge">{localized(product.badge, language)}</span>}
+          <div className="detail-packshot-card">
+            <ProductImage alt={productName} src={selectedImage} />
+          </div>
         </div>
 
-        <div className="product-detail-copy">
-          <button className="text-action" onClick={() => onNavigate("products")} type="button">
-            {t("common.backToProducts")}
-          </button>
-          <p className="eyebrow">{category?.name[language]}</p>
-          <h1>{product.name[language]}</h1>
-          <p>{productDescription}</p>
+        <div
+          className="detail-scroll-gallery"
+          aria-label={`${productName} gallery`}
+          ref={heroGalleryRef}
+        >
+          {uniqueGallery.slice(0, 5).map((image, index) => (
+            <figure className="detail-gallery-frame" key={`${image}-${index}`}>
+              <ProductImage alt={`${productName} ${index + 1}`} src={image} />
+            </figure>
+          ))}
+        </div>
 
-          <div className="detail-price">
-            {selectedOption.price} {t("common.ils")}
+        <aside className="detail-purchase-panel">
+          <button className="text-action detail-back" onClick={() => onNavigate("products")} type="button">
+            {txt.back}
+          </button>
+          <p className="eyebrow">{localized(category?.name, language)}</p>
+          <h1>{productName}</h1>
+          <p className="detail-description">{description}</p>
+          <div className="detail-rating-row">
+            <span>★★★★★</span>
+            <strong>{txt.ratingLine}</strong>
           </div>
 
-          <div className="size-picker">
-            <h2>{t("productDetails.chooseSize")}</h2>
-            <div className="size-options">
-              {product.sizes.map((option) => (
+          <div className="detail-option-group">
+            <h2>{txt.type}</h2>
+            <div className="detail-option-list">
+              {typeOptions.map((option) => (
                 <button
-                  className={selectedSize === option.size ? "size-option active" : "size-option"}
-                  key={option.size}
-                  onClick={() => setSelectedSize(option.size)}
+                  className={selectedType === option.id ? "detail-choice active" : "detail-choice"}
+                  key={option.id}
+                  onClick={() => setSelectedType(option.id)}
                   type="button"
                 >
-                  <span>{option.size}</span>
-                  <strong>
-                    {option.price} {t("common.ils")}
-                  </strong>
+                  <ProductImage alt={localized(option.label, language)} src={option.image || product.image} />
+                  <span>{localized(option.label, language)}</span>
                 </button>
               ))}
             </div>
           </div>
 
-          <div className="detail-buy-row">
-            <div className="quantity-control detail-quantity">
-              <button onClick={() => setQuantity((value) => Math.max(1, value - 1))} type="button">-</button>
-              <span>{quantity}</span>
-              <button onClick={() => setQuantity((value) => value + 1)} type="button">+</button>
+          <div className="detail-option-grid">
+            <div className="detail-option-group">
+              <h2>{txt.size}</h2>
+              <div className="detail-pill-row">
+                {product.sizes?.map((option) => (
+                  <button
+                    className={selectedSize === option.size ? "detail-pill active" : "detail-pill"}
+                    key={option.size}
+                    onClick={() => setSelectedSize(option.size)}
+                    type="button"
+                  >
+                    {option.size}
+                  </button>
+                ))}
+              </div>
             </div>
-            <button className="primary-action large" onClick={handleAddSelectedToCart} type="button">
-              {t("productDetails.addToCart")}
+            <div className="detail-option-group">
+              <h2>{txt.use}</h2>
+              <div className="detail-pill-row">
+                {useOptions.map((option) => (
+                  <button
+                    className={selectedUse === option.id ? "detail-pill active" : "detail-pill"}
+                    key={option.id}
+                    onClick={() => setSelectedUse(option.id)}
+                    type="button"
+                  >
+                    {localized(option.label, language)}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="detail-purchase-options">
+            <h2>{txt.purchase}</h2>
+            <button
+              className={purchaseType === "one-time" ? "detail-buy-option active" : "detail-buy-option"}
+              onClick={() => setPurchaseType("one-time")}
+              type="button"
+            >
+              <span>{txt.oneTime}</span>
+              <strong>{selectedOption.price} {t("common.ils")}</strong>
             </button>
+            <button
+              className={purchaseType === "refill" ? "detail-buy-option active" : "detail-buy-option"}
+              onClick={() => setPurchaseType("refill")}
+              type="button"
+            >
+              <span>{txt.refillPlan}</span>
+              <small>{txt.visualOnly}</small>
+            </button>
+          </div>
+
+          <div className="detail-quantity-row">
+            <button onClick={() => setQuantity((value) => Math.max(1, value - 1))} type="button">-</button>
+            <span>{quantity}</span>
+            <button onClick={() => setQuantity((value) => value + 1)} type="button">+</button>
+          </div>
+
+          <button className="detail-add-main" onClick={handleAddSelectedToCart} type="button">
+            <ShoppingBag size={20} />
+            {txt.addToCart}
+          </button>
+
+          <div className="detail-included-card">
+            <strong>{txt.whatYouGet}</strong>
+            <ul>
+              {features.slice(0, 5).map((feature) => (
+                <li key={feature}><CheckCircle2 size={16} /> {feature}</li>
+              ))}
+            </ul>
           </div>
 
           {product.usageNotes && (
-            <div className="usage-note">
-              <strong>{t("productDetails.usageNote")}</strong>
-              <p>{product.usageNotes[language]}</p>
+            <div className="detail-included-card">
+              <strong>{txt.usageNote}</strong>
+              <p>{localized(product.usageNotes, language)}</p>
             </div>
           )}
+        </aside>
+      </section>
+
+      <section className="detail-reviews-section">
+        <div className="detail-section-title center">
+          <h2>{txt.reviews}</h2>
+          <p>{txt.ratingLine}</p>
+        </div>
+        <div className="detail-slider-shell">
+          <SliderButton direction="prev" onClick={() => scrollTrack(reviewsRef, -1)} />
+          <div className="detail-reviews-track" ref={reviewsRef}>
+            {reviews.map((review, index) => (
+              <article className="detail-review-card" key={`${localized(review.title, language)}-${index}`}>
+                <div className="detail-stars">{Array.from({ length: review.rating || 5 }).map((_, star) => <Star fill="currentColor" key={star} size={18} />)}</div>
+                <h3>{localized(review.title, language)}</h3>
+                <p>{localized(review.text, language)}</p>
+                <strong>{localized(review.customerName, language)} <CheckCircle2 size={16} /></strong>
+                <span>{txt.reviewed}</span>
+              </article>
+            ))}
+          </div>
+          <SliderButton direction="next" onClick={() => scrollTrack(reviewsRef, 1)} />
         </div>
       </section>
 
-      {relatedProducts.length > 0 && (
-        <section className="related-products storefront-section">
-          <div className="section-heading split-heading">
-            <div>
-              <p className="eyebrow">{category?.name[language]}</p>
-              <h2>{t("productDetails.relatedProducts")}</h2>
-            </div>
-            <button className="text-action" onClick={() => onNavigate("products")} type="button">
-              {t("common.backToProducts")}
-            </button>
+      <section className="detail-how-section">
+        <div className="detail-how-copy">
+          <h2>{txt.how}</h2>
+          <div className="detail-step-line">
+            <span>{activeStep + 1}</span>
+            <strong>{localized(steps[activeStep]?.title, language)}</strong>
           </div>
-          <div className="product-grid">
-            {relatedProducts.map((relatedProduct) => (
-              <ProductCard
-                key={relatedProduct.id}
-                language={language}
-                onAddToCart={onAddToCart}
-                onViewProduct={onViewProduct}
-                product={relatedProduct}
-                t={t}
-              />
+          <button className="detail-next-step" onClick={() => setActiveStep((activeStep + 1) % steps.length)} type="button">
+            {language === "ar" ? <ChevronLeft size={34} /> : <ChevronRight size={34} />}
+          </button>
+          <div className="detail-step-thumbs">
+            {steps.map((step, index) => (
+              <button className={activeStep === index ? "active" : ""} key={`${localized(step.title, language)}-${index}`} onClick={() => setActiveStep(index)} type="button">
+                <ProductImage alt={localized(step.title, language)} src={step.image || product.image} />
+              </button>
             ))}
+          </div>
+        </div>
+        <figure className="detail-how-image">
+          <ProductImage alt={localized(steps[activeStep]?.title, language)} src={steps[activeStep]?.image || product.image} />
+        </figure>
+      </section>
+
+      <FloatingAddToCart language={language} onAdd={handleAddSelectedToCart} product={product} selectedLabel={floatingLabel} txt={txt} />
+
+      <section className="detail-impact-section" ref={impactRef}>
+        <h2>{txt.impact}</h2>
+        <div className="detail-impact-images">
+          <ProductImage
+            alt={productName}
+            className="impact-left"
+            src={product.image}
+            style={{ transform: `translateY(${parallax * 82}px) rotate(${-6 - parallax * 2}deg)` }}
+          />
+          <ProductImage
+            alt={productName}
+            className="impact-right"
+            src={product.hoverImage || product.image}
+            style={{ transform: `translate(${parallax * 74}px, ${parallax * -96}px) rotate(${6 + parallax * 2}deg)` }}
+          />
+        </div>
+      </section>
+
+      <section className="detail-safe-section">
+        <figure>
+          <ProductImage alt={productName} src={product.hoverImage || product.image} />
+        </figure>
+        <div className="detail-safe-copy">
+          <h2>{txt.safe}</h2>
+          <div className="detail-surface-tabs">
+            {safeSurfaces.map((surface, index) => (
+              <button className={activeSurface === index ? "active" : ""} key={surface.id || index} onClick={() => setActiveSurface(index)} type="button">
+                {localized(surface.label, language)}
+              </button>
+            ))}
+          </div>
+          <div className="detail-surface-tags">
+            {localized(safeSurfaces[activeSurface]?.tags, language, []).map((tag) => (
+              <span key={tag}>{tag}</span>
+            ))}
+          </div>
+          <p className="detail-safety-note">
+            {localized(safeSurfaces[activeSurface]?.note, language, txt.surfaceNote)}
+          </p>
+        </div>
+      </section>
+
+      <section
+        className="detail-statement-carousel"
+        onMouseDown={(event) => setDragStart(event.clientX)}
+        onMouseUp={(event) => handleStatementDragEnd(event.clientX)}
+        onTouchEnd={(event) => handleStatementDragEnd(event.changedTouches[0]?.clientX || 0)}
+        onTouchStart={(event) => setDragStart(event.touches[0]?.clientX || 0)}
+      >
+        <ProductImage alt={productName} src={product.hoverImage || product.image} />
+        <div className="detail-statement-track" style={{ transform: `translateX(${language === "ar" ? activeStatement * 100 : activeStatement * -100}%)` }}>
+          {statements.map((statement, index) => (
+            <h2 key={`${statement}-${index}`}>{statement}</h2>
+          ))}
+        </div>
+        <div className="detail-statement-dots">
+          {statements.map((statement, index) => (
+            <button aria-label={statement} className={activeStatement === index ? "active" : ""} key={`${statement}-dot`} onClick={() => setActiveStatement(index)} type="button" />
+          ))}
+        </div>
+      </section>
+
+      <section className="detail-formula-section">
+        <div>
+          <h2>{txt.formulaTitle}</h2>
+          <p>{txt.formulaText}</p>
+          <button className="detail-light-button" type="button">{txt.ingredients}</button>
+        </div>
+        <figure>
+          <ProductImage alt={productName} src={product.image} />
+        </figure>
+      </section>
+
+      {relatedProducts.length > 0 && (
+        <section className="detail-related-section">
+          <div className="detail-section-title split">
+            <h2>{txt.related}</h2>
+            <div>
+              <SliderButton direction="prev" onClick={() => scrollTrack(relatedRef, -1)} />
+              <SliderButton direction="next" onClick={() => scrollTrack(relatedRef, 1)} />
+            </div>
+          </div>
+          <div className="detail-related-track" ref={relatedRef}>
+            {relatedProducts.map((item) => {
+              const mainImage = item.image || placeholderImage;
+              const hoverImage = item.hoverImage || item.secondaryImage || item.galleryImages?.[1] || mainImage;
+              return (
+                <article className="detail-related-card" key={item.id}>
+                  <button className="detail-related-image" onClick={() => onViewProduct(item.slug)} type="button">
+                    {item.badge && <span>{localized(item.badge, language)}</span>}
+                    <ProductImage alt={localized(item.name, language)} className="related-main" src={mainImage} />
+                    <ProductImage alt="" className="related-hover" src={hoverImage} />
+                  </button>
+                  <button className="detail-related-name" onClick={() => onViewProduct(item.slug)} type="button">
+                    {localized(item.name, language)}
+                  </button>
+                  <p>{localized(item.shortDescription, language)}</p>
+                  <strong>{txt.from} {item.sizes?.[0]?.price} {t("common.ils")}</strong>
+                </article>
+              );
+            })}
           </div>
         </section>
       )}
-    </>
+
+      <section className="detail-faq-section">
+        <figure>
+          <ProductImage alt={productName} src={product.hoverImage || product.image} />
+        </figure>
+        <div>
+          <h2>{txt.faqTitle}</h2>
+          <p>{txt.faqText}</p>
+          <AccordionList items={faqItems} language={language} />
+          <h3>{txt.productInfo}</h3>
+          <AccordionList items={productInfo} language={language} />
+        </div>
+      </section>
+    </main>
   );
 }
 

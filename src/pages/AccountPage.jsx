@@ -33,6 +33,10 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
     accountTitle: isArabic ? "حسابي" : "My Account",
     pointsTitle: isArabic ? "نقاطك" : "Your Points",
     pointsText: isArabic ? "استخدم 100 نقطة للحصول على خصم" : "Spend 100 points for a discount",
+    availablePoints: isArabic ? "النقاط المتاحة" : "Available points",
+    totalEarned: isArabic ? "إجمالي النقاط المكتسبة" : "Total earned",
+    totalRedeemed: isArabic ? "إجمالي النقاط المستخدمة" : "Total redeemed",
+    orderPoints: isArabic ? "النقاط المكتسبة من هذا الطلب" : "Points earned from this order",
     redeem: isArabic ? "استبدال النقاط" : "Redeem points",
     howRedeem: isArabic ? "كيف أستخدمها" : "How to redeem",
     addressTitle: isArabic ? "العنوان الافتراضي" : "Default Address",
@@ -78,6 +82,9 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
     (order) => order.customerUserId === currentUser.id || order.customer_user_id === currentUser.id
   );
   const reviewableOrders = customerOrders.filter((order) => order.status === "Completed");
+  const availablePoints = Math.max(0, Number(currentUser.ebPoints || 0));
+  const totalPointsEarned = Math.max(0, Number(currentUser.totalPointsEarned || 0));
+  const totalPointsRedeemed = Math.max(0, Number(currentUser.totalPointsRedeemed || 0));
 
   const featuredProducts = products.slice(0, 4);
   const promoProduct = products[0];
@@ -111,6 +118,9 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
                     .join(", ")}
                 </p>
                 <strong>{formatPrice(order.total, t)}</strong>
+                <small className="account-order-points">
+                  {copy.orderPoints}: {Math.max(0, Number(order.pointsEarned || 0))}
+                </small>
               </article>
             ))}
           </div>
@@ -350,8 +360,18 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
         <aside className="account-right-column">
           <article className="account-points-card">
             <span>{copy.pointsTitle}</span>
-            <strong>100</strong>
-            <small>◇</small>
+            <strong>{availablePoints.toLocaleString()}</strong>
+            <small>{copy.availablePoints}</small>
+            <div className="account-points-breakdown">
+              <span>
+                <b>{totalPointsEarned.toLocaleString()}</b>
+                {copy.totalEarned}
+              </span>
+              <span>
+                <b>{totalPointsRedeemed.toLocaleString()}</b>
+                {copy.totalRedeemed}
+              </span>
+            </div>
           </article>
           <article className="account-redeem-card">
             {pointsProduct && (

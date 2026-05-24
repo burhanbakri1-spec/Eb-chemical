@@ -1,1078 +1,1098 @@
-{
-  "version": 1,
-  "savedAt": "2026-05-19T13:01:25.554Z",
-  "users": [
-    {
-      "id": "admin-demo",
-      "name": "EB Chemical Admin",
-      "email": "admin@epchemical.com",
-      "phone": "+970599000000",
-      "password": "admin123",
-      "role": "admin",
-      "permissions": [
-        "dashboard.view",
-        "products.view",
-        "products.create",
-        "products.update",
-        "products.delete",
-        "orders.view",
-        "orders.create",
-        "orders.update",
-        "orders.delete",
-        "orders.updateStatus",
-        "customers.view",
-        "employees.view"
-      ],
-      "isActive": true
-    },
-    {
-      "id": "employee-demo",
-      "name": "EB Chemical Employee",
-      "email": "employee@epchemical.com",
-      "phone": "+970599000001",
-      "password": "employee123",
-      "role": "employee",
-      "department": "Sales",
-      "permissions": [
-        "dashboard.view",
-        "products.view",
-        "orders.view",
-        "orders.create",
-        "orders.updateStatus"
-      ],
-      "isActive": true
-    },
-    {
-      "id": "customer-1779195452526",
-      "name": "عمر",
-      "email": "omar@gmail.com",
-      "phone": "0593412146",
-      "password": "12022",
-      "role": "customer",
-      "permissions": [],
-      "isActive": true
-    }
-  ],
-  "orders": [
-    {
-      "id": "ORD-1779195514746",
-      "customer": {
-        "name": "عمر",
-        "phone": "0593412146",
-        "city": "gaza",
-        "address": "street",
-        "notes": ""
-      },
-      "customerUserId": "customer-1779195452526",
-      "items": [
-        {
-          "productId": "hc-fabric-cleaner",
-          "productName": "Fabric Cleaner",
-          "slug": "fabric-cleaner",
-          "selectedSize": "500ml",
-          "size": "500ml",
-          "quantity": 2,
-          "price": 18,
-          "lineTotal": 36
-        },
-        {
-          "productId": "hc-carpet-rug-cleaner",
-          "productName": "Carpet & Rug Cleaner",
-          "slug": "carpet-rug-cleaner",
-          "selectedSize": "500ml",
-          "size": "500ml",
-          "quantity": 2,
-          "price": 18,
-          "lineTotal": 36
-        },
-        {
-          "productId": "hc-leather-plastic-cleaner",
-          "productName": "Leather & Plastic Cleaner",
-          "slug": "leather-plastic-cleaner",
-          "selectedSize": "500ml",
-          "size": "500ml",
-          "quantity": 2,
-          "price": 18,
-          "lineTotal": 36
-        },
-        {
-          "productId": "hc-vacuum-cleaner-solution",
-          "productName": "Vacuum Cleaner Solution",
-          "slug": "vacuum-cleaner-solution",
-          "selectedSize": "500ml",
-          "size": "500ml",
-          "quantity": 2,
-          "price": 18,
-          "lineTotal": 36
-        },
-        {
-          "productId": "hc-stone-marble-floor-cleaner",
-          "productName": "Stone & Marble Floor Cleaner",
-          "slug": "stone-marble-floor-cleaner",
-          "selectedSize": "500ml",
-          "size": "500ml",
-          "quantity": 2,
-          "price": 18,
-          "lineTotal": 36
-        }
-      ],
-      "subtotal": 180,
-      "total": 180,
-      "paymentMethod": "Cash on delivery",
-      "status": "Pending",
-      "handledByEmployeeId": "employee-demo",
-      "assignedToEmployeeId": "employee-demo",
-      "createdByEmployeeId": "",
-      "createdByEmployeeName": "",
-      "createdBy": {
-        "id": "customer-1779195452526",
-        "name": "عمر",
-        "email": "omar@gmail.com",
-        "phone": "0593412146",
-        "role": "customer",
-        "permissions": [],
-        "isActive": true
-      },
-      "lastUpdatedBy": {
-        "id": "admin-demo",
-        "name": "EB Chemical Admin",
-        "email": "admin@epchemical.com",
-        "phone": "+970599000000",
-        "role": "admin",
-        "permissions": [
-          "dashboard.view",
-          "products.view",
-          "products.create",
-          "products.update",
-          "products.delete",
-          "orders.view",
-          "orders.create",
-          "orders.update",
-          "orders.delete",
-          "orders.updateStatus",
-          "customers.view",
-          "employees.view"
-        ],
-        "isActive": true
-      },
-      "createdAt": "2026-05-19T12:58:34.746Z",
-      "updatedAt": "2026-05-19T13:01:25.553Z"
-    }
-  ],
-  "products": [
-    {
-      "id": "hc-fabric-cleaner",
-      "slug": "fabric-cleaner",
-      "name": {
-        "en": "Fabric Cleaner",
-        "ar": "منظف الأقمشة"
-      },
-      "categoryId": "home-cleaning",
-      "shortDescription": {
-        "en": "A practical cleaner for sofas, chairs, and daily fabric care.",
-        "ar": "منظف عملي للكنب والكراسي والعناية اليومية بالأقمشة."
-      },
-      "longDescription": {
-        "en": "A fabric cleaner designed to refresh upholstered furniture and textile surfaces with a simple, easy-to-use routine.",
-        "ar": "منظف أقمشة مصمم لإنعاش الأثاث المنجد والأسطح النسيجية بطريقة سهلة الاستخدام."
-      },
-      "image": "/images/products/fabric-cleaner.svg",
-      "fallbackImage": "/images/products/product-placeholder.svg",
-      "sizes": [
-        {
-          "size": "500ml",
-          "price": 18
-        },
-        {
-          "size": "5L",
-          "price": 55
-        },
-        {
-          "size": "18L",
-          "price": 145
-        }
-      ],
-      "badge": {
-        "en": "Best Seller",
-        "ar": "الأكثر طلباً"
-      },
-      "usageNotes": {
-        "en": "Test on a hidden area first. Apply lightly and wipe with a clean cloth.",
-        "ar": "جرّبه أولاً على منطقة مخفية. استخدم كمية خفيفة وامسح بقطعة قماش نظيفة."
-      },
-      "hoverImage": "/images/products/carpet-rug-cleaner.svg"
-    },
-    {
-      "id": "hc-carpet-rug-cleaner",
-      "slug": "carpet-rug-cleaner",
-      "name": {
-        "en": "Carpet & Rug Cleaner",
-        "ar": "منظف السجاد والموكيت"
-      },
-      "categoryId": "home-cleaning",
-      "shortDescription": {
-        "en": "Freshens carpets and rugs while helping lift everyday dirt.",
-        "ar": "ينعش السجاد والموكيت ويساعد على إزالة الأوساخ اليومية."
-      },
-      "longDescription": {
-        "en": "A carpet and rug cleaner for regular home maintenance, spot cleaning, and keeping high-traffic areas feeling refreshed.",
-        "ar": "منظف سجاد وموكيت للعناية المنزلية الدورية والتنظيف الموضعي وإنعاش المناطق كثيرة الاستخدام."
-      },
-      "image": "/images/products/carpet-rug-cleaner.svg",
-      "fallbackImage": "/images/products/product-placeholder.svg",
-      "sizes": [
-        {
-          "size": "500ml",
-          "price": 18
-        },
-        {
-          "size": "5L",
-          "price": 55
-        },
-        {
-          "size": "18L",
-          "price": 145
-        }
-      ],
-      "badge": {
-        "en": "Featured",
-        "ar": "منتج مميز"
-      },
-      "usageNotes": {
-        "en": "Vacuum before use. Avoid over-wetting delicate rugs.",
-        "ar": "نظف بالمكنسة قبل الاستخدام وتجنب تبليل السجاد الحساس بكثرة."
-      },
-      "hoverImage": "/images/products/fabric-cleaner.svg"
-    },
-    {
-      "id": "hc-leather-plastic-cleaner",
-      "slug": "leather-plastic-cleaner",
-      "name": {
-        "en": "Leather & Plastic Cleaner",
-        "ar": "منظف الجلد والبلاستيك"
-      },
-      "categoryId": "home-cleaning",
-      "shortDescription": {
-        "en": "A gentle cleaner for leather-look and plastic surfaces.",
-        "ar": "منظف لطيف للأسطح الجلدية والبلاستيكية."
-      },
-      "longDescription": {
-        "en": "A versatile cleaner for furniture, dashboards, handles, and washable plastic surfaces where a neat finish matters.",
-        "ar": "منظف متعدد الاستخدام للأثاث ولوحات السيارة والمقابض والأسطح البلاستيكية القابلة للغسل."
-      },
-      "image": "/images/products/leather-plastic-cleaner.svg",
-      "fallbackImage": "/images/products/product-placeholder.svg",
-      "sizes": [
-        {
-          "size": "500ml",
-          "price": 18
-        },
-        {
-          "size": "5L",
-          "price": 55
-        },
-        {
-          "size": "18L",
-          "price": 145
-        }
-      ],
-      "badge": {
-        "en": "Multi-use",
-        "ar": "متعدد الاستخدام"
-      },
-      "usageNotes": {
-        "en": "Apply with a soft cloth and avoid unfinished leather.",
-        "ar": "استخدمه بقطعة قماش ناعمة وتجنب الجلد غير المعالج."
-      },
-      "hoverImage": "/images/products/fabric-cleaner.svg"
-    },
-    {
-      "id": "hc-vacuum-cleaner-solution",
-      "slug": "vacuum-cleaner-solution",
-      "name": {
-        "en": "Vacuum Cleaner Solution",
-        "ar": "منظف خاص للمكانس"
-      },
-      "categoryId": "home-cleaning",
-      "shortDescription": {
-        "en": "A practical solution for compatible wet vacuum cleaning routines.",
-        "ar": "محلول عملي مناسب لروتين التنظيف بالمكانس المائية المتوافقة."
-      },
-      "longDescription": {
-        "en": "Made for wet-cleaning workflows, this product supports practical cleaning for floors, rugs, and upholstery when used with compatible machines.",
-        "ar": "منتج عملي لعمليات التنظيف الرطب، يساعد في تنظيف الأرضيات والسجاد والمفروشات عند استخدامه مع الأجهزة المتوافقة."
-      },
-      "image": "/images/products/vacuum-cleaner-solution.svg",
-      "fallbackImage": "/images/products/product-placeholder.svg",
-      "sizes": [
-        {
-          "size": "500ml",
-          "price": 18
-        },
-        {
-          "size": "5L",
-          "price": 55
-        },
-        {
-          "size": "18L",
-          "price": 145
-        }
-      ],
-      "badge": {
-        "en": "Featured",
-        "ar": "منتج مميز"
-      },
-      "usageNotes": {
-        "en": "Use only with compatible machines and follow equipment instructions.",
-        "ar": "استخدمه فقط مع الأجهزة المتوافقة واتبع تعليمات الجهاز."
-      },
-      "hoverImage": "/images/products/fabric-cleaner.svg"
-    },
-    {
-      "id": "hc-stone-marble-floor-cleaner",
-      "slug": "stone-marble-floor-cleaner",
-      "name": {
-        "en": "Stone & Marble Floor Cleaner",
-        "ar": "منظف الأرضيات الحجر والرخام"
-      },
-      "categoryId": "home-cleaning",
-      "shortDescription": {
-        "en": "A clean-care formula for stone and marble flooring.",
-        "ar": "تركيبة عملية للعناية بأرضيات الحجر والرخام."
-      },
-      "longDescription": {
-        "en": "A floor cleaner intended for polished stone and marble-style surfaces that need a clean, practical finish.",
-        "ar": "منظف أرضيات للأسطح الحجرية والرخامية المصقولة التي تحتاج إلى لمسة نظيفة وعملية."
-      },
-      "image": "/images/products/stone-marble-floor-cleaner.svg",
-      "fallbackImage": "/images/products/product-placeholder.svg",
-      "sizes": [
-        {
-          "size": "500ml",
-          "price": 18
-        },
-        {
-          "size": "5L",
-          "price": 55
-        },
-        {
-          "size": "18L",
-          "price": 145
-        }
-      ],
-      "badge": {
-        "en": "Floor Care",
-        "ar": "عناية بالأرضيات"
-      },
-      "usageNotes": {
-        "en": "Dilute as needed and avoid acidic cleaners on marble.",
-        "ar": "خففه حسب الحاجة وتجنب استخدام المنظفات الحمضية على الرخام."
-      },
-      "hoverImage": "/images/products/fabric-cleaner.svg"
-    },
-    {
-      "id": "hc-porcelain-ceramic-floor-cleaner",
-      "slug": "porcelain-ceramic-floor-cleaner",
-      "name": {
-        "en": "Porcelain & Ceramic Floor Cleaner",
-        "ar": "منظف البورسلان والكراميكا"
-      },
-      "categoryId": "home-cleaning",
-      "shortDescription": {
-        "en": "Everyday floor cleaner for porcelain and ceramic tiles.",
-        "ar": "منظف يومي لأرضيات البورسلان والكراميكا."
-      },
-      "longDescription": {
-        "en": "A tile-floor cleaner for homes, offices, and busy spaces where reliable daily cleaning is needed.",
-        "ar": "منظف للبلاط في المنازل والمكاتب والأماكن كثيرة الحركة التي تحتاج تنظيفاً يومياً موثوقاً."
-      },
-      "image": "/images/products/porcelain-ceramic-floor-cleaner.svg",
-      "fallbackImage": "/images/products/product-placeholder.svg",
-      "sizes": [
-        {
-          "size": "500ml",
-          "price": 18
-        },
-        {
-          "size": "5L",
-          "price": 55
-        },
-        {
-          "size": "18L",
-          "price": 145
-        }
-      ],
-      "badge": {
-        "en": "Featured",
-        "ar": "منتج مميز"
-      },
-      "usageNotes": {
-        "en": "Sweep first, then mop with a diluted solution for best results.",
-        "ar": "اكنس الأرضية أولاً ثم امسح بمحلول مخفف لأفضل نتيجة."
-      },
-      "hoverImage": "/images/products/fabric-cleaner.svg"
-    },
-    {
-      "id": "hc-limescale-remover",
-      "slug": "limescale-remover",
-      "name": {
-        "en": "Limescale Remover",
-        "ar": "مزيل الكلس"
-      },
-      "categoryId": "home-cleaning",
-      "shortDescription": {
-        "en": "Helps remove limescale buildup from washable surfaces.",
-        "ar": "يساعد على إزالة تراكمات الكلس عن الأسطح القابلة للغسل."
-      },
-      "longDescription": {
-        "en": "A practical product for taps, tiles, and bathroom areas affected by mineral buildup.",
-        "ar": "منتج عملي للحنفيات والبلاط ومناطق الحمام المتأثرة بالتراكمات المعدنية."
-      },
-      "image": "/images/products/limescale-remover.svg",
-      "fallbackImage": "/images/products/product-placeholder.svg",
-      "sizes": [
-        {
-          "size": "500ml",
-          "price": 18
-        },
-        {
-          "size": "5L",
-          "price": 55
-        },
-        {
-          "size": "18L",
-          "price": 145
-        }
-      ],
-      "badge": {
-        "en": "Strong Action",
-        "ar": "فعالية قوية"
-      },
-      "usageNotes": {
-        "en": "Do not use on marble or acid-sensitive surfaces.",
-        "ar": "لا تستخدمه على الرخام أو الأسطح الحساسة للأحماض."
-      },
-      "hoverImage": "/images/products/fabric-cleaner.svg"
-    },
-    {
-      "id": "hc-grease-oil-remover",
-      "slug": "grease-oil-remover",
-      "name": {
-        "en": "Grease & Oil Remover",
-        "ar": "مزيل الدهون والشحوم"
-      },
-      "categoryId": "home-cleaning",
-      "shortDescription": {
-        "en": "Bulk-size cleaner for greasy kitchen and workshop areas.",
-        "ar": "منظف بأحجام كبيرة للمطابخ والورش والمناطق الدهنية."
-      },
-      "longDescription": {
-        "en": "A heavy-duty cleaner for areas where oil, grease, and stubborn residue need a more focused cleaning routine.",
-        "ar": "منظف قوي للمناطق التي تحتاج إزالة الزيوت والدهون والبقايا الصعبة."
-      },
-      "image": "/images/products/grease-oil-remover.svg",
-      "fallbackImage": "/images/products/product-placeholder.svg",
-      "sizes": [
-        {
-          "size": "5L",
-          "price": 55
-        },
-        {
-          "size": "18L",
-          "price": 145
-        }
-      ],
-      "badge": {
-        "en": "Heavy Duty",
-        "ar": "استخدام قوي"
-      },
-      "usageNotes": {
-        "en": "Wear gloves and rinse food-contact surfaces after cleaning.",
-        "ar": "ارتدِ القفازات واشطف الأسطح الملامسة للطعام بعد التنظيف."
-      },
-      "hoverImage": "/images/products/fabric-cleaner.svg"
-    },
-    {
-      "id": "cc-car-wheel-cleaner",
-      "slug": "car-wheel-cleaner",
-      "name": {
-        "en": "Car Wheel Cleaner",
-        "ar": "منظف جنطات السيارات"
-      },
-      "categoryId": "car-care",
-      "shortDescription": {
-        "en": "Targets daily road dust and wheel grime.",
-        "ar": "يستهدف غبار الطريق والأوساخ اليومية على الجنطات."
-      },
-      "longDescription": {
-        "en": "A wheel cleaner for refreshing rims and helping remove road film before a full car wash.",
-        "ar": "منظف جنطات لإنعاش مظهر الجنطات والمساعدة في إزالة غبار الطريق قبل غسل السيارة."
-      },
-      "image": "/images/products/car-wheel-cleaner.svg",
-      "fallbackImage": "/images/products/product-placeholder.svg",
-      "sizes": [
-        {
-          "size": "500ml",
-          "price": 18
-        },
-        {
-          "size": "5L",
-          "price": 55
-        },
-        {
-          "size": "18L",
-          "price": 145
-        }
-      ],
-      "badge": {
-        "en": "Best Seller",
-        "ar": "الأكثر طلباً"
-      },
-      "usageNotes": {
-        "en": "Use on cool wheels and rinse well.",
-        "ar": "استخدمه على جنطات باردة واشطف جيداً."
-      },
-      "hoverImage": "/images/products/concentrated-wax-car-shampoo.svg"
-    },
-    {
-      "id": "cc-concentrated-wax-car-shampoo",
-      "slug": "concentrated-wax-car-shampoo",
-      "name": {
-        "en": "Concentrated Wax Car Shampoo",
-        "ar": "شامبو واكس مركز للسيارات"
-      },
-      "categoryId": "car-care",
-      "shortDescription": {
-        "en": "Concentrated car shampoo with a glossy finish.",
-        "ar": "شامبو سيارات مركز بلمسة لمعان واضحة."
-      },
-      "longDescription": {
-        "en": "A wax shampoo for routine car washing, designed to leave a clean look and smooth surface feel.",
-        "ar": "شامبو واكس لغسل السيارات الدوري، مصمم لترك مظهر نظيف وإحساس ناعم على السطح."
-      },
-      "image": "/images/products/concentrated-wax-car-shampoo.svg",
-      "fallbackImage": "/images/products/product-placeholder.svg",
-      "sizes": [
-        {
-          "size": "500ml",
-          "price": 18
-        },
-        {
-          "size": "5L",
-          "price": 55
-        },
-        {
-          "size": "18L",
-          "price": 145
-        }
-      ],
-      "badge": {
-        "en": "Gloss Finish",
-        "ar": "لمعة نهائية"
-      },
-      "usageNotes": {
-        "en": "Dilute before use and wash from top to bottom.",
-        "ar": "خففه قبل الاستخدام واغسل السيارة من الأعلى إلى الأسفل."
-      },
-      "hoverImage": "/images/products/car-wheel-cleaner.svg"
-    },
-    {
-      "id": "cc-dream-no-scrub-car-shampoo",
-      "slug": "dream-no-scrub-car-shampoo",
-      "name": {
-        "en": "Dream No-Scrub Car Shampoo",
-        "ar": "شامبو دريم بدون فرك"
-      },
-      "categoryId": "car-care",
-      "shortDescription": {
-        "en": "A modern shampoo for fast exterior washing.",
-        "ar": "شامبو حديث لغسيل خارجي سريع."
-      },
-      "longDescription": {
-        "en": "A no-scrub style shampoo for quick washing routines where convenience and clean shine matter.",
-        "ar": "شامبو بفكرة بدون فرك لروتين غسل سريع يجمع بين السهولة والمظهر اللامع."
-      },
-      "image": "/images/products/dream-no-scrub-car-shampoo.svg",
-      "fallbackImage": "/images/products/product-placeholder.svg",
-      "sizes": [
-        {
-          "size": "500ml",
-          "price": 18
-        },
-        {
-          "size": "5L",
-          "price": 55
-        },
-        {
-          "size": "18L",
-          "price": 145
-        }
-      ],
-      "badge": {
-        "en": "New",
-        "ar": "جديد"
-      },
-      "usageNotes": {
-        "en": "Rinse loose dirt first before applying shampoo.",
-        "ar": "اشطف الأوساخ العالقة أولاً قبل وضع الشامبو."
-      },
-      "hoverImage": "/images/products/car-wheel-cleaner.svg"
-    },
-    {
-      "id": "cc-tire-plastic-polish",
-      "slug": "tire-plastic-polish",
-      "name": {
-        "en": "Tire & Plastic Polish",
-        "ar": "ملمع الإطارات والبلاستيك"
-      },
-      "categoryId": "car-care",
-      "shortDescription": {
-        "en": "Adds a refreshed look to tires and exterior plastics.",
-        "ar": "يمنح الإطارات والبلاستيك الخارجي مظهراً متجدداً."
-      },
-      "longDescription": {
-        "en": "A polish for tires, trims, and plastic details that need a darker, cleaner appearance.",
-        "ar": "ملمع للإطارات والحواف والتفاصيل البلاستيكية التي تحتاج مظهراً أنظف وأغمق."
-      },
-      "image": "/images/products/tire-plastic-polish.svg",
-      "fallbackImage": "/images/products/product-placeholder.svg",
-      "sizes": [
-        {
-          "size": "500ml",
-          "price": 18
-        },
-        {
-          "size": "5L",
-          "price": 55
-        },
-        {
-          "size": "18L",
-          "price": 145
-        }
-      ],
-      "badge": {
-        "en": "Featured",
-        "ar": "منتج مميز"
-      },
-      "usageNotes": {
-        "en": "Apply evenly and avoid tire tread, pedals, and steering surfaces.",
-        "ar": "ضعه بالتساوي وتجنب سطح الإطار الملامس للطريق والدواسات والمقود."
-      },
-      "hoverImage": "/images/products/car-wheel-cleaner.svg"
-    },
-    {
-      "id": "cc-car-interior-cleaner",
-      "slug": "car-interior-cleaner",
-      "name": {
-        "en": "Car Interior Cleaner",
-        "ar": "منظف داخلي للسيارات"
-      },
-      "categoryId": "car-care",
-      "shortDescription": {
-        "en": "Cleans dashboards, panels, and washable interior surfaces.",
-        "ar": "ينظف التابلوه والألواح والأسطح الداخلية القابلة للغسل."
-      },
-      "longDescription": {
-        "en": "A practical interior cleaner for regular car-care routines across plastic, vinyl, and compatible surfaces.",
-        "ar": "منظف داخلي عملي لروتين العناية بالسيارة على البلاستيك والفينيل والأسطح المتوافقة."
-      },
-      "image": "/images/products/car-interior-cleaner.svg",
-      "fallbackImage": "/images/products/product-placeholder.svg",
-      "sizes": [
-        {
-          "size": "500ml",
-          "price": 18
-        },
-        {
-          "size": "5L",
-          "price": 55
-        },
-        {
-          "size": "18L",
-          "price": 145
-        }
-      ],
-      "badge": {
-        "en": "Interior Care",
-        "ar": "عناية داخلية"
-      },
-      "usageNotes": {
-        "en": "Spray onto cloth first near screens and electronics.",
-        "ar": "رش على قطعة قماش أولاً عند التنظيف قرب الشاشات والإلكترونيات."
-      },
-      "hoverImage": "/images/products/car-wheel-cleaner.svg"
-    },
-    {
-      "id": "cc-engine-degreaser",
-      "slug": "engine-degreaser",
-      "name": {
-        "en": "Engine Degreaser",
-        "ar": "مزيل دهون المحركات"
-      },
-      "categoryId": "car-care",
-      "shortDescription": {
-        "en": "Bulk degreaser for engine bay cleaning support.",
-        "ar": "مزيل دهون بأحجام كبيرة لتنظيف منطقة المحرك."
-      },
-      "longDescription": {
-        "en": "A stronger car-care product for greasy engine areas, tools, and workshop cleaning routines.",
-        "ar": "منتج قوي للعناية بالسيارات ومناسب للمناطق الدهنية في المحرك والأدوات وروتين تنظيف الورش."
-      },
-      "image": "/images/products/engine-degreaser.svg",
-      "fallbackImage": "/images/products/product-placeholder.svg",
-      "sizes": [
-        {
-          "size": "5L",
-          "price": 55
-        },
-        {
-          "size": "18L",
-          "price": 145
-        }
-      ],
-      "badge": {
-        "en": "Heavy Duty",
-        "ar": "استخدام قوي"
-      },
-      "usageNotes": {
-        "en": "Use carefully around electrical parts and rinse as directed.",
-        "ar": "استخدمه بحذر قرب الأجزاء الكهربائية واشطف حسب التعليمات."
-      },
-      "hoverImage": "/images/products/car-wheel-cleaner.svg"
-    },
-    {
-      "id": "fr-ocean-breeze",
-      "slug": "ocean-breeze-home-car-fragrance",
-      "name": {
-        "en": "Ocean Breeze Home & Car Fragrance",
-        "ar": "عطر نسيم البحر للمنزل والسيارة"
-      },
-      "categoryId": "fragrances",
-      "shortDescription": {
-        "en": "A clean aquatic scent for rooms and cars.",
-        "ar": "رائحة بحرية نظيفة للغرف والسيارات."
-      },
-      "longDescription": {
-        "en": "A fresh fragrance with a light ocean-inspired profile for everyday spaces.",
-        "ar": "عطر منعش بطابع بحري خفيف للمساحات اليومية."
-      },
-      "image": "/images/products/ocean-breeze-home-car-fragrance.svg",
-      "fallbackImage": "/images/products/product-placeholder.svg",
-      "sizes": [
-        {
-          "size": "500ml",
-          "price": 22
-        }
-      ],
-      "badge": {
-        "en": "Fresh",
-        "ar": "منعش"
-      },
-      "usageNotes": {
-        "en": "Spray lightly into open air, away from eyes and polished surfaces.",
-        "ar": "رش بخفة في الهواء بعيداً عن العينين والأسطح المصقولة."
-      },
-      "hoverImage": "/images/products/lavender-home-car-fragrance.svg"
-    },
-    {
-      "id": "fr-lavender",
-      "slug": "lavender-home-car-fragrance",
-      "name": {
-        "en": "Lavender Home & Car Fragrance",
-        "ar": "عطر اللافندر للمنزل والسيارة"
-      },
-      "categoryId": "fragrances",
-      "shortDescription": {
-        "en": "A soft lavender scent for calm everyday freshness.",
-        "ar": "رائحة لافندر ناعمة لانتعاش يومي هادئ."
-      },
-      "longDescription": {
-        "en": "A fragrance option for bedrooms, cars, and living areas that need a softer feel.",
-        "ar": "خيار عطر لغرف النوم والسيارات وغرف المعيشة التي تحتاج إحساساً ناعماً."
-      },
-      "image": "/images/products/lavender-home-car-fragrance.svg",
-      "fallbackImage": "/images/products/product-placeholder.svg",
-      "sizes": [
-        {
-          "size": "500ml",
-          "price": 22
-        }
-      ],
-      "badge": {
-        "en": "Featured",
-        "ar": "منتج مميز"
-      },
-      "usageNotes": {
-        "en": "Use a few sprays at a time and let the scent settle.",
-        "ar": "استخدم بضع رشات في كل مرة واترك الرائحة تنتشر."
-      },
-      "hoverImage": "/images/products/ocean-breeze-home-car-fragrance.svg"
-    },
-    {
-      "id": "fr-vanilla",
-      "slug": "vanilla-home-car-fragrance",
-      "name": {
-        "en": "Vanilla Home & Car Fragrance",
-        "ar": "عطر الفانيلا للمنزل والسيارة"
-      },
-      "categoryId": "fragrances",
-      "shortDescription": {
-        "en": "A warm vanilla scent for cozy interiors.",
-        "ar": "رائحة فانيلا دافئة للمساحات المريحة."
-      },
-      "longDescription": {
-        "en": "A fragrance with a comforting vanilla profile for home and car use.",
-        "ar": "عطر بطابع فانيلا مريح للاستخدام في المنزل والسيارة."
-      },
-      "image": "/images/products/vanilla-home-car-fragrance.svg",
-      "fallbackImage": "/images/products/product-placeholder.svg",
-      "sizes": [
-        {
-          "size": "500ml",
-          "price": 22
-        }
-      ],
-      "badge": {
-        "en": "Warm",
-        "ar": "دافئ"
-      },
-      "usageNotes": {
-        "en": "Avoid spraying directly on fabric from close distance.",
-        "ar": "تجنب الرش المباشر على الأقمشة من مسافة قريبة."
-      },
-      "hoverImage": "/images/products/ocean-breeze-home-car-fragrance.svg"
-    },
-    {
-      "id": "fr-musk",
-      "slug": "musk-home-car-fragrance",
-      "name": {
-        "en": "Musk Home & Car Fragrance",
-        "ar": "عطر المسك للمنزل والسيارة"
-      },
-      "categoryId": "fragrances",
-      "shortDescription": {
-        "en": "A clean musk scent with a polished everyday feel.",
-        "ar": "رائحة مسك نظيفة بلمسة يومية أنيقة."
-      },
-      "longDescription": {
-        "en": "A musk fragrance made for a simple, long-lasting clean impression.",
-        "ar": "عطر مسك يمنح انطباعاً نظيفاً وبسيطاً وطويل الأثر."
-      },
-      "image": "/images/products/musk-home-car-fragrance.svg",
-      "fallbackImage": "/images/products/product-placeholder.svg",
-      "sizes": [
-        {
-          "size": "500ml",
-          "price": 22
-        }
-      ],
-      "badge": {
-        "en": "Featured",
-        "ar": "منتج مميز"
-      },
-      "usageNotes": {
-        "en": "Use in ventilated areas and keep away from heat.",
-        "ar": "استخدمه في أماكن جيدة التهوية واحفظه بعيداً عن الحرارة."
-      },
-      "hoverImage": "/images/products/ocean-breeze-home-car-fragrance.svg"
-    },
-    {
-      "id": "rw-pink-radiator-water",
-      "slug": "pink-radiator-water",
-      "name": {
-        "en": "Pink Radiator Water",
-        "ar": "ماء روديتر زهري"
-      },
-      "categoryId": "radiator-water",
-      "shortDescription": {
-        "en": "Pink radiator water product for daily vehicle care.",
-        "ar": "ماء روديتر زهري للعناية اليومية بالسيارة."
-      },
-      "longDescription": {
-        "en": "A radiator water product in convenient sizes for the EB Chemical catalog.",
-        "ar": "منتج ماء روديتر بأحجام مناسبة ضمن كتالوج EB Chemical."
-      },
-      "image": "/images/products/pink-radiator-water.svg",
-      "fallbackImage": "/images/products/product-placeholder.svg",
-      "sizes": [
-        {
-          "size": "1L",
-          "price": 15
-        },
-        {
-          "size": "4L",
-          "price": 40
-        }
-      ],
-      "badge": {
-        "en": "Featured",
-        "ar": "منتج مميز"
-      },
-      "usageNotes": {
-        "en": "Follow vehicle manufacturer instructions before use.",
-        "ar": "اتبع تعليمات الشركة المصنعة للسيارة قبل الاستخدام."
-      },
-      "hoverImage": "/images/products/green-radiator-water.svg"
-    },
-    {
-      "id": "rw-green-radiator-water",
-      "slug": "green-radiator-water",
-      "name": {
-        "en": "Green Radiator Water",
-        "ar": "ماء روديتر أخضر"
-      },
-      "categoryId": "radiator-water",
-      "shortDescription": {
-        "en": "Green radiator water product for daily vehicle care.",
-        "ar": "ماء روديتر أخضر للعناية اليومية بالسيارة."
-      },
-      "longDescription": {
-        "en": "Another radiator water option for product browsing, cart, and checkout flows.",
-        "ar": "خيار آخر من ماء الرديتر لتصفح المنتجات وإتمام الطلب بسهولة."
-      },
-      "image": "/images/products/green-radiator-water.svg",
-      "fallbackImage": "/images/products/product-placeholder.svg",
-      "sizes": [
-        {
-          "size": "1L",
-          "price": 15
-        },
-        {
-          "size": "4L",
-          "price": 40
-        }
-      ],
-      "badge": {
-        "en": "Featured",
-        "ar": "منتج مميز"
-      },
-      "usageNotes": {
-        "en": "Do not mix products unless recommended for the vehicle.",
-        "ar": "لا تخلط المنتجات إلا إذا كان ذلك موصى به للسيارة."
-      },
-      "hoverImage": "/images/products/pink-radiator-water.svg"
-    }
-  ],
-  "offers": [
-    {
-      "id": "offer-home-care",
-      "title": {
-        "en": "Daily care essentials",
-        "ar": "أساسيات العناية اليومية"
-      },
-      "description": {
-        "en": "Selected cleaning and care products for a fresh home routine.",
-        "ar": "منتجات تنظيف وعناية مختارة لروتين منزلي منعش."
-      },
-      "image": "/images/products/multi-surface-cleaner.svg",
-      "ctaText": {
-        "en": "Shop home care",
-        "ar": "تسوق العناية المنزلية"
-      },
-      "ctaLink": "products",
-      "displayOrder": 1,
-      "isActive": true
-    },
-    {
-      "id": "offer-car-care",
-      "title": {
-        "en": "Car care favorites",
-        "ar": "مختارات العناية بالسيارة"
-      },
-      "description": {
-        "en": "Gloss, freshness, and practical sizes for daily car care.",
-        "ar": "لمعان وانتعاش وأحجام عملية للعناية اليومية بالسيارة."
-      },
-      "image": "/images/products/car-shampoo-gloss.svg",
-      "ctaText": {
-        "en": "Explore car care",
-        "ar": "استكشف عناية السيارة"
-      },
-      "ctaLink": "car-care",
-      "displayOrder": 2,
-      "isActive": true
-    }
-  ],
-  "reviews": [
-    {
-      "type": "employee",
-      "rating": 5,
-      "customerName": "عمر",
-      "comment": {
-        "en": "test",
-        "ar": "test"
-      },
-      "orderId": "ORD-1779195514746",
-      "employeeId": "",
-      "employeeName": "عمر",
-      "isActive": true,
-      "id": "review-1779195560660",
-      "createdAt": "2026-05-19T12:59:20.660Z"
-    },
-    {
-      "type": "site",
-      "rating": 5,
-      "customerName": "عمر",
-      "comment": {
-        "en": "test",
-        "ar": "test"
-      },
-      "orderId": "ORD-1779195514746",
-      "employeeId": "",
-      "employeeName": "",
-      "isActive": true,
-      "id": "review-1779195553320",
-      "createdAt": "2026-05-19T12:59:13.320Z"
-    },
-    {
-      "id": "review-store-1",
-      "type": "site",
-      "rating": 5,
-      "customerName": "Maya A.",
-      "comment": {
-        "en": "Clean packaging, fast ordering, and the products feel premium for everyday use.",
-        "ar": "تغليف مرتب، طلب سريع، والمنتجات ممتازة للاستخدام اليومي."
-      },
-      "relatedProductName": "Multi-surface cleaner",
-      "employeeId": "",
-      "employeeName": "",
-      "createdAt": "2026-05-01",
-      "isActive": true,
-      "orderId": ""
-    },
-    {
-      "id": "review-store-2",
-      "type": "site",
-      "rating": 5,
-      "customerName": "Ahmad S.",
-      "comment": {
-        "en": "The car care products leave a clean finish without feeling harsh.",
-        "ar": "منتجات العناية بالسيارة تعطي نتيجة نظيفة بدون قسوة."
-      },
-      "relatedProductName": "Car care",
-      "employeeId": "",
-      "employeeName": "",
-      "createdAt": "2026-05-03",
-      "isActive": true,
-      "orderId": ""
-    },
-    {
-      "id": "review-employee-demo",
-      "type": "employee",
-      "rating": 5,
-      "customerName": "Lina K.",
-      "comment": {
-        "en": "Helpful service and clear product guidance.",
-        "ar": "خدمة ممتازة وتوضيح واضح للمنتجات."
-      },
-      "relatedProductName": "Customer service",
-      "employeeId": "employee-demo",
-      "employeeName": "EB Chemical Employee",
-      "createdAt": "2026-05-04",
-      "isActive": true,
-      "orderId": ""
-    }
-  ],
-  "workSessions": [],
-  "carts": {}
+﻿{
+    "version":  1,
+    "savedAt":  "2026-05-19T13:01:25.554Z",
+    "users":  [
+                  {
+                      "id":  "admin-demo",
+                      "name":  "EB Chemical Admin",
+                      "email":  "admin@epchemical.com",
+                      "phone":  "+970599000000",
+                      "password":  "admin123",
+                      "role":  "admin",
+                      "permissions":  [
+                                          "dashboard.view",
+                                          "products.view",
+                                          "products.create",
+                                          "products.update",
+                                          "products.delete",
+                                          "orders.view",
+                                          "orders.create",
+                                          "orders.update",
+                                          "orders.delete",
+                                          "orders.updateStatus",
+                                          "customers.view",
+                                          "employees.view"
+                                      ],
+                      "isActive":  true
+                  },
+                  {
+                      "id":  "employee-demo",
+                      "name":  "EB Chemical Employee",
+                      "email":  "employee@epchemical.com",
+                      "phone":  "+970599000001",
+                      "password":  "employee123",
+                      "role":  "employee",
+                      "department":  "Sales",
+                      "permissions":  [
+                                          "dashboard.view",
+                                          "products.view",
+                                          "orders.view",
+                                          "orders.create",
+                                          "orders.updateStatus"
+                                      ],
+                      "isActive":  true
+                  },
+                  {
+                      "id":  "customer-1779195452526",
+                      "name":  "عمر",
+                      "email":  "omar@gmail.com",
+                      "phone":  "0593412146",
+                      "password":  "12022",
+                      "role":  "customer",
+                      "permissions":  [
+
+                                      ],
+                      "isActive":  true
+                  }
+              ],
+    "orders":  [
+                   {
+                       "id":  "ORD-1779195514746",
+                       "customer":  {
+                                        "name":  "عمر",
+                                        "phone":  "0593412146",
+                                        "city":  "gaza",
+                                        "address":  "street",
+                                        "notes":  ""
+                                    },
+                       "customerUserId":  "customer-1779195452526",
+                       "items":  [
+                                     {
+                                         "productId":  "hc-fabric-cleaner",
+                                         "productName":  "Fabric Cleaner",
+                                         "slug":  "fabric-cleaner",
+                                         "selectedSize":  "500ml",
+                                         "size":  "500ml",
+                                         "quantity":  2,
+                                         "price":  18,
+                                         "lineTotal":  36
+                                     },
+                                     {
+                                         "productId":  "hc-carpet-rug-cleaner",
+                                         "productName":  "Carpet \u0026 Rug Cleaner",
+                                         "slug":  "carpet-rug-cleaner",
+                                         "selectedSize":  "500ml",
+                                         "size":  "500ml",
+                                         "quantity":  2,
+                                         "price":  18,
+                                         "lineTotal":  36
+                                     },
+                                     {
+                                         "productId":  "hc-leather-plastic-cleaner",
+                                         "productName":  "Leather \u0026 Plastic Cleaner",
+                                         "slug":  "leather-plastic-cleaner",
+                                         "selectedSize":  "500ml",
+                                         "size":  "500ml",
+                                         "quantity":  2,
+                                         "price":  18,
+                                         "lineTotal":  36
+                                     },
+                                     {
+                                         "productId":  "hc-vacuum-cleaner-solution",
+                                         "productName":  "Vacuum Cleaner Solution",
+                                         "slug":  "vacuum-cleaner-solution",
+                                         "selectedSize":  "500ml",
+                                         "size":  "500ml",
+                                         "quantity":  2,
+                                         "price":  18,
+                                         "lineTotal":  36
+                                     },
+                                     {
+                                         "productId":  "hc-stone-marble-floor-cleaner",
+                                         "productName":  "Stone \u0026 Marble Floor Cleaner",
+                                         "slug":  "stone-marble-floor-cleaner",
+                                         "selectedSize":  "500ml",
+                                         "size":  "500ml",
+                                         "quantity":  2,
+                                         "price":  18,
+                                         "lineTotal":  36
+                                     }
+                                 ],
+                       "subtotal":  180,
+                       "total":  180,
+                       "paymentMethod":  "Cash on delivery",
+                       "status":  "Pending",
+                       "handledByEmployeeId":  "employee-demo",
+                       "assignedToEmployeeId":  "employee-demo",
+                       "createdByEmployeeId":  "",
+                       "createdByEmployeeName":  "",
+                       "createdBy":  {
+                                         "id":  "customer-1779195452526",
+                                         "name":  "عمر",
+                                         "email":  "omar@gmail.com",
+                                         "phone":  "0593412146",
+                                         "role":  "customer",
+                                         "permissions":  [
+
+                                                         ],
+                                         "isActive":  true
+                                     },
+                       "lastUpdatedBy":  {
+                                             "id":  "admin-demo",
+                                             "name":  "EB Chemical Admin",
+                                             "email":  "admin@epchemical.com",
+                                             "phone":  "+970599000000",
+                                             "role":  "admin",
+                                             "permissions":  [
+                                                                 "dashboard.view",
+                                                                 "products.view",
+                                                                 "products.create",
+                                                                 "products.update",
+                                                                 "products.delete",
+                                                                 "orders.view",
+                                                                 "orders.create",
+                                                                 "orders.update",
+                                                                 "orders.delete",
+                                                                 "orders.updateStatus",
+                                                                 "customers.view",
+                                                                 "employees.view"
+                                                             ],
+                                             "isActive":  true
+                                         },
+                       "createdAt":  "2026-05-19T12:58:34.746Z",
+                       "updatedAt":  "2026-05-19T13:01:25.553Z"
+                   }
+               ],
+    "products":  [
+                     {
+                         "id":  "hc-fabric-cleaner",
+                         "slug":  "fabric-cleaner",
+                         "name":  {
+                                      "en":  "Fabric Cleaner",
+                                      "ar":  "منظف الأقمشة"
+                                  },
+                         "categoryId":  "home-cleaning",
+                         "shortDescription":  {
+                                                  "en":  "A practical cleaner for sofas, chairs, and daily fabric care.",
+                                                  "ar":  "منظف عملي للكنب والكراسي والعناية اليومية بالأقمشة."
+                                              },
+                         "longDescription":  {
+                                                 "en":  "A fabric cleaner designed to refresh upholstered furniture and textile surfaces with a simple, easy-to-use routine.",
+                                                 "ar":  "منظف أقمشة مصمم لإنعاش الأثاث المنجد والأسطح النسيجية بطريقة سهلة الاستخدام."
+                                             },
+                         "image":  "/images/products/fabric-cleaner.svg",
+                         "fallbackImage":  "/images/products/product-placeholder.svg",
+                         "sizes":  [
+                                       {
+                                           "size":  "500ml",
+                                           "price":  18
+                                       },
+                                       {
+                                           "size":  "5L",
+                                           "price":  55
+                                       },
+                                       {
+                                           "size":  "18L",
+                                           "price":  145
+                                       }
+                                   ],
+                         "badge":  {
+                                       "en":  "Best Seller",
+                                       "ar":  "الأكثر طلباً"
+                                   },
+                         "usageNotes":  {
+                                            "en":  "Test on a hidden area first. Apply lightly and wipe with a clean cloth.",
+                                            "ar":  "جرّبه أولاً على منطقة مخفية. استخدم كمية خفيفة وامسح بقطعة قماش نظيفة."
+                                        },
+                         "hoverImage":  "/images/products/carpet-rug-cleaner.svg"
+                     },
+                     {
+                         "id":  "hc-carpet-rug-cleaner",
+                         "slug":  "carpet-rug-cleaner",
+                         "name":  {
+                                      "en":  "Carpet \u0026 Rug Cleaner",
+                                      "ar":  "منظف السجاد والموكيت"
+                                  },
+                         "categoryId":  "home-cleaning",
+                         "shortDescription":  {
+                                                  "en":  "Freshens carpets and rugs while helping lift everyday dirt.",
+                                                  "ar":  "ينعش السجاد والموكيت ويساعد على إزالة الأوساخ اليومية."
+                                              },
+                         "longDescription":  {
+                                                 "en":  "A carpet and rug cleaner for regular home maintenance, spot cleaning, and keeping high-traffic areas feeling refreshed.",
+                                                 "ar":  "منظف سجاد وموكيت للعناية المنزلية الدورية والتنظيف الموضعي وإنعاش المناطق كثيرة الاستخدام."
+                                             },
+                         "image":  "/images/products/carpet-rug-cleaner.svg",
+                         "fallbackImage":  "/images/products/product-placeholder.svg",
+                         "sizes":  [
+                                       {
+                                           "size":  "500ml",
+                                           "price":  18
+                                       },
+                                       {
+                                           "size":  "5L",
+                                           "price":  55
+                                       },
+                                       {
+                                           "size":  "18L",
+                                           "price":  145
+                                       }
+                                   ],
+                         "badge":  {
+                                       "en":  "Featured",
+                                       "ar":  "منتج مميز"
+                                   },
+                         "usageNotes":  {
+                                            "en":  "Vacuum before use. Avoid over-wetting delicate rugs.",
+                                            "ar":  "نظف بالمكنسة قبل الاستخدام وتجنب تبليل السجاد الحساس بكثرة."
+                                        },
+                         "hoverImage":  "/images/products/fabric-cleaner.svg"
+                     },
+                     {
+                         "id":  "hc-leather-plastic-cleaner",
+                         "slug":  "leather-plastic-cleaner",
+                         "name":  {
+                                      "en":  "Leather \u0026 Plastic Cleaner",
+                                      "ar":  "منظف الجلد والبلاستيك"
+                                  },
+                         "categoryId":  "home-cleaning",
+                         "shortDescription":  {
+                                                  "en":  "A gentle cleaner for leather-look and plastic surfaces.",
+                                                  "ar":  "منظف لطيف للأسطح الجلدية والبلاستيكية."
+                                              },
+                         "longDescription":  {
+                                                 "en":  "A versatile cleaner for furniture, dashboards, handles, and washable plastic surfaces where a neat finish matters.",
+                                                 "ar":  "منظف متعدد الاستخدام للأثاث ولوحات السيارة والمقابض والأسطح البلاستيكية القابلة للغسل."
+                                             },
+                         "image":  "/images/products/leather-plastic-cleaner.svg",
+                         "fallbackImage":  "/images/products/product-placeholder.svg",
+                         "sizes":  [
+                                       {
+                                           "size":  "500ml",
+                                           "price":  18
+                                       },
+                                       {
+                                           "size":  "5L",
+                                           "price":  55
+                                       },
+                                       {
+                                           "size":  "18L",
+                                           "price":  145
+                                       }
+                                   ],
+                         "badge":  {
+                                       "en":  "Multi-use",
+                                       "ar":  "متعدد الاستخدام"
+                                   },
+                         "usageNotes":  {
+                                            "en":  "Apply with a soft cloth and avoid unfinished leather.",
+                                            "ar":  "استخدمه بقطعة قماش ناعمة وتجنب الجلد غير المعالج."
+                                        },
+                         "hoverImage":  "/images/products/fabric-cleaner.svg"
+                     },
+                     {
+                         "id":  "hc-vacuum-cleaner-solution",
+                         "slug":  "vacuum-cleaner-solution",
+                         "name":  {
+                                      "en":  "Vacuum Cleaner Solution",
+                                      "ar":  "منظف خاص للمكانس"
+                                  },
+                         "categoryId":  "home-cleaning",
+                         "shortDescription":  {
+                                                  "en":  "A practical solution for compatible wet vacuum cleaning routines.",
+                                                  "ar":  "محلول عملي مناسب لروتين التنظيف بالمكانس المائية المتوافقة."
+                                              },
+                         "longDescription":  {
+                                                 "en":  "Made for wet-cleaning workflows, this product supports practical cleaning for floors, rugs, and upholstery when used with compatible machines.",
+                                                 "ar":  "منتج عملي لعمليات التنظيف الرطب، يساعد في تنظيف الأرضيات والسجاد والمفروشات عند استخدامه مع الأجهزة المتوافقة."
+                                             },
+                         "image":  "/images/products/vacuum-cleaner-solution.svg",
+                         "fallbackImage":  "/images/products/product-placeholder.svg",
+                         "sizes":  [
+                                       {
+                                           "size":  "500ml",
+                                           "price":  18
+                                       },
+                                       {
+                                           "size":  "5L",
+                                           "price":  55
+                                       },
+                                       {
+                                           "size":  "18L",
+                                           "price":  145
+                                       }
+                                   ],
+                         "badge":  {
+                                       "en":  "Featured",
+                                       "ar":  "منتج مميز"
+                                   },
+                         "usageNotes":  {
+                                            "en":  "Use only with compatible machines and follow equipment instructions.",
+                                            "ar":  "استخدمه فقط مع الأجهزة المتوافقة واتبع تعليمات الجهاز."
+                                        },
+                         "hoverImage":  "/images/products/fabric-cleaner.svg"
+                     },
+                     {
+                         "id":  "hc-stone-marble-floor-cleaner",
+                         "slug":  "stone-marble-floor-cleaner",
+                         "name":  {
+                                      "en":  "Stone \u0026 Marble Floor Cleaner",
+                                      "ar":  "منظف الأرضيات الحجر والرخام"
+                                  },
+                         "categoryId":  "home-cleaning",
+                         "shortDescription":  {
+                                                  "en":  "A clean-care formula for stone and marble flooring.",
+                                                  "ar":  "تركيبة عملية للعناية بأرضيات الحجر والرخام."
+                                              },
+                         "longDescription":  {
+                                                 "en":  "A floor cleaner intended for polished stone and marble-style surfaces that need a clean, practical finish.",
+                                                 "ar":  "منظف أرضيات للأسطح الحجرية والرخامية المصقولة التي تحتاج إلى لمسة نظيفة وعملية."
+                                             },
+                         "image":  "/images/products/stone-marble-floor-cleaner.svg",
+                         "fallbackImage":  "/images/products/product-placeholder.svg",
+                         "sizes":  [
+                                       {
+                                           "size":  "500ml",
+                                           "price":  18
+                                       },
+                                       {
+                                           "size":  "5L",
+                                           "price":  55
+                                       },
+                                       {
+                                           "size":  "18L",
+                                           "price":  145
+                                       }
+                                   ],
+                         "badge":  {
+                                       "en":  "Floor Care",
+                                       "ar":  "عناية بالأرضيات"
+                                   },
+                         "usageNotes":  {
+                                            "en":  "Dilute as needed and avoid acidic cleaners on marble.",
+                                            "ar":  "خففه حسب الحاجة وتجنب استخدام المنظفات الحمضية على الرخام."
+                                        },
+                         "hoverImage":  "/images/products/fabric-cleaner.svg"
+                     },
+                     {
+                         "id":  "hc-porcelain-ceramic-floor-cleaner",
+                         "slug":  "porcelain-ceramic-floor-cleaner",
+                         "name":  {
+                                      "en":  "Porcelain \u0026 Ceramic Floor Cleaner",
+                                      "ar":  "منظف البورسلان والكراميكا"
+                                  },
+                         "categoryId":  "home-cleaning",
+                         "shortDescription":  {
+                                                  "en":  "Everyday floor cleaner for porcelain and ceramic tiles.",
+                                                  "ar":  "منظف يومي لأرضيات البورسلان والكراميكا."
+                                              },
+                         "longDescription":  {
+                                                 "en":  "A tile-floor cleaner for homes, offices, and busy spaces where reliable daily cleaning is needed.",
+                                                 "ar":  "منظف للبلاط في المنازل والمكاتب والأماكن كثيرة الحركة التي تحتاج تنظيفاً يومياً موثوقاً."
+                                             },
+                         "image":  "/images/products/porcelain-ceramic-floor-cleaner.svg",
+                         "fallbackImage":  "/images/products/product-placeholder.svg",
+                         "sizes":  [
+                                       {
+                                           "size":  "500ml",
+                                           "price":  18
+                                       },
+                                       {
+                                           "size":  "5L",
+                                           "price":  55
+                                       },
+                                       {
+                                           "size":  "18L",
+                                           "price":  145
+                                       }
+                                   ],
+                         "badge":  {
+                                       "en":  "Featured",
+                                       "ar":  "منتج مميز"
+                                   },
+                         "usageNotes":  {
+                                            "en":  "Sweep first, then mop with a diluted solution for best results.",
+                                            "ar":  "اكنس الأرضية أولاً ثم امسح بمحلول مخفف لأفضل نتيجة."
+                                        },
+                         "hoverImage":  "/images/products/fabric-cleaner.svg"
+                     },
+                     {
+                         "id":  "hc-limescale-remover",
+                         "slug":  "limescale-remover",
+                         "name":  {
+                                      "en":  "Limescale Remover",
+                                      "ar":  "مزيل التكلسات"
+                                  },
+                         "categoryId":  "bathroom-cleaning",
+                         "shortDescription":  {
+                                                  "en":  "Fast-acting limescale remover designed to remove buildup from taps, sinks, showers, and bathroom surfaces while leaving a shiny, clean finish with no residue.",
+                                                  "ar":  "مزيل تكلسات سريع المفعول يساعد على إزالة الترسبات من الحنفيات والمغاسل والدش وأسطح الحمام، ويترك لمعانًا ونظافة بدون بقايا."
+                                              },
+                         "longDescription":  {
+                                                 "en":  "A bathroom cleaning formula for taps, sinks, showers, tiles, and washable surfaces that need fast limescale removal and a clean shine.",
+                                                 "ar":  "تركيبة تنظيف للحمام مناسبة للحنفيات والمغاسل والدش والبلاط والأسطح القابلة للغسل التي تحتاج إلى إزالة سريعة للتكلسات ولمعان نظيف."
+                                             },
+                         "image":  "/products/limescale-remover-main.jpg",
+                         "fallbackImage":  "/images/products/product-placeholder.svg",
+                         "sizes":  [
+                                       {
+                                           "size":  "1 Liter",
+                                           "price":  25
+                                       }
+                                   ],
+                         "badge":  {
+                                       "en":  "Bathroom Cleaning",
+                                       "ar":  "منظفات الحمام"
+                                   },
+                         "usageNotes":  {
+                                            "en":  "Apply to the affected surface, let it work briefly, then wipe and rinse well. Avoid marble and acid-sensitive surfaces.",
+                                            "ar":  "ضعه على السطح المتأثر، اتركه قليلًا ليعمل، ثم امسح واشطف جيدًا. تجنب استخدامه على الرخام والأسطح الحساسة للأحماض."
+                                        },
+                         "hoverImage":  "/products/limescale-remover-hover.jpg",
+                         "servings":  {
+                                          "en":  "20 Servings",
+                                          "ar":  "20 استخدام"
+                                      },
+                         "features":  {
+                                          "en":  [
+                                                     "Removes Limescale",
+                                                     "Shiny \u0026 Clean",
+                                                     "Fast Acting",
+                                                     "Safe on Surfaces",
+                                                     "No Residue"
+                                                 ],
+                                          "ar":  [
+                                                     "يزيل التكلسات",
+                                                     "لمعان ونظافة",
+                                                     "سريع المفعول",
+                                                     "آمن على الأسطح",
+                                                     "بدون بقايا"
+                                                 ]
+                                      }
+                     },
+                     {
+                         "id":  "hc-grease-oil-remover",
+                         "slug":  "grease-oil-remover",
+                         "name":  {
+                                      "en":  "Grease \u0026 Oil Remover",
+                                      "ar":  "مزيل الدهون والشحوم"
+                                  },
+                         "categoryId":  "home-cleaning",
+                         "shortDescription":  {
+                                                  "en":  "Bulk-size cleaner for greasy kitchen and workshop areas.",
+                                                  "ar":  "منظف بأحجام كبيرة للمطابخ والورش والمناطق الدهنية."
+                                              },
+                         "longDescription":  {
+                                                 "en":  "A heavy-duty cleaner for areas where oil, grease, and stubborn residue need a more focused cleaning routine.",
+                                                 "ar":  "منظف قوي للمناطق التي تحتاج إزالة الزيوت والدهون والبقايا الصعبة."
+                                             },
+                         "image":  "/images/products/grease-oil-remover.svg",
+                         "fallbackImage":  "/images/products/product-placeholder.svg",
+                         "sizes":  [
+                                       {
+                                           "size":  "5L",
+                                           "price":  55
+                                       },
+                                       {
+                                           "size":  "18L",
+                                           "price":  145
+                                       }
+                                   ],
+                         "badge":  {
+                                       "en":  "Heavy Duty",
+                                       "ar":  "استخدام قوي"
+                                   },
+                         "usageNotes":  {
+                                            "en":  "Wear gloves and rinse food-contact surfaces after cleaning.",
+                                            "ar":  "ارتدِ القفازات واشطف الأسطح الملامسة للطعام بعد التنظيف."
+                                        },
+                         "hoverImage":  "/images/products/fabric-cleaner.svg"
+                     },
+                     {
+                         "id":  "cc-car-wheel-cleaner",
+                         "slug":  "car-wheel-cleaner",
+                         "name":  {
+                                      "en":  "Car Wheel Cleaner",
+                                      "ar":  "منظف جنطات السيارات"
+                                  },
+                         "categoryId":  "car-care",
+                         "shortDescription":  {
+                                                  "en":  "Targets daily road dust and wheel grime.",
+                                                  "ar":  "يستهدف غبار الطريق والأوساخ اليومية على الجنطات."
+                                              },
+                         "longDescription":  {
+                                                 "en":  "A wheel cleaner for refreshing rims and helping remove road film before a full car wash.",
+                                                 "ar":  "منظف جنطات لإنعاش مظهر الجنطات والمساعدة في إزالة غبار الطريق قبل غسل السيارة."
+                                             },
+                         "image":  "/images/products/car-wheel-cleaner.svg",
+                         "fallbackImage":  "/images/products/product-placeholder.svg",
+                         "sizes":  [
+                                       {
+                                           "size":  "500ml",
+                                           "price":  18
+                                       },
+                                       {
+                                           "size":  "5L",
+                                           "price":  55
+                                       },
+                                       {
+                                           "size":  "18L",
+                                           "price":  145
+                                       }
+                                   ],
+                         "badge":  {
+                                       "en":  "Best Seller",
+                                       "ar":  "الأكثر طلباً"
+                                   },
+                         "usageNotes":  {
+                                            "en":  "Use on cool wheels and rinse well.",
+                                            "ar":  "استخدمه على جنطات باردة واشطف جيداً."
+                                        },
+                         "hoverImage":  "/images/products/concentrated-wax-car-shampoo.svg"
+                     },
+                     {
+                         "id":  "cc-concentrated-wax-car-shampoo",
+                         "slug":  "concentrated-wax-car-shampoo",
+                         "name":  {
+                                      "en":  "Concentrated Wax Car Shampoo",
+                                      "ar":  "شامبو واكس مركز للسيارات"
+                                  },
+                         "categoryId":  "car-care",
+                         "shortDescription":  {
+                                                  "en":  "Concentrated car shampoo with a glossy finish.",
+                                                  "ar":  "شامبو سيارات مركز بلمسة لمعان واضحة."
+                                              },
+                         "longDescription":  {
+                                                 "en":  "A wax shampoo for routine car washing, designed to leave a clean look and smooth surface feel.",
+                                                 "ar":  "شامبو واكس لغسل السيارات الدوري، مصمم لترك مظهر نظيف وإحساس ناعم على السطح."
+                                             },
+                         "image":  "/images/products/concentrated-wax-car-shampoo.svg",
+                         "fallbackImage":  "/images/products/product-placeholder.svg",
+                         "sizes":  [
+                                       {
+                                           "size":  "500ml",
+                                           "price":  18
+                                       },
+                                       {
+                                           "size":  "5L",
+                                           "price":  55
+                                       },
+                                       {
+                                           "size":  "18L",
+                                           "price":  145
+                                       }
+                                   ],
+                         "badge":  {
+                                       "en":  "Gloss Finish",
+                                       "ar":  "لمعة نهائية"
+                                   },
+                         "usageNotes":  {
+                                            "en":  "Dilute before use and wash from top to bottom.",
+                                            "ar":  "خففه قبل الاستخدام واغسل السيارة من الأعلى إلى الأسفل."
+                                        },
+                         "hoverImage":  "/images/products/car-wheel-cleaner.svg"
+                     },
+                     {
+                         "id":  "cc-dream-no-scrub-car-shampoo",
+                         "slug":  "dream-no-scrub-car-shampoo",
+                         "name":  {
+                                      "en":  "Dream No-Scrub Car Shampoo",
+                                      "ar":  "شامبو دريم بدون فرك"
+                                  },
+                         "categoryId":  "car-care",
+                         "shortDescription":  {
+                                                  "en":  "A modern shampoo for fast exterior washing.",
+                                                  "ar":  "شامبو حديث لغسيل خارجي سريع."
+                                              },
+                         "longDescription":  {
+                                                 "en":  "A no-scrub style shampoo for quick washing routines where convenience and clean shine matter.",
+                                                 "ar":  "شامبو بفكرة بدون فرك لروتين غسل سريع يجمع بين السهولة والمظهر اللامع."
+                                             },
+                         "image":  "/images/products/dream-no-scrub-car-shampoo.svg",
+                         "fallbackImage":  "/images/products/product-placeholder.svg",
+                         "sizes":  [
+                                       {
+                                           "size":  "500ml",
+                                           "price":  18
+                                       },
+                                       {
+                                           "size":  "5L",
+                                           "price":  55
+                                       },
+                                       {
+                                           "size":  "18L",
+                                           "price":  145
+                                       }
+                                   ],
+                         "badge":  {
+                                       "en":  "New",
+                                       "ar":  "جديد"
+                                   },
+                         "usageNotes":  {
+                                            "en":  "Rinse loose dirt first before applying shampoo.",
+                                            "ar":  "اشطف الأوساخ العالقة أولاً قبل وضع الشامبو."
+                                        },
+                         "hoverImage":  "/images/products/car-wheel-cleaner.svg"
+                     },
+                     {
+                         "id":  "cc-tire-plastic-polish",
+                         "slug":  "tire-plastic-polish",
+                         "name":  {
+                                      "en":  "Tire \u0026 Plastic Polish",
+                                      "ar":  "ملمع الإطارات والبلاستيك"
+                                  },
+                         "categoryId":  "car-care",
+                         "shortDescription":  {
+                                                  "en":  "Adds a refreshed look to tires and exterior plastics.",
+                                                  "ar":  "يمنح الإطارات والبلاستيك الخارجي مظهراً متجدداً."
+                                              },
+                         "longDescription":  {
+                                                 "en":  "A polish for tires, trims, and plastic details that need a darker, cleaner appearance.",
+                                                 "ar":  "ملمع للإطارات والحواف والتفاصيل البلاستيكية التي تحتاج مظهراً أنظف وأغمق."
+                                             },
+                         "image":  "/images/products/tire-plastic-polish.svg",
+                         "fallbackImage":  "/images/products/product-placeholder.svg",
+                         "sizes":  [
+                                       {
+                                           "size":  "500ml",
+                                           "price":  18
+                                       },
+                                       {
+                                           "size":  "5L",
+                                           "price":  55
+                                       },
+                                       {
+                                           "size":  "18L",
+                                           "price":  145
+                                       }
+                                   ],
+                         "badge":  {
+                                       "en":  "Featured",
+                                       "ar":  "منتج مميز"
+                                   },
+                         "usageNotes":  {
+                                            "en":  "Apply evenly and avoid tire tread, pedals, and steering surfaces.",
+                                            "ar":  "ضعه بالتساوي وتجنب سطح الإطار الملامس للطريق والدواسات والمقود."
+                                        },
+                         "hoverImage":  "/images/products/car-wheel-cleaner.svg"
+                     },
+                     {
+                         "id":  "cc-car-interior-cleaner",
+                         "slug":  "car-interior-cleaner",
+                         "name":  {
+                                      "en":  "Car Interior Cleaner",
+                                      "ar":  "منظف داخلي للسيارات"
+                                  },
+                         "categoryId":  "car-care",
+                         "shortDescription":  {
+                                                  "en":  "Cleans dashboards, panels, and washable interior surfaces.",
+                                                  "ar":  "ينظف التابلوه والألواح والأسطح الداخلية القابلة للغسل."
+                                              },
+                         "longDescription":  {
+                                                 "en":  "A practical interior cleaner for regular car-care routines across plastic, vinyl, and compatible surfaces.",
+                                                 "ar":  "منظف داخلي عملي لروتين العناية بالسيارة على البلاستيك والفينيل والأسطح المتوافقة."
+                                             },
+                         "image":  "/images/products/car-interior-cleaner.svg",
+                         "fallbackImage":  "/images/products/product-placeholder.svg",
+                         "sizes":  [
+                                       {
+                                           "size":  "500ml",
+                                           "price":  18
+                                       },
+                                       {
+                                           "size":  "5L",
+                                           "price":  55
+                                       },
+                                       {
+                                           "size":  "18L",
+                                           "price":  145
+                                       }
+                                   ],
+                         "badge":  {
+                                       "en":  "Interior Care",
+                                       "ar":  "عناية داخلية"
+                                   },
+                         "usageNotes":  {
+                                            "en":  "Spray onto cloth first near screens and electronics.",
+                                            "ar":  "رش على قطعة قماش أولاً عند التنظيف قرب الشاشات والإلكترونيات."
+                                        },
+                         "hoverImage":  "/images/products/car-wheel-cleaner.svg"
+                     },
+                     {
+                         "id":  "cc-engine-degreaser",
+                         "slug":  "engine-degreaser",
+                         "name":  {
+                                      "en":  "Engine Degreaser",
+                                      "ar":  "مزيل دهون المحركات"
+                                  },
+                         "categoryId":  "car-care",
+                         "shortDescription":  {
+                                                  "en":  "Bulk degreaser for engine bay cleaning support.",
+                                                  "ar":  "مزيل دهون بأحجام كبيرة لتنظيف منطقة المحرك."
+                                              },
+                         "longDescription":  {
+                                                 "en":  "A stronger car-care product for greasy engine areas, tools, and workshop cleaning routines.",
+                                                 "ar":  "منتج قوي للعناية بالسيارات ومناسب للمناطق الدهنية في المحرك والأدوات وروتين تنظيف الورش."
+                                             },
+                         "image":  "/images/products/engine-degreaser.svg",
+                         "fallbackImage":  "/images/products/product-placeholder.svg",
+                         "sizes":  [
+                                       {
+                                           "size":  "5L",
+                                           "price":  55
+                                       },
+                                       {
+                                           "size":  "18L",
+                                           "price":  145
+                                       }
+                                   ],
+                         "badge":  {
+                                       "en":  "Heavy Duty",
+                                       "ar":  "استخدام قوي"
+                                   },
+                         "usageNotes":  {
+                                            "en":  "Use carefully around electrical parts and rinse as directed.",
+                                            "ar":  "استخدمه بحذر قرب الأجزاء الكهربائية واشطف حسب التعليمات."
+                                        },
+                         "hoverImage":  "/images/products/car-wheel-cleaner.svg"
+                     },
+                     {
+                         "id":  "fr-ocean-breeze",
+                         "slug":  "ocean-breeze-home-car-fragrance",
+                         "name":  {
+                                      "en":  "Ocean Breeze Home \u0026 Car Fragrance",
+                                      "ar":  "عطر نسيم البحر للمنزل والسيارة"
+                                  },
+                         "categoryId":  "fragrances",
+                         "shortDescription":  {
+                                                  "en":  "A clean aquatic scent for rooms and cars.",
+                                                  "ar":  "رائحة بحرية نظيفة للغرف والسيارات."
+                                              },
+                         "longDescription":  {
+                                                 "en":  "A fresh fragrance with a light ocean-inspired profile for everyday spaces.",
+                                                 "ar":  "عطر منعش بطابع بحري خفيف للمساحات اليومية."
+                                             },
+                         "image":  "/images/products/ocean-breeze-home-car-fragrance.svg",
+                         "fallbackImage":  "/images/products/product-placeholder.svg",
+                         "sizes":  [
+                                       {
+                                           "size":  "500ml",
+                                           "price":  22
+                                       }
+                                   ],
+                         "badge":  {
+                                       "en":  "Fresh",
+                                       "ar":  "منعش"
+                                   },
+                         "usageNotes":  {
+                                            "en":  "Spray lightly into open air, away from eyes and polished surfaces.",
+                                            "ar":  "رش بخفة في الهواء بعيداً عن العينين والأسطح المصقولة."
+                                        },
+                         "hoverImage":  "/images/products/lavender-home-car-fragrance.svg"
+                     },
+                     {
+                         "id":  "fr-lavender",
+                         "slug":  "lavender-home-car-fragrance",
+                         "name":  {
+                                      "en":  "Lavender Home \u0026 Car Fragrance",
+                                      "ar":  "عطر اللافندر للمنزل والسيارة"
+                                  },
+                         "categoryId":  "fragrances",
+                         "shortDescription":  {
+                                                  "en":  "A soft lavender scent for calm everyday freshness.",
+                                                  "ar":  "رائحة لافندر ناعمة لانتعاش يومي هادئ."
+                                              },
+                         "longDescription":  {
+                                                 "en":  "A fragrance option for bedrooms, cars, and living areas that need a softer feel.",
+                                                 "ar":  "خيار عطر لغرف النوم والسيارات وغرف المعيشة التي تحتاج إحساساً ناعماً."
+                                             },
+                         "image":  "/images/products/lavender-home-car-fragrance.svg",
+                         "fallbackImage":  "/images/products/product-placeholder.svg",
+                         "sizes":  [
+                                       {
+                                           "size":  "500ml",
+                                           "price":  22
+                                       }
+                                   ],
+                         "badge":  {
+                                       "en":  "Featured",
+                                       "ar":  "منتج مميز"
+                                   },
+                         "usageNotes":  {
+                                            "en":  "Use a few sprays at a time and let the scent settle.",
+                                            "ar":  "استخدم بضع رشات في كل مرة واترك الرائحة تنتشر."
+                                        },
+                         "hoverImage":  "/images/products/ocean-breeze-home-car-fragrance.svg"
+                     },
+                     {
+                         "id":  "fr-vanilla",
+                         "slug":  "vanilla-home-car-fragrance",
+                         "name":  {
+                                      "en":  "Vanilla Home \u0026 Car Fragrance",
+                                      "ar":  "عطر الفانيلا للمنزل والسيارة"
+                                  },
+                         "categoryId":  "fragrances",
+                         "shortDescription":  {
+                                                  "en":  "A warm vanilla scent for cozy interiors.",
+                                                  "ar":  "رائحة فانيلا دافئة للمساحات المريحة."
+                                              },
+                         "longDescription":  {
+                                                 "en":  "A fragrance with a comforting vanilla profile for home and car use.",
+                                                 "ar":  "عطر بطابع فانيلا مريح للاستخدام في المنزل والسيارة."
+                                             },
+                         "image":  "/images/products/vanilla-home-car-fragrance.svg",
+                         "fallbackImage":  "/images/products/product-placeholder.svg",
+                         "sizes":  [
+                                       {
+                                           "size":  "500ml",
+                                           "price":  22
+                                       }
+                                   ],
+                         "badge":  {
+                                       "en":  "Warm",
+                                       "ar":  "دافئ"
+                                   },
+                         "usageNotes":  {
+                                            "en":  "Avoid spraying directly on fabric from close distance.",
+                                            "ar":  "تجنب الرش المباشر على الأقمشة من مسافة قريبة."
+                                        },
+                         "hoverImage":  "/images/products/ocean-breeze-home-car-fragrance.svg"
+                     },
+                     {
+                         "id":  "fr-musk",
+                         "slug":  "musk-home-car-fragrance",
+                         "name":  {
+                                      "en":  "Musk Home \u0026 Car Fragrance",
+                                      "ar":  "عطر المسك للمنزل والسيارة"
+                                  },
+                         "categoryId":  "fragrances",
+                         "shortDescription":  {
+                                                  "en":  "A clean musk scent with a polished everyday feel.",
+                                                  "ar":  "رائحة مسك نظيفة بلمسة يومية أنيقة."
+                                              },
+                         "longDescription":  {
+                                                 "en":  "A musk fragrance made for a simple, long-lasting clean impression.",
+                                                 "ar":  "عطر مسك يمنح انطباعاً نظيفاً وبسيطاً وطويل الأثر."
+                                             },
+                         "image":  "/images/products/musk-home-car-fragrance.svg",
+                         "fallbackImage":  "/images/products/product-placeholder.svg",
+                         "sizes":  [
+                                       {
+                                           "size":  "500ml",
+                                           "price":  22
+                                       }
+                                   ],
+                         "badge":  {
+                                       "en":  "Featured",
+                                       "ar":  "منتج مميز"
+                                   },
+                         "usageNotes":  {
+                                            "en":  "Use in ventilated areas and keep away from heat.",
+                                            "ar":  "استخدمه في أماكن جيدة التهوية واحفظه بعيداً عن الحرارة."
+                                        },
+                         "hoverImage":  "/images/products/ocean-breeze-home-car-fragrance.svg"
+                     },
+                     {
+                         "id":  "rw-pink-radiator-water",
+                         "slug":  "pink-radiator-water",
+                         "name":  {
+                                      "en":  "Pink Radiator Water",
+                                      "ar":  "ماء روديتر زهري"
+                                  },
+                         "categoryId":  "radiator-water",
+                         "shortDescription":  {
+                                                  "en":  "Pink radiator water product for daily vehicle care.",
+                                                  "ar":  "ماء روديتر زهري للعناية اليومية بالسيارة."
+                                              },
+                         "longDescription":  {
+                                                 "en":  "A radiator water product in convenient sizes for the EB Chemical catalog.",
+                                                 "ar":  "منتج ماء روديتر بأحجام مناسبة ضمن كتالوج EB Chemical."
+                                             },
+                         "image":  "/images/products/pink-radiator-water.svg",
+                         "fallbackImage":  "/images/products/product-placeholder.svg",
+                         "sizes":  [
+                                       {
+                                           "size":  "1L",
+                                           "price":  15
+                                       },
+                                       {
+                                           "size":  "4L",
+                                           "price":  40
+                                       }
+                                   ],
+                         "badge":  {
+                                       "en":  "Featured",
+                                       "ar":  "منتج مميز"
+                                   },
+                         "usageNotes":  {
+                                            "en":  "Follow vehicle manufacturer instructions before use.",
+                                            "ar":  "اتبع تعليمات الشركة المصنعة للسيارة قبل الاستخدام."
+                                        },
+                         "hoverImage":  "/images/products/green-radiator-water.svg"
+                     },
+                     {
+                         "id":  "rw-green-radiator-water",
+                         "slug":  "green-radiator-water",
+                         "name":  {
+                                      "en":  "Green Radiator Water",
+                                      "ar":  "ماء روديتر أخضر"
+                                  },
+                         "categoryId":  "radiator-water",
+                         "shortDescription":  {
+                                                  "en":  "Green radiator water product for daily vehicle care.",
+                                                  "ar":  "ماء روديتر أخضر للعناية اليومية بالسيارة."
+                                              },
+                         "longDescription":  {
+                                                 "en":  "Another radiator water option for product browsing, cart, and checkout flows.",
+                                                 "ar":  "خيار آخر من ماء الرديتر لتصفح المنتجات وإتمام الطلب بسهولة."
+                                             },
+                         "image":  "/images/products/green-radiator-water.svg",
+                         "fallbackImage":  "/images/products/product-placeholder.svg",
+                         "sizes":  [
+                                       {
+                                           "size":  "1L",
+                                           "price":  15
+                                       },
+                                       {
+                                           "size":  "4L",
+                                           "price":  40
+                                       }
+                                   ],
+                         "badge":  {
+                                       "en":  "Featured",
+                                       "ar":  "منتج مميز"
+                                   },
+                         "usageNotes":  {
+                                            "en":  "Do not mix products unless recommended for the vehicle.",
+                                            "ar":  "لا تخلط المنتجات إلا إذا كان ذلك موصى به للسيارة."
+                                        },
+                         "hoverImage":  "/images/products/pink-radiator-water.svg"
+                     }
+                 ],
+    "offers":  [
+                   {
+                       "id":  "offer-home-care",
+                       "title":  {
+                                     "en":  "Daily care essentials",
+                                     "ar":  "أساسيات العناية اليومية"
+                                 },
+                       "description":  {
+                                           "en":  "Selected cleaning and care products for a fresh home routine.",
+                                           "ar":  "منتجات تنظيف وعناية مختارة لروتين منزلي منعش."
+                                       },
+                       "image":  "/images/products/multi-surface-cleaner.svg",
+                       "ctaText":  {
+                                       "en":  "Shop home care",
+                                       "ar":  "تسوق العناية المنزلية"
+                                   },
+                       "ctaLink":  "products",
+                       "displayOrder":  1,
+                       "isActive":  true
+                   },
+                   {
+                       "id":  "offer-car-care",
+                       "title":  {
+                                     "en":  "Car care favorites",
+                                     "ar":  "مختارات العناية بالسيارة"
+                                 },
+                       "description":  {
+                                           "en":  "Gloss, freshness, and practical sizes for daily car care.",
+                                           "ar":  "لمعان وانتعاش وأحجام عملية للعناية اليومية بالسيارة."
+                                       },
+                       "image":  "/images/products/car-shampoo-gloss.svg",
+                       "ctaText":  {
+                                       "en":  "Explore car care",
+                                       "ar":  "استكشف عناية السيارة"
+                                   },
+                       "ctaLink":  "car-care",
+                       "displayOrder":  2,
+                       "isActive":  true
+                   }
+               ],
+    "reviews":  [
+                    {
+                        "type":  "employee",
+                        "rating":  5,
+                        "customerName":  "عمر",
+                        "comment":  {
+                                        "en":  "test",
+                                        "ar":  "test"
+                                    },
+                        "orderId":  "ORD-1779195514746",
+                        "employeeId":  "",
+                        "employeeName":  "عمر",
+                        "isActive":  true,
+                        "id":  "review-1779195560660",
+                        "createdAt":  "2026-05-19T12:59:20.660Z"
+                    },
+                    {
+                        "type":  "site",
+                        "rating":  5,
+                        "customerName":  "عمر",
+                        "comment":  {
+                                        "en":  "test",
+                                        "ar":  "test"
+                                    },
+                        "orderId":  "ORD-1779195514746",
+                        "employeeId":  "",
+                        "employeeName":  "",
+                        "isActive":  true,
+                        "id":  "review-1779195553320",
+                        "createdAt":  "2026-05-19T12:59:13.320Z"
+                    },
+                    {
+                        "id":  "review-store-1",
+                        "type":  "site",
+                        "rating":  5,
+                        "customerName":  "Maya A.",
+                        "comment":  {
+                                        "en":  "Clean packaging, fast ordering, and the products feel premium for everyday use.",
+                                        "ar":  "تغليف مرتب، طلب سريع، والمنتجات ممتازة للاستخدام اليومي."
+                                    },
+                        "relatedProductName":  "Multi-surface cleaner",
+                        "employeeId":  "",
+                        "employeeName":  "",
+                        "createdAt":  "2026-05-01",
+                        "isActive":  true,
+                        "orderId":  ""
+                    },
+                    {
+                        "id":  "review-store-2",
+                        "type":  "site",
+                        "rating":  5,
+                        "customerName":  "Ahmad S.",
+                        "comment":  {
+                                        "en":  "The car care products leave a clean finish without feeling harsh.",
+                                        "ar":  "منتجات العناية بالسيارة تعطي نتيجة نظيفة بدون قسوة."
+                                    },
+                        "relatedProductName":  "Car care",
+                        "employeeId":  "",
+                        "employeeName":  "",
+                        "createdAt":  "2026-05-03",
+                        "isActive":  true,
+                        "orderId":  ""
+                    },
+                    {
+                        "id":  "review-employee-demo",
+                        "type":  "employee",
+                        "rating":  5,
+                        "customerName":  "Lina K.",
+                        "comment":  {
+                                        "en":  "Helpful service and clear product guidance.",
+                                        "ar":  "خدمة ممتازة وتوضيح واضح للمنتجات."
+                                    },
+                        "relatedProductName":  "Customer service",
+                        "employeeId":  "employee-demo",
+                        "employeeName":  "EB Chemical Employee",
+                        "createdAt":  "2026-05-04",
+                        "isActive":  true,
+                        "orderId":  ""
+                    }
+                ],
+    "workSessions":  [
+
+                     ],
+    "carts":  {
+
+              }
 }

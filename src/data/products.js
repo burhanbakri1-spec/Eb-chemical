@@ -32,7 +32,12 @@ function createProduct({
   longDescription,
   sizes,
   badge = localized("Featured", "منتج مميز"),
+  image,
+  hoverImage,
+  features,
+  servings,
   usageNotes,
+  ...detailFields
 }) {
   return {
     id,
@@ -41,11 +46,15 @@ function createProduct({
     categoryId,
     shortDescription,
     longDescription,
-    image: `/images/products/${slug}.svg`,
+    image: image || `/images/products/${slug}.svg`,
+    hoverImage,
     fallbackImage: placeholderImage,
     sizes,
     badge,
+    features,
+    servings,
     usageNotes,
+    ...detailFields,
   };
 }
 
@@ -176,22 +185,226 @@ export const products = [
   createProduct({
     id: "hc-limescale-remover",
     slug: "limescale-remover",
-    name: localized("Limescale Remover", "مزيل الكلس"),
-    categoryId: "home-cleaning",
+    name: localized("Limescale Remover", "مزيل التكلسات"),
+    categoryId: "bathroom-cleaning",
     shortDescription: localized(
-      "Helps remove limescale buildup from washable surfaces.",
-      "يساعد على إزالة تراكمات الكلس عن الأسطح القابلة للغسل."
+      "Fast-acting limescale remover designed to remove buildup from taps, sinks, showers, and bathroom surfaces while leaving a shiny, clean finish with no residue.",
+      "مزيل تكلسات سريع المفعول يساعد على إزالة الترسبات من الحنفيات والمغاسل والدش وأسطح الحمام، ويترك لمعانًا ونظافة بدون بقايا."
     ),
     longDescription: localized(
-      "A practical product for taps, tiles, and bathroom areas affected by mineral buildup.",
-      "منتج عملي للحنفيات والبلاط ومناطق الحمام المتأثرة بالتراكمات المعدنية."
+      "A bathroom cleaning formula for taps, sinks, showers, tiles, and washable surfaces that need fast limescale removal and a clean shine.",
+      "تركيبة تنظيف للحمام مناسبة للحنفيات والمغاسل والدش والبلاط والأسطح القابلة للغسل التي تحتاج إلى إزالة سريعة للتكلسات ولمعان نظيف."
     ),
-    sizes: cleaningSizes,
-    badge: localized("Strong Action", "فعالية قوية"),
+    sizes: [{ size: "1 Liter", price: 25 }],
+    image: "/products/limescale-remover-main.jpg",
+    hoverImage: "/products/limescale-remover-hover.jpg",
+    badge: localized("Bathroom Cleaning", "منظفات الحمام"),
+    servings: localized("20 Servings", "20 استخدام"),
+    features: localized(
+      [
+        "Removes Limescale",
+        "Shiny & Clean",
+        "Fast Acting",
+        "Safe on Surfaces",
+        "No Residue",
+      ],
+      [
+        "يزيل التكلسات",
+        "لمعان ونظافة",
+        "سريع المفعول",
+        "آمن على الأسطح",
+        "بدون بقايا",
+      ]
+    ),
     usageNotes: localized(
-      "Do not use on marble or acid-sensitive surfaces.",
-      "لا تستخدمه على الرخام أو الأسطح الحساسة للأحماض."
+      "Apply to the affected surface, let it work briefly, then wipe and rinse well. Avoid marble and acid-sensitive surfaces.",
+      "ضعه على السطح المتأثر، اتركه قليلًا ليعمل، ثم امسح واشطف جيدًا. تجنب استخدامه على الرخام والأسطح الحساسة للأحماض."
     ),
+    galleryImages: [
+      "/products/limescale-remover-hover.jpg",
+      "/products/limescale-remover-main.jpg",
+      "/images/products/limescale-remover.svg",
+    ],
+    detailOptions: {
+      productTypes: [
+        {
+          id: "starter",
+          label: localized("Starter Kit", "العبوة الأساسية"),
+          image: "/products/limescale-remover-main.jpg",
+        },
+        {
+          id: "refill",
+          label: localized("Refill only", "إعادة التعبئة فقط"),
+          image: "/products/limescale-remover-hover.jpg",
+        },
+      ],
+      uses: [
+        { id: "bathroom", label: localized("Bathroom", "الحمام") },
+        { id: "kitchen", label: localized("Kitchen", "المطبخ") },
+        { id: "multi-use", label: localized("Multi-use", "متعدد الاستخدام") },
+      ],
+    },
+    reviews: [
+      {
+        rating: 5,
+        title: localized("Excellent result", "نتيجة ممتازة"),
+        text: localized(
+          "It removed limescale quickly and left the sink shiny with no strong residue.",
+          "أزال التكلسات بسرعة وترك المغسلة لامعة بدون بقايا مزعجة."
+        ),
+        customerName: localized("Maha A.", "مها أ."),
+      },
+      {
+        rating: 5,
+        title: localized("Very effective", "فعال جدًا"),
+        text: localized(
+          "Worked well on taps and shower glass. The surface looked cleaner after one use.",
+          "عمل بشكل ممتاز على الحنفيات وزجاج الدش، وظهرت النتيجة من أول استخدام."
+        ),
+        customerName: localized("Khaled S.", "خالد س."),
+      },
+      {
+        rating: 5,
+        title: localized("Easy to use", "سهل الاستخدام"),
+        text: localized(
+          "Simple application and fast results. Good for bathroom cleaning.",
+          "طريقة استخدامه بسيطة ونتيجته سريعة، مناسب لتنظيف الحمام."
+        ),
+        customerName: localized("Rana M.", "رنا م."),
+      },
+    ],
+    usageSteps: [
+      {
+        title: localized("Apply to the affected area", "ضع المنتج على المنطقة المتكلسة"),
+        image: "/products/limescale-remover-hover.jpg",
+      },
+      {
+        title: localized("Leave for a short time, then scrub", "اتركه قليلًا ثم افرك السطح"),
+        image: "/products/limescale-remover-main.jpg",
+      },
+      {
+        title: localized("Rinse well and enjoy a clean shine", "اشطف جيدًا واستمتع بلمعان نظيف"),
+        image: "/images/products/limescale-remover.svg",
+      },
+    ],
+    safeSurfaces: [
+      {
+        id: "glass",
+        label: localized("Glass", "الزجاج"),
+        tags: localized(
+          ["Shower Glass", "Mirrors", "Glass Doors", "Bathroom Panels", "Windows"],
+          ["زجاج الدش", "المرايا", "الأبواب الزجاجية", "ألواح الحمام", "النوافذ"]
+        ),
+      },
+      {
+        id: "metal",
+        label: localized("Metal", "المعادن"),
+        tags: localized(
+          ["Chrome", "Stainless Steel", "Aluminium", "Brass", "Nickel", "Taps", "Shower Heads"],
+          ["الكروم", "الستانلس ستيل", "الألمنيوم", "النحاس", "النيكل", "الحنفيات", "رؤوس الدش"]
+        ),
+      },
+      {
+        id: "tiles",
+        label: localized("Tiles", "البلاط"),
+        tags: localized(
+          ["Ceramic Tiles", "Porcelain Tiles", "Bathroom Tiles", "Kitchen Tiles", "Wall Tiles", "Floor Tiles"],
+          ["بلاط السيراميك", "بلاط البورسلان", "بلاط الحمام", "بلاط المطبخ", "بلاط الجدران", "بلاط الأرضيات"]
+        ),
+      },
+      {
+        id: "stone",
+        label: localized("Stone", "الحجر"),
+        note: localized(
+          "Always test on a small hidden area first and follow the product instructions.",
+          "جرّبه دائمًا على منطقة صغيرة غير ظاهرة أولًا واتبع تعليمات المنتج."
+        ),
+        tags: localized(
+          ["Marble", "Granite", "Natural Stone", "Countertops"],
+          ["الرخام", "الجرانيت", "الحجر الطبيعي", "أسطح العمل"]
+        ),
+      },
+      {
+        id: "bathroom",
+        label: localized("Bathroom surfaces", "أسطح الحمام"),
+        tags: localized(
+          ["Sinks", "Showers", "Taps", "Bathroom Panels", "Washable Surfaces"],
+          ["المغاسل", "الدش", "الحنفيات", "ألواح الحمام", "الأسطح القابلة للغسل"]
+        ),
+      },
+    ],
+    statements: localized(
+      [
+        "Fast-acting cleaning power that removes buildup and leaves surfaces shining clean.",
+        "Purposeful formula designed for effective cleaning and everyday ease of use.",
+        "A practical cleaning solution for fresh bathrooms, clear glass, and polished taps.",
+      ],
+      [
+        "قوة تنظيف سريعة تساعد على إزالة التراكمات وتترك الأسطح نظيفة ولامعة.",
+        "تركيبة عملية مصممة لتنظيف فعّال وسهولة استخدام يومية.",
+        "حل تنظيف مناسب للحمامات النظيفة والزجاج الواضح والحنفيات اللامعة.",
+      ]
+    ),
+    faq: [
+      {
+        question: localized(
+          "Can I use Limescale Remover on taps and sinks?",
+          "هل يمكن استخدام مزيل التكلسات على الحنفيات والمغاسل؟"
+        ),
+        answer: localized(
+          "Yes, it is designed to remove limescale buildup from taps, sinks, showers, and similar bathroom surfaces. Always test on a small hidden area first.",
+          "نعم، تم تصميمه لإزالة التكلسات من الحنفيات والمغاسل والدش والأسطح المشابهة في الحمام. يفضل دائمًا تجربته أولًا على منطقة صغيرة غير ظاهرة."
+        ),
+      },
+      {
+        question: localized("Is it safe on all surfaces?", "هل هو آمن على جميع الأسطح؟"),
+        answer: localized(
+          "It is suitable for many bathroom surfaces, but avoid using it on sensitive natural stone or delicate surfaces unless confirmed safe by the manufacturer.",
+          "يناسب العديد من أسطح الحمام، لكن يُفضل تجنب استخدامه على الحجر الطبيعي الحساس أو الأسطح الدقيقة إلا إذا كان الاستخدام آمنًا حسب تعليمات الشركة."
+        ),
+      },
+      {
+        question: localized("How do I use it?", "ما طريقة الاستخدام؟"),
+        answer: localized(
+          "Apply the product to the affected area, leave it for a short time, scrub or wipe, then rinse well with water.",
+          "ضع المنتج على المنطقة المتكلسة، اتركه لفترة قصيرة، ثم افرك أو امسح واشطف جيدًا بالماء."
+        ),
+      },
+    ],
+    productInfo: [
+      {
+        title: localized("Product performance", "أداء المنتج"),
+        text: localized(
+          "Helps remove limescale buildup and water stains from suitable bathroom surfaces.",
+          "يساعد على إزالة التكلسات وبقع الماء من أسطح الحمام المناسبة."
+        ),
+      },
+      {
+        title: localized("Usage instructions", "طريقة الاستخدام"),
+        text: localized(
+          "Apply to the affected area, wait briefly, scrub or wipe, then rinse thoroughly with water.",
+          "ضع المنتج على المنطقة المتكلسة، انتظر قليلًا، ثم افرك أو امسح واشطف جيدًا بالماء."
+        ),
+      },
+      {
+        title: localized("Safety notes", "ملاحظات السلامة"),
+        text: localized(
+          "Avoid contact with eyes. Keep out of reach of children. Do not mix with other cleaning products. Test on a small hidden area first.",
+          "تجنب ملامسة العينين. يُحفظ بعيدًا عن متناول الأطفال. لا تخلطه مع منظفات أخرى. جرّبه أولًا على منطقة صغيرة غير ظاهرة."
+        ),
+      },
+      {
+        title: localized("Packaging", "العبوة"),
+        text: localized("1 Liter bottle. 20 servings.", "عبوة 1 لتر. 20 استخدام."),
+      },
+      {
+        title: localized("Storage", "طريقة التخزين"),
+        text: localized(
+          "Store in a cool, dry place away from direct sunlight.",
+          "يُحفظ في مكان بارد وجاف بعيدًا عن أشعة الشمس المباشرة."
+        ),
+      },
+    ],
   }),
   createProduct({
     id: "hc-grease-oil-remover",
@@ -472,7 +685,8 @@ products.forEach((product, index) => {
     products.find(
       (other) => other.categoryId === product.categoryId && other.id !== product.id,
     ) || products[(index + 1) % products.length];
-  product.hoverImage = sibling?.image || product.image;
+  product.hoverImage = product.hoverImage || sibling?.image || product.image;
 });
 
 export { placeholderImage };
+

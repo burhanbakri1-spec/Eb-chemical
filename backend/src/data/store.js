@@ -89,11 +89,17 @@ function normalizeProduct(product, index = 0) {
 function normalizeUser(user) {
   const previousBrand = [String.fromCharCode(69, 80), "Chemical"].join(" ");
   const name = user.name?.replace?.(previousBrand, "EB Chemical") || user.name;
+  const ebPoints = Math.max(0, Number(user.ebPoints || 0));
+  const totalPointsEarned = Math.max(0, Number(user.totalPointsEarned || 0));
+  const totalPointsRedeemed = Math.max(0, Number(user.totalPointsRedeemed || 0));
   return {
     ...user,
     name,
     role: user.role || "customer",
     permissions: user.permissions || [],
+    ebPoints,
+    totalPointsEarned,
+    totalPointsRedeemed,
     isActive: user.isActive !== false,
   };
 }
@@ -108,6 +114,9 @@ function normalizeOrder(order) {
     items: order.items || [],
     subtotal: Number(order.subtotal || order.total || 0),
     total: Number(order.total || order.subtotal || 0),
+    pointsEarned: Math.max(0, Number(order.pointsEarned || 0)),
+    pointsRedeemed: Math.max(0, Number(order.pointsRedeemed || 0)),
+    discountFromPoints: Math.max(0, Number(order.discountFromPoints || 0)),
     status: order.status || "Pending",
     handledByEmployeeId,
     assignedToEmployeeId: order.assignedToEmployeeId || handledByEmployeeId,

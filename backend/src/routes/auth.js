@@ -62,6 +62,9 @@ router.post("/register", (req, res) => {
     password,
     role: "customer",
     permissions: [],
+    ebPoints: 0,
+    totalPointsEarned: 0,
+    totalPointsRedeemed: 0,
     isActive: true,
   };
   users.push(user);
