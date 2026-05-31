@@ -36,5 +36,5 @@ export function hasPermission(user, permission) {
     return true;
   }
 
-  return user?.role === "employee" && user.permissions?.includes(permission);
+  return ["employee", "staff"].includes(user?.role) && user.permissions?.includes(permission);
 }

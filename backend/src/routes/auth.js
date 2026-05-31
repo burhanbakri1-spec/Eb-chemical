@@ -8,8 +8,12 @@ function createToken() {
   return `ep-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
+function isStaffRole(role) {
+  return role === "employee" || role === "staff";
+}
+
 function startEmployeeSession(user) {
-  if (user.role !== "employee") return null;
+  if (!isStaffRole(user.role)) return null;
   const today = new Date().toISOString().slice(0, 10);
   let session = workSessions.find(
     (entry) => entry.employeeId === user.id && entry.date === today && !entry.logoutTime,
@@ -85,7 +89,7 @@ router.post("/logout", (req, res) => {
   if (token) sessions.delete(token);
 
   let workSession = null;
-  if (user?.role === "employee") {
+  if (isStaffRole(user?.role)) {
     workSession = workSessions.find((entry) => entry.employeeId === user.id && !entry.logoutTime);
     if (workSession) {
       workSession.logoutTime = new Date().toISOString();

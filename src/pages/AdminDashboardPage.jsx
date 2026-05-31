@@ -1,23 +1,671 @@
 import React from "react";
+import { Minus, Plus, Search, Upload } from "lucide-react";
+import AdminLayout from "../components/AdminLayout.jsx";
 import AdminOrdersTable from "../components/AdminOrdersTable.jsx";
-import AdminProductForm from "../components/AdminProductForm.jsx";
-import AdminProductTable from "../components/AdminProductTable.jsx";
-import HomeContentManager from "../components/HomeContentManager.jsx";
+import { categories as defaultCategories } from "../data/categories.js";
+
+const storageKeys = {
+  brands: "ebAdminBrands",
+  categories: "ebAdminCategories",
+  inventory: "ebAdminInventory",
+  movements: "ebAdminStockMovements",
+  settings: "ebAdminSettings",
+  stores: "ebAdminStores",
+  vlogHero: "ebAdminVlogHero",
+  vlogs: "ebAdminVlogs",
+};
+
+const pageMeta = {
+  admin: ["Dashboard", "Overview of your store performance"],
+  "admin-products": ["Products", "Manage your product catalog"],
+  "admin-products-new": ["New Product", "Create or update product catalog details"],
+  "admin-categories": ["Categories", "Organize your product hierarchy"],
+  "admin-categories-new": ["New Category", "Create a storefront category"],
+  "admin-brands": ["Brands", "Manage brand manufacturers and lines"],
+  "admin-brands-new": ["New Brand", "Create a brand profile"],
+  "admin-vlogs": ["Vlogs", "Manage storefront vlog entries"],
+  "admin-vlogs-new": ["New Vlog", "Create a storefront vlog entry"],
+  "admin-store-locator": ["Store Locator", "Manage physical store locations"],
+  "admin-store-locator-new": ["New Store", "Create a retail location"],
+  "admin-orders": ["Orders", "Manage and track customer orders"],
+  "admin-reviews": ["Reviews", "Moderate customer reviews and ratings"],
+  "admin-inventory": ["Inventory Management", "Monitor stock levels, adjust quantities, and review movement history"],
+  "admin-customers": ["Customers", "Manage customer accounts and view order history"],
+  "admin-settings": ["Settings", "Manage site identity, metadata, social links, and shipping rules from one page."],
+};
+
+function readStorage(key, fallback) {
+  try {
+    const stored = localStorage.getItem(key);
+    return stored ? JSON.parse(stored) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function writeStorage(key, value) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    // Local admin drafts are optional; failing storage should not break the panel.
+  }
+}
+
+function getText(value, language = "en") {
+  if (!value) return "";
+  if (typeof value === "string") return value;
+  return value[language] || value.en || value.ar || "";
+}
+
+function makeSlug(value) {
+  return String(value || "")
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\u0600-\u06ff]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
+
+function getProductSku(product) {
+  return product.sku || product.id || product.slug || "-";
+}
+
+function getProductPrice(product) {
+  const prices = (product.sizes || []).map((size) => Number(size.price || 0)).filter(Boolean);
+  if (prices.length === 0) return 0;
+  return Math.min(...prices);
+}
+
+function getStockQty(product) {
+  if (Number.isFinite(Number(product.stockQty))) return Number(product.stockQty);
+  if ((product.stockStatus || "").toLowerCase().includes("out")) return 0;
+  return 24;
+}
+
+function formatDate(value) {
+  if (!value) return "-";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? "-" : date.toLocaleDateString();
+}
+
+function uniqueCustomersFromOrders(orders) {
+  const customers = new Map();
+  orders.forEach((order) => {
+    const key = order.customer?.email || order.customer?.phone || order.customer?.name || order.id;
+    const current = customers.get(key) || {
+      createdAt: order.createdAt,
+      email: order.customer?.email || "-",
+      name: order.customer?.name || "-",
+      orders: 0,
+      phone: order.customer?.phone || "-",
+      status: "Active",
+      updatedAt: order.updatedAt || order.createdAt,
+    };
+    current.orders += 1;
+    current.updatedAt = order.updatedAt || current.updatedAt;
+    customers.set(key, current);
+  });
+  return Array.from(customers.values());
+}
+
+function createLocalizedCopy(en, ar) {
+  return { en, ar };
+}
+
+function createProductFromForm(form) {
+  const id = form.id || `product-${Date.now()}`;
+  const slug = form.slug || makeSlug(form.nameEn);
+  const parsedSizes = form.size
+    ? [{ size: form.size, price: Number(form.price || 0) || 0 }]
+    : [{ size: "500ml", price: Number(form.price || 0) || 0 }];
+
+  return {
+    id,
+    slug,
+    sku: form.sku || slug.toUpperCase(),
+    name: createLocalizedCopy(form.nameEn, form.nameAr || form.nameEn),
+    categoryId: form.categoryId,
+    brand: form.brand || "EB Chemical",
+    shortDescription: createLocalizedCopy(form.shortDescription, form.shortDescriptionAr || form.shortDescription),
+    longDescription: createLocalizedCopy(form.fullDescription, form.fullDescriptionAr || form.fullDescription || form.shortDescription),
+    howToUse: form.howToUse,
+    ingredients: form.ingredients,
+    benefits: form.benefits,
+    skinTypes: form.skinTypes,
+    concerns: form.concerns,
+    image: form.image || "/images/products/product-placeholder.svg",
+    hoverImage: form.hoverImage || form.image || "/images/products/product-placeholder.svg",
+    fallbackImage: "/images/products/product-placeholder.svg",
+    sizes: parsedSizes,
+    badge: createLocalizedCopy(form.label || "Featured", form.labelAr || "مميز"),
+    status: form.active ? "Active" : "Inactive",
+    isActive: form.active,
+    isFeatured: form.featured,
+    isNewArrival: form.newArrival,
+    isBestseller: form.bestseller,
+    stockQty: Number(form.stockQty || 0) || 0,
+    stockStatus: Number(form.stockQty || 0) > 0 ? "In Stock" : "Out of Stock",
+    metaTitle: form.metaTitle,
+    metaDescription: form.metaDescription,
+    createdAt: form.createdAt || new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+}
+
+function AdminMetricCard({ label, value, icon }) {
+  return (
+    <article className="admin-metric-card">
+      <span>{label}</span>
+      <strong>{value}</strong>
+      <small>{icon || "+0% vs prev 30d"}</small>
+    </article>
+  );
+}
+
+function Toolbar({ children, onAdd, addLabel }) {
+  return (
+    <div className="admin-toolbar">
+      <div className="admin-toolbar-main">{children}</div>
+      {onAdd && (
+        <button className="admin-primary-button" onClick={onAdd} type="button">
+          {addLabel}
+        </button>
+      )}
+    </div>
+  );
+}
+
+function SearchField({ placeholder, value, onChange }) {
+  return (
+    <label className="admin-search-field">
+      <Search size={15} />
+      <input placeholder={placeholder} value={value} onChange={(event) => onChange(event.target.value)} />
+    </label>
+  );
+}
+
+function AdminTable({ children }) {
+  return (
+    <div className="admin-table-wrap">
+      <table className="admin-table">{children}</table>
+    </div>
+  );
+}
+
+function Badge({ tone = "active", children }) {
+  return <span className={`admin-status-pill ${tone}`}>{children}</span>;
+}
+
+function MediaField({ label, name, value, onChange }) {
+  return (
+    <div className="admin-media-field">
+      <label>
+        {label}
+        <input name={name} placeholder="https://..." value={value || ""} onChange={onChange} />
+      </label>
+      <button className="admin-upload-button" type="button">
+        <Upload size={14} />
+        Upload
+      </button>
+      {value && (
+        <div className="admin-media-preview">
+          <img alt="" src={value} />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PermissionNotice({ role }) {
+  if (role === "admin") return null;
+  return (
+    <div className="message-panel warning">
+      {role === "manager"
+        ? "Manager access: content, catalog, orders, customers, and reviews can be managed. Staff and settings are restricted."
+        : "Employee access: admin sections are available in view-only mode."}
+    </div>
+  );
+}
+
+function EmptyState({ title, description }) {
+  return (
+    <div className="admin-empty-state">
+      <strong>{title}</strong>
+      {description && <span>{description}</span>}
+    </div>
+  );
+}
+
+function DashboardHome({ customers, language, orders, products, t }) {
+  const revenue = orders.reduce((sum, order) => sum + Number(order.total || 0), 0);
+  return (
+    <>
+      <div className="admin-range-row">
+        <div className="admin-range-toggle">
+          <button type="button">7d</button>
+          <button className="active" type="button">30d</button>
+          <button type="button">90d</button>
+        </div>
+        <div className="admin-date-filter">
+          <span>or custom:</span>
+          <input type="date" />
+          <span>to</span>
+          <input type="date" />
+        </div>
+      </div>
+      <div className="admin-metric-grid">
+        <AdminMetricCard label="Sales" value={`${revenue} ${t("common.ils")}`} />
+        <AdminMetricCard label="Orders" value={orders.length} />
+        <AdminMetricCard label="Customers" value={customers.length} />
+      </div>
+      <div className="admin-dashboard-grid">
+        <section className="admin-panel-card">
+          <h2>Revenue over time</h2>
+          <p>Orders and revenue across the last 30 days</p>
+          <div className="admin-empty-chart">{orders.length ? `${revenue} ${t("common.ils")}` : "No revenue for this date range"}</div>
+        </section>
+        <section className="admin-panel-card">
+          <h2>Order status distribution</h2>
+          <p>Current order mix for the selected range</p>
+          <div className="admin-empty-chart">{orders.length ? `${orders.length} orders` : "No orders for this date range"}</div>
+        </section>
+        <section className="admin-panel-card">
+          <h2>Top selling products</h2>
+          <p>Ranked by units sold</p>
+          <div className="admin-empty-chart">{products.length ? `${products.length} products available` : "No product sales for this date range"}</div>
+        </section>
+        <section className="admin-panel-card">
+          <h2>Customer growth</h2>
+          <p>New customer trend</p>
+          <div className="admin-empty-chart">{customers.length ? `${customers.length} customers` : "No customers for this date range"}</div>
+        </section>
+      </div>
+      <section className="admin-panel-card">
+        <h2>Recent Orders</h2>
+        {orders.length ? (
+          <AdminOrdersTable canAssign={false} canDelete={false} canUpdateStatus={false} language={language} orders={orders.slice(0, 5)} products={products} t={t} />
+        ) : (
+          <EmptyState title="No recent orders" />
+        )}
+      </section>
+    </>
+  );
+}
+
+function ProductsListPage({ categories, filters, onAdd, onDeleteProduct, onEdit, products, readOnly, setFilters }) {
+  const filtered = products.filter((product) => {
+    const name = getText(product.name).toLowerCase();
+    const sku = getProductSku(product).toLowerCase();
+    const matchesSearch = !filters.search || name.includes(filters.search.toLowerCase()) || sku.includes(filters.search.toLowerCase());
+    const matchesBrand = filters.brand === "all" || (product.brand || "EB Chemical") === filters.brand;
+    const matchesCategory = filters.category === "all" || product.categoryId === filters.category;
+    const matchesStatus = filters.status === "all" || (filters.status === "active" ? product.isActive !== false : product.isActive === false);
+    return matchesSearch && matchesBrand && matchesCategory && matchesStatus;
+  });
+
+  return (
+    <section className="admin-panel-card">
+      <Toolbar addLabel="Add Product" onAdd={readOnly ? null : onAdd}>
+        <SearchField placeholder="Search by name, SKU..." value={filters.search} onChange={(value) => setFilters((current) => ({ ...current, search: value }))} />
+        <select value={filters.category} onChange={(event) => setFilters((current) => ({ ...current, category: event.target.value }))}>
+          <option value="all">All categories</option>
+          {categories.map((category) => (
+            <option key={category.id} value={category.id}>{getText(category.name)}</option>
+          ))}
+        </select>
+        <select value={filters.brand} onChange={(event) => setFilters((current) => ({ ...current, brand: event.target.value }))}>
+          <option value="all">All brands</option>
+          <option value="EB Chemical">EB Chemical</option>
+        </select>
+        <div className="admin-segmented">
+          {["all", "active", "inactive"].map((status) => (
+            <button className={filters.status === status ? "active" : ""} key={status} onClick={() => setFilters((current) => ({ ...current, status }))} type="button">
+              {status[0].toUpperCase() + status.slice(1)}
+            </button>
+          ))}
+        </div>
+      </Toolbar>
+      <AdminTable>
+        <thead>
+          <tr>
+            <th>Image</th>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Brand</th>
+            <th>Variants</th>
+            <th>Price</th>
+            <th>Stock</th>
+            <th>Status</th>
+            <th>Created</th>
+            <th>Updated</th>
+            {!readOnly && <th>Actions</th>}
+          </tr>
+        </thead>
+        <tbody>
+          {filtered.map((product) => {
+            const category = categories.find((entry) => entry.id === product.categoryId);
+            const stock = getStockQty(product);
+            return (
+              <tr key={product.id}>
+                <td><img className="admin-thumb" alt="" src={product.image || product.fallbackImage} /></td>
+                <td><strong>{getText(product.name)}</strong><span className="table-muted">{getProductSku(product)}</span></td>
+                <td>{getText(category?.name) || "-"}</td>
+                <td>{product.brand || "EB Chemical"}</td>
+                <td>{product.sizes?.length || 1}</td>
+                <td><strong>{getProductPrice(product)} ILS</strong></td>
+                <td>{stock}</td>
+                <td>
+                  <div className="admin-badge-stack">
+                    <Badge tone={product.isActive === false ? "neutral" : "active"}>{product.isActive === false ? "Inactive" : "Active"}</Badge>
+                    {product.isFeatured && <Badge>Featured</Badge>}
+                    {stock <= 0 && <Badge tone="danger">Out of stock</Badge>}
+                  </div>
+                </td>
+                <td>{formatDate(product.createdAt)}</td>
+                <td>{formatDate(product.updatedAt)}</td>
+                {!readOnly && (
+                  <td>
+                    <div className="row-actions">
+                      <button className="text-action" onClick={() => onEdit(product)} type="button">Edit</button>
+                      <button className="text-action danger" onClick={() => onDeleteProduct(product.id)} type="button">Delete</button>
+                    </div>
+                  </td>
+                )}
+              </tr>
+            );
+          })}
+        </tbody>
+      </AdminTable>
+    </section>
+  );
+}
+
+function ProductWizard({ categories, editingProduct, onCancel, onSave }) {
+  const [step, setStep] = React.useState("basic");
+  const [form, setForm] = React.useState(() => ({
+    id: editingProduct?.id || "",
+    nameEn: getText(editingProduct?.name) || "",
+    nameAr: editingProduct?.name?.ar || "",
+    slug: editingProduct?.slug || "",
+    sku: editingProduct?.sku || "",
+    categoryId: editingProduct?.categoryId || categories[0]?.id || "",
+    brand: editingProduct?.brand || "EB Chemical",
+    size: editingProduct?.sizes?.[0]?.size || "500ml",
+    price: editingProduct?.sizes?.[0]?.price || "",
+    stockQty: getStockQty(editingProduct || {}),
+    shortDescription: getText(editingProduct?.shortDescription),
+    shortDescriptionAr: editingProduct?.shortDescription?.ar || "",
+    fullDescription: getText(editingProduct?.longDescription),
+    fullDescriptionAr: editingProduct?.longDescription?.ar || "",
+    howToUse: editingProduct?.howToUse || "",
+    ingredients: editingProduct?.ingredients || "",
+    benefits: editingProduct?.benefits || "",
+    skinTypes: editingProduct?.skinTypes || "",
+    concerns: editingProduct?.concerns || "",
+    image: editingProduct?.image || "",
+    hoverImage: editingProduct?.hoverImage || "",
+    videoUrl: editingProduct?.videoUrl || "",
+    metaTitle: editingProduct?.metaTitle || "",
+    metaDescription: editingProduct?.metaDescription || "",
+    label: editingProduct?.badge?.en || "",
+    labelAr: editingProduct?.badge?.ar || "",
+    active: editingProduct?.isActive !== false,
+    featured: Boolean(editingProduct?.isFeatured),
+    newArrival: Boolean(editingProduct?.isNewArrival),
+    bestseller: Boolean(editingProduct?.isBestseller),
+  }));
+
+  const tabs = ["basic", "variants", "media", "seo", "showcase"];
+  const tabLabels = ["Basic", "Variants", "Media", "SEO", "Showcase"];
+
+  function change(event) {
+    const { checked, name, type, value } = event.target;
+    setForm((current) => ({ ...current, [name]: type === "checkbox" ? checked : value }));
+  }
+
+  async function submit(event) {
+    event.preventDefault();
+    const result = await onSave(createProductFromForm(form));
+    if (result?.ok) onCancel();
+  }
+
+  return (
+    <section className="admin-panel-card">
+      <div className="admin-tabs">
+        {tabs.map((tab, index) => (
+          <button className={step === tab ? "active" : ""} key={tab} onClick={() => setStep(tab)} type="button">
+            {index + 1}. {tabLabels[index]}
+          </button>
+        ))}
+      </div>
+      <form className="admin-form admin-wizard-form" onSubmit={submit}>
+        {step === "basic" && (
+          <>
+            <label>Product Name *<input name="nameEn" required value={form.nameEn} onChange={change} /></label>
+            <label>Arabic Product Name<input name="nameAr" value={form.nameAr} onChange={change} /></label>
+            <label>Slug<input name="slug" value={form.slug} onChange={change} /></label>
+            <label>SKU<input name="sku" value={form.sku} onChange={change} /></label>
+            <label>Category *<select name="categoryId" required value={form.categoryId} onChange={change}>{categories.map((category) => <option key={category.id} value={category.id}>{getText(category.name)}</option>)}</select></label>
+            <label>Brand<input name="brand" value={form.brand} onChange={change} /></label>
+            <label>Size<input name="size" value={form.size} onChange={change} /></label>
+            <label>Short Description<textarea name="shortDescription" value={form.shortDescription} onChange={change} /></label>
+            <label>Full Description<textarea name="fullDescription" value={form.fullDescription} onChange={change} /></label>
+            <label>How to Use<textarea name="howToUse" value={form.howToUse} onChange={change} /></label>
+            <label>Ingredients<textarea name="ingredients" value={form.ingredients} onChange={change} /></label>
+            <label>Benefits<textarea name="benefits" value={form.benefits} onChange={change} /></label>
+            <label>Skin Types<input name="skinTypes" value={form.skinTypes} onChange={change} /></label>
+            <label>Concerns<input name="concerns" value={form.concerns} onChange={change} /></label>
+            <div className="admin-checkbox-grid full-field">
+              {["active", "featured", "newArrival", "bestseller"].map((field) => (
+                <label className="checkbox-line" key={field}><input name={field} type="checkbox" checked={form[field]} onChange={change} />{field.replace(/([A-Z])/g, " $1")}</label>
+              ))}
+            </div>
+            <label>Label<input name="label" value={form.label} onChange={change} /></label>
+            <label>Label Arabic<input name="labelAr" value={form.labelAr} onChange={change} /></label>
+            <p className="admin-note full-field">Pricing managed per variant. Set price, sale price, and stock individually for each variant below.</p>
+          </>
+        )}
+        {step === "variants" && (
+          form.id ? (
+            <>
+              <label>Price<input name="price" type="number" value={form.price} onChange={change} /></label>
+              <label>Stock Qty<input name="stockQty" type="number" value={form.stockQty} onChange={change} /></label>
+            </>
+          ) : (
+            <EmptyState title="Save the product first to manage variants." />
+          )
+        )}
+        {step === "media" && (
+          <>
+            <MediaField label="Featured Image" name="image" value={form.image} onChange={change} />
+            <MediaField label="Second / Hover Image" name="hoverImage" value={form.hoverImage} onChange={change} />
+            <label>Video URL<input name="videoUrl" value={form.videoUrl} onChange={change} /></label>
+            <div className="full-field"><EmptyState title={form.id ? "Image gallery ready for product media." : "Save the product first to manage its image gallery."} /></div>
+          </>
+        )}
+        {step === "seo" && (
+          <>
+            <label>Meta Title<input name="metaTitle" value={form.metaTitle} onChange={change} /></label>
+            <label>Meta Description<textarea name="metaDescription" value={form.metaDescription} onChange={change} /></label>
+          </>
+        )}
+        {step === "showcase" && <div className="full-field"><EmptyState title={form.id ? "Showcase content can be added for this product." : "Save the product first to manage its showcase content."} /></div>}
+        <div className="form-actions full-field">
+          <button className="secondary-action" disabled={tabs.indexOf(step) === 0} onClick={() => setStep(tabs[tabs.indexOf(step) - 1])} type="button">Previous</button>
+          <button className="secondary-action" disabled={tabs.indexOf(step) === tabs.length - 1} onClick={() => setStep(tabs[tabs.indexOf(step) + 1])} type="button">Next</button>
+          <button className="secondary-action" onClick={onCancel} type="button">Cancel</button>
+          <button className="admin-primary-button" type="submit">{editingProduct ? "Save Product" : "Create Product"}</button>
+        </div>
+      </form>
+    </section>
+  );
+}
+
+function GenericEntityForm({ fields, initial, onCancel, onSave, title }) {
+  const [form, setForm] = React.useState(initial);
+  function change(event) {
+    const { checked, name, type, value } = event.target;
+    setForm((current) => ({ ...current, [name]: type === "checkbox" ? checked : value }));
+  }
+  return (
+    <section className="admin-panel-card">
+      <h2>{title}</h2>
+      <form className="admin-form" onSubmit={(event) => { event.preventDefault(); onSave(form); }}>
+        {fields.map((field) => {
+          if (field.type === "textarea") return <label key={field.name}>{field.label}<textarea name={field.name} value={form[field.name] || ""} onChange={change} /></label>;
+          if (field.type === "checkbox") return <label className="checkbox-line" key={field.name}><input name={field.name} type="checkbox" checked={Boolean(form[field.name])} onChange={change} />{field.label}</label>;
+          if (field.type === "media") return <MediaField key={field.name} label={field.label} name={field.name} value={form[field.name]} onChange={change} />;
+          if (field.type === "select") return <label key={field.name}>{field.label}<select name={field.name} value={form[field.name] || ""} onChange={change}>{field.options.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>;
+          return <label key={field.name}>{field.label}<input name={field.name} required={field.required} value={form[field.name] || ""} onChange={change} /></label>;
+        })}
+        <div className="form-actions full-field">
+          <button className="secondary-action" onClick={onCancel} type="button">Cancel</button>
+          <button className="admin-primary-button" type="submit">Create</button>
+        </div>
+      </form>
+    </section>
+  );
+}
+
+function SettingsPage() {
+  const [tab, setTab] = React.useState("general");
+  const [settings, setSettings] = React.useState(() => readStorage(storageKeys.settings, {}));
+  const fields = {
+    general: [
+      "Site Name", "Site Description", "Meta Title", "Meta Description", "Open Graph Image URL", "Site URL",
+      "Maintenance Mode", "Tax Rate (%)", "Currency Code", "Items Per Page", "Enable Wishlist",
+      "Enable Product Reviews", "Enable Guest Checkout", "Default Country", "Announcement Bar Text",
+      "Home Hero Headline", "Home Hero Image URL", "Trending Section Title", "Promo Badge Text",
+      "Promo Headline", "Promo Description", "Promo CTA Label", "Promo Image URL", "Philosophy Headline",
+      "Philosophy Text", "Philosophy CTA", "Philosophy Background Image URL", "Marquee Scrolling Text",
+      "Commitment Headline", "Commitment CTA", "Commitment Image URL", "Social Grid Heading",
+      "Social Grid CTA", "Social Grid Image 1 URL", "Social Grid Image 2 URL", "Social Grid Image 3 URL",
+      "Social Grid Image 4 URL", "Intentional Skincare Title", "Intentional Skincare Text",
+      "Foundation Label", "Foundation Title", "Foundation Text 1", "Foundation Text 2", "Team Label",
+      "Team Title", "Team Description", "Founder Note Heading", "Founder Letter", "Store Locator Tagline",
+      "About Hero Headline", "About Hero CTA", "About Hero Image URL", "Login Page Image URL",
+      "Product Showcase Empty Text", "Back to All Products", "Add to Bag Button Text", "Checkout Button Text",
+      "Login Heading", "Signup Heading", "Search Placeholder", "Verified Buyer Label",
+    ],
+    social: ["Facebook URL", "Instagram URL", "X / Twitter URL", "YouTube URL", "TikTok URL", "Snapchat URL", "LinkedIn URL", "Pinterest URL"],
+    shipping: ["Free Shipping Threshold", "Default Shipping Cost", "Shipping Rates JSON", "Free Shipping Unlocked Text", "Shipping Page Content JSON"],
+  };
+
+  function save() {
+    writeStorage(storageKeys.settings, settings);
+  }
+
+  return (
+    <section className="admin-panel-card">
+      <div className="admin-tabs">
+        {["general", "social", "shipping"].map((item) => (
+          <button className={tab === item ? "active" : ""} key={item} onClick={() => setTab(item)} type="button">{item[0].toUpperCase() + item.slice(1)}</button>
+        ))}
+      </div>
+      <form className="admin-form settings-form" onSubmit={(event) => { event.preventDefault(); save(); }}>
+        {fields[tab].map((label) => {
+          const key = `${tab}.${label}`;
+          const isJson = label.includes("JSON");
+          const isImage = label.includes("Image URL");
+          if (isImage) return <MediaField key={key} label={label} name={key} value={settings[key] || ""} onChange={(event) => setSettings((current) => ({ ...current, [key]: event.target.value }))} />;
+          if (isJson) return <label key={key}>{label}<textarea value={settings[key] || ""} onChange={(event) => setSettings((current) => ({ ...current, [key]: event.target.value }))} /></label>;
+          return <label key={key}>{label}<input value={settings[key] || ""} onChange={(event) => setSettings((current) => ({ ...current, [key]: event.target.value }))} /></label>;
+        })}
+        <div className="form-actions full-field">
+          <button className="admin-primary-button" type="submit">Save {tab[0].toUpperCase() + tab.slice(1)} Settings</button>
+        </div>
+      </form>
+    </section>
+  );
+}
+
+function InventoryPage({ inventoryRows, movements, onAdjust, onOpenModal, products }) {
+  return (
+    <>
+      <section className="admin-panel-card">
+        <Toolbar addLabel="Stock Update" onAdd={onOpenModal}>
+          <SearchField placeholder="Search by product name, SKU..." value="" onChange={() => {}} />
+        </Toolbar>
+        <AdminTable>
+          <thead><tr><th>Product Name</th><th>Variant</th><th>SKU</th><th>Stock Qty</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody>
+            {products.map((product) => {
+              const stock = inventoryRows[product.id] ?? getStockQty(product);
+              return (
+                <tr key={product.id}>
+                  <td>{getText(product.name)}</td>
+                  <td>{product.sizes?.[0]?.size || "Default"}</td>
+                  <td>{getProductSku(product)}</td>
+                  <td>{stock}</td>
+                  <td><Badge tone={stock <= 0 ? "danger" : stock < 5 ? "warning" : "active"}>{stock <= 0 ? "Out of Stock" : stock < 5 ? "Low Stock" : "In Stock"}</Badge></td>
+                  <td><button className="icon-action" onClick={() => onAdjust(product.id, 1)} type="button"><Plus size={14} /></button><button className="icon-action" onClick={() => onAdjust(product.id, -1)} type="button"><Minus size={14} /></button></td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </AdminTable>
+      </section>
+      <section className="admin-panel-card">
+        <h2>Stock Movement History</h2>
+        <p>Last 50 stock movements across all products</p>
+        <AdminTable>
+          <thead><tr><th>Date</th><th>Product</th><th>Variant</th><th>Delta</th><th>Reason</th><th>Operator / Order</th></tr></thead>
+          <tbody>
+            {movements.length ? movements.slice(0, 50).map((move) => <tr key={move.id}><td>{formatDate(move.date)}</td><td>{move.product}</td><td>{move.variant}</td><td>{move.delta}</td><td>{move.reason}</td><td>{move.operator}</td></tr>) : <tr><td colSpan="6">No stock movements yet.</td></tr>}
+          </tbody>
+        </AdminTable>
+      </section>
+    </>
+  );
+}
+
+function StockUpdateModal({ inventoryRows, onApply, onClose, products }) {
+  const [reason, setReason] = React.useState("Adjustment");
+  const [note, setNote] = React.useState("");
+  const [deltas, setDeltas] = React.useState({});
+  const pending = Object.values(deltas).filter((value) => Number(value) !== 0).length;
+  return (
+    <div className="admin-modal-backdrop">
+      <section className="admin-modal">
+        <div className="admin-section-head"><div><h2>Stock Update</h2><p>Sync database stock with physical counts.</p></div><button className="text-action" onClick={onClose} type="button">Close</button></div>
+        <div className="admin-toolbar">
+          <SearchField placeholder="Search inventory" value="" onChange={() => {}} />
+          <select value={reason} onChange={(event) => setReason(event.target.value)}>
+            {["Adjustment", "Restock", "Correction", "Damaged", "Return"].map((item) => <option key={item}>{item}</option>)}
+          </select>
+        </div>
+        <div className="admin-inventory-list">
+          {products.map((product) => (
+            <label className="admin-inventory-row" key={product.id}>
+              <input type="checkbox" checked={Number(deltas[product.id] || 0) !== 0} readOnly />
+              <span><strong>{getText(product.name)}</strong><small>{getProductSku(product)} · current {inventoryRows[product.id] ?? getStockQty(product)}</small></span>
+              <input type="number" value={deltas[product.id] || ""} onChange={(event) => setDeltas((current) => ({ ...current, [product.id]: event.target.value }))} />
+            </label>
+          ))}
+        </div>
+        <label>Note optional<textarea value={note} onChange={(event) => setNote(event.target.value)} /></label>
+        <div className="form-actions">
+          <span>{pending} pending non-zero updates</span>
+          <button className="admin-primary-button" onClick={() => onApply(deltas, reason, note)} type="button">Apply Stock Updates</button>
+        </div>
+      </section>
+    </div>
+  );
+}
 
 function AdminDashboardPage({
+  activePage = "admin",
   currentUser,
   employees,
   language,
   homepageOffers,
   onDeleteProduct,
-  onDeleteOffer,
-  onDeleteReview,
   onAssignEmployee,
   onDeleteOrder,
+  onLogout,
   onNavigate,
   onSaveProduct,
-  onSaveOffer,
   onModerateReview,
+  onDeleteReview,
   onStatusChange,
   orders,
   products,
@@ -26,127 +674,193 @@ function AdminDashboardPage({
   t,
 }) {
   const [editingProduct, setEditingProduct] = React.useState(null);
+  const [filters, setFilters] = React.useState({ brand: "all", category: "all", search: "", status: "all" });
+  const [adminCategories, setAdminCategories] = React.useState(() => readStorage(storageKeys.categories, defaultCategories));
+  const [brands, setBrands] = React.useState(() => readStorage(storageKeys.brands, [{ id: "eb-chemical", name: "EB Chemical", slug: "eb-chemical", country: "Palestine", active: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }]));
+  const [vlogs, setVlogs] = React.useState(() => readStorage(storageKeys.vlogs, []));
+  const [vlogHero, setVlogHero] = React.useState(() => readStorage(storageKeys.vlogHero, { image: "", title: "EB Chemical care stories" }));
+  const [stores, setStores] = React.useState(() => readStorage(storageKeys.stores, []));
+  const [inventoryRows, setInventoryRows] = React.useState(() => readStorage(storageKeys.inventory, {}));
+  const [movements, setMovements] = React.useState(() => readStorage(storageKeys.movements, []));
+  const [stockModalOpen, setStockModalOpen] = React.useState(false);
 
-  if (currentUser?.role !== "admin") {
+  const role = currentUser?.role;
+  const canEdit = role === "admin" || role === "manager";
+  const canManageSensitive = role === "admin";
+  const readOnly = !canEdit;
+  const customers = uniqueCustomersFromOrders(orders);
+  const [title, subtitle] = pageMeta[activePage] || pageMeta.admin;
+
+  if (!currentUser || currentUser.role === "customer") {
     return (
-      <section className="page-shell">
-        <div className="empty-panel">
-          <h1>{t("admin.accessDenied")}</h1>
-          <p>{t("admin.adminOnly")}</p>
-          <button className="primary-action" onClick={() => onNavigate("login")}>
-            {t("auth.login")}
-          </button>
-        </div>
+      <AdminLayout activePage={activePage} currentUser={currentUser} language={language} onLogout={onLogout} onNavigate={onNavigate} subtitle="Admin access is required" title="Access denied">
+        <EmptyState title="Access denied" description="This portal is for admin and staff only." />
+      </AdminLayout>
+    );
+  }
+
+  function saveCategories(next) { setAdminCategories(next); writeStorage(storageKeys.categories, next); }
+  function saveBrands(next) { setBrands(next); writeStorage(storageKeys.brands, next); }
+  function saveVlogs(next) { setVlogs(next); writeStorage(storageKeys.vlogs, next); }
+  function saveStores(next) { setStores(next); writeStorage(storageKeys.stores, next); }
+  function saveInventory(next) { setInventoryRows(next); writeStorage(storageKeys.inventory, next); }
+  function saveMovements(next) { setMovements(next); writeStorage(storageKeys.movements, next); }
+
+  function renderSimpleTable(kind) {
+    const config = {
+      categories: { rows: adminCategories, add: "admin-categories-new", search: "Search by name...", title: "Add Category" },
+      brands: { rows: brands, add: "admin-brands-new", search: "Search by name...", title: "Add Brand" },
+      vlogs: { rows: vlogs, add: "admin-vlogs-new", search: "Search by title...", title: "Add Vlog" },
+      stores: { rows: stores, add: "admin-store-locator-new", search: "Search by name, city...", title: "Add Store" },
+    }[kind];
+    return (
+      <section className="admin-panel-card">
+        {kind === "vlogs" && (
+          <div className="admin-vlog-hero">
+            <MediaField label="Hero Image" name="image" value={vlogHero.image} onChange={(event) => setVlogHero((current) => ({ ...current, image: event.target.value }))} />
+            <label>Hero Title<input value={vlogHero.title} onChange={(event) => setVlogHero((current) => ({ ...current, title: event.target.value }))} /></label>
+            <button className="admin-primary-button" onClick={() => writeStorage(storageKeys.vlogHero, vlogHero)} type="button">Save Hero</button>
+          </div>
+        )}
+        <Toolbar addLabel={config.title} onAdd={readOnly ? null : () => onNavigate(config.add)}>
+          <SearchField placeholder={config.search} value="" onChange={() => {}} />
+          <div className="admin-segmented"><button className="active" type="button">All</button><button type="button">Active</button><button type="button">Inactive</button></div>
+          {kind === "vlogs" && <div className="admin-segmented"><button className="active" type="button">All</button><button type="button">Featured</button><button type="button">Standard</button></div>}
+        </Toolbar>
+        <AdminTable>
+          <thead>
+            {kind === "stores" ? <tr><th>Name</th><th>City</th><th>Country</th><th>Phone</th><th>Status</th><th>Sort</th><th>Actions</th></tr> :
+              kind === "brands" ? <tr><th>Icon / Logo</th><th>Name</th><th>Country</th><th>Status</th><th>Created</th><th>Updated</th><th>Actions</th></tr> :
+                kind === "vlogs" ? <tr><th>Thumbnail</th><th>Title</th><th>Type</th><th>Status</th><th>Created</th><th>Actions</th></tr> :
+                  <tr><th>Icon</th><th>Name</th><th>Parent</th><th>Status</th><th>Created</th><th>Updated</th><th>Actions</th></tr>}
+          </thead>
+          <tbody>
+            {config.rows.length ? config.rows.map((row, index) => (
+              <tr key={row.id || index}>
+                {kind === "stores" ? (
+                  <><td>{row.name}</td><td>{row.city}</td><td>{row.country}</td><td>{row.phone || "-"}</td><td><Badge>{row.active === false ? "Inactive" : "Active"}</Badge></td><td>{row.sort || index + 1}</td><td>-</td></>
+                ) : kind === "brands" ? (
+                  <><td>{row.logo ? <img className="admin-thumb" src={row.logo} alt="" /> : <span className="admin-logo-mini">{row.name?.charAt(0)}</span>}</td><td>{row.name}</td><td>{row.country}</td><td><Badge>{row.active === false ? "Inactive" : "Active"}</Badge></td><td>{formatDate(row.createdAt)}</td><td>{formatDate(row.updatedAt)}</td><td>-</td></>
+                ) : kind === "vlogs" ? (
+                  <><td>{row.thumbnail ? <img className="admin-thumb" src={row.thumbnail} alt="" /> : "-"}</td><td>{row.title}</td><td>{row.featured ? "Featured" : "Standard"}</td><td><Badge>{row.active === false ? "Inactive" : "Active"}</Badge></td><td>{formatDate(row.createdAt)}</td><td>-</td></>
+                ) : (
+                  <><td>{row.image ? <img className="admin-thumb" src={row.image} alt="" /> : <span className="admin-logo-mini">C</span>}</td><td>{getText(row.name)}</td><td>{row.parentId || "None"}</td><td><Badge>{row.active === false ? "Inactive" : "Active"}</Badge></td><td>{formatDate(row.createdAt)}</td><td>{formatDate(row.updatedAt)}</td><td>-</td></>
+                )}
+              </tr>
+            )) : <tr><td colSpan="7"><EmptyState title={kind === "vlogs" ? "No vlogs yet" : "No records yet"} description={kind === "vlogs" ? "Create your first vlog entry for the storefront." : ""} /></td></tr>}
+          </tbody>
+        </AdminTable>
       </section>
     );
   }
 
-  const pendingOrders = orders.filter((order) => order.status === "Pending");
-  const revenue = orders.reduce((sum, order) => sum + order.total, 0);
-  const activeEmployees = employees.filter(
-    (employee) => employee.status === "Active"
-  );
-
-  async function handleSave(product) {
-    const result = await onSaveProduct(product);
-
-    if (result?.ok) {
-      setEditingProduct(null);
+  function renderEntityForm(kind) {
+    if (!canEdit) return <EmptyState title="View-only access" description="You do not have permission to create records." />;
+    if (kind === "category") {
+      return <GenericEntityForm title="New Category" initial={{ active: true, parentId: "" }} fields={[
+        { name: "name", label: "Category Name *", required: true }, { name: "slug", label: "Slug" }, { name: "description", label: "Description", type: "textarea" }, { name: "image", label: "Category Image", type: "media" }, { name: "parentId", label: "Parent Category", type: "select", options: [{ value: "", label: "None (top-level)" }, ...adminCategories.map((category) => ({ value: category.id, label: getText(category.name) }))] }, { name: "active", label: "Active", type: "checkbox" }, { name: "metaTitle", label: "Meta Title" }, { name: "metaDescription", label: "Meta Description", type: "textarea" },
+      ]} onCancel={() => onNavigate("admin-categories")} onSave={(form) => { saveCategories([{ id: form.slug || makeSlug(form.name), name: createLocalizedCopy(form.name, form.name), description: createLocalizedCopy(form.description, form.description), image: form.image, parentId: form.parentId, active: form.active, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }, ...adminCategories]); onNavigate("admin-categories"); }} />;
     }
+    if (kind === "brand") {
+      return <GenericEntityForm title="New Brand" initial={{ active: true, country: "Palestine" }} fields={[
+        { name: "name", label: "Brand Name *", required: true }, { name: "slug", label: "Slug" }, { name: "description", label: "Description", type: "textarea" }, { name: "country", label: "Country" }, { name: "website", label: "Website" }, { name: "logo", label: "Brand Logo", type: "media" }, { name: "active", label: "Active", type: "checkbox" }, { name: "metaTitle", label: "Meta Title" }, { name: "metaDescription", label: "Meta Description", type: "textarea" },
+      ]} onCancel={() => onNavigate("admin-brands")} onSave={(form) => { saveBrands([{ id: form.slug || makeSlug(form.name), ...form, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }, ...brands]); onNavigate("admin-brands"); }} />;
+    }
+    if (kind === "vlog") {
+      return <GenericEntityForm title="New Vlog" initial={{ active: true, featured: false }} fields={[
+        { name: "title", label: "Title *", required: true }, { name: "slug", label: "Slug" }, { name: "description", label: "Description", type: "textarea" }, { name: "videoUrl", label: "Video URL *", required: true }, { name: "thumbnail", label: "Thumbnail", type: "media" }, { name: "active", label: "Active", type: "checkbox" }, { name: "featured", label: "Featured", type: "checkbox" },
+      ]} onCancel={() => onNavigate("admin-vlogs")} onSave={(form) => { saveVlogs([{ id: form.slug || makeSlug(form.title), ...form, createdAt: new Date().toISOString() }, ...vlogs]); onNavigate("admin-vlogs"); }} />;
+    }
+    return <GenericEntityForm title="New Store" initial={{ active: true, country: "Palestine" }} fields={[
+      { name: "name", label: "Name *", required: true }, { name: "address", label: "Address *", required: true }, { name: "city", label: "City *", required: true }, { name: "country", label: "Country *", required: true }, { name: "phone", label: "Phone" }, { name: "hours", label: "Hours" }, { name: "latitude", label: "Latitude" }, { name: "longitude", label: "Longitude" }, { name: "active", label: "Active", type: "checkbox" },
+    ]} onCancel={() => onNavigate("admin-store-locator")} onSave={(form) => { saveStores([{ id: makeSlug(form.name) || `store-${Date.now()}`, ...form, sort: stores.length + 1 }, ...stores]); onNavigate("admin-store-locator"); }} />;
+  }
 
-    return result;
+  function renderReviews() {
+    return (
+      <section className="admin-panel-card">
+        <Toolbar><select><option>Status</option><option>Pending</option><option>Approved</option><option>Rejected</option></select><select><option>Rating</option><option>5 Stars</option><option>4 Stars</option></select></Toolbar>
+        <AdminTable>
+          <thead><tr><th><input type="checkbox" /></th><th>Rating</th><th>Review</th><th>Product</th><th>Reviewer</th><th>Status</th><th>Created</th><th>Updated</th><th>Actions</th></tr></thead>
+          <tbody>
+            {reviews.length ? reviews.map((review) => <tr key={review.id}><td><input type="checkbox" /></td><td>{"★".repeat(Number(review.rating || 0))}</td><td>{getText(review.comment, language)}</td><td>{review.productName || "-"}</td><td>{review.customerName || "-"}</td><td><Badge tone={review.status === "rejected" ? "danger" : review.status === "approved" ? "active" : "warning"}>{review.status || "Pending"}</Badge></td><td>{formatDate(review.createdAt)}</td><td>{formatDate(review.updatedAt)}</td><td><div className="row-actions"><button className="text-action" onClick={() => onModerateReview(review.id, "approved", true)} type="button">Approve</button><button className="text-action danger" onClick={() => onDeleteReview?.(review.id)} type="button">Delete</button></div></td></tr>) : <tr><td colSpan="9">No reviews yet.</td></tr>}
+          </tbody>
+        </AdminTable>
+      </section>
+    );
+  }
+
+  function adjustStock(productId, delta, reason = "Adjustment", note = "") {
+    const product = products.find((item) => item.id === productId);
+    const next = { ...inventoryRows, [productId]: Math.max(0, (inventoryRows[productId] ?? getStockQty(product)) + Number(delta || 0)) };
+    const move = { id: `move-${Date.now()}-${productId}`, date: new Date().toISOString(), product: getText(product?.name), variant: product?.sizes?.[0]?.size || "Default", delta: Number(delta || 0), reason, operator: currentUser?.name || currentUser?.role || "Admin", note };
+    saveInventory(next);
+    saveMovements([move, ...movements]);
+  }
+
+  function applyStockUpdates(deltas, reason, note) {
+    Object.entries(deltas).forEach(([productId, delta]) => {
+      if (Number(delta) !== 0) adjustStock(productId, Number(delta), reason, note);
+    });
+    setStockModalOpen(false);
+  }
+
+  function renderCustomers() {
+    return (
+      <section className="admin-panel-card">
+        <Toolbar><SearchField placeholder="Search name, email, or phone..." value="" onChange={() => {}} /><select><option>Status</option></select><select><option>10 / page</option><option>25 / page</option><option>50 / page</option><option>100 / page</option></select></Toolbar>
+        <AdminTable>
+          <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Status</th><th>Orders</th><th>Created</th><th>Updated</th><th>Actions</th></tr></thead>
+          <tbody>{customers.length ? customers.map((customer) => <tr key={`${customer.email}-${customer.phone}`}><td>{customer.name}</td><td>{customer.email}</td><td>{customer.phone}</td><td><Badge>{customer.status}</Badge></td><td>{customer.orders}</td><td>{formatDate(customer.createdAt)}</td><td>{formatDate(customer.updatedAt)}</td><td>-</td></tr>) : <tr><td colSpan="8">No customers yet.</td></tr>}</tbody>
+        </AdminTable>
+      </section>
+    );
+  }
+
+  function renderActivePage() {
+    switch (activePage) {
+      case "admin-products":
+        return <ProductsListPage categories={adminCategories} filters={filters} onAdd={() => { setEditingProduct(null); onNavigate("admin-products-new"); }} onDeleteProduct={onDeleteProduct} onEdit={(product) => { setEditingProduct(product); onNavigate("admin-products-new"); }} products={products} readOnly={readOnly} setFilters={setFilters} />;
+      case "admin-products-new":
+        return <ProductWizard categories={adminCategories} editingProduct={editingProduct} onCancel={() => onNavigate("admin-products")} onSave={onSaveProduct} />;
+      case "admin-categories":
+        return renderSimpleTable("categories");
+      case "admin-categories-new":
+        return renderEntityForm("category");
+      case "admin-brands":
+        return renderSimpleTable("brands");
+      case "admin-brands-new":
+        return renderEntityForm("brand");
+      case "admin-vlogs":
+        return renderSimpleTable("vlogs");
+      case "admin-vlogs-new":
+        return renderEntityForm("vlog");
+      case "admin-store-locator":
+        return renderSimpleTable("stores");
+      case "admin-store-locator-new":
+        return renderEntityForm("store");
+      case "admin-orders":
+        return <section className="admin-panel-card"><Toolbar><SearchField placeholder="Search order #, customer..." value="" onChange={() => {}} /><select><option>Status</option></select><select><option>Payment</option></select></Toolbar>{orders.length ? <AdminOrdersTable employees={employees} canDelete={canManageSensitive} language={language} onAssignEmployee={onAssignEmployee} onDeleteOrder={onDeleteOrder} onStatusChange={onStatusChange} orders={orders} products={products} t={t} /> : <EmptyState title="No orders found" description="No orders have been placed yet. Orders will appear here once customers complete their purchases." />}</section>;
+      case "admin-reviews":
+        return renderReviews();
+      case "admin-inventory":
+        return <><InventoryPage inventoryRows={inventoryRows} movements={movements} onAdjust={adjustStock} onOpenModal={() => setStockModalOpen(true)} products={products} />{stockModalOpen && <StockUpdateModal inventoryRows={inventoryRows} onApply={applyStockUpdates} onClose={() => setStockModalOpen(false)} products={products} />}</>;
+      case "admin-customers":
+        return renderCustomers();
+      case "admin-settings":
+        return canManageSensitive ? <SettingsPage /> : <EmptyState title="Settings are restricted" description="Only admins can manage configuration." />;
+      case "admin":
+      default:
+        return <DashboardHome customers={customers} language={language} orders={orders} products={products} t={t} />;
+    }
   }
 
   return (
-    <section className="page-shell admin-page">
-      <div className="page-heading">
-        <p className="eyebrow">{t("admin.dashboard")}</p>
-        <h1>{t("admin.dashboard")}</h1>
-        <p>{t("auth.demoAuthNote")}</p>
-      </div>
-
+    <AdminLayout activePage={activePage} currentUser={currentUser} language={language} onLogout={onLogout} onNavigate={onNavigate} subtitle={subtitle} title={title}>
+      <PermissionNotice role={role} />
       {statusMessage && <div className="message-panel success">{statusMessage}</div>}
-
-      <div className="dashboard-grid">
-        <article className="dashboard-card">
-          <span>{t("admin.totalProducts")}</span>
-          <strong>{products.length}</strong>
-        </article>
-        <article className="dashboard-card">
-          <span>{t("admin.totalOrders")}</span>
-          <strong>{orders.length}</strong>
-        </article>
-        <article className="dashboard-card">
-          <span>{t("admin.pendingOrders")}</span>
-          <strong>{pendingOrders.length}</strong>
-        </article>
-        <article className="dashboard-card">
-          <span>{t("admin.demoRevenue")}</span>
-          <strong>{revenue} {t("common.ils")}</strong>
-        </article>
-        <article className="dashboard-card">
-          <span>{t("admin.totalEmployees")}</span>
-          <strong>{employees.length}</strong>
-        </article>
-        <article className="dashboard-card">
-          <span>{t("admin.activeEmployees")}</span>
-          <strong>{activeEmployees.length}</strong>
-        </article>
-      </div>
-
-      <section className="admin-section">
-        <div className="section-heading split-heading">
-          <div>
-            <p className="eyebrow">{t("admin.productsManagement")}</p>
-            <h2>{t("admin.productsManagement")}</h2>
-          </div>
-        </div>
-        <AdminProductForm
-          editingProduct={editingProduct}
-          language={language}
-          onCancel={() => setEditingProduct(null)}
-          onSave={handleSave}
-          t={t}
-        />
-        <AdminProductTable
-          language={language}
-          onDelete={onDeleteProduct}
-          onEdit={setEditingProduct}
-          products={products}
-          t={t}
-        />
-      </section>
-
-      <HomeContentManager
-        canDelete
-        language={language}
-        offers={homepageOffers}
-        onDeleteOffer={onDeleteOffer}
-        onDeleteReview={onDeleteReview}
-        onModerateReview={onModerateReview}
-        onSaveOffer={onSaveOffer}
-        reviews={reviews}
-        t={t}
-      />
-
-      <section className="admin-section">
-        <div className="section-heading">
-          <p className="eyebrow">{t("admin.ordersManagement")}</p>
-          <h2>{t("admin.ordersManagement")}</h2>
-        </div>
-        <AdminOrdersTable
-          employees={employees}
-          canDelete
-          language={language}
-          onAssignEmployee={onAssignEmployee}
-          onDeleteOrder={onDeleteOrder}
-          onStatusChange={onStatusChange}
-          orders={orders}
-          products={products}
-          t={t}
-        />
-      </section>
-    </section>
+      {renderActivePage()}
+    </AdminLayout>
   );
 }
 

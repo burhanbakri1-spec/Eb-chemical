@@ -167,6 +167,7 @@ function ProductDetailsPage({
   const [parallax, setParallax] = React.useState(0);
   const heroRef = React.useRef(null);
   const galleryTrackRef = React.useRef(null);
+  const galleryProgressRef = React.useRef(0);
   const reviewsRef = React.useRef(null);
   const relatedRef = React.useRef(null);
   const impactRef = React.useRef(null);
@@ -213,30 +214,72 @@ function ProductDetailsPage({
 
     let frameId = 0;
 
-    function updateGalleryPosition() {
-      if (window.matchMedia("(max-width: 1180px)").matches) {
+    function applyGalleryPosition(progress = galleryProgressRef.current) {
+      if (window.matchMedia("(max-width: 520px)").matches) {
         track.style.transform = "";
         return;
       }
 
-      const rect = hero.getBoundingClientRect();
-      const scrollRange = Math.max(hero.offsetHeight - window.innerHeight, 1);
       const moveRange = Math.max(track.scrollHeight - window.innerHeight, 0);
-      const progress = Math.min(1, Math.max(0, -rect.top / scrollRange));
       track.style.transform = `translate3d(0, ${-progress * moveRange}px, 0)`;
     }
 
     function requestUpdate() {
       window.cancelAnimationFrame(frameId);
-      frameId = window.requestAnimationFrame(updateGalleryPosition);
+      frameId = window.requestAnimationFrame(() => applyGalleryPosition());
     }
 
-    updateGalleryPosition();
-    window.addEventListener("scroll", requestUpdate, { passive: true });
+    function syncProgressAtSectionEdges() {
+      const rect = hero.getBoundingClientRect();
+      if (rect.top > window.innerHeight * 0.35) {
+        galleryProgressRef.current = 0;
+      } else if (rect.bottom < window.innerHeight * 0.35) {
+        galleryProgressRef.current = 1;
+      }
+      requestUpdate();
+    }
+
+    function handleWindowWheel(event) {
+      if (window.matchMedia("(max-width: 520px)").matches) return;
+
+      const moveRange = Math.max(track.scrollHeight - window.innerHeight, 0);
+      if (moveRange <= 2) return;
+
+      const rect = hero.getBoundingClientRect();
+      const heroInView = rect.top < window.innerHeight && rect.bottom > 0;
+      if (!heroInView) return;
+
+      const currentProgress = galleryProgressRef.current;
+      const scrollingDown = event.deltaY > 0;
+      const atStart = currentProgress <= 0.001;
+      const atEnd = currentProgress >= 0.999;
+
+      if ((scrollingDown && atEnd) || (!scrollingDown && atStart)) {
+        return;
+      }
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      if (Math.abs(rect.top) > 1 && rect.top < window.innerHeight * 0.5) {
+        window.scrollTo({ top: window.scrollY + rect.top, behavior: "auto" });
+      }
+
+      const deltaProgress = event.deltaY / moveRange;
+      const nextProgress = Math.min(1, Math.max(0, currentProgress + deltaProgress));
+      galleryProgressRef.current = nextProgress;
+      track.style.transform = `translate3d(0, ${-nextProgress * moveRange}px, 0)`;
+    }
+
+    galleryProgressRef.current = 0;
+    applyGalleryPosition(0);
+    window.addEventListener("scroll", syncProgressAtSectionEdges, { passive: true });
+    window.addEventListener("wheel", handleWindowWheel, { passive: false, capture: true });
     window.addEventListener("resize", requestUpdate);
     return () => {
       window.cancelAnimationFrame(frameId);
-      window.removeEventListener("scroll", requestUpdate);
+      window.removeEventListener("scroll", syncProgressAtSectionEdges);
+      window.removeEventListener("wheel", handleWindowWheel, { capture: true });
       window.removeEventListener("resize", requestUpdate);
     };
   }, [product, selectedType]);

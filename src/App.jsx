@@ -12,6 +12,7 @@ import EmployeeDashboardPage from "./pages/EmployeeDashboardPage.jsx";
 import EBPointsPage from "./pages/EBPointsPage.jsx";
 import HomePage from "./pages/HomePage.jsx";
 import HowItWorksPage from "./pages/HowItWorksPage.jsx";
+import AdminLoginPage from "./pages/AdminLoginPage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
 import ProductDetailsPage from "./pages/ProductDetailsPage.jsx";
 import ProductsPage from "./pages/ProductsPage.jsx";
@@ -75,18 +76,66 @@ const pagePaths = {
   "eb-points": "/eb-points",
   social: "/social",
   login: "/login",
+  "admin-login": "/admin/login",
   register: "/register",
   account: "/account",
   cart: "/cart",
   checkout: "/checkout",
-  admin: "/admin",
+  admin: "/admin/dashboard",
+  "admin-products": "/admin/products",
+  "admin-products-new": "/admin/products/new",
+  "admin-categories": "/admin/categories",
+  "admin-categories-new": "/admin/categories/new",
+  "admin-brands": "/admin/brands",
+  "admin-brands-new": "/admin/brands/new",
+  "admin-vlogs": "/admin/vlogs",
+  "admin-vlogs-new": "/admin/vlogs/new",
+  "admin-store-locator": "/admin/store-locator",
+  "admin-store-locator-new": "/admin/store-locator/new",
+  "admin-orders": "/admin/orders",
+  "admin-reviews": "/admin/reviews",
+  "admin-inventory": "/admin/inventory",
+  "admin-customers": "/admin/customers",
+  "admin-staff": "/admin/staff",
+  "admin-staff-new": "/admin/staff/new",
+  "admin-employees": "/admin/staff",
+  "admin-settings": "/admin/settings",
   employee: "/employee",
 };
 
+const adminPageKeys = [
+  "admin",
+  "admin-products",
+  "admin-products-new",
+  "admin-categories",
+  "admin-categories-new",
+  "admin-brands",
+  "admin-brands-new",
+  "admin-vlogs",
+  "admin-vlogs-new",
+  "admin-store-locator",
+  "admin-store-locator-new",
+  "admin-orders",
+  "admin-reviews",
+  "admin-inventory",
+  "admin-customers",
+  "admin-staff",
+  "admin-staff-new",
+  "admin-employees",
+  "admin-settings",
+];
+
 function getInitialPageFromPath() {
   const pathname = window.location.pathname;
+  if (pathname === "/admin") return "admin";
+  if (pathname === "/admin/dashboard") return "admin";
+  if (pathname === "/staff") return "employee";
   const entry = Object.entries(pagePaths).find(([, path]) => path === pathname);
   return entry?.[0] || "home";
+}
+
+function isStaffRole(role) {
+  return role === "employee" || role === "staff" || role === "manager";
 }
 
 function getStoredCart() {
@@ -119,6 +168,7 @@ function App() {
   const [reviews, setReviews] = React.useState([]);
   const [currentUser, setUser] = React.useState(getCurrentUser);
   const [loginMessage, setLoginMessage] = React.useState("");
+  const [adminLoginMessage, setAdminLoginMessage] = React.useState("");
   const [registerMessage, setRegisterMessage] = React.useState("");
   const [adminMessage, setAdminMessage] = React.useState("");
   const [checkoutMessage, setCheckoutMessage] = React.useState("");
@@ -153,6 +203,32 @@ function App() {
     loadReviews(currentUser);
     loadWorkSession(currentUser);
   }, [currentUser]);
+
+  React.useEffect(() => {
+    const portalPages = [...adminPageKeys, "employee"];
+
+    if (activePage === "admin-login" && currentUser) {
+      if (currentUser.role === "admin" || currentUser.role === "manager") {
+        navigate("admin");
+      } else if (isStaffRole(currentUser.role)) {
+        navigate("employee");
+      } else {
+        setAdminLoginMessage(t("adminLogin.staffOnly"));
+      }
+      return;
+    }
+
+    if (portalPages.includes(activePage) && !currentUser) {
+      setAdminLoginMessage(t("adminLogin.loginRequired"));
+      navigate("admin-login", { preserveAdminLoginMessage: true });
+      return;
+    }
+
+    if (portalPages.includes(activePage) && currentUser?.role === "customer") {
+      setAdminLoginMessage(t("adminLogin.staffOnly"));
+      navigate("admin-login", { preserveAdminLoginMessage: true });
+    }
+  }, [activePage, currentUser, t]);
 
   React.useEffect(() => {
     localStorage.setItem(languageStorageKey, language);
@@ -255,7 +331,7 @@ function App() {
     }
 
     try {
-      if (user.role === "employee") {
+      if (isStaffRole(user.role)) {
         setWorkSession(await fetchMyTodayWorkSession());
       }
 
@@ -263,7 +339,7 @@ function App() {
         setEmployeeSessions(await fetchEmployeeWorkSessions());
       }
     } catch (error) {
-      if (user.role === "employee") {
+      if (isStaffRole(user.role)) {
         setWorkSession(null);
       }
       if (user.role === "admin") {
@@ -280,13 +356,16 @@ function App() {
   async function loadReviews(user) {
     if (!user) return;
     setReviews(await fetchAllReviews());
-    if (user.role === "admin" || user.role === "employee") {
+    if (user.role === "admin" || isStaffRole(user.role)) {
       setHomepageOffers(await fetchAllHomepageOffers());
     }
   }
 
   function navigate(page, options = {}) {
     setLoginMessage("");
+    if (!options.preserveAdminLoginMessage) {
+      setAdminLoginMessage("");
+    }
     setRegisterMessage("");
     setAdminMessage("");
     setCheckoutMessage("");
@@ -394,12 +473,47 @@ function App() {
       navigate(
         session.user.role === "admin"
           ? "admin"
-          : session.user.role === "employee"
+          : isStaffRole(session.user.role)
             ? "employee"
             : "account"
       );
     } catch (error) {
       setLoginMessage(error.message || t("auth.loginFailed"));
+    }
+  }
+
+  async function handleAdminLogin(credentials) {
+    try {
+      const session = await loginUser(credentials.email, credentials.password);
+      const role = session.user?.role;
+
+      if (role === "admin") {
+        setUser(session.user);
+        setWorkSession(session.workSession || null);
+        navigate("admin");
+        return;
+      }
+
+      if (role === "manager") {
+        setUser(session.user);
+        setWorkSession(session.workSession || null);
+        navigate("admin");
+        return;
+      }
+
+      if (isStaffRole(role)) {
+        setUser(session.user);
+        setWorkSession(session.workSession || null);
+        navigate("employee");
+        return;
+      }
+
+      await logoutUser().catch(() => null);
+      setUser(null);
+      setWorkSession(null);
+      setAdminLoginMessage(t("adminLogin.staffOnly"));
+    } catch (error) {
+      setAdminLoginMessage(error.message || t("auth.loginFailed"));
     }
   }
 
@@ -424,6 +538,18 @@ function App() {
     setUser(null);
     setEmployeeSessions([]);
     navigate("home");
+  }
+
+  async function handleAdminLogout() {
+    try {
+      await logoutUser();
+    } catch (error) {
+      setCurrentUser(null);
+    }
+    setUser(null);
+    setWorkSession(null);
+    setEmployeeSessions([]);
+    navigate("admin-login");
   }
 
   async function handleSaveProduct(product) {
@@ -650,8 +776,8 @@ function App() {
     try {
       const order = await createOrder({
         ...orderPayload,
-        createdByEmployeeId: currentUser?.role === "employee" ? currentUser.id : "",
-        createdByEmployeeName: currentUser?.role === "employee" ? currentUser.name : "",
+        createdByEmployeeId: isStaffRole(currentUser?.role) ? currentUser.id : "",
+        createdByEmployeeName: isStaffRole(currentUser?.role) ? currentUser.name : "",
       });
       setOrders((currentOrders) => [order, ...currentOrders]);
       await refreshOrders();
@@ -661,9 +787,14 @@ function App() {
     }
   }
 
+  const isPortalLoginPage = activePage === "admin-login";
+  const isAdminPanelPage = adminPageKeys.includes(activePage);
+  const isAdminShellPage = isPortalLoginPage || isAdminPanelPage;
+
   return (
-    <div className="app-shell">
-      <Header
+    <div className={isPortalLoginPage ? "app-shell admin-login-shell" : "app-shell"}>
+      {!isAdminShellPage && (
+        <Header
         activePage={activePage}
         cartCount={cartCount}
         language={language}
@@ -679,9 +810,10 @@ function App() {
         workSession={workSession}
         onLogout={handleLogout}
         t={t}
-      />
+        />
+      )}
 
-      <main>
+      <main className={isPortalLoginPage ? "admin-login-main" : isAdminPanelPage ? "admin-panel-main" : undefined}>
         {activePage === "home" && (
           <HomePage
             homepageOffers={homepageOffers}
@@ -785,6 +917,15 @@ function App() {
           />
         )}
 
+        {activePage === "admin-login" && (
+          <AdminLoginPage
+            message={adminLoginMessage}
+            onLogin={handleAdminLogin}
+            onNavigate={navigate}
+            t={t}
+          />
+        )}
+
         {activePage === "register" && (
           <RegisterPage
             message={registerMessage}
@@ -830,8 +971,9 @@ function App() {
           />
         )}
 
-        {activePage === "admin" && (
+        {adminPageKeys.includes(activePage) && !["admin-staff", "admin-staff-new", "admin-employees"].includes(activePage) && (
           <AdminDashboardPage
+            activePage={activePage}
             currentUser={currentUser}
             employees={employees}
             language={language}
@@ -839,6 +981,7 @@ function App() {
             onDeleteProduct={handleDeleteProduct}
             onAssignEmployee={handleAssignEmployee}
             onDeleteOrder={handleDeleteOrder}
+            onLogout={handleAdminLogout}
             onNavigate={navigate}
             onSaveOffer={handleSaveOffer}
             onDeleteOffer={handleDeleteOffer}
@@ -856,11 +999,14 @@ function App() {
           />
         )}
 
-        {activePage === "admin-employees" && (
+        {["admin-staff", "admin-staff-new", "admin-employees"].includes(activePage) && (
           <AdminEmployeesPage
+            activePage={activePage}
             currentUser={currentUser}
             employees={employees}
+            language={language}
             onDeleteEmployee={handleDeleteEmployee}
+            onLogout={handleAdminLogout}
             onNavigate={navigate}
             onSaveEmployee={handleSaveEmployee}
             onToggleEmployeeStatus={handleToggleEmployeeStatus}
@@ -871,7 +1017,7 @@ function App() {
         )}
       </main>
 
-      <Footer onNavigate={navigate} t={t} />
+      {!isAdminShellPage && <Footer onNavigate={navigate} t={t} />}
     </div>
   );
 }

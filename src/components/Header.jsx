@@ -118,7 +118,7 @@ function Header({
   workSession,
 }) {
   const isAdmin = currentUser?.role === "admin";
-  const isEmployee = currentUser?.role === "employee";
+  const isEmployee = ["employee", "staff"].includes(currentUser?.role);
   const isCustomer = currentUser?.role === "customer";
   const [isMegaOpen, setIsMegaOpen] = React.useState(false);
   const [isAboutOpen, setIsAboutOpen] = React.useState(false);

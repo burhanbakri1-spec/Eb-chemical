@@ -45,13 +45,13 @@ function EmployeeDashboardPage({
   const [message, setMessage] = React.useState(null);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
-  if (currentUser?.role !== "employee") {
+  if (!["employee", "staff"].includes(currentUser?.role)) {
     return (
       <section className="page-shell">
         <div className="empty-panel">
           <h1>{t("admin.accessDenied")}</h1>
           <p>{t("admin.employeeOnly")}</p>
-          <button className="primary-action" onClick={() => onNavigate("login")}>
+          <button className="primary-action" onClick={() => onNavigate("admin-login")}>
             {t("auth.login")}
           </button>
         </div>

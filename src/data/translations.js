@@ -141,6 +141,14 @@ export const translations = {
         "Create your EB Chemical account to track orders and complete future purchases faster.",
       forgotPassword: "I forgot my password",
     },
+    adminLogin: {
+      title: "EB Chemical Admin Panel",
+      subtitle: "Sign in to manage your workspace",
+      signIn: "Sign In",
+      backToStore: "Back to Store",
+      staffOnly: "This portal is for admin and staff only.",
+      loginRequired: "Please sign in through the admin portal.",
+    },
     admin: {
       dashboard: "Admin Dashboard",
       employees: "Employees",
@@ -487,6 +495,14 @@ export const translations = {
       registerPageText:
         "أنشئ حسابك في EB Chemical لتتبع الطلبات وإتمام عمليات الشراء القادمة بسرعة أكبر.",
       forgotPassword: "نسيت كلمة المرور",
+    },
+    adminLogin: {
+      title: "لوحة إدارة EB Chemical",
+      subtitle: "سجّل الدخول لإدارة مساحة العمل",
+      signIn: "تسجيل الدخول",
+      backToStore: "العودة إلى المتجر",
+      staffOnly: "هذه البوابة مخصصة للإدارة والموظفين فقط.",
+      loginRequired: "يرجى تسجيل الدخول من بوابة الإدارة.",
     },
     admin: {
       dashboard: "لوحة تحكم الأدمن",

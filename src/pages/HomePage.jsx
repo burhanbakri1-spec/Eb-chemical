@@ -1,5 +1,4 @@
 import React, { useRef } from "react";
-import CategoryCard from "../components/CategoryCard.jsx";
 import FloatingProductCollage from "../components/FloatingProductCollage.jsx";
 import { brand } from "../data/brand.js";
 import { categories } from "../data/categories.js";
@@ -529,7 +528,6 @@ function HomePage({
     products
       .filter((product) => ["home-cleaning", "car-care"].includes(product.categoryId))
       .slice(0, 10) || products.slice(0, 10);
-  const featuredProducts = products.slice(8, 11);
   const showcaseProduct =
     products.find((product) => product.categoryId === "home-cleaning") ||
     products[0];
@@ -548,14 +546,6 @@ function HomePage({
       (review.status || "approved") === "approved",
   );
 
-  function handleOfferClick(offer) {
-    if (offer.ctaLink === "car-care" || offer.ctaLink === "home-cleaning") {
-      onCategorySelect(offer.ctaLink);
-      return;
-    }
-    onNavigate(offer.ctaLink || "products");
-  }
-
   return (
     <div className="storefront-home">
       <section className="hero-section hero-editorial">
@@ -569,7 +559,7 @@ function HomePage({
             </button>
             <button
               className="secondary-action large"
-              onClick={() => document.getElementById("categories")?.scrollIntoView()}
+              onClick={() => onNavigate("products")}
               type="button"
             >
               {t("home.exploreCategories")}
@@ -587,58 +577,6 @@ function HomePage({
 
       <CleaningSystemShowcase language={language} />
 
-      {activeOffers.length > 0 && (
-        <section className="homepage-offers-section storefront-section">
-          <div className="section-heading split-heading">
-            <div>
-              <p className="eyebrow">{t("homeContent.eyebrow")}</p>
-              <h2>{t("homeContent.title")}</h2>
-            </div>
-          </div>
-          <div className="homepage-offers-grid">
-            {activeOffers.map((offer) => (
-              <article className="homepage-offer-card" key={offer.id}>
-                <img
-                  alt={getLocalized(offer.title, language)}
-                  src={offer.image || "/images/products/product-placeholder.svg"}
-                  onError={(event) => {
-                    event.currentTarget.src = "/images/products/product-placeholder.svg";
-                  }}
-                />
-                <div>
-                  <h3>{getLocalized(offer.title, language)}</h3>
-                  <p>{getLocalized(offer.description, language)}</p>
-                  <button className="text-action" onClick={() => handleOfferClick(offer)} type="button">
-                    {getLocalized(offer.ctaText, language) || t("home.shopProducts")}
-                  </button>
-                </div>
-              </article>
-            ))}
-          </div>
-        </section>
-      )}
-
-      <section className="category-feature-section storefront-section" id="categories">
-        <div className="section-heading">
-          <p className="eyebrow">{t("home.categoryEyebrow")}</p>
-          <h2>{t("home.categoryTitle")}</h2>
-        </div>
-        <div className="category-grid feature-grid">
-          {categories.map((category) => (
-            <CategoryCard
-              category={category}
-              key={category.id}
-              language={language}
-              onSelect={onCategorySelect}
-              productCount={
-                products.filter((product) => product.categoryId === category.id).length
-              }
-              t={t}
-            />
-          ))}
-        </div>
-      </section>
-
       <ProductShowcaseSlider
         language={language}
         onViewProduct={onViewProduct}
@@ -655,47 +593,7 @@ function HomePage({
         variant="essentials"
       />
 
-      <section className="collection-highlight storefront-section">
-        <div className="collection-copy">
-          <p className="eyebrow">{t("home.highlightEyebrow")}</p>
-          <h2>{t("home.highlightTitle")}</h2>
-          <p>{t("home.highlightText")}</p>
-          <button
-            className="primary-action large"
-            onClick={() => onCategorySelect("car-care")}
-            type="button"
-          >
-            {t("home.highlightCta")}
-          </button>
-        </div>
-        <div className="mini-product-row">
-          {featuredProducts.map((product) => (
-            <button
-              className="mini-product"
-              key={product.id}
-              onClick={() => onViewProduct(product.slug)}
-              type="button"
-            >
-              <span>{product.badge[language]}</span>
-              <strong>{product.name[language]}</strong>
-            </button>
-          ))}
-        </div>
-      </section>
-
       <HowItWorksSplit language={language} onNavigate={onNavigate} />
-
-      <section className="why-section storefront-section">
-        <div>
-          <p className="eyebrow">{t("home.whyEyebrow")}</p>
-          <h2>{t("home.whyTitle")}</h2>
-        </div>
-        <div className="why-grid">
-          {t("home.whyItems").map((item) => (
-            <p key={item}>{item}</p>
-          ))}
-        </div>
-      </section>
 
       {siteReviews.length > 0 && (
         <section className="reviews-section storefront-section">

@@ -6,9 +6,13 @@ const router = Router();
 
 router.use(requireAuth);
 
+function isStaffRole(role) {
+  return role === "employee" || role === "staff";
+}
+
 router.get("/", (req, res) => {
   if (req.user.role === "admin" || req.user.permissions?.includes("orders.view")) {
-    if (req.user.role === "employee") {
+    if (isStaffRole(req.user.role)) {
       return res.json(
         orders.filter(
           (order) =>
@@ -44,12 +48,12 @@ router.post("/", (req, res) => {
     discountFromPoints,
     paymentMethod: req.body.paymentMethod || "Cash on delivery",
     status: "Pending",
-    handledByEmployeeId: req.user.role === "employee" ? req.user.id : "",
-    assignedToEmployeeId: req.user.role === "employee" ? req.user.id : "",
+    handledByEmployeeId: isStaffRole(req.user.role) ? req.user.id : "",
+    assignedToEmployeeId: isStaffRole(req.user.role) ? req.user.id : "",
     createdByEmployeeId:
-      req.user.role === "employee" ? req.user.id : req.body.createdByEmployeeId || "",
+      isStaffRole(req.user.role) ? req.user.id : req.body.createdByEmployeeId || "",
     createdByEmployeeName:
-      req.user.role === "employee" ? req.user.name : req.body.createdByEmployeeName || "",
+      isStaffRole(req.user.role) ? req.user.name : req.body.createdByEmployeeName || "",
     createdBy: publicUser(req.user),
     lastUpdatedBy: publicUser(req.user),
     createdAt: new Date().toISOString(),

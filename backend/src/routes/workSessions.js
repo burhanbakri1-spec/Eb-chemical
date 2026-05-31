@@ -10,6 +10,10 @@ function todayKey() {
   return new Date().toISOString().slice(0, 10);
 }
 
+function isStaffRole(role) {
+  return role === "employee" || role === "staff";
+}
+
 function findOpenSession(user) {
   return workSessions.find(
     (session) => session.employeeId === user.id && session.date === todayKey() && !session.logoutTime,
@@ -17,7 +21,7 @@ function findOpenSession(user) {
 }
 
 router.post("/start", (req, res) => {
-  if (req.user.role !== "employee") {
+  if (!isStaffRole(req.user.role)) {
     return res.status(403).json({ message: "Only employees can start work sessions." });
   }
 
@@ -47,7 +51,7 @@ router.post("/end", (req, res) => {
 });
 
 router.get("/my-today", (req, res) => {
-  if (req.user.role !== "employee") return res.json(null);
+  if (!isStaffRole(req.user.role)) return res.json(null);
   return res.json(findOpenSession(req.user) || null);
 });
 

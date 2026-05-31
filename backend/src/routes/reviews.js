@@ -4,6 +4,10 @@ import { requireAuth } from "../middleware/auth.js";
 
 const router = Router();
 
+function isStaffRole(role) {
+  return role === "employee" || role === "staff";
+}
+
 function visibleReviews(items) {
   return items
     .filter((review) => review.isActive && review.isApproved !== false && review.status === "approved")
@@ -15,7 +19,7 @@ router.get("/", (_req, res) => {
 });
 
 router.get("/all", requireAuth, (req, res) => {
-  if (req.user.role === "employee") {
+  if (isStaffRole(req.user.role)) {
     return res.json(reviews.filter((review) => review.employeeId === req.user.id));
   }
   return res.json(reviews);
