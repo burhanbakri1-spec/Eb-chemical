@@ -2,7 +2,9 @@ import React from "react";
 import { Minus, Plus, Search, Upload } from "lucide-react";
 import AdminLayout from "../components/AdminLayout.jsx";
 import AdminOrdersTable from "../components/AdminOrdersTable.jsx";
+import HomeContentManager from "../components/HomeContentManager.jsx";
 import { categories as defaultCategories } from "../data/categories.js";
+import { uploadImage } from "../utils/api.js";
 
 const storageKeys = {
   brands: "ebAdminBrands",
@@ -25,6 +27,7 @@ const pageMeta = {
   "admin-brands-new": ["New Brand", "Create a brand profile"],
   "admin-vlogs": ["Vlogs", "Manage storefront vlog entries"],
   "admin-vlogs-new": ["New Vlog", "Create a storefront vlog entry"],
+  "admin-home-content": ["Home Content", "Manage homepage cards, offers, and reviews"],
   "admin-store-locator": ["Store Locator", "Manage physical store locations"],
   "admin-store-locator-new": ["New Store", "Create a retail location"],
   "admin-orders": ["Orders", "Manage and track customer orders"],
@@ -196,16 +199,32 @@ function Badge({ tone = "active", children }) {
 }
 
 function MediaField({ label, name, value, onChange }) {
+  const [isUploading, setIsUploading] = React.useState(false);
+
+  async function handleUpload(event) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setIsUploading(true);
+    try {
+      const uploaded = await uploadImage(file);
+      onChange({ target: { name, value: uploaded.path || uploaded.url } });
+    } finally {
+      setIsUploading(false);
+      event.target.value = "";
+    }
+  }
+
   return (
     <div className="admin-media-field">
       <label>
         {label}
         <input name={name} placeholder="https://..." value={value || ""} onChange={onChange} />
       </label>
-      <button className="admin-upload-button" type="button">
+      <label className="admin-upload-button">
         <Upload size={14} />
-        Upload
-      </button>
+        {isUploading ? "Uploading..." : "Upload"}
+        <input accept="image/*" hidden type="file" onChange={handleUpload} />
+      </label>
       {value && (
         <div className="admin-media-preview">
           <img alt="" src={value} />
@@ -656,17 +675,24 @@ function AdminDashboardPage({
   activePage = "admin",
   currentUser,
   employees,
+  homepageCategoryCards,
   language,
   homepageOffers,
   onDeleteProduct,
+  onDeleteOffer,
   onAssignEmployee,
   onDeleteOrder,
   onLogout,
+  onLanguageChange,
   onNavigate,
+  onSaveCategoryCard,
+  onSaveOffer,
   onSaveProduct,
   onModerateReview,
   onDeleteReview,
   onStatusChange,
+  isDarkMode,
+  onToggleDarkMode,
   orders,
   products,
   reviews,
@@ -693,7 +719,18 @@ function AdminDashboardPage({
 
   if (!currentUser || currentUser.role === "customer") {
     return (
-      <AdminLayout activePage={activePage} currentUser={currentUser} language={language} onLogout={onLogout} onNavigate={onNavigate} subtitle="Admin access is required" title="Access denied">
+      <AdminLayout
+        activePage={activePage}
+        currentUser={currentUser}
+        isDarkMode={isDarkMode}
+        language={language}
+        onLanguageChange={onLanguageChange}
+        onLogout={onLogout}
+        onNavigate={onNavigate}
+        onToggleDarkMode={onToggleDarkMode}
+        subtitle="Admin access is required"
+        title="Access denied"
+      >
         <EmptyState title="Access denied" description="This portal is for admin and staff only." />
       </AdminLayout>
     );
@@ -835,6 +872,22 @@ function AdminDashboardPage({
         return renderSimpleTable("vlogs");
       case "admin-vlogs-new":
         return renderEntityForm("vlog");
+      case "admin-home-content":
+        return (
+          <HomeContentManager
+            canDelete={canManageSensitive}
+            categoryCards={homepageCategoryCards}
+            language={language}
+            offers={homepageOffers}
+            onDeleteOffer={onDeleteOffer}
+            onDeleteReview={onDeleteReview}
+            onModerateReview={onModerateReview}
+            onSaveCategoryCard={onSaveCategoryCard}
+            onSaveOffer={onSaveOffer}
+            reviews={reviews}
+            t={t}
+          />
+        );
       case "admin-store-locator":
         return renderSimpleTable("stores");
       case "admin-store-locator-new":
@@ -856,7 +909,18 @@ function AdminDashboardPage({
   }
 
   return (
-    <AdminLayout activePage={activePage} currentUser={currentUser} language={language} onLogout={onLogout} onNavigate={onNavigate} subtitle={subtitle} title={title}>
+    <AdminLayout
+      activePage={activePage}
+      currentUser={currentUser}
+      isDarkMode={isDarkMode}
+      language={language}
+      onLanguageChange={onLanguageChange}
+      onLogout={onLogout}
+      onNavigate={onNavigate}
+      onToggleDarkMode={onToggleDarkMode}
+      subtitle={subtitle}
+      title={title}
+    >
       <PermissionNotice role={role} />
       {statusMessage && <div className="message-panel success">{statusMessage}</div>}
       {renderActivePage()}

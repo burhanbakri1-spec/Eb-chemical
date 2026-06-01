@@ -32,7 +32,18 @@ function AdminProductTable({
 
             return (
               <tr key={product.id}>
-                <td>{product.name[language]}</td>
+                <td>
+                  <div className="admin-product-cell">
+                    <img
+                      alt={product.name[language]}
+                      src={product.image || "/images/products/product-placeholder.svg"}
+                      onError={(event) => {
+                        event.currentTarget.src = "/images/products/product-placeholder.svg";
+                      }}
+                    />
+                    <span>{product.name[language]}</span>
+                  </div>
+                </td>
                 <td>{category?.name[language]}</td>
                 <td>
                   {product.sizes

@@ -7,11 +7,14 @@ function AdminEmployeesPage({
   activePage = "admin-staff",
   currentUser,
   employees,
+  isDarkMode,
   language = "en",
+  onLanguageChange,
   onDeleteEmployee,
   onLogout,
   onNavigate,
   onSaveEmployee,
+  onToggleDarkMode,
   onToggleEmployeeStatus,
   sessions,
   statusMessage,
@@ -28,17 +31,20 @@ function AdminEmployeesPage({
     ? isArabic ? "إنشاء حساب موظف جديد" : "Create a staff account"
     : isArabic ? "إدارة حسابات الموظفين والأدوار والصلاحيات" : "Manage staff accounts, roles, and permissions";
 
+  const layoutProps = {
+    activePage,
+    currentUser,
+    isDarkMode,
+    language,
+    onLanguageChange,
+    onLogout,
+    onNavigate,
+    onToggleDarkMode,
+  };
+
   if (currentUser?.role !== "admin") {
     return (
-      <AdminLayout
-        activePage={activePage}
-        currentUser={currentUser}
-        language={language}
-        onLogout={onLogout}
-        onNavigate={onNavigate}
-        subtitle={t("admin.adminOnly")}
-        title={t("admin.accessDenied")}
-      >
+      <AdminLayout {...layoutProps} subtitle={t("admin.adminOnly")} title={t("admin.accessDenied")}>
         <div className="admin-empty-state">
           <strong>{t("admin.accessDenied")}</strong>
           <span>{t("admin.adminOnly")}</span>
@@ -66,15 +72,7 @@ function AdminEmployeesPage({
   }
 
   return (
-    <AdminLayout
-      activePage={activePage}
-      currentUser={currentUser}
-      language={language}
-      onLogout={onLogout}
-      onNavigate={onNavigate}
-      subtitle={subtitle}
-      title={title}
-    >
+    <AdminLayout {...layoutProps} subtitle={subtitle} title={title}>
       {(localMessage || statusMessage) && (
         <div className={localMessage?.type === "error" ? "message-panel error" : "message-panel success"}>
           {localMessage?.text || statusMessage}
@@ -107,7 +105,7 @@ function AdminEmployeesPage({
           <div className="admin-section-head">
             <div>
               <h2>{isArabic ? "الموظفون" : "Staff"}</h2>
-              <p>{isArabic ? "إدارة حسابات الموظفين والأدوار والصلاحيات" : "Manage staff accounts, roles, and permissions"}</p>
+              <p>{subtitle}</p>
             </div>
             <button className="admin-primary-button" onClick={() => onNavigate("admin-staff-new")} type="button">
               {isArabic ? "إضافة موظف" : "Add Staff"}

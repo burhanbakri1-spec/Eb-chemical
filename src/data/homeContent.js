@@ -1,3 +1,36 @@
+export const homepageCategoryCards = [
+  {
+    key: "home",
+    image: "/homepage-categories/home-care.jpg",
+    label: { en: "Home care", ar: "العناية بالمنزل" },
+    title: { en: "Daily cleaning made easier", ar: "تنظيف يومي أسهل" },
+  },
+  {
+    key: "car",
+    image: "/homepage-categories/car-care.jpg",
+    label: { en: "Car care", ar: "العناية بالسيارة" },
+    title: { en: "Fresh finish for every ride", ar: "لمسة نظيفة لكل رحلة" },
+  },
+  {
+    key: "kitchen",
+    image: "/homepage-categories/kitchen-new.jpg",
+    label: { en: "Kitchen", ar: "المطبخ" },
+    title: { en: "Cuts grease with less effort", ar: "إزالة الدهون بجهد أقل" },
+  },
+  {
+    key: "bathroom",
+    image: "/homepage-categories/kitchen.jpg",
+    label: { en: "Bathroom", ar: "الحمام" },
+    title: { en: "Shine for sinks and tiles", ar: "لمعان للأحواض والبلاط" },
+  },
+  {
+    key: "laundry",
+    image: "/homepage-categories/laundry.jpg",
+    label: { en: "Laundry", ar: "الغسيل" },
+    title: { en: "Care for fabrics every day", ar: "عناية يومية بالأقمشة" },
+  },
+];
+
 export const homepageOffers = [
   {
     id: "offer-home-care",

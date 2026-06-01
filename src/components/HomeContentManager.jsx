@@ -1,4 +1,6 @@
 import React from "react";
+import { Upload } from "lucide-react";
+import { uploadImage } from "../utils/api.js";
 
 const emptyOffer = {
   id: "",
@@ -53,24 +55,38 @@ function formToOffer(form) {
   };
 }
 
+function getCardTitle(card, language) {
+  return card?.title?.[language] || card?.title?.en || card?.label?.[language] || card?.label?.en || card?.key || "";
+}
+
 function HomeContentManager({
   canDelete = false,
+  categoryCards = [],
   language,
   offers = [],
   onDeleteOffer,
   onDeleteReview,
   onModerateReview,
+  onSaveCategoryCard,
   onSaveOffer,
   reviews = [],
   t,
 }) {
   const [editingOffer, setEditingOffer] = React.useState(null);
   const [form, setForm] = React.useState(emptyOffer);
+  const [cards, setCards] = React.useState(categoryCards);
   const [isSaving, setIsSaving] = React.useState(false);
+  const [uploadingOffer, setUploadingOffer] = React.useState(false);
+  const [uploadingCardKey, setUploadingCardKey] = React.useState("");
+  const [savingCardKey, setSavingCardKey] = React.useState("");
 
   React.useEffect(() => {
     setForm(offerToForm(editingOffer));
   }, [editingOffer]);
+
+  React.useEffect(() => {
+    setCards(categoryCards);
+  }, [categoryCards]);
 
   function updateField(event) {
     const { checked, name, type, value } = event.target;
@@ -78,6 +94,28 @@ function HomeContentManager({
       ...currentForm,
       [name]: type === "checkbox" ? checked : value,
     }));
+  }
+
+  function updateCardField(key, field, value) {
+    setCards((currentCards) =>
+      currentCards.map((card) => (card.key === key ? { ...card, [field]: value } : card))
+    );
+  }
+
+  function updateCardText(key, group, lang, value) {
+    setCards((currentCards) =>
+      currentCards.map((card) =>
+        card.key === key
+          ? {
+              ...card,
+              [group]: {
+                ...(card[group] || {}),
+                [lang]: value,
+              },
+            }
+          : card
+      )
+    );
   }
 
   async function submitOffer(event) {
@@ -89,6 +127,41 @@ function HomeContentManager({
     setForm(emptyOffer);
   }
 
+  async function handleOfferUpload(event) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setUploadingOffer(true);
+    try {
+      const uploaded = await uploadImage(file);
+      setForm((currentForm) => ({ ...currentForm, image: uploaded.path || uploaded.url }));
+    } finally {
+      setUploadingOffer(false);
+      event.target.value = "";
+    }
+  }
+
+  async function handleCardUpload(key, event) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setUploadingCardKey(key);
+    try {
+      const uploaded = await uploadImage(file);
+      updateCardField(key, "image", uploaded.path || uploaded.url);
+    } finally {
+      setUploadingCardKey("");
+      event.target.value = "";
+    }
+  }
+
+  async function saveCard(card) {
+    setSavingCardKey(card.key);
+    try {
+      await onSaveCategoryCard?.(card);
+    } finally {
+      setSavingCardKey("");
+    }
+  }
+
   return (
     <section className="admin-section home-content-manager">
       <div className="section-heading split-heading">
@@ -97,6 +170,49 @@ function HomeContentManager({
           <h2>{t("homeContent.title")}</h2>
         </div>
       </div>
+
+      <section className="homepage-card-editor">
+        <div className="admin-section-head">
+          <div>
+            <h3>{t("homeContent.cardImagesTitle")}</h3>
+            <p>{t("homeContent.cardImagesText")}</p>
+          </div>
+        </div>
+        <div className="homepage-card-grid">
+          {cards.map((card) => (
+            <article className="homepage-card-admin" key={card.key}>
+              <div className="homepage-card-preview">
+                <img alt={getCardTitle(card, language)} src={card.image} />
+              </div>
+              <div className="homepage-card-fields">
+                <strong>{getCardTitle(card, language)}</strong>
+                <label>
+                  {t("homeContent.cardImagePath")}
+                  <input value={card.image || ""} onChange={(event) => updateCardField(card.key, "image", event.target.value)} />
+                </label>
+                <label>
+                  {t("homeContent.titleEn")}
+                  <input value={card.title?.en || ""} onChange={(event) => updateCardText(card.key, "title", "en", event.target.value)} />
+                </label>
+                <label>
+                  {t("homeContent.titleAr")}
+                  <input value={card.title?.ar || ""} onChange={(event) => updateCardText(card.key, "title", "ar", event.target.value)} />
+                </label>
+                <div className="home-content-upload-line">
+                  <label className="admin-upload-button">
+                    <Upload size={14} />
+                    {uploadingCardKey === card.key ? t("common.temporaryContent") : t("homeContent.cardUpload")}
+                    <input accept="image/*" hidden type="file" onChange={(event) => handleCardUpload(card.key, event)} />
+                  </label>
+                  <button className="admin-primary-button" disabled={savingCardKey === card.key} onClick={() => saveCard(card)} type="button">
+                    {savingCardKey === card.key ? t("common.temporaryContent") : t("homeContent.saveCard")}
+                  </button>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
 
       <form className="admin-form" onSubmit={submitOffer}>
         <h3>{editingOffer ? t("homeContent.editOffer") : t("homeContent.addOffer")}</h3>
@@ -120,6 +236,18 @@ function HomeContentManager({
           {t("homeContent.image")}
           <input name="image" onChange={updateField} value={form.image} />
         </label>
+        <div className="full-field home-content-upload-line">
+          <label className="admin-upload-button">
+            <Upload size={14} />
+            {uploadingOffer ? t("common.temporaryContent") : t("homeContent.uploadOfferImage")}
+            <input accept="image/*" hidden type="file" onChange={handleOfferUpload} />
+          </label>
+          {form.image && (
+            <div className="admin-offer-image-preview">
+              <img alt={t("homeContent.offerImagePreview")} src={form.image} />
+            </div>
+          )}
+        </div>
         <label>
           {t("homeContent.ctaTextEn")}
           <input name="ctaTextEn" onChange={updateField} value={form.ctaTextEn} />
@@ -181,7 +309,7 @@ function HomeContentManager({
                 <strong>{review.customerName}</strong>
                 <span>{review.type === "employee" ? t("reviews.employeeReview") : t("reviews.storeReview")}</span>
               </div>
-              <span className="review-stars-inline">{"?".repeat(Number(review.rating || 0))}</span>
+              <span className="review-stars-inline">{"★".repeat(Number(review.rating || 0))}</span>
               <p>{review.comment?.[language] || review.comment?.en || review.comment}</p>
               {review.employeeName && <small>{review.employeeName}</small>}
               {review.orderId && <small>{review.orderId}</small>}

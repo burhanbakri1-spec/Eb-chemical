@@ -55,10 +55,13 @@ import {
 import {
   deleteHomepageOffer,
   deleteReview as deleteReviewApi,
+  fetchAllHomepageCategoryCards,
   fetchAllHomepageOffers,
   fetchAllReviews,
+  fetchHomepageCategoryCards,
   fetchHomepageOffers,
   fetchReviews,
+  saveHomepageCategoryCard,
   saveHomepageOffer,
   submitCustomerReview,
   updateReviewStatus,
@@ -90,6 +93,7 @@ const pagePaths = {
   "admin-brands-new": "/admin/brands/new",
   "admin-vlogs": "/admin/vlogs",
   "admin-vlogs-new": "/admin/vlogs/new",
+  "admin-home-content": "/admin/home-content",
   "admin-store-locator": "/admin/store-locator",
   "admin-store-locator-new": "/admin/store-locator/new",
   "admin-orders": "/admin/orders",
@@ -113,6 +117,7 @@ const adminPageKeys = [
   "admin-brands-new",
   "admin-vlogs",
   "admin-vlogs-new",
+  "admin-home-content",
   "admin-store-locator",
   "admin-store-locator-new",
   "admin-orders",
@@ -165,6 +170,7 @@ function App() {
   const [workSession, setWorkSession] = React.useState(null);
   const [employeeSessions, setEmployeeSessions] = React.useState([]);
   const [homepageOffers, setHomepageOffers] = React.useState([]);
+  const [homepageCategoryCards, setHomepageCategoryCards] = React.useState([]);
   const [reviews, setReviews] = React.useState([]);
   const [currentUser, setUser] = React.useState(getCurrentUser);
   const [loginMessage, setLoginMessage] = React.useState("");
@@ -175,6 +181,9 @@ function App() {
   const [lastOrder, setLastOrder] = React.useState(null);
   const [language, setLanguage] = React.useState(
     () => localStorage.getItem(languageStorageKey) || "en"
+  );
+  const [isAdminDarkMode, setIsAdminDarkMode] = React.useState(
+    () => localStorage.getItem("epChemicalAdminDarkMode") === "true"
   );
   const t = React.useMemo(() => createTranslator(language), [language]);
 
@@ -235,6 +244,10 @@ function App() {
     document.documentElement.lang = language;
     document.documentElement.dir = language === "ar" ? "rtl" : "ltr";
   }, [language]);
+
+  React.useEffect(() => {
+    localStorage.setItem("epChemicalAdminDarkMode", String(isAdminDarkMode));
+  }, [isAdminDarkMode]);
 
   const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
   const cartTotal = cartItems.reduce(
@@ -350,6 +363,7 @@ function App() {
 
   async function loadHomeContent() {
     setHomepageOffers(await fetchHomepageOffers());
+    setHomepageCategoryCards(await fetchHomepageCategoryCards());
     setReviews(await fetchReviews());
   }
 
@@ -358,6 +372,7 @@ function App() {
     setReviews(await fetchAllReviews());
     if (user.role === "admin" || isStaffRole(user.role)) {
       setHomepageOffers(await fetchAllHomepageOffers());
+      setHomepageCategoryCards(await fetchAllHomepageCategoryCards());
     }
   }
 
@@ -729,6 +744,13 @@ function App() {
     return savedOffer;
   }
 
+  async function handleSaveCategoryCard(card) {
+    const savedCard = await saveHomepageCategoryCard(card);
+    const nextCards = await fetchAllHomepageCategoryCards();
+    setHomepageCategoryCards(nextCards);
+    return savedCard;
+  }
+
   async function handleDeleteOffer(offerId) {
     await deleteHomepageOffer(offerId);
     setHomepageOffers(await fetchAllHomepageOffers());
@@ -816,6 +838,7 @@ function App() {
       <main className={isPortalLoginPage ? "admin-login-main" : isAdminPanelPage ? "admin-panel-main" : undefined}>
         {activePage === "home" && (
           <HomePage
+            homepageCategoryCards={homepageCategoryCards}
             homepageOffers={homepageOffers}
             language={language}
             onAddToCart={handleAddToCart}
@@ -955,6 +978,7 @@ function App() {
             onCreateOrder={handleCreateEmployeeOrder}
             onDeleteOrder={handleDeleteOrder}
             onDeleteProduct={handleDeleteProduct}
+            onSaveCategoryCard={handleSaveCategoryCard}
             onNavigate={navigate}
             onSaveProduct={handleSaveProduct}
             onSaveOffer={handleSaveOffer}
@@ -965,6 +989,7 @@ function App() {
             orders={orders}
             products={demoProducts}
             homepageOffers={homepageOffers}
+            homepageCategoryCards={homepageCategoryCards}
             reviews={reviews}
             t={t}
             workSession={workSession}
@@ -993,7 +1018,16 @@ function App() {
             orders={orders}
             products={demoProducts}
             homepageOffers={homepageOffers}
+            homepageCategoryCards={homepageCategoryCards}
+            isDarkMode={isAdminDarkMode}
             reviews={reviews}
+            onLanguageChange={() =>
+              setLanguage((currentLanguage) =>
+                currentLanguage === "en" ? "ar" : "en"
+              )
+            }
+            onToggleDarkMode={() => setIsAdminDarkMode((current) => !current)}
+            onSaveCategoryCard={handleSaveCategoryCard}
             statusMessage={adminMessage}
             t={t}
           />
@@ -1005,10 +1039,17 @@ function App() {
             currentUser={currentUser}
             employees={employees}
             language={language}
+            isDarkMode={isAdminDarkMode}
+            onLanguageChange={() =>
+              setLanguage((currentLanguage) =>
+                currentLanguage === "en" ? "ar" : "en"
+              )
+            }
             onDeleteEmployee={handleDeleteEmployee}
             onLogout={handleAdminLogout}
             onNavigate={navigate}
             onSaveEmployee={handleSaveEmployee}
+            onToggleDarkMode={() => setIsAdminDarkMode((current) => !current)}
             onToggleEmployeeStatus={handleToggleEmployeeStatus}
             sessions={employeeSessions}
             statusMessage={adminMessage}

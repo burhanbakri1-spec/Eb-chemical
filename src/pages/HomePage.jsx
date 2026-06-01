@@ -2,6 +2,7 @@ import React, { useRef } from "react";
 import FloatingProductCollage from "../components/FloatingProductCollage.jsx";
 import { brand } from "../data/brand.js";
 import { categories } from "../data/categories.js";
+import { homepageCategoryCards as defaultHomepageCategoryCards } from "../data/homeContent.js";
 
 function getLocalized(value, language) {
   if (!value) return "";
@@ -220,40 +221,40 @@ function HowItWorksSplit({ language, onNavigate }) {
   );
 }
 
-const systemCards = [
+const fallbackSystemCards = [
   {
     key: "home",
-    image: "/images/products/multi-surface-cleaner.svg",
+    image: "/homepage-categories/home-care.jpg",
     label: { en: "Home care", ar: "العناية بالمنزل" },
     title: { en: "Daily cleaning made easier", ar: "تنظيف يومي أسهل" },
   },
   {
     key: "car",
-    image: "/images/products/car-interior-cleaner.svg",
+    image: "/homepage-categories/car-care.jpg",
     label: { en: "Car care", ar: "العناية بالسيارة" },
     title: { en: "Fresh finish for every ride", ar: "لمسة نظيفة لكل رحلة" },
   },
   {
     key: "kitchen",
-    image: "/images/products/grease-oil-remover.svg",
+    image: "/homepage-categories/kitchen-new.jpg",
     label: { en: "Kitchen", ar: "المطبخ" },
     title: { en: "Cuts grease with less effort", ar: "إزالة الدهون بجهد أقل" },
   },
   {
     key: "bathroom",
-    image: "/images/products/limescale-remover.svg",
+    image: "/homepage-categories/kitchen.jpg",
     label: { en: "Bathroom", ar: "الحمام" },
     title: { en: "Shine for sinks and tiles", ar: "لمعان للأحواض والبلاط" },
   },
   {
     key: "laundry",
-    image: "/images/products/fabric-cleaner.svg",
+    image: "/homepage-categories/laundry.jpg",
     label: { en: "Laundry", ar: "الغسيل" },
     title: { en: "Care for fabrics every day", ar: "عناية يومية بالأقمشة" },
   },
 ];
 
-function CleaningSystemShowcase({ language }) {
+function CleaningSystemShowcase({ categoryCards = fallbackSystemCards, language }) {
   const isArabic = language === "ar";
   const trackRef = useRef(null);
   const words = isArabic
@@ -313,7 +314,7 @@ function CleaningSystemShowcase({ language }) {
       </div>
 
       <div className="cleaning-system-track" ref={trackRef}>
-        {systemCards.map((card) => (
+        {categoryCards.map((card) => (
           <article className="cleaning-system-card" key={card.key}>
             <img
               alt={card.title[language]}
@@ -513,6 +514,7 @@ function SplitCategoryBanner({ language, onCategorySelect, products }) {
 }
 
 function HomePage({
+  homepageCategoryCards = defaultHomepageCategoryCards,
   homepageOffers = [],
   language,
   onAddToCart,
@@ -575,7 +577,7 @@ function HomePage({
         </div>
       </section>
 
-      <CleaningSystemShowcase language={language} />
+      <CleaningSystemShowcase categoryCards={homepageCategoryCards} language={language} />
 
       <ProductShowcaseSlider
         language={language}

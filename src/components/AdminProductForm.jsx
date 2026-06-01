@@ -1,5 +1,8 @@
 import React from "react";
 import { categories } from "../data/categories.js";
+import { uploadImage } from "../utils/api.js";
+
+const placeholderImage = "/images/products/product-placeholder.svg";
 
 const emptyForm = {
   id: "",
@@ -9,7 +12,7 @@ const emptyForm = {
   categoryId: "home-cleaning",
   shortEn: "",
   shortAr: "",
-  image: "/images/products/product-placeholder.svg",
+  image: placeholderImage,
   hoverImage: "",
   sizes: "500ml:18, 5L:55, 18L:145",
   badgeEn: "Featured",
@@ -49,7 +52,7 @@ function productToForm(product) {
     categoryId: product.categoryId,
     shortEn: product.shortDescription.en,
     shortAr: product.shortDescription.ar,
-    image: product.image,
+    image: product.image || placeholderImage,
     hoverImage: product.hoverImage || product.secondaryImage || "",
     sizes: sizesToText(product.sizes),
     badgeEn: product.badge?.en || "Featured",
@@ -61,9 +64,12 @@ function productToForm(product) {
 function AdminProductForm({ editingProduct, language, onCancel, onSave, t }) {
   const [form, setForm] = React.useState(() => productToForm(editingProduct));
   const [isSaving, setIsSaving] = React.useState(false);
+  const [uploadingField, setUploadingField] = React.useState("");
+  const [uploadError, setUploadError] = React.useState("");
 
   React.useEffect(() => {
     setForm(productToForm(editingProduct));
+    setUploadError("");
   }, [editingProduct]);
 
   function handleChange(event) {
@@ -72,6 +78,30 @@ function AdminProductForm({ editingProduct, language, onCancel, onSave, t }) {
       ...currentForm,
       [name]: value,
     }));
+  }
+
+  async function handleImageUpload(fieldName, event) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+
+    if (!file) {
+      return;
+    }
+
+    setUploadError("");
+    setUploadingField(fieldName);
+
+    try {
+      const result = await uploadImage(file);
+      setForm((currentForm) => ({
+        ...currentForm,
+        [fieldName]: result.url || result.path || currentForm[fieldName],
+      }));
+    } catch (error) {
+      setUploadError(error.message || "Image upload failed.");
+    } finally {
+      setUploadingField("");
+    }
   }
 
   async function handleSubmit(event) {
@@ -100,9 +130,9 @@ function AdminProductForm({ editingProduct, language, onCancel, onSave, t }) {
         en: form.shortEn,
         ar: form.shortAr,
       },
-      image: form.image || "/images/products/product-placeholder.svg",
+      image: form.image || placeholderImage,
       hoverImage: form.hoverImage || "",
-      fallbackImage: "/images/products/product-placeholder.svg",
+      fallbackImage: placeholderImage,
       sizes: parseSizes(form.sizes),
       badge: {
         en: form.badgeEn,
@@ -119,6 +149,38 @@ function AdminProductForm({ editingProduct, language, onCancel, onSave, t }) {
     if (result?.ok && !editingProduct) {
       setForm(emptyForm);
     }
+  }
+
+  function renderImageField(fieldName, labelKey, uploadLabelKey, previewLabelKey) {
+    const isUploading = uploadingField === fieldName;
+
+    return (
+      <label>
+        {t(labelKey)}
+        <span className="image-upload-row">
+          <input name={fieldName} onChange={handleChange} value={form[fieldName]} />
+          <span className="upload-button-shell">
+            <input
+              accept="image/*"
+              aria-label={t(uploadLabelKey)}
+              onChange={(event) => handleImageUpload(fieldName, event)}
+              type="file"
+            />
+            <span>{isUploading ? t("admin.uploading") : t("admin.uploadImage")}</span>
+          </span>
+        </span>
+        {form[fieldName] && (
+          <img
+            alt={t(previewLabelKey)}
+            className="admin-image-preview"
+            src={form[fieldName]}
+            onError={(event) => {
+              event.currentTarget.src = placeholderImage;
+            }}
+          />
+        )}
+      </label>
+    );
   }
 
   return (
@@ -142,14 +204,19 @@ function AdminProductForm({ editingProduct, language, onCancel, onSave, t }) {
           ))}
         </select>
       </label>
-      <label>
-        {t("admin.imagePath")}
-        <input name="image" onChange={handleChange} value={form.image} />
-      </label>
-      <label>
-        {t("admin.secondImagePath")}
-        <input name="hoverImage" onChange={handleChange} value={form.hoverImage} />
-      </label>
+      {renderImageField(
+        "image",
+        "admin.imagePath",
+        "admin.uploadMainImage",
+        "admin.mainImagePreview",
+      )}
+      {renderImageField(
+        "hoverImage",
+        "admin.secondImagePath",
+        "admin.uploadHoverImage",
+        "admin.hoverImagePreview",
+      )}
+      {uploadError && <div className="message-panel error full-field">{uploadError}</div>}
       <label>
         {t("admin.shortDescriptionEn")}
         <textarea name="shortEn" onChange={handleChange} required value={form.shortEn} />
@@ -175,7 +242,7 @@ function AdminProductForm({ editingProduct, language, onCancel, onSave, t }) {
         <input name="stockStatus" onChange={handleChange} value={form.stockStatus} />
       </label>
       <div className="form-actions full-field">
-        <button className="primary-action" disabled={isSaving} type="submit">
+        <button className="primary-action" disabled={isSaving || Boolean(uploadingField)} type="submit">
           {isSaving ? t("common.temporaryContent") : t("admin.save")}
         </button>
         <button className="secondary-action" onClick={onCancel} type="button">

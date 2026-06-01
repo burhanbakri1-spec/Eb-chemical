@@ -196,6 +196,12 @@ export const translations = {
       shortDescriptionAr: "Short description in Arabic",
       imagePath: "Image path",
       secondImagePath: "Second Image Path",
+      uploadImage: "Upload",
+      uploading: "Uploading...",
+      uploadMainImage: "Upload main image",
+      uploadHoverImage: "Upload hover image",
+      mainImagePreview: "Main image preview",
+      hoverImagePreview: "Hover image preview",
       sizesPrices: "Sizes and prices",
       badge: "Badge",
       badgeAr: "Badge in Arabic",
@@ -281,6 +287,11 @@ export const translations = {
     homeContent: {
       eyebrow: "Homepage content",
       title: "Homepage offers",
+      cardImagesTitle: "First section card images",
+      cardImagesText: "Update the image, title, and text for each card in the first homepage visual section.",
+      cardImagePath: "Card image path",
+      cardUpload: "Upload card image",
+      saveCard: "Save card",
       addOffer: "Add offer",
       editOffer: "Edit offer",
       titleEn: "Title English",
@@ -288,6 +299,8 @@ export const translations = {
       descriptionEn: "Short description English",
       descriptionAr: "Short description Arabic",
       image: "Image path / image URL",
+      uploadOfferImage: "Upload offer image",
+      offerImagePreview: "Offer image preview",
       ctaTextEn: "CTA text English",
       ctaTextAr: "CTA text Arabic",
       ctaLink: "CTA link",
@@ -551,6 +564,12 @@ export const translations = {
       shortDescriptionAr: "وصف قصير بالعربية",
       imagePath: "مسار الصورة",
       secondImagePath: "مسار الصورة الثانية",
+      uploadImage: "رفع",
+      uploading: "جار الرفع...",
+      uploadMainImage: "رفع الصورة الأساسية",
+      uploadHoverImage: "رفع صورة الهوفر",
+      mainImagePreview: "معاينة الصورة الأساسية",
+      hoverImagePreview: "معاينة صورة الهوفر",
       sizesPrices: "الأحجام والأسعار",
       badge: "الشارة",
       badgeAr: "الشارة بالعربية",
@@ -712,11 +731,30 @@ export const translations = {
 };
 
 export function createTranslator(language) {
+  const runtimeOverrides = {
+    ar: {
+      "homeContent.cardImagesTitle": "صور كروت القسم الأول",
+      "homeContent.cardImagesText": "حدّث صورة وعنوان ونص كل كرت في أول قسم بصري في الصفحة الرئيسية.",
+      "homeContent.cardImagePath": "مسار صورة الكرت",
+      "homeContent.cardUpload": "رفع صورة الكرت",
+      "homeContent.saveCard": "حفظ الكرت",
+      "homeContent.uploadOfferImage": "رفع صورة العرض",
+      "homeContent.offerImagePreview": "معاينة صورة العرض",
+    },
+  };
+
   return function translate(path) {
+    if (runtimeOverrides[language]?.[path]) {
+      return runtimeOverrides[language][path];
+    }
+
     const value = path
       .split(".")
       .reduce((current, key) => current?.[key], translations[language]);
+    const fallbackValue = path
+      .split(".")
+      .reduce((current, key) => current?.[key], translations.en);
 
-    return value ?? path;
+    return value ?? fallbackValue ?? path;
   };
 }

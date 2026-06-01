@@ -60,3 +60,25 @@ export async function apiRequest(path, options = {}) {
 
   return data;
 }
+
+export async function uploadImage(file) {
+  const token = getToken();
+  const formData = new FormData();
+  formData.append("image", file);
+
+  const response = await fetch(`${apiBaseUrl}/uploads`, {
+    method: "POST",
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: formData,
+  });
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(data.message || "Image upload failed.");
+  }
+
+  return data;
+}

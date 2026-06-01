@@ -19,11 +19,13 @@ const emptyCustomer = {
 
 function EmployeeDashboardPage({
   currentUser,
+  homepageCategoryCards,
   homepageOffers,
   language,
   onCreateOrder,
   onDeleteOrder,
   onDeleteProduct,
+  onSaveCategoryCard,
   onSaveOffer,
   onNavigate,
   onSaveProduct,
@@ -588,8 +590,10 @@ function EmployeeDashboardPage({
 
       {activeTab === "home-content" && canManageHomeContent && (
         <HomeContentManager
+          categoryCards={homepageCategoryCards}
           language={language}
           offers={homepageOffers}
+          onSaveCategoryCard={onSaveCategoryCard}
           onSaveOffer={onSaveOffer}
           reviews={reviews.filter((review) => review.employeeId === currentUser.id)}
           t={t}

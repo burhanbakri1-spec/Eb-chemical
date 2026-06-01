@@ -1,5 +1,5 @@
 import cors from "cors";
-import dotenv from "dotenv";
+import "dotenv/config";
 import express from "express";
 import adminRoutes from "./routes/admin.js";
 import authRoutes from "./routes/auth.js";
@@ -9,9 +9,8 @@ import homeOfferRoutes from "./routes/homeOffers.js";
 import orderRoutes from "./routes/orders.js";
 import productRoutes from "./routes/products.js";
 import reviewRoutes from "./routes/reviews.js";
+import uploadRoutes, { uploadsDir } from "./routes/uploads.js";
 import workSessionRoutes from "./routes/workSessions.js";
-
-dotenv.config();
 
 const app = express();
 const port = Number(process.env.PORT || 5000);
@@ -25,15 +24,19 @@ const allowedOrigins = [
   "http://127.0.0.1:5173",
 ];
 
+app.set("trust proxy", 1);
 app.use(
   cors({
     origin: allowedOrigins,
     credentials: true,
   }),
 );
+app.use("/uploads", express.static(uploadsDir));
 app.use(express.json({ limit: "1mb" }));
-app.use((_req, res, next) => {
-  res.setHeader("Content-Type", "application/json; charset=utf-8");
+app.use((req, res, next) => {
+  if (req.path.startsWith("/api")) {
+    res.setHeader("Content-Type", "application/json; charset=utf-8");
+  }
   next();
 });
 
@@ -47,6 +50,7 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/home-offers", homeOfferRoutes);
 app.use("/api/reviews", reviewRoutes);
+app.use("/api/uploads", uploadRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/employee", employeeRoutes);
 app.use("/api/employees", employeeRoutes);

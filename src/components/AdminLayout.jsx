@@ -8,6 +8,8 @@ import {
   Film,
   FolderTree,
   Grid3X3,
+  Image as ImageIcon,
+  Languages,
   MapPin,
   Moon,
   Package,
@@ -16,6 +18,7 @@ import {
   ShoppingCart,
   Star,
   Store,
+  Sun,
   Tag,
   UserCircle,
   Users,
@@ -43,6 +46,7 @@ const navSections = [
     icon: Store,
     label: { en: "Storefront", ar: "واجهة المتجر" },
     items: [
+      { key: "admin-home-content", icon: ImageIcon, label: { en: "Home Content", ar: "محتوى الرئيسية" } },
       { key: "admin-vlogs", icon: Film, label: { en: "Vlogs", ar: "الفيديوهات" } },
       { key: "admin-store-locator", icon: MapPin, label: { en: "Store Locator", ar: "مواقع المتاجر" } },
     ],
@@ -98,8 +102,11 @@ function AdminLayout({
   language = "en",
   onLogout,
   onNavigate,
+  onLanguageChange,
   subtitle,
   title,
+  isDarkMode = false,
+  onToggleDarkMode,
 }) {
   const activeKey = normalizedActive(activePage);
   const [mobileOpen, setMobileOpen] = React.useState(false);
@@ -126,12 +133,14 @@ function AdminLayout({
   const labels = {
     admin: language === "ar" ? "الإدارة" : "Admin",
     menu: language === "ar" ? "القائمة" : "Menu",
-    overview: language === "ar" ? "إدارة مساحة عمل EB Chemical" : "Manage EB Chemical workspace",
     signOut: language === "ar" ? "تسجيل الخروج" : "Sign Out",
+    language: language === "ar" ? "English" : "العربية",
+    darkMode: language === "ar" ? "الوضع الليلي" : "Dark mode",
+    lightMode: language === "ar" ? "الوضع الفاتح" : "Light mode",
   };
 
   return (
-    <section className="admin-layout" dir={language === "ar" ? "rtl" : "ltr"}>
+    <section className={`admin-layout ${isDarkMode ? "admin-dark" : ""}`} dir={language === "ar" ? "rtl" : "ltr"}>
       <button className="admin-mobile-menu" onClick={() => setMobileOpen(true)} type="button">
         <Archive size={16} />
         {labels.menu}
@@ -223,8 +232,12 @@ function AdminLayout({
             {subtitle && <p>{subtitle}</p>}
           </div>
           <div className="admin-userbar">
-            <button className="admin-icon-button" aria-label="Dark mode" type="button">
-              <Moon size={15} />
+            <button className="admin-icon-button admin-language-button" aria-label={labels.language} onClick={onLanguageChange} type="button">
+              <Languages size={15} />
+              <span>{language === "ar" ? "EN" : "AR"}</span>
+            </button>
+            <button className="admin-icon-button" aria-label={isDarkMode ? labels.lightMode : labels.darkMode} onClick={onToggleDarkMode} type="button">
+              {isDarkMode ? <Sun size={15} /> : <Moon size={15} />}
             </button>
             <span className="admin-user-avatar">{currentUser?.name?.charAt(0) || "A"}</span>
             <div>

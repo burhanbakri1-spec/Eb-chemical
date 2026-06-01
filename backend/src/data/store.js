@@ -1,11 +1,13 @@
 import { products } from "./products.js";
-import { homepageOffers, reviews as initialReviews } from "../../../src/data/homeContent.js";
+import { homepageCategoryCards, homepageOffers, reviews as initialReviews } from "../../../src/data/homeContent.js";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const dataDir = path.resolve(__dirname, "../data-store");
+const dataDir = process.env.DATA_STORE_DIR
+  ? path.resolve(process.env.DATA_STORE_DIR)
+  : path.resolve(__dirname, "../data-store");
 const dataFile = path.join(dataDir, "store.json");
 
 export const allPermissions = [
@@ -140,6 +142,18 @@ function normalizeOffer(offer, index = 0) {
   };
 }
 
+function normalizeCategoryCard(card, index = 0) {
+  return {
+    ...card,
+    key: card.key || `card-${index}`,
+    image: card.image || "/images/products/product-placeholder.svg",
+    label: card.label || { en: "", ar: "" },
+    title: card.title || { en: "", ar: "" },
+    displayOrder: Number(card.displayOrder || index + 1),
+    isActive: card.isActive !== false,
+  };
+}
+
 function normalizeReview(review, index = 0) {
   const type = review.type === "employee" || review.employeeId ? "employee" : "store";
   const status = review.status || (review.isApproved === false ? "rejected" : "approved");
@@ -169,6 +183,7 @@ export const carts = new Map(Object.entries(persisted?.carts || {}));
 export const workSessions = ensureArray(persisted?.workSessions, []);
 export const productCatalog = ensureArray(persisted?.products, products).map(normalizeProduct);
 export const offers = ensureArray(persisted?.offers, homepageOffers).map(normalizeOffer);
+export const categoryCards = ensureArray(persisted?.categoryCards, homepageCategoryCards).map(normalizeCategoryCard);
 export const reviews = ensureArray(persisted?.reviews, initialReviews).map(normalizeReview);
 
 export function persistStore() {
@@ -180,11 +195,14 @@ export function persistStore() {
     orders,
     products: productCatalog,
     offers,
+    categoryCards,
     reviews,
     workSessions,
     carts: Object.fromEntries(carts.entries()),
   };
-  fs.writeFileSync(dataFile, `${JSON.stringify(store, null, 2)}\n`, "utf8");
+  const tempFile = `${dataFile}.tmp`;
+  fs.writeFileSync(tempFile, `${JSON.stringify(store, null, 2)}\n`, "utf8");
+  fs.renameSync(tempFile, dataFile);
 }
 
 if (!fs.existsSync(dataFile)) {
