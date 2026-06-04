@@ -801,11 +801,12 @@ function App() {
   }
 
   async function handleCreateEmployeeOrder(orderPayload) {
+    const isPortalOperator = currentUser?.role === "admin" || isStaffRole(currentUser?.role);
     try {
       const order = await createOrder({
         ...orderPayload,
-        createdByEmployeeId: isStaffRole(currentUser?.role) ? currentUser.id : "",
-        createdByEmployeeName: isStaffRole(currentUser?.role) ? currentUser.name : "",
+        createdByEmployeeId: isPortalOperator ? currentUser.id : "",
+        createdByEmployeeName: isPortalOperator ? currentUser.name : "",
       });
       setOrders((currentOrders) => [order, ...currentOrders]);
       await refreshOrders();

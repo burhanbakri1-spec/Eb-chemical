@@ -1,13 +1,12 @@
 {
   "version": 1,
-  "savedAt": "2026-06-03T17:31:27.320Z",
+  "savedAt": "2026-06-04T08:28:45.586Z",
   "users": [
     {
       "id": "admin-demo",
       "name": "EB Chemical Admin",
       "email": "admin@epchemical.com",
       "phone": "+970599000000",
-      "password": "admin123",
       "role": "admin",
       "permissions": [
         "dashboard.view",
@@ -33,7 +32,6 @@
       "name": "EB Chemical Employee",
       "email": "employee@epchemical.com",
       "phone": "+970599000001",
-      "password": "employee123",
       "role": "employee",
       "department": "Sales",
       "permissions": [
@@ -46,865 +44,21 @@
       "isActive": true,
       "ebPoints": 0,
       "totalPointsEarned": 0,
-      "totalPointsRedeemed": 0
+      "totalPointsRedeemed": 0,
+      "password": "employee123"
     },
     {
       "id": "customer-1779721797245",
       "name": "omar",
-      "email": "omar12022@gmail.com",
+      "email": "",
       "phone": "0593412146",
-      "password": "12022",
+      "password": "",
       "role": "customer",
       "permissions": [],
-      "ebPoints": 242,
-      "totalPointsEarned": 242,
-      "totalPointsRedeemed": 0,
       "isActive": true
-    },
-    {
-      "id": "employee-1780482340247",
-      "name": "عمر حرب",
-      "email": "h20000592535268@gmail.com",
-      "phone": "0593412146",
-      "password": "12022",
-      "isActive": true,
-      "permissions": [
-        "dashboard.view",
-        "products.view",
-        "products.create",
-        "products.update",
-        "products.delete",
-        "orders.view",
-        "orders.create",
-        "orders.update",
-        "orders.delete",
-        "orders.updateStatus",
-        "customers.view",
-        "employees.view"
-      ],
-      "position": " programmer",
-      "department": "ِprog",
-      "hireDate": "2026-06-03",
-      "salary": 0,
-      "notes": "",
-      "is_active": true,
-      "role": "employee",
-      "ebPoints": 0,
-      "totalPointsEarned": 0,
-      "totalPointsRedeemed": 0
-    }
-  ],
-  "orders": [
-    {
-      "id": "ORD-1780506849209",
-      "customer": {
-        "name": "عمر حرب",
-        "phone": "0593412146",
-        "city": "gaza",
-        "address": "street",
-        "notes": ""
-      },
-      "customerUserId": null,
-      "items": [
-        {
-          "productId": "product-1780505554726",
-          "productName": "test4",
-          "slug": "test4",
-          "selectedSize": "500ml",
-          "size": "500ml",
-          "variantId": "product-variant-0",
-          "selectedColor": "Default",
-          "colorName": "Default",
-          "colorValue": "#1db7d8",
-          "quantity": 1,
-          "price": 18,
-          "lineTotal": 18
-        },
-        {
-          "productId": "product-1780505554726",
-          "productName": "test4",
-          "slug": "test4",
-          "selectedSize": "500ml",
-          "size": "500ml",
-          "variantId": "product-variant-0",
-          "selectedColor": "Default",
-          "colorName": "Default",
-          "colorValue": "#1db7d8",
-          "quantity": 1,
-          "price": 18,
-          "lineTotal": 18
-        },
-        {
-          "productId": "product-1780505554726",
-          "productName": "test4",
-          "slug": "test4",
-          "selectedSize": "500ml",
-          "size": "500ml",
-          "variantId": "product-variant-0",
-          "selectedColor": "Default",
-          "colorName": "Default",
-          "colorValue": "#1db7d8",
-          "quantity": 1,
-          "price": 18,
-          "lineTotal": 18
-        },
-        {
-          "productId": "product-1780501858335",
-          "productName": "test3",
-          "slug": "test",
-          "selectedSize": "500ml",
-          "size": "500ml",
-          "variantId": "product-variant-0",
-          "selectedColor": "blue",
-          "colorName": "blue",
-          "colorValue": "#1db7d8",
-          "quantity": 1,
-          "price": 18,
-          "lineTotal": 18
-        },
-        {
-          "productId": "product-1780501858335",
-          "productName": "test3",
-          "slug": "test",
-          "selectedSize": "500ml",
-          "size": "500ml",
-          "variantId": "product-variant-0",
-          "selectedColor": "blue",
-          "colorName": "blue",
-          "colorValue": "#1db7d8",
-          "quantity": 1,
-          "price": 18,
-          "lineTotal": 18
-        },
-        {
-          "productId": "product-1780501858335",
-          "productName": "test3",
-          "slug": "test",
-          "selectedSize": "5L",
-          "size": "5L",
-          "variantId": "product-variant-1",
-          "selectedColor": "blue",
-          "colorName": "blue",
-          "colorValue": "#1db7d8",
-          "quantity": 1,
-          "price": 40,
-          "lineTotal": 40
-        },
-        {
-          "productId": "product-1780501858335",
-          "productName": "test3",
-          "slug": "test",
-          "selectedSize": "5L",
-          "size": "5L",
-          "variantId": "product-variant-1",
-          "selectedColor": "blue",
-          "colorName": "blue",
-          "colorValue": "#1db7d8",
-          "quantity": 1,
-          "price": 40,
-          "lineTotal": 40
-        },
-        {
-          "productId": "product-1780501858335",
-          "productName": "test3",
-          "slug": "test",
-          "selectedSize": "5L",
-          "size": "5L",
-          "variantId": "product-variant-1",
-          "selectedColor": "blue",
-          "colorName": "blue",
-          "colorValue": "#1db7d8",
-          "quantity": 1,
-          "price": 40,
-          "lineTotal": 40
-        },
-        {
-          "productId": "product-1780501858335",
-          "productName": "test3",
-          "slug": "test",
-          "selectedSize": "5L",
-          "size": "5L",
-          "variantId": "product-variant-1",
-          "selectedColor": "blue",
-          "colorName": "blue",
-          "colorValue": "#1db7d8",
-          "quantity": 1,
-          "price": 40,
-          "lineTotal": 40
-        },
-        {
-          "productId": "product-1780501858335",
-          "productName": "test3",
-          "slug": "test",
-          "selectedSize": "5L",
-          "size": "5L",
-          "variantId": "product-variant-1",
-          "selectedColor": "blue",
-          "colorName": "blue",
-          "colorValue": "#1db7d8",
-          "quantity": 1,
-          "price": 40,
-          "lineTotal": 40
-        }
-      ],
-      "subtotal": 290,
-      "total": 290,
-      "pointsEarned": 0,
-      "pointsRedeemed": 0,
-      "discountFromPoints": 0,
-      "paymentMethod": "Cash on delivery",
-      "status": "Completed",
-      "handledByEmployeeId": "employee-1780482340247",
-      "assignedToEmployeeId": "employee-1780482340247",
-      "createdByEmployeeId": "employee-1780482340247",
-      "createdByEmployeeName": "عمر حرب",
-      "createdBy": {
-        "id": "employee-1780482340247",
-        "name": "عمر حرب",
-        "email": "h20000592535268@gmail.com",
-        "phone": "0593412146",
-        "isActive": true,
-        "permissions": [
-          "dashboard.view",
-          "products.view",
-          "products.create",
-          "products.update",
-          "products.delete",
-          "orders.view",
-          "orders.create",
-          "orders.update",
-          "orders.delete",
-          "orders.updateStatus",
-          "customers.view",
-          "employees.view"
-        ],
-        "position": " programmer",
-        "department": "ِprog",
-        "hireDate": "2026-06-03",
-        "salary": 0,
-        "notes": "",
-        "is_active": true,
-        "role": "employee",
-        "ebPoints": 0,
-        "totalPointsEarned": 0,
-        "totalPointsRedeemed": 0
-      },
-      "lastUpdatedBy": {
-        "id": "employee-1780482340247",
-        "name": "عمر حرب",
-        "email": "h20000592535268@gmail.com",
-        "phone": "0593412146",
-        "isActive": true,
-        "permissions": [
-          "dashboard.view",
-          "products.view",
-          "products.create",
-          "products.update",
-          "products.delete",
-          "orders.view",
-          "orders.create",
-          "orders.update",
-          "orders.delete",
-          "orders.updateStatus",
-          "customers.view",
-          "employees.view"
-        ],
-        "position": " programmer",
-        "department": "ِprog",
-        "hireDate": "2026-06-03",
-        "salary": 0,
-        "notes": "",
-        "is_active": true,
-        "role": "employee",
-        "ebPoints": 0,
-        "totalPointsEarned": 0,
-        "totalPointsRedeemed": 0
-      },
-      "createdAt": "2026-06-03T17:14:09.209Z",
-      "updatedAt": "2026-06-03T17:14:23.415Z"
-    },
-    {
-      "id": "ORD-1779721949051",
-      "customer": {
-        "name": "omar",
-        "phone": "0593412146",
-        "city": "gaza",
-        "address": "street",
-        "notes": ""
-      },
-      "customerUserId": "customer-1779721797245",
-      "items": [
-        {
-          "productId": "hc-fabric-cleaner",
-          "productName": "Fabric Cleaner",
-          "slug": "fabric-cleaner",
-          "selectedSize": "500ml",
-          "size": "500ml",
-          "quantity": 4,
-          "price": 18,
-          "lineTotal": 72
-        },
-        {
-          "productId": "hc-leather-plastic-cleaner",
-          "productName": "Leather & Plastic Cleaner",
-          "slug": "leather-plastic-cleaner",
-          "selectedSize": "500ml",
-          "size": "500ml",
-          "quantity": 1,
-          "price": 18,
-          "lineTotal": 18
-        },
-        {
-          "productId": "hc-vacuum-cleaner-solution",
-          "productName": "Vacuum Cleaner Solution",
-          "slug": "vacuum-cleaner-solution",
-          "selectedSize": "500ml",
-          "size": "500ml",
-          "quantity": 1,
-          "price": 18,
-          "lineTotal": 18
-        },
-        {
-          "productId": "hc-stone-marble-floor-cleaner",
-          "productName": "Stone & Marble Floor Cleaner",
-          "slug": "stone-marble-floor-cleaner",
-          "selectedSize": "500ml",
-          "size": "500ml",
-          "quantity": 1,
-          "price": 18,
-          "lineTotal": 18
-        },
-        {
-          "productId": "hc-porcelain-ceramic-floor-cleaner",
-          "productName": "Porcelain & Ceramic Floor Cleaner",
-          "slug": "porcelain-ceramic-floor-cleaner",
-          "selectedSize": "500ml",
-          "size": "500ml",
-          "quantity": 1,
-          "price": 18,
-          "lineTotal": 18
-        },
-        {
-          "productId": "hc-limescale-remover",
-          "productName": "Limescale Remover",
-          "slug": "limescale-remover",
-          "selectedSize": "1 Liter",
-          "size": "1 Liter",
-          "quantity": 1,
-          "price": 25,
-          "lineTotal": 25
-        },
-        {
-          "productId": "hc-grease-oil-remover",
-          "productName": "Grease & Oil Remover",
-          "slug": "grease-oil-remover",
-          "selectedSize": "5L",
-          "size": "5L",
-          "quantity": 1,
-          "price": 55,
-          "lineTotal": 55
-        },
-        {
-          "productId": "hc-carpet-rug-cleaner",
-          "productName": "Carpet & Rug Cleaner",
-          "slug": "carpet-rug-cleaner",
-          "selectedSize": "500ml",
-          "size": "500ml",
-          "quantity": 1,
-          "price": 18,
-          "lineTotal": 18
-        }
-      ],
-      "subtotal": 242,
-      "total": 242,
-      "pointsEarned": 242,
-      "pointsRedeemed": 0,
-      "discountFromPoints": 0,
-      "paymentMethod": "Cash on delivery",
-      "status": "Pending",
-      "handledByEmployeeId": "",
-      "assignedToEmployeeId": "",
-      "createdByEmployeeId": "",
-      "createdByEmployeeName": "",
-      "createdBy": {
-        "id": "customer-1779721797245",
-        "name": "omar",
-        "email": "omar12022@gmail.com",
-        "phone": "0593412146",
-        "role": "customer",
-        "permissions": [],
-        "ebPoints": 0,
-        "totalPointsEarned": 0,
-        "totalPointsRedeemed": 0,
-        "isActive": true
-      },
-      "lastUpdatedBy": {
-        "id": "customer-1779721797245",
-        "name": "omar",
-        "email": "omar12022@gmail.com",
-        "phone": "0593412146",
-        "role": "customer",
-        "permissions": [],
-        "ebPoints": 0,
-        "totalPointsEarned": 0,
-        "totalPointsRedeemed": 0,
-        "isActive": true
-      },
-      "createdAt": "2026-05-25T15:12:29.051Z",
-      "updatedAt": "2026-05-25T15:12:29.051Z"
     }
   ],
   "products": [
-    {
-      "id": "product-1780507887318",
-      "slug": "test-supabase-product12344",
-      "name": {
-        "en": "Test Supabase Product12344",
-        "ar": "Test Supabase Product12344"
-      },
-      "categoryId": "home-cleaning",
-      "shortDescription": {
-        "en": "Test Supabase Product12344",
-        "ar": "Test Supabase Product12344"
-      },
-      "longDescription": {
-        "en": "Test Supabase Product12344",
-        "ar": "Test Supabase Product12344"
-      },
-      "image": "https://hmugkuhbsqbdbnoqhcsm.supabase.co/storage/v1/object/public/eb-chemical-uploads/uploads/2026-06-03/whatsapp-image-2026-06-01-at-1-31-08-pm-1780507858760-6pay5v.jpg",
-      "hoverImage": "https://hmugkuhbsqbdbnoqhcsm.supabase.co/storage/v1/object/public/eb-chemical-uploads/uploads/2026-06-03/car-care-1780507867123-ekp1xt.png",
-      "fallbackImage": "/images/products/product-placeholder.svg",
-      "variants": [
-        {
-          "id": "product-variant-0",
-          "color_name": "Default",
-          "color_value": "#1db7d8",
-          "size": "500ml",
-          "price": 18,
-          "stock": 24,
-          "image_url": "/images/products/product-placeholder.svg",
-          "sort_order": 0
-        }
-      ],
-      "sizes": [
-        {
-          "size": "500ml",
-          "price": 18
-        }
-      ],
-      "gallery_images": [],
-      "galleryImages": [],
-      "badge": {
-        "en": "Featured",
-        "ar": "منتج مميز"
-      },
-      "stockStatus": "In stock",
-      "usageNotes": {
-        "en": "Product managed from the admin dashboard.",
-        "ar": "منتج يتم إدارته من لوحة التحكم."
-      }
-    },
-    {
-      "id": "product-1780507707598",
-      "slug": "Supabase Test Product 123",
-      "sku": "Supabase Test Product 123",
-      "name": {
-        "en": "Supabase Test Product 123",
-        "ar": "Supabase Test Product 123"
-      },
-      "categoryId": "home-cleaning",
-      "brand": "EB Chemical",
-      "shortDescription": {
-        "en": "Supabase Test Product 123",
-        "ar": "Supabase Test Product 123"
-      },
-      "longDescription": {
-        "en": "Supabase Test Product 123",
-        "ar": "Supabase Test Product 123"
-      },
-      "howToUse": "Supabase Test Product 123",
-      "ingredients": "Supabase Test Product 123",
-      "benefits": "Supabase Test Product 123",
-      "skinTypes": "Supabase Test Product 123",
-      "concerns": "Supabase Test Product 123",
-      "image": "https://eb-chemical-full.onrender.com/uploads/whatsapp-image-2026-06-01-at-3-00-07-pm-1780417659733-zcf5dz.jpg",
-      "hoverImage": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBwgHBgkIBwgKCgkLDRYPDQwMDRsUFRAWIB0iIiAdHx8kKDQsJCYxJx8fLT0tMTU3Ojo6Iys/RD84QzQ5OjcBCgoKDQwNGg8PGjclHyU3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N//AABEIAJQAxgMBEQACEQEDEQH/xAAcAAACAwEBAQEAAAAAAAAAAAAAAQIEBQYDBwj/xAA7EAACAQMCAwUFBQcEAwAAAAABAgMABBEFIQYSMRMiQVFhcYGRobEHFCMywRUzQnKC0fAkUmKyF0Nj/8QAGwEBAQADAQEBAAAAAAAAAAAAAAECBAUDBgf/xAAzEQACAQMDAQUGBgIDAAAAAAAAAQIDBBESITEFE0FRYXEiMoGRsdEVQqHB4fAU8QYjUv/aAAwDAQACEQMRAD8A+30AUAUAUA6AKAKAKAKAKAKAdAFAFAFAFAFAFAFAFAFAFAFAKgCgI0A6AKAKAKAdAFAFAFAFAFAFAFAFAFAOgCgCgCgCgFQBQBQBQBQEM1SADUAwaAdChQBQBQDoAoAoAoAoAoAoAoAoAoAoAoAoAoAoAoAoAoDk14vl7MSScP6pyk4AjVHb3gNmssGOTzm4/wBOtZOzu9O1eF8Zw1m3T3UwMngPtS4VzvdXAI6g27EiphjUjQtOO+HruDt4rx+zB3ZoHAHyrLQyaka1nrWm3qB7W9hkBGcBt/h1pokXUj0n1SwtgDc3kMIPQyOF+tNL8BqQQarp1wMwX9rJ/JMp/WscMuUWRNEekiH+qmGMokGVvysD7DUGUS6UKIsB1IFALtE/3D41cEyeEmoWUbFZLy3Rh1DSqD9ahSaXdtIvNHcQsPNXBqNpckyitc61plt++v7dSDgjtAcfCo5JcsjlFd5Um4p0SFS0mowADx5q81Xpt4TGpGb/AORuE+2MA1aLtB4YNe6i2",
-      "fallbackImage": "/images/products/product-placeholder.svg",
-      "variants": [
-        {
-          "id": "product-variant-0",
-          "color_name": "Default",
-          "color_value": "#1db7d8",
-          "size": "500ml",
-          "price": 18,
-          "stock": 24,
-          "image_url": "",
-          "sort_order": 0
-        }
-      ],
-      "gallery_images": [],
-      "galleryImages": [],
-      "sizes": [
-        {
-          "size": "500ml",
-          "price": 18
-        }
-      ],
-      "badge": {
-        "en": "Supabase Test Product 123",
-        "ar": "Supabase Test Product 123"
-      },
-      "status": "Active",
-      "isActive": true,
-      "isFeatured": false,
-      "isNewArrival": false,
-      "isBestseller": false,
-      "stockQty": 24,
-      "stockStatus": "In Stock",
-      "metaTitle": "",
-      "metaDescription": "",
-      "createdAt": "2026-06-03T17:30:29.386Z",
-      "updatedAt": "2026-06-03T17:30:29.386Z"
-    },
-    {
-      "id": "product-1780507379624",
-      "slug": "Test Supabase Product1",
-      "sku": "Test Supabase Product1",
-      "name": {
-        "en": "Test Supabase Product1",
-        "ar": "Test Supabase Product1"
-      },
-      "categoryId": "home-cleaning",
-      "brand": "EB Chemical",
-      "shortDescription": {
-        "en": "Test Supabase Product1",
-        "ar": "Test Supabase Product1"
-      },
-      "longDescription": {
-        "en": "Test Supabase Product1",
-        "ar": "Test Supabase Product1"
-      },
-      "howToUse": "Test Supabase Product1",
-      "ingredients": "Test Supabase Product1",
-      "benefits": "Test Supabase Product1",
-      "skinTypes": "Test Supabase Product1",
-      "concerns": "Test Supabase Product1",
-      "image": "/images/products/product-placeholder.svg",
-      "hoverImage": "/images/products/product-placeholder.svg",
-      "fallbackImage": "/images/products/product-placeholder.svg",
-      "variants": [
-        {
-          "id": "product-variant-0",
-          "color_name": "Default",
-          "color_value": "#1db7d8",
-          "size": "500ml",
-          "price": 18,
-          "stock": 24,
-          "image_url": "",
-          "sort_order": 0
-        }
-      ],
-      "gallery_images": [],
-      "galleryImages": [],
-      "sizes": [
-        {
-          "size": "500ml",
-          "price": 18
-        }
-      ],
-      "badge": {
-        "en": "Test Supabase Product1",
-        "ar": "Test Supabase Product1"
-      },
-      "status": "Active",
-      "isActive": true,
-      "isFeatured": false,
-      "isNewArrival": false,
-      "isBestseller": false,
-      "stockQty": 24,
-      "stockStatus": "In Stock",
-      "metaTitle": "",
-      "metaDescription": "",
-      "createdAt": "2026-06-03T17:22:59.624Z",
-      "updatedAt": "2026-06-03T17:22:59.624Z"
-    },
-    {
-      "id": "product-1780507168866",
-      "slug": "Test Supabase Product",
-      "sku": "Test Supabase Product",
-      "name": {
-        "en": "Test Supabase Product",
-        "ar": "Test Supabase Product"
-      },
-      "categoryId": "home-cleaning",
-      "brand": "EB Chemical",
-      "shortDescription": {
-        "en": "Test Supabase Product",
-        "ar": "Test Supabase Product"
-      },
-      "longDescription": {
-        "en": "Test Supabase Product",
-        "ar": "Test Supabase Product"
-      },
-      "howToUse": "Test Supabase Product",
-      "ingredients": "Test Supabase Product",
-      "benefits": "Test Supabase Product",
-      "skinTypes": "Test Supabase Product",
-      "concerns": "Test Supabase Product",
-      "image": "/images/products/product-placeholder.svg",
-      "hoverImage": "/images/products/product-placeholder.svg",
-      "fallbackImage": "/images/products/product-placeholder.svg",
-      "variants": [
-        {
-          "id": "product-variant-0",
-          "color_name": "Default",
-          "color_value": "#1db7d8",
-          "size": "500ml",
-          "price": 18,
-          "stock": 24,
-          "image_url": "",
-          "sort_order": 0
-        }
-      ],
-      "gallery_images": [],
-      "galleryImages": [],
-      "sizes": [
-        {
-          "size": "500ml",
-          "price": 18
-        }
-      ],
-      "badge": {
-        "en": "Test Supabase Product",
-        "ar": "Test Supabase Product"
-      },
-      "status": "Active",
-      "isActive": true,
-      "isFeatured": false,
-      "isNewArrival": false,
-      "isBestseller": false,
-      "stockQty": 24,
-      "stockStatus": "In Stock",
-      "metaTitle": "",
-      "metaDescription": "",
-      "createdAt": "2026-06-03T17:22:42.507Z",
-      "updatedAt": "2026-06-03T17:22:42.507Z"
-    },
-    {
-      "id": "product-1780505554726",
-      "slug": "test4",
-      "name": {
-        "en": "test4",
-        "ar": "test4"
-      },
-      "categoryId": "home-cleaning",
-      "shortDescription": {
-        "en": "test",
-        "ar": "test"
-      },
-      "longDescription": {
-        "en": "test",
-        "ar": "test"
-      },
-      "image": "http://localhost:5000/uploads/whatsapp-image-2026-06-01-at-3-00-07-pm-1780506774843-9240un.jpg",
-      "hoverImage": "http://localhost:5000/uploads/whatsapp-image-2026-06-01-at-1-31-08-pm-1-1780506783903-9b3rd2.jpg",
-      "fallbackImage": "/images/products/product-placeholder.svg",
-      "variants": [
-        {
-          "id": "product-variant-0",
-          "color_name": "Default",
-          "color_value": "#1db7d8",
-          "size": "500ml",
-          "price": 18,
-          "stock": 24,
-          "image_url": "/images/products/product-placeholder.svg",
-          "sort_order": 0
-        }
-      ],
-      "sizes": [
-        {
-          "size": "500ml",
-          "price": 18
-        }
-      ],
-      "gallery_images": [],
-      "galleryImages": [],
-      "badge": {
-        "en": "Featured",
-        "ar": "منتج مميز"
-      },
-      "stockStatus": "In Stock",
-      "usageNotes": {
-        "en": "Product managed from the admin dashboard.",
-        "ar": "منتج يتم إدارته من لوحة التحكم."
-      },
-      "sku": "TEST4",
-      "brand": "EB Chemical",
-      "howToUse": "",
-      "ingredients": "",
-      "benefits": "",
-      "skinTypes": "",
-      "concerns": "",
-      "status": "Active",
-      "isActive": true,
-      "isFeatured": false,
-      "isNewArrival": false,
-      "isBestseller": false,
-      "stockQty": 24,
-      "metaTitle": "",
-      "metaDescription": "",
-      "createdAt": "2026-06-03T17:17:00.921Z",
-      "updatedAt": "2026-06-03T17:17:00.921Z"
-    },
-    {
-      "id": "product-1780501858335",
-      "slug": "test",
-      "sku": "test",
-      "name": {
-        "en": "test3",
-        "ar": "test3"
-      },
-      "categoryId": "home-cleaning",
-      "brand": "EB Chemical",
-      "shortDescription": {
-        "en": "test",
-        "ar": "test"
-      },
-      "longDescription": {
-        "en": "test",
-        "ar": "test"
-      },
-      "howToUse": "test",
-      "ingredients": "test",
-      "benefits": "test",
-      "skinTypes": "test",
-      "concerns": "test",
-      "image": "http://localhost:5000/uploads/whatsapp-image-2026-06-01-at-3-00-07-pm-1780501714633-zgsuxb.jpg",
-      "hoverImage": "http://localhost:5000/uploads/whatsapp-image-2026-06-01-at-3-00-07-pm-1780501720345-foirv8.jpg",
-      "fallbackImage": "/images/products/product-placeholder.svg",
-      "variants": [
-        {
-          "id": "product-variant-0",
-          "color_name": "blue",
-          "color_value": "#1db7d8",
-          "size": "500ml",
-          "price": 18,
-          "stock": 24,
-          "image_url": "http://localhost:5000/uploads/whatsapp-image-2026-06-01-at-3-00-07-pm-1780501792255-ywikyw.jpg",
-          "sort_order": 0
-        },
-        {
-          "id": "product-variant-1",
-          "color_name": "blue",
-          "color_value": "#1db7d8",
-          "size": "5L",
-          "price": 40,
-          "stock": 19,
-          "image_url": "http://localhost:5000/uploads/whatsapp-image-2026-06-01-at-3-00-07-pm-1780501714633-zgsuxb.jpg",
-          "sort_order": 1
-        },
-        {
-          "id": "product-variant-2",
-          "color_name": "red",
-          "color_value": "#FF0000",
-          "size": "500ml",
-          "price": 18,
-          "stock": 24,
-          "image_url": "http://localhost:5000/uploads/whatsapp-image-2026-06-01-at-1-31-09-pm-1780501822570-vbxadk.jpg",
-          "sort_order": 2
-        }
-      ],
-      "gallery_images": [],
-      "galleryImages": [],
-      "sizes": [
-        {
-          "size": "500ml",
-          "price": 18
-        },
-        {
-          "size": "5L",
-          "price": 40
-        }
-      ],
-      "badge": {
-        "en": "Featured",
-        "ar": "مميز"
-      },
-      "status": "Active",
-      "isActive": true,
-      "isFeatured": false,
-      "isNewArrival": false,
-      "isBestseller": false,
-      "stockQty": 67,
-      "stockStatus": "In Stock",
-      "metaTitle": "test",
-      "metaDescription": "test",
-      "createdAt": "2026-06-03T15:52:02.116Z",
-      "updatedAt": "2026-06-03T15:52:02.116Z"
-    },
-    {
-      "id": "product-1780482488537",
-      "slug": "test",
-      "name": {
-        "en": "test",
-        "ar": "test"
-      },
-      "categoryId": "home-cleaning",
-      "shortDescription": {
-        "en": "test",
-        "ar": "test"
-      },
-      "longDescription": {
-        "en": "test",
-        "ar": "test"
-      },
-      "image": "http://localhost:5000/uploads/car-care-1780482380011-mlby07.png",
-      "hoverImage": "http://localhost:5000/uploads/kitchen-1780482387787-dr9hrb.png",
-      "fallbackImage": "/images/products/product-placeholder.svg",
-      "variants": [
-        {
-          "id": "product-variant-0",
-          "color_name": "blue",
-          "color_value": "#1db7d8",
-          "size": "500ml",
-          "price": 18,
-          "stock": 24,
-          "image_url": "http://localhost:5000/uploads/car-care-1780482380011-mlby07.png",
-          "sort_order": 0
-        },
-        {
-          "id": "product-variant-1",
-          "color_name": "red",
-          "color_value": "#FF0000",
-          "size": "1L",
-          "price": 180,
-          "stock": 22,
-          "image_url": "http://localhost:5000/uploads/kitchen-1780482387787-dr9hrb.png",
-          "sort_order": 1
-        }
-      ],
-      "sizes": [
-        {
-          "size": "500ml",
-          "price": 18
-        },
-        {
-          "size": "1L",
-          "price": 180
-        }
-      ],
-      "gallery_images": [],
-      "galleryImages": [],
-      "badge": {
-        "en": "Featured",
-        "ar": "منتج مميز"
-      },
-      "stockStatus": "In stock",
-      "usageNotes": {
-        "en": "Product managed from the admin dashboard.",
-        "ar": "منتج يتم إدارته من لوحة التحكم."
-      }
-    },
     {
       "id": "hc-fabric-cleaner",
       "slug": "fabric-cleaner",
@@ -1767,17 +921,17 @@
       ],
       "gallery_images": [
         {
-          "id": "gallery-0-1780482244983",
+          "id": "gallery-0-1780561528901",
           "image_url": "/products/limescale-remover-hover.jpg",
           "sort_order": 0
         },
         {
-          "id": "gallery-1-1780482244983",
+          "id": "gallery-1-1780561528901",
           "image_url": "/products/limescale-remover-main.jpg",
           "sort_order": 1
         },
         {
-          "id": "gallery-2-1780482244983",
+          "id": "gallery-2-1780561528901",
           "image_url": "/images/products/limescale-remover.svg",
           "sort_order": 2
         }
@@ -2604,6 +1758,138 @@
       "galleryImages": []
     }
   ],
+  "orders": [
+    {
+      "id": "ORD-1779721949051",
+      "customer": {
+        "name": "omar",
+        "phone": "0593412146",
+        "city": "gaza",
+        "address": "street",
+        "notes": ""
+      },
+      "customerUserId": "customer-1779721797245",
+      "items": [
+        {
+          "productId": "hc-fabric-cleaner",
+          "productName": "Fabric Cleaner",
+          "slug": "fabric-cleaner",
+          "selectedSize": "500ml",
+          "size": "500ml",
+          "quantity": 4,
+          "price": 18,
+          "lineTotal": 72
+        },
+        {
+          "productId": "hc-leather-plastic-cleaner",
+          "productName": "Leather & Plastic Cleaner",
+          "slug": "leather-plastic-cleaner",
+          "selectedSize": "500ml",
+          "size": "500ml",
+          "quantity": 1,
+          "price": 18,
+          "lineTotal": 18
+        },
+        {
+          "productId": "hc-vacuum-cleaner-solution",
+          "productName": "Vacuum Cleaner Solution",
+          "slug": "vacuum-cleaner-solution",
+          "selectedSize": "500ml",
+          "size": "500ml",
+          "quantity": 1,
+          "price": 18,
+          "lineTotal": 18
+        },
+        {
+          "productId": "hc-stone-marble-floor-cleaner",
+          "productName": "Stone & Marble Floor Cleaner",
+          "slug": "stone-marble-floor-cleaner",
+          "selectedSize": "500ml",
+          "size": "500ml",
+          "quantity": 1,
+          "price": 18,
+          "lineTotal": 18
+        },
+        {
+          "productId": "hc-porcelain-ceramic-floor-cleaner",
+          "productName": "Porcelain & Ceramic Floor Cleaner",
+          "slug": "porcelain-ceramic-floor-cleaner",
+          "selectedSize": "500ml",
+          "size": "500ml",
+          "quantity": 1,
+          "price": 18,
+          "lineTotal": 18
+        },
+        {
+          "productId": "hc-limescale-remover",
+          "productName": "Limescale Remover",
+          "slug": "limescale-remover",
+          "selectedSize": "1 Liter",
+          "size": "1 Liter",
+          "quantity": 1,
+          "price": 25,
+          "lineTotal": 25
+        },
+        {
+          "productId": "hc-grease-oil-remover",
+          "productName": "Grease & Oil Remover",
+          "slug": "grease-oil-remover",
+          "selectedSize": "5L",
+          "size": "5L",
+          "quantity": 1,
+          "price": 55,
+          "lineTotal": 55
+        },
+        {
+          "productId": "hc-carpet-rug-cleaner",
+          "productName": "Carpet & Rug Cleaner",
+          "slug": "carpet-rug-cleaner",
+          "selectedSize": "500ml",
+          "size": "500ml",
+          "quantity": 1,
+          "price": 18,
+          "lineTotal": 18
+        }
+      ],
+      "subtotal": 242,
+      "total": 242,
+      "pointsEarned": 242,
+      "pointsRedeemed": 0,
+      "discountFromPoints": 0,
+      "paymentMethod": "Cash on delivery",
+      "status": "Pending",
+      "handledByEmployeeId": "",
+      "assignedToEmployeeId": "",
+      "createdByEmployeeId": "",
+      "createdByEmployeeName": "",
+      "createdBy": {
+        "id": "customer-1779721797245",
+        "name": "omar",
+        "email": "omar12022@gmail.com",
+        "phone": "0593412146",
+        "role": "customer",
+        "permissions": [],
+        "ebPoints": 0,
+        "totalPointsEarned": 0,
+        "totalPointsRedeemed": 0,
+        "isActive": true
+      },
+      "lastUpdatedBy": {
+        "id": "customer-1779721797245",
+        "name": "omar",
+        "email": "omar12022@gmail.com",
+        "phone": "0593412146",
+        "role": "customer",
+        "permissions": [],
+        "ebPoints": 0,
+        "totalPointsEarned": 0,
+        "totalPointsRedeemed": 0,
+        "isActive": true
+      },
+      "createdAt": "2026-05-25T15:12:29.051Z",
+      "updatedAt": "2026-05-25T15:12:29.051Z"
+    }
+  ],
   "offers": [
     {
       "id": "offer-home-care",
@@ -2772,23 +2058,6 @@
       "isApproved": true
     }
   ],
-  "workSessions": [
-    {
-      "id": "session-1780507845046",
-      "employeeId": "employee-1780482340247",
-      "employeeName": "عمر حرب",
-      "date": "2026-06-03",
-      "loginTime": "2026-06-03T17:30:45.046Z",
-      "logoutTime": null
-    },
-    {
-      "id": "session-1780482350466",
-      "employeeId": "employee-1780482340247",
-      "employeeName": "عمر حرب",
-      "date": "2026-06-03",
-      "loginTime": "2026-06-03T10:25:50.466Z",
-      "logoutTime": "2026-06-03T17:14:37.260Z"
-    }
-  ],
+  "workSessions": [],
   "carts": {}
 }

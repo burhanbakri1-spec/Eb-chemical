@@ -11617,7 +11617,7 @@ html[dir="rtl"] .cleanups-tab-list button.active {
   display: grid;
   grid-template-columns: minmax(300px, 0.95fr) minmax(300px, 1fr) minmax(360px, 0.95fr);
   gap: 0;
-  min-height: calc(var(--detail-gallery-frames, 1) * 100vh);
+  min-height: var(--detail-hero-scroll-height, calc(var(--detail-gallery-frames, 1) * 100vh));
   align-items: start;
   background: #fbfff6;
 }
@@ -11729,6 +11729,8 @@ html[dir="rtl"] .cleanups-tab-list button.active {
   flex-direction: column;
   gap: clamp(16px, 2vw, 24px);
   min-height: 100vh;
+  max-height: 100vh;
+  overflow-y: auto;
   padding: clamp(104px, 10vw, 158px) clamp(28px, 4vw, 64px) 48px;
   background: #fffdf8;
 }

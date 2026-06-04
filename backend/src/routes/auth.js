@@ -12,7 +12,7 @@ function isStaffRole(role) {
   return role === "employee" || role === "staff";
 }
 
-function startEmployeeSession(user) {
+async function startEmployeeSession(user) {
   if (!isStaffRole(user.role)) return null;
   const today = new Date().toISOString().slice(0, 10);
   let session = workSessions.find(
@@ -28,12 +28,12 @@ function startEmployeeSession(user) {
       logoutTime: null,
     };
     workSessions.unshift(session);
-    persistStore();
+    await persistStore();
   }
   return session;
 }
 
-router.post("/login", (req, res) => {
+router.post("/login", async (req, res) => {
   const { email, password } = req.body;
   const user = users.find(
     (entry) => entry.email === email && entry.password === password && entry.isActive !== false,
@@ -48,11 +48,11 @@ router.post("/login", (req, res) => {
   return res.json({
     token,
     user: publicUser(user),
-    workSession: startEmployeeSession(user),
+    workSession: await startEmployeeSession(user),
   });
 });
 
-router.post("/register", (req, res) => {
+router.post("/register", async (req, res) => {
   const { name, email, phone, password } = req.body;
   if (users.some((user) => user.email === email)) {
     return res.status(409).json({ message: "Email already exists." });
@@ -72,7 +72,7 @@ router.post("/register", (req, res) => {
     isActive: true,
   };
   users.push(user);
-  persistStore();
+  await persistStore();
   const token = createToken();
   sessions.set(token, user);
   return res.status(201).json({ token, user: publicUser(user) });
@@ -82,7 +82,7 @@ router.get("/me", requireAuth, (req, res) => {
   res.json(publicUser(req.user));
 });
 
-router.post("/logout", (req, res) => {
+router.post("/logout", async (req, res) => {
   const authHeader = req.headers.authorization || "";
   const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
   const user = getSessionUser(req);
@@ -93,7 +93,7 @@ router.post("/logout", (req, res) => {
     workSession = workSessions.find((entry) => entry.employeeId === user.id && !entry.logoutTime);
     if (workSession) {
       workSession.logoutTime = new Date().toISOString();
-      persistStore();
+      await persistStore();
     }
   }
 

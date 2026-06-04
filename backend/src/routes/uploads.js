@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { requireAuth } from "../middleware/auth.js";
+import { isSupabaseStorageConfigured, uploadImageToSupabaseStorage } from "../data/supabaseStore.js";
 
 const router = express.Router();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -118,7 +119,7 @@ router.post(
     limit: "8mb",
     type: (req) => req.headers["content-type"]?.startsWith("multipart/form-data"),
   }),
-  (req, res) => {
+  async (req, res) => {
     const boundary = getBoundary(req.headers["content-type"]);
     const uploads = boundary ? parseMultipartImages(req.body, boundary) : [];
 
@@ -126,7 +127,10 @@ router.post(
       return res.status(400).json({ message: "No image file was uploaded." });
     }
 
-    fs.mkdirSync(uploadsDir, { recursive: true });
+    if (!isSupabaseStorageConfigured()) {
+      fs.mkdirSync(uploadsDir, { recursive: true });
+    }
+
     const savedFiles = [];
 
     for (const upload of uploads) {
@@ -139,11 +143,21 @@ router.post(
         return res.status(400).json({ message: "Unsupported image file type." });
       }
 
-      fs.writeFileSync(path.join(uploadsDir, filename), upload.data);
-      savedFiles.push({
-        path: `/uploads/${filename}`,
-        url: buildPublicUrl(req, filename),
-      });
+      if (isSupabaseStorageConfigured()) {
+        savedFiles.push(
+          await uploadImageToSupabaseStorage({
+            filename,
+            contentType: upload.contentType,
+            data: upload.data,
+          }),
+        );
+      } else {
+        fs.writeFileSync(path.join(uploadsDir, filename), upload.data);
+        savedFiles.push({
+          path: `/uploads/${filename}`,
+          url: buildPublicUrl(req, filename),
+        });
+      }
     }
 
     res.status(201).json({

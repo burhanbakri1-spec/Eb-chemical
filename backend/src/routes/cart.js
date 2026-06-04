@@ -10,16 +10,16 @@ router.get("/", (req, res) => {
   res.json(carts.get(req.user.id) || []);
 });
 
-router.put("/", (req, res) => {
+router.put("/", async (req, res) => {
   const items = Array.isArray(req.body.items) ? req.body.items : [];
   carts.set(req.user.id, items);
-  persistStore();
+  await persistStore();
   res.json(items);
 });
 
-router.delete("/", (req, res) => {
+router.delete("/", async (req, res) => {
   carts.delete(req.user.id);
-  persistStore();
+  await persistStore();
   res.status(204).end();
 });
 

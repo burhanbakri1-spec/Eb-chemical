@@ -16,6 +16,35 @@ const emptyCustomer = {
   notes: "",
 };
 
+function normalizeEmployeeVariants(product = {}) {
+  if (Array.isArray(product.variants) && product.variants.length) {
+    return product.variants.map((variant, index) => ({
+      id: variant.id || `${product.id || "product"}-variant-${index}`,
+      colorName: variant.color_name || variant.colorName || "Default",
+      colorValue: variant.color_value || variant.colorValue || "",
+      size: variant.size || product.sizes?.[0]?.size || "500ml",
+      price: Number(variant.price ?? product.sizes?.[0]?.price ?? 0),
+      stock: Math.max(0, Number(variant.stock ?? variant.stockQty ?? product.stockQty ?? 0)),
+      image: variant.image_url || variant.imageUrl || variant.image || product.image || "",
+    }));
+  }
+
+  return (product.sizes || []).map((sizeOption, index) => ({
+    id: `${product.id || "product"}-variant-${index}`,
+    colorName: "Default",
+    colorValue: "",
+    size: sizeOption.size || "500ml",
+    price: Number(sizeOption.price || 0),
+    stock: Math.max(0, Number(product.stockQty ?? 0)),
+    image: product.image || "",
+  }));
+}
+
+function formatVariantLabel(variant, t) {
+  const color = variant.colorName && variant.colorName !== "Default" ? `${variant.colorName} - ` : "";
+  return `${color}${variant.size} - ${variant.price} ${t("common.ils")}`;
+}
+
 function EmployeeDashboardPage({
   currentUser,
   language,
@@ -34,14 +63,14 @@ function EmployeeDashboardPage({
   const [editingProduct, setEditingProduct] = React.useState(null);
   const [customer, setCustomer] = React.useState(emptyCustomer);
   const [selectedProductId, setSelectedProductId] = React.useState("");
-  const [selectedSize, setSelectedSize] = React.useState("");
+  const [selectedVariantId, setSelectedVariantId] = React.useState("");
   const [productQuery, setProductQuery] = React.useState("");
   const [quantity, setQuantity] = React.useState(1);
   const [draftItems, setDraftItems] = React.useState([]);
   const [message, setMessage] = React.useState(null);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
-  if (!["employee", "staff"].includes(currentUser?.role)) {
+  if (!["admin", "employee", "staff"].includes(currentUser?.role)) {
     return (
       <section className="page-shell">
         <div className="empty-panel">
@@ -85,9 +114,13 @@ function EmployeeDashboardPage({
     )
   );
   const selectedProduct = products.find((product) => product.id === selectedProductId);
-  const selectedSizeOption = selectedProduct?.sizes.find(
-    (sizeOption) => sizeOption.size === selectedSize
+  const selectedProductVariants = React.useMemo(
+    () => normalizeEmployeeVariants(selectedProduct),
+    [selectedProduct],
   );
+  const selectedVariant =
+    selectedProductVariants.find((variant) => variant.id === selectedVariantId) ||
+    selectedProductVariants[0];
   const productResults = React.useMemo(() => {
     const normalizedQuery = productQuery.trim().toLowerCase();
     if (!normalizedQuery) {
@@ -114,15 +147,16 @@ function EmployeeDashboardPage({
   React.useEffect(() => {
     if (!selectedProductId && products.length > 0) {
       setSelectedProductId(products[0].id);
-      setSelectedSize(products[0].sizes[0]?.size || "");
+      const firstVariant = normalizeEmployeeVariants(products[0])[0];
+      setSelectedVariantId(firstVariant?.id || "");
     }
   }, [products, selectedProductId]);
 
   React.useEffect(() => {
-    if (selectedProduct && !selectedProduct.sizes.some((item) => item.size === selectedSize)) {
-      setSelectedSize(selectedProduct.sizes[0]?.size || "");
+    if (selectedProduct && !selectedProductVariants.some((item) => item.id === selectedVariantId)) {
+      setSelectedVariantId(selectedProductVariants[0]?.id || "");
     }
-  }, [selectedProduct, selectedSize]);
+  }, [selectedProduct, selectedProductVariants, selectedVariantId]);
 
   function showMessage(type, text) {
     setMessage({ type, text });
@@ -192,22 +226,27 @@ function EmployeeDashboardPage({
   function handleAddDraftItem(event) {
     event.preventDefault();
 
-    if (!selectedProduct || !selectedSizeOption) {
+    if (!selectedProduct || !selectedVariant) {
       showMessage("error", t("employee.missingPermission"));
       return;
     }
 
+    const itemQuantity = Number(quantity || 1);
     setDraftItems((currentItems) => [
       ...currentItems,
       {
         productId: selectedProduct.id,
         productName: selectedProduct.name[language],
         slug: selectedProduct.slug,
-        selectedSize: selectedSizeOption.size,
-        size: selectedSizeOption.size,
-        quantity: Number(quantity || 1),
-        price: selectedSizeOption.price,
-        lineTotal: selectedSizeOption.price * Number(quantity || 1),
+        variantId: selectedVariant.id,
+        colorName: selectedVariant.colorName,
+        colorValue: selectedVariant.colorValue,
+        selectedSize: selectedVariant.size,
+        size: selectedVariant.size,
+        quantity: itemQuantity,
+        price: selectedVariant.price,
+        lineTotal: selectedVariant.price * itemQuantity,
+        image: selectedVariant.image || selectedProduct.image,
         label: selectedProduct.name[language],
       },
     ]);
@@ -216,7 +255,8 @@ function EmployeeDashboardPage({
 
   function selectProduct(product) {
     setSelectedProductId(product.id);
-    setSelectedSize(product.sizes[0]?.size || "");
+    const firstVariant = normalizeEmployeeVariants(product)[0];
+    setSelectedVariantId(firstVariant?.id || "");
     setProductQuery(product.name?.[language] || product.name?.en || "");
   }
 
@@ -489,7 +529,7 @@ function EmployeeDashboardPage({
               </label>
               <div className="product-search-results full-field" role="listbox">
                 {productResults.map((product) => {
-                  const firstSize = product.sizes[0];
+                  const firstVariant = normalizeEmployeeVariants(product)[0];
                   return (
                     <button
                       className={selectedProductId === product.id ? "product-search-option active" : "product-search-option"}
@@ -507,7 +547,7 @@ function EmployeeDashboardPage({
                       <span>
                         <strong>{product.name?.[language] || product.name?.en}</strong>
                         <small>
-                          {firstSize?.size} - {firstSize?.price} {t("common.ils")}
+                          {firstVariant ? formatVariantLabel(firstVariant, t) : ""}
                         </small>
                       </span>
                     </button>
@@ -515,14 +555,14 @@ function EmployeeDashboardPage({
                 })}
               </div>
               <label>
-                {t("productDetails.chooseSize")}
+                {language === "ar" ? "اللون / الحجم" : "Color / size"}
                 <select
-                  onChange={(event) => setSelectedSize(event.target.value)}
-                  value={selectedSize}
+                  onChange={(event) => setSelectedVariantId(event.target.value)}
+                  value={selectedVariantId}
                 >
-                  {selectedProduct?.sizes.map((sizeOption) => (
-                    <option key={sizeOption.size} value={sizeOption.size}>
-                      {sizeOption.size} - {sizeOption.price} {t("common.ils")}
+                  {selectedProductVariants.map((variant) => (
+                    <option key={variant.id} value={variant.id}>
+                      {formatVariantLabel(variant, t)}
                     </option>
                   ))}
                 </select>
@@ -546,9 +586,9 @@ function EmployeeDashboardPage({
                 <p>{t("cart.emptyTitle")}</p>
               ) : (
                 draftItems.map((item, index) => (
-                  <div className="summary-line" key={`${item.productId}-${item.size}-${index}`}>
+                  <div className="summary-line" key={`${item.productId}-${item.variantId || item.size}-${index}`}>
                     <span>
-                      {item.label} {item.size} x{item.quantity}
+                      {item.label} {item.colorName && item.colorName !== "Default" ? `${item.colorName} / ` : ""}{item.size} x{item.quantity}
                     </span>
                     <strong>
                       {item.lineTotal} {t("common.ils")}

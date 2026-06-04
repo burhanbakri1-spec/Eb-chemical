@@ -25,7 +25,7 @@ router.get("/all", requireAuth, (req, res) => {
   return res.json(reviews);
 });
 
-router.post("/", requireAuth, (req, res) => {
+router.post("/", requireAuth, async (req, res) => {
   const order = req.body.orderId
     ? orders.find((entry) => entry.id === req.body.orderId)
     : orders.find((entry) => entry.customerUserId === req.user.id);
@@ -54,11 +54,11 @@ router.post("/", requireAuth, (req, res) => {
     isActive: req.user.role === "customer" ? false : req.body.isActive !== false,
   };
   reviews.unshift(review);
-  persistStore();
+  await persistStore();
   res.status(201).json(review);
 });
 
-router.put("/:id/status", requireAuth, (req, res) => {
+router.put("/:id/status", requireAuth, async (req, res) => {
   if (req.user.role !== "admin") {
     return res.status(403).json({ message: "Admin access required." });
   }
@@ -70,11 +70,11 @@ router.put("/:id/status", requireAuth, (req, res) => {
   review.status = status;
   review.isApproved = status === "approved";
   review.isActive = status === "approved" ? req.body.isActive !== false : false;
-  persistStore();
+  await persistStore();
   return res.json(review);
 });
 
-router.put("/:id", requireAuth, (req, res) => {
+router.put("/:id", requireAuth, async (req, res) => {
   if (req.user.role !== "admin") {
     return res.status(403).json({ message: "Admin access required." });
   }
@@ -91,11 +91,11 @@ router.put("/:id", requireAuth, (req, res) => {
     status,
     isApproved: status === "approved",
   };
-  persistStore();
+  await persistStore();
   return res.json(reviews[index]);
 });
 
-router.delete("/:id", requireAuth, (req, res) => {
+router.delete("/:id", requireAuth, async (req, res) => {
   if (req.user.role !== "admin") {
     return res.status(403).json({ message: "Admin access required." });
   }
@@ -104,7 +104,7 @@ router.delete("/:id", requireAuth, (req, res) => {
   if (index === -1) return res.status(404).json({ message: "Review not found." });
 
   reviews.splice(index, 1);
-  persistStore();
+  await persistStore();
   return res.status(204).end();
 });
 

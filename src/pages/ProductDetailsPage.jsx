@@ -210,6 +210,8 @@ function ProductDetailsPage({
   const heroRef = React.useRef(null);
   const galleryTrackRef = React.useRef(null);
   const galleryProgressRef = React.useRef(0);
+  const galleryOffsetRef = React.useRef(0);
+  const galleryMoveRangeRef = React.useRef(0);
   const reviewsRef = React.useRef(null);
   const relatedRef = React.useRef(null);
   const impactRef = React.useRef(null);
@@ -257,33 +259,77 @@ function ProductDetailsPage({
     if (!hero || !track || !product) return undefined;
 
     let frameId = 0;
+    let refreshTimer = 0;
 
-    function applyGalleryPosition() {
-      if (window.matchMedia("(max-width: 520px)").matches) {
+    function setGalleryOffset(nextOffset) {
+      const moveRange = galleryMoveRangeRef.current;
+      const offset = Math.max(0, Math.min(moveRange, nextOffset));
+      galleryOffsetRef.current = offset;
+      galleryProgressRef.current = moveRange > 0 ? offset / moveRange : 0;
+      track.style.transform = `translate3d(0, ${-offset}px, 0)`;
+    }
+
+    function syncGalleryDimensions() {
+      if (window.matchMedia("(max-width: 720px)").matches) {
         track.style.transform = "";
+        hero.style.removeProperty("--detail-hero-scroll-height");
+        galleryOffsetRef.current = 0;
+        galleryMoveRangeRef.current = 0;
         return;
       }
 
-      const heroRect = hero.getBoundingClientRect();
-      const scrollRange = Math.max(hero.offsetHeight - window.innerHeight, 1);
-      const progress = Math.max(0, Math.min(1, -heroRect.top / scrollRange));
       const moveRange = Math.max(track.scrollHeight - window.innerHeight, 0);
-      galleryProgressRef.current = progress;
-      track.style.transform = `translate3d(0, ${-progress * moveRange}px, 0)`;
+      galleryMoveRangeRef.current = moveRange;
+      hero.style.setProperty("--detail-hero-scroll-height", `${window.innerHeight}px`);
+      const heroRect = hero.getBoundingClientRect();
+
+      if (heroRect.bottom <= 0) {
+        setGalleryOffset(moveRange);
+      } else if (heroRect.top >= window.innerHeight) {
+        setGalleryOffset(0);
+      } else {
+        setGalleryOffset(galleryOffsetRef.current);
+      }
     }
 
     function requestUpdate() {
       window.cancelAnimationFrame(frameId);
-      frameId = window.requestAnimationFrame(() => applyGalleryPosition());
+      frameId = window.requestAnimationFrame(() => syncGalleryDimensions());
     }
 
-    applyGalleryPosition();
+    function handleWheel(event) {
+      if (window.matchMedia("(max-width: 720px)").matches) return;
+
+      const heroRect = hero.getBoundingClientRect();
+      const isHeroPinned = heroRect.top <= 1 && heroRect.bottom >= window.innerHeight - 1;
+      if (!isHeroPinned) return;
+
+      const moveRange = galleryMoveRangeRef.current;
+      if (moveRange <= 0) return;
+
+      const currentOffset = galleryOffsetRef.current;
+      const nextOffset = currentOffset + event.deltaY;
+      const canMoveDown = event.deltaY > 0 && currentOffset < moveRange - 1;
+      const canMoveUp = event.deltaY < 0 && currentOffset > 1;
+
+      if (canMoveDown || canMoveUp) {
+        event.preventDefault();
+        window.cancelAnimationFrame(frameId);
+        frameId = window.requestAnimationFrame(() => setGalleryOffset(nextOffset));
+      }
+    }
+
+    syncGalleryDimensions();
+    refreshTimer = window.setTimeout(requestUpdate, 350);
     window.addEventListener("scroll", requestUpdate, { passive: true });
     window.addEventListener("resize", requestUpdate);
+    window.addEventListener("wheel", handleWheel, { passive: false });
     return () => {
+      window.clearTimeout(refreshTimer);
       window.cancelAnimationFrame(frameId);
       window.removeEventListener("scroll", requestUpdate);
       window.removeEventListener("resize", requestUpdate);
+      window.removeEventListener("wheel", handleWheel);
     };
   }, [product, selectedType, selectedColor, selectedSize]);
 

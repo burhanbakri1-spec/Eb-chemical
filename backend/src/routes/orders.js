@@ -31,7 +31,7 @@ router.get("/my-orders", (req, res) => {
   res.json(orders.filter((order) => order.customerUserId === req.user.id));
 });
 
-router.post("/", (req, res) => {
+router.post("/", async (req, res) => {
   const orderTotal = Number(req.body.total || req.body.subtotal || 0);
   const pointsRedeemed = Math.max(0, Number(req.body.pointsRedeemed || 0));
   const discountFromPoints = Math.max(0, Number(req.body.discountFromPoints || 0));
@@ -67,22 +67,22 @@ router.post("/", (req, res) => {
   }
 
   orders.unshift(order);
-  persistStore();
+  await persistStore();
   res.status(201).json(order);
 });
 
-router.put("/:id/status", (req, res) => {
+router.put("/:id/status", async (req, res) => {
   const order = orders.find((entry) => entry.id === req.params.id);
   if (!order) return res.status(404).json({ message: "Order not found." });
 
   order.status = req.body.status || order.status;
   order.lastUpdatedBy = publicUser(req.user);
   order.updatedAt = new Date().toISOString();
-  persistStore();
+  await persistStore();
   return res.json(order);
 });
 
-router.put("/:id/assign-employee", (req, res) => {
+router.put("/:id/assign-employee", async (req, res) => {
   const order = orders.find((entry) => entry.id === req.params.id);
   if (!order) return res.status(404).json({ message: "Order not found." });
 
@@ -90,16 +90,16 @@ router.put("/:id/assign-employee", (req, res) => {
   order.assignedToEmployeeId = req.body.employeeId || "";
   order.lastUpdatedBy = publicUser(req.user);
   order.updatedAt = new Date().toISOString();
-  persistStore();
+  await persistStore();
   return res.json(order);
 });
 
-router.delete("/:id", (req, res) => {
+router.delete("/:id", async (req, res) => {
   const index = orders.findIndex((entry) => entry.id === req.params.id);
   if (index === -1) return res.status(404).json({ message: "Order not found." });
 
   orders.splice(index, 1);
-  persistStore();
+  await persistStore();
   return res.status(204).end();
 });
 

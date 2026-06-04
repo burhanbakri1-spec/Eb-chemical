@@ -86,18 +86,18 @@ router.get("/", (_req, res) => {
   res.json(productCatalog.map(normalizeProduct));
 });
 
-router.post("/", (req, res) => {
+router.post("/", async (req, res) => {
   const product = normalizeProduct({
     ...req.body,
     id: req.body.id || `product-${Date.now()}`,
     slug: req.body.slug || `product-${Date.now()}`,
   });
   productCatalog.unshift(product);
-  persistStore();
+  await persistStore();
   res.status(201).json(product);
 });
 
-router.put("/:id", (req, res) => {
+router.put("/:id", async (req, res) => {
   const index = productCatalog.findIndex((product) => product.id === req.params.id);
   if (index === -1) {
     return res.status(404).json({ message: "Product not found." });
@@ -107,17 +107,17 @@ router.put("/:id", (req, res) => {
     ...req.body,
     id: req.params.id,
   });
-  persistStore();
+  await persistStore();
   return res.json(productCatalog[index]);
 });
 
-router.delete("/:id", (req, res) => {
+router.delete("/:id", async (req, res) => {
   const index = productCatalog.findIndex((product) => product.id === req.params.id);
   if (index === -1) {
     return res.status(404).json({ message: "Product not found." });
   }
   productCatalog.splice(index, 1);
-  persistStore();
+  await persistStore();
   return res.status(204).end();
 });
 

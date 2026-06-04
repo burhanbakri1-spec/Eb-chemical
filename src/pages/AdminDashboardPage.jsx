@@ -126,11 +126,12 @@ function normalizeFormVariant(variant = {}, index = 0, product = {}) {
 }
 
 function normalizeProductVariantsForForm(product = {}) {
+  product = product || {};
   if (Array.isArray(product.variants) && product.variants.length) {
     return product.variants.map((variant, index) => normalizeFormVariant(variant, index, product));
   }
 
-  return (product.sizes || []).map((sizeOption, index) =>
+  const variants = (product.sizes || []).map((sizeOption, index) =>
     normalizeFormVariant(
       {
         color_name: "Default",
@@ -143,9 +144,27 @@ function normalizeProductVariantsForForm(product = {}) {
       product,
     ),
   );
+
+  return variants.length
+    ? variants
+    : [
+        normalizeFormVariant(
+          {
+            color_name: "Default",
+            color_value: "#1db7d8",
+            size: "500ml",
+            price: 18,
+            stock: 24,
+            image_url: product.image || "",
+          },
+          0,
+          product,
+        ),
+      ];
 }
 
 function normalizeGalleryImagesForForm(product = {}) {
+  product = product || {};
   const source = product.gallery_images || product.galleryImages || [];
   return source
     .map((entry, index) => ({
@@ -285,7 +304,7 @@ function MediaField({ label, name, value, onChange }) {
     setIsUploading(true);
     try {
       const uploaded = await uploadImage(file);
-      onChange({ target: { name, value: uploaded.path || uploaded.url } });
+      onChange({ target: { name, value: uploaded.url || uploaded.path } });
     } finally {
       setIsUploading(false);
       event.target.value = "";
@@ -478,6 +497,9 @@ function ProductsListPage({ categories, filters, onAdd, onDeleteProduct, onEdit,
 
 function ProductWizard({ categories, editingProduct, onCancel, onSave }) {
   const [step, setStep] = React.useState("basic");
+  const [uploadError, setUploadError] = React.useState("");
+  const [uploadingField, setUploadingField] = React.useState("");
+  const [uploadingVariantIndex, setUploadingVariantIndex] = React.useState(-1);
   const [form, setForm] = React.useState(() => ({
     id: editingProduct?.id || "",
     nameEn: getText(editingProduct?.name) || "",
@@ -558,27 +580,53 @@ function ProductWizard({ categories, editingProduct, onCancel, onSave }) {
     }));
   }
 
+  async function uploadVariantImage(index, event) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+
+    setUploadError("");
+    setUploadingVariantIndex(index);
+    try {
+      const uploaded = await uploadImage(file);
+      updateVariant(index, "image_url", uploaded.url || uploaded.path || "");
+    } catch (error) {
+      setUploadError(error.message || "Variant image upload failed.");
+    } finally {
+      setUploadingVariantIndex(-1);
+    }
+  }
+
   async function uploadGallery(event) {
     const files = event.target.files;
     event.target.value = "";
     if (!files?.length) return;
-    const uploaded = await uploadImages(files);
-    setForm((current) => {
-      const currentImages = current.galleryImages || [];
-      return {
-        ...current,
-        galleryImages: [
-          ...currentImages,
-          ...uploaded
-            .map((item, index) => ({
-              id: `gallery-${Date.now()}-${index}`,
-              image_url: item.path || item.url,
-              sort_order: currentImages.length + index,
-            }))
-            .filter((item) => item.image_url),
-        ],
-      };
-    });
+
+    setUploadError("");
+    setUploadingField("galleryImages");
+    try {
+      const uploaded = await uploadImages(files);
+      setForm((current) => {
+        const currentImages = current.galleryImages || [];
+        return {
+          ...current,
+          galleryImages: [
+            ...currentImages,
+            ...uploaded
+              .map((item, index) => ({
+                id: `gallery-${Date.now()}-${index}`,
+                image_url: item.url || item.path,
+                sort_order: currentImages.length + index,
+              }))
+              .filter((item) => item.image_url),
+          ],
+        };
+      });
+    } catch (error) {
+      setUploadError(error.message || "Gallery images upload failed.");
+    } finally {
+      setUploadingField("");
+    }
   }
 
   function removeGalleryImage(index) {
@@ -614,7 +662,6 @@ function ProductWizard({ categories, editingProduct, onCancel, onSave }) {
             <label>SKU<input name="sku" value={form.sku} onChange={change} /></label>
             <label>Category *<select name="categoryId" required value={form.categoryId} onChange={change}>{categories.map((category) => <option key={category.id} value={category.id}>{getText(category.name)}</option>)}</select></label>
             <label>Brand<input name="brand" value={form.brand} onChange={change} /></label>
-            <label>Size<input name="size" value={form.size} onChange={change} /></label>
             <label>Short Description<textarea name="shortDescription" value={form.shortDescription} onChange={change} /></label>
             <label>Full Description<textarea name="fullDescription" value={form.fullDescription} onChange={change} /></label>
             <label>How to Use<textarea name="howToUse" value={form.howToUse} onChange={change} /></label>
@@ -648,11 +695,22 @@ function ProductWizard({ categories, editingProduct, onCancel, onSave }) {
                   <label>Size<input required value={variant.size} onChange={(event) => updateVariant(index, "size", event.target.value)} /></label>
                   <label>Price<input min="0" required type="number" value={variant.price} onChange={(event) => updateVariant(index, "price", event.target.value)} /></label>
                   <label>Stock<input min="0" required type="number" value={variant.stock} onChange={(event) => updateVariant(index, "stock", event.target.value)} /></label>
-                  <label>Variant image<input value={variant.image_url} onChange={(event) => updateVariant(index, "image_url", event.target.value)} /></label>
+                  <label>
+                    Variant image
+                    <span className="image-upload-row">
+                      <input value={variant.image_url} onChange={(event) => updateVariant(index, "image_url", event.target.value)} />
+                      <span className="upload-button-shell">
+                        <input accept="image/*" type="file" onChange={(event) => uploadVariantImage(index, event)} />
+                        <span>{uploadingVariantIndex === index ? "Uploading..." : "Upload"}</span>
+                      </span>
+                    </span>
+                    {variant.image_url && <img className="admin-image-preview small-preview" alt="" src={variant.image_url} />}
+                  </label>
                   <button className="text-action danger" onClick={() => removeVariant(index)} type="button">Remove</button>
                 </div>
               ))}
             </div>
+            {uploadError && <div className="message-panel error full-field">{uploadError}</div>}
           </div>
         )}
         {step === "media" && (
@@ -665,7 +723,7 @@ function ProductWizard({ categories, editingProduct, onCancel, onSave }) {
                 <strong>Vertical Gallery Images</strong>
                 <label className="admin-upload-button">
                   <Upload size={14} />
-                  Upload Gallery Images
+                  {uploadingField === "galleryImages" ? "Uploading..." : "Upload Gallery Images"}
                   <input accept="image/*" hidden multiple type="file" onChange={uploadGallery} />
                 </label>
               </div>
@@ -677,6 +735,7 @@ function ProductWizard({ categories, editingProduct, onCancel, onSave }) {
                   </figure>
                 ))}
               </div>
+              {uploadError && <div className="message-panel error full-field">{uploadError}</div>}
             </div>
           </>
         )}

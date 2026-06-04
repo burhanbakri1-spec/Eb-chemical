@@ -3,6 +3,11 @@ import { homepageCategoryCards, homepageOffers, reviews as initialReviews } from
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  isSupabaseConfigured,
+  loadStoreFromSupabase,
+  saveStoreToSupabase,
+} from "./supabaseStore.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const dataDir = process.env.DATA_STORE_DIR
@@ -236,7 +241,26 @@ function normalizeReview(review, index = 0) {
   };
 }
 
-const persisted = readPersistedStore();
+async function readInitialStore() {
+  if (!isSupabaseConfigured()) {
+    return { persisted: readPersistedStore(), canPersistToSupabase: false };
+  }
+
+  try {
+    const result = await loadStoreFromSupabase();
+    return {
+      persisted: result.isEmpty ? readPersistedStore() : result.store,
+      canPersistToSupabase: true,
+    };
+  } catch (error) {
+    console.warn("Could not read Supabase store, using local fallback without remote writes.", error.message);
+    return { persisted: readPersistedStore(), canPersistToSupabase: false };
+  }
+}
+
+const initialStore = await readInitialStore();
+const persisted = initialStore.persisted;
+let canPersistToSupabase = initialStore.canPersistToSupabase;
 
 export const users = ensureArray(persisted?.users, seedUsers).map(normalizeUser);
 export const orders = ensureArray(persisted?.orders, []).map(normalizeOrder);
@@ -248,8 +272,7 @@ export const offers = ensureArray(persisted?.offers, homepageOffers).map(normali
 export const categoryCards = ensureArray(persisted?.categoryCards, homepageCategoryCards).map(normalizeCategoryCard);
 export const reviews = ensureArray(persisted?.reviews, initialReviews).map(normalizeReview);
 
-export function persistStore() {
-  fs.mkdirSync(dataDir, { recursive: true });
+export function currentStoreSnapshot() {
   const store = {
     version: 1,
     savedAt: new Date().toISOString(),
@@ -262,11 +285,33 @@ export function persistStore() {
     workSessions,
     carts: Object.fromEntries(carts.entries()),
   };
+  return store;
+}
+
+function persistLocalStore(store) {
+  fs.mkdirSync(dataDir, { recursive: true });
   const tempFile = `${dataFile}.tmp`;
   fs.writeFileSync(tempFile, `${JSON.stringify(store, null, 2)}\n`, "utf8");
   fs.renameSync(tempFile, dataFile);
+  return store;
 }
 
-if (!fs.existsSync(dataFile)) {
-  persistStore();
+export async function persistStore() {
+  const store = currentStoreSnapshot();
+
+  if (isSupabaseConfigured() && canPersistToSupabase) {
+    try {
+      await saveStoreToSupabase(store);
+      return store;
+    } catch (error) {
+      console.error("Could not persist store to Supabase. Falling back to local store.", error.message);
+      canPersistToSupabase = false;
+    }
+  }
+
+  return persistLocalStore(store);
+}
+
+if (!isSupabaseConfigured() && !fs.existsSync(dataFile)) {
+  await persistStore();
 }

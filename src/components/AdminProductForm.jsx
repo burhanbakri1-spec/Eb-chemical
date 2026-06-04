@@ -16,30 +16,10 @@ const emptyForm = {
   hoverImage: "",
   galleryImages: [],
   variants: [],
-  sizes: "500ml:18, 5L:55, 18L:145",
   badgeEn: "Featured",
   badgeAr: "منتج مميز",
   stockStatus: "In stock",
 };
-
-function sizesToText(sizes = []) {
-  return sizes.map((item) => `${item.size}:${item.price}`).join(", ");
-}
-
-function parseSizes(value) {
-  return value
-    .split(",")
-    .map((entry) => entry.trim())
-    .filter(Boolean)
-    .map((entry) => {
-      const [size, price] = entry.split(":");
-      return {
-        size: size?.trim() || "500ml",
-        price: Number(price || 0),
-      };
-    })
-    .filter((entry) => entry.size && !Number.isNaN(entry.price));
-}
 
 function normalizeVariant(variant = {}, index = 0, product = {}) {
   return {
@@ -55,6 +35,7 @@ function normalizeVariant(variant = {}, index = 0, product = {}) {
 }
 
 function normalizeGalleryImages(product = {}) {
+  product = product || {};
   const source = product.gallery_images || product.galleryImages || [];
   return source
     .map((entry, index) => ({
@@ -66,6 +47,7 @@ function normalizeGalleryImages(product = {}) {
 }
 
 function normalizeVariants(product = {}) {
+  product = product || {};
   if (Array.isArray(product.variants) && product.variants.length) {
     return product.variants.map((variant, index) => normalizeVariant(variant, index, product));
   }
@@ -85,7 +67,22 @@ function normalizeVariants(product = {}) {
   );
 }
 
-function sizesFromVariants(variants, fallbackText) {
+function createDefaultVariant(product = {}) {
+  return normalizeVariant(
+    {
+      color_name: "Default",
+      color_value: "#1db7d8",
+      size: product.sizes?.[0]?.size || "500ml",
+      price: product.sizes?.[0]?.price ?? 18,
+      stock: product.stockQty ?? 24,
+      image_url: product.image || "",
+    },
+    0,
+    product,
+  );
+}
+
+function sizesFromVariants(variants) {
   const bySize = new Map();
   variants.forEach((variant) => {
     if (!variant.size) return;
@@ -94,12 +91,20 @@ function sizesFromVariants(variants, fallbackText) {
       bySize.set(variant.size, { size: variant.size, price: Number(variant.price || 0) });
     }
   });
-  return bySize.size ? Array.from(bySize.values()) : parseSizes(fallbackText);
+  return bySize.size ? Array.from(bySize.values()) : [{ size: "500ml", price: 18 }];
+}
+
+function createEmptyForm() {
+  return {
+    ...emptyForm,
+    galleryImages: [],
+    variants: [createDefaultVariant(emptyForm)],
+  };
 }
 
 function productToForm(product) {
   if (!product) {
-    return emptyForm;
+    return createEmptyForm();
   }
 
   return {
@@ -113,8 +118,7 @@ function productToForm(product) {
     image: product.image || placeholderImage,
     hoverImage: product.hoverImage || product.secondaryImage || "",
     galleryImages: normalizeGalleryImages(product),
-    variants: normalizeVariants(product),
-    sizes: sizesToText(product.sizes),
+    variants: normalizeVariants(product).length ? normalizeVariants(product) : [createDefaultVariant(product)],
     badgeEn: product.badge?.en || "Featured",
     badgeAr: product.badge?.ar || "منتج مميز",
     stockStatus: product.stockStatus || "In stock",
@@ -126,6 +130,7 @@ function AdminProductForm({ editingProduct, language, onCancel, onSave, t }) {
   const [isSaving, setIsSaving] = React.useState(false);
   const [uploadingField, setUploadingField] = React.useState("");
   const [uploadError, setUploadError] = React.useState("");
+  const [uploadingVariantIndex, setUploadingVariantIndex] = React.useState(-1);
 
   React.useEffect(() => {
     setForm(productToForm(editingProduct));
@@ -182,7 +187,7 @@ function AdminProductForm({ editingProduct, language, onCancel, onSave, t }) {
         const nextImages = uploaded
           .map((item, index) => ({
             id: `gallery-${Date.now()}-${index}`,
-            image_url: item.path || item.url,
+            image_url: item.url || item.path,
             sort_order: currentImages.length + index,
           }))
           .filter((item) => item.image_url);
@@ -244,6 +249,27 @@ function AdminProductForm({ editingProduct, language, onCancel, onSave, t }) {
     }));
   }
 
+  async function handleVariantImageUpload(index, event) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+
+    if (!file) {
+      return;
+    }
+
+    setUploadError("");
+    setUploadingVariantIndex(index);
+
+    try {
+      const result = await uploadImage(file);
+      updateVariant(index, "image_url", result.url || result.path || "");
+    } catch (error) {
+      setUploadError(error.message || "Variant image upload failed.");
+    } finally {
+      setUploadingVariantIndex(-1);
+    }
+  }
+
   async function handleSubmit(event) {
     event.preventDefault();
     setIsSaving(true);
@@ -289,7 +315,7 @@ function AdminProductForm({ editingProduct, language, onCancel, onSave, t }) {
       hoverImage: form.hoverImage || "",
       fallbackImage: placeholderImage,
       variants,
-      sizes: sizesFromVariants(variants, form.sizes),
+      sizes: sizesFromVariants(variants),
       gallery_images: galleryImages,
       galleryImages: galleryImages.map((image) => image.image_url),
       badge: {
@@ -305,7 +331,7 @@ function AdminProductForm({ editingProduct, language, onCancel, onSave, t }) {
     setIsSaving(false);
 
     if (result?.ok && !editingProduct) {
-      setForm(emptyForm);
+      setForm(createEmptyForm());
     }
   }
 
@@ -414,10 +440,6 @@ function AdminProductForm({ editingProduct, language, onCancel, onSave, t }) {
         {t("admin.shortDescriptionAr")}
         <textarea name="shortAr" onChange={handleChange} required value={form.shortAr} />
       </label>
-      <label>
-        {t("admin.sizesPrices")}
-        <input name="sizes" onChange={handleChange} required value={form.sizes} />
-      </label>
       <div className="full-field admin-variants-editor">
         <div className="admin-inline-heading">
           <strong>{language === "ar" ? "ألوان وأحجام المنتج" : "Product Variants"}</strong>
@@ -473,10 +495,37 @@ function AdminProductForm({ editingProduct, language, onCancel, onSave, t }) {
               </label>
               <label>
                 {language === "ar" ? "صورة الخيار" : "Variant image"}
-                <input
-                  value={variant.image_url}
-                  onChange={(event) => updateVariant(index, "image_url", event.target.value)}
-                />
+                <span className="image-upload-row">
+                  <input
+                    value={variant.image_url}
+                    onChange={(event) => updateVariant(index, "image_url", event.target.value)}
+                  />
+                  <span className="upload-button-shell">
+                    <input
+                      accept="image/*"
+                      aria-label={language === "ar" ? "رفع صورة الخيار" : "Upload variant image"}
+                      onChange={(event) => handleVariantImageUpload(index, event)}
+                      type="file"
+                    />
+                    <span>
+                      {uploadingVariantIndex === index
+                        ? t("admin.uploading")
+                        : language === "ar"
+                          ? "رفع"
+                          : "Upload"}
+                    </span>
+                  </span>
+                </span>
+                {variant.image_url && (
+                  <img
+                    alt=""
+                    className="admin-image-preview small-preview"
+                    src={variant.image_url}
+                    onError={(event) => {
+                      event.currentTarget.src = placeholderImage;
+                    }}
+                  />
+                )}
               </label>
               <button className="text-action danger" onClick={() => removeVariant(index)} type="button">
                 {language === "ar" ? "حذف" : "Remove"}

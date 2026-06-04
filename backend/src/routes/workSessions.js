@@ -20,7 +20,7 @@ function findOpenSession(user) {
   );
 }
 
-router.post("/start", (req, res) => {
+router.post("/start", async (req, res) => {
   if (!isStaffRole(req.user.role)) {
     return res.status(403).json({ message: "Only employees can start work sessions." });
   }
@@ -36,17 +36,17 @@ router.post("/start", (req, res) => {
       logoutTime: null,
     };
     workSessions.unshift(session);
-    persistStore();
+    await persistStore();
   }
   return res.json(session);
 });
 
-router.post("/end", (req, res) => {
+router.post("/end", async (req, res) => {
   const session = findOpenSession(req.user);
   if (!session) return res.status(404).json({ message: "No open work session." });
 
   session.logoutTime = new Date().toISOString();
-  persistStore();
+  await persistStore();
   return res.json(session);
 });
 
