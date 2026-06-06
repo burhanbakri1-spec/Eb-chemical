@@ -102,6 +102,36 @@ function createEmptyForm() {
   };
 }
 
+function createGalleryImageEntry(index = 0, imageUrl = "") {
+  return {
+    id: `gallery-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+    image_url: imageUrl,
+    sort_order: index,
+  };
+}
+
+function parseGeneratorColors(value = "") {
+  return value
+    .split(/\n|;/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const [name = "", colorValue = "", imageUrl = ""] = line.split("|").map((part) => part.trim());
+      return {
+        name: name || "Default",
+        value: colorValue || "#1db7d8",
+        imageUrl,
+      };
+    });
+}
+
+function parseGeneratorSizes(value = "") {
+  return value
+    .split(/\n|,|;/)
+    .map((size) => size.trim())
+    .filter(Boolean);
+}
+
 function productToForm(product) {
   if (!product) {
     return createEmptyForm();
@@ -131,6 +161,13 @@ function AdminProductForm({ editingProduct, language, onCancel, onSave, t }) {
   const [uploadingField, setUploadingField] = React.useState("");
   const [uploadError, setUploadError] = React.useState("");
   const [uploadingVariantIndex, setUploadingVariantIndex] = React.useState(-1);
+  const [uploadingGalleryIndex, setUploadingGalleryIndex] = React.useState(-1);
+  const [variantGenerator, setVariantGenerator] = React.useState({
+    colorsText: "Default|#1db7d8",
+    sizesText: "500ml, 1L, 5L",
+    defaultPrice: "18",
+    defaultStock: "24",
+  });
 
   React.useEffect(() => {
     setForm(productToForm(editingProduct));
@@ -212,6 +249,46 @@ function AdminProductForm({ editingProduct, language, onCancel, onSave, t }) {
     }));
   }
 
+  function addGalleryImageField() {
+    setForm((currentForm) => {
+      const currentImages = currentForm.galleryImages || [];
+      return {
+        ...currentForm,
+        galleryImages: [...currentImages, createGalleryImageEntry(currentImages.length)],
+      };
+    });
+  }
+
+  function updateGalleryImage(index, value) {
+    setForm((currentForm) => ({
+      ...currentForm,
+      galleryImages: (currentForm.galleryImages || []).map((image, imageIndex) =>
+        imageIndex === index ? { ...image, image_url: value } : image,
+      ),
+    }));
+  }
+
+  async function handleGalleryItemUpload(index, event) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+
+    if (!file) {
+      return;
+    }
+
+    setUploadError("");
+    setUploadingGalleryIndex(index);
+
+    try {
+      const result = await uploadImage(file);
+      updateGalleryImage(index, result.url || result.path || "");
+    } catch (error) {
+      setUploadError(error.message || "Gallery image upload failed.");
+    } finally {
+      setUploadingGalleryIndex(-1);
+    }
+  }
+
   function addVariant() {
     setForm((currentForm) => ({
       ...currentForm,
@@ -247,6 +324,61 @@ function AdminProductForm({ editingProduct, language, onCancel, onSave, t }) {
       ...currentForm,
       variants: (currentForm.variants || []).filter((_, variantIndex) => variantIndex !== index),
     }));
+  }
+
+  function updateVariantGenerator(field, value) {
+    setVariantGenerator((currentGenerator) => ({
+      ...currentGenerator,
+      [field]: value,
+    }));
+  }
+
+  function generateVariants() {
+    const colors = parseGeneratorColors(variantGenerator.colorsText);
+    const sizes = parseGeneratorSizes(variantGenerator.sizesText);
+
+    if (!colors.length || !sizes.length) {
+      setUploadError(language === "ar" ? "أضف لونًا وحجمًا واحدًا على الأقل." : "Add at least one color and one size.");
+      return;
+    }
+
+    setUploadError("");
+    setForm((currentForm) => {
+      const currentVariants = currentForm.variants || [];
+      const existingKeys = new Set(
+        currentVariants.map((variant) => `${variant.color_name || ""}__${variant.size || ""}`.toLowerCase()),
+      );
+      const generated = [];
+
+      colors.forEach((color) => {
+        sizes.forEach((size) => {
+          const key = `${color.name}__${size}`.toLowerCase();
+          if (existingKeys.has(key)) {
+            return;
+          }
+
+          generated.push(
+            normalizeVariant(
+              {
+                color_name: color.name,
+                color_value: color.value,
+                size,
+                price: variantGenerator.defaultPrice,
+                stock: variantGenerator.defaultStock,
+                image_url: color.imageUrl || currentForm.image || "",
+              },
+              currentVariants.length + generated.length,
+              currentForm,
+            ),
+          );
+        });
+      });
+
+      return {
+        ...currentForm,
+        variants: [...currentVariants, ...generated],
+      };
+    });
   }
 
   async function handleVariantImageUpload(index, event) {
@@ -289,11 +421,13 @@ function AdminProductForm({ editingProduct, language, onCancel, onSave, t }) {
         stock: Math.max(0, Number(variant.stock || 0)),
         sort_order: index,
       }));
-    const galleryImages = (form.galleryImages || []).map((image, index) => ({
-      id: image.id || `gallery-${index}`,
-      image_url: image.image_url,
-      sort_order: index,
-    }));
+    const galleryImages = (form.galleryImages || [])
+      .filter((image) => image.image_url)
+      .map((image, index) => ({
+        id: image.id || `gallery-${index}`,
+        image_url: image.image_url,
+        sort_order: index,
+      }));
 
     const result = await onSave({
       id: form.id || `product-${Date.now()}`,
@@ -419,11 +553,46 @@ function AdminProductForm({ editingProduct, language, onCancel, onSave, t }) {
                   : "Upload Gallery Images"}
             </span>
           </label>
+          <button className="secondary-action compact-action" onClick={addGalleryImageField} type="button">
+            {language === "ar" ? "+ إضافة خانة صورة" : "+ Add image field"}
+          </button>
         </div>
         <div className="admin-gallery-preview-grid">
           {(form.galleryImages || []).map((image, index) => (
             <figure className="admin-gallery-preview" key={`${image.image_url}-${index}`}>
-              <img alt="" src={image.image_url} />
+              <label>
+                {language === "ar" ? "رابط الصورة" : "Image URL"}
+                <span className="image-upload-row">
+                  <input
+                    value={image.image_url}
+                    onChange={(event) => updateGalleryImage(index, event.target.value)}
+                  />
+                  <span className="upload-button-shell">
+                    <input
+                      accept="image/*"
+                      aria-label={language === "ar" ? "رفع صورة معرض" : "Upload gallery image"}
+                      onChange={(event) => handleGalleryItemUpload(index, event)}
+                      type="file"
+                    />
+                    <span>
+                      {uploadingGalleryIndex === index
+                        ? t("admin.uploading")
+                        : language === "ar"
+                          ? "رفع"
+                          : "Upload"}
+                    </span>
+                  </span>
+                </span>
+              </label>
+              {image.image_url && (
+                <img
+                  alt=""
+                  src={image.image_url}
+                  onError={(event) => {
+                    event.currentTarget.src = placeholderImage;
+                  }}
+                />
+              )}
               <button onClick={() => removeGalleryImage(index)} type="button">
                 {language === "ar" ? "حذف" : "Remove"}
               </button>
@@ -445,6 +614,51 @@ function AdminProductForm({ editingProduct, language, onCancel, onSave, t }) {
           <strong>{language === "ar" ? "ألوان وأحجام المنتج" : "Product Variants"}</strong>
           <button className="secondary-action compact-action" onClick={addVariant} type="button">
             {language === "ar" ? "إضافة خيار" : "Add Variant"}
+          </button>
+        </div>
+        <div className="variant-generator-panel">
+          <div>
+            <strong>{language === "ar" ? "مولّد الفيرنتس" : "Variant Generator"}</strong>
+            <p>
+              {language === "ar"
+                ? "اكتب كل لون بسطر: الاسم|كود اللون|رابط صورة اختياري. الأحجام افصلها بفواصل."
+                : "Enter each color on a new line: name|hex|optional image URL. Separate sizes with commas."}
+            </p>
+          </div>
+          <label>
+            {language === "ar" ? "الألوان" : "Colors"}
+            <textarea
+              value={variantGenerator.colorsText}
+              onChange={(event) => updateVariantGenerator("colorsText", event.target.value)}
+            />
+          </label>
+          <label>
+            {language === "ar" ? "الأحجام" : "Sizes"}
+            <input
+              value={variantGenerator.sizesText}
+              onChange={(event) => updateVariantGenerator("sizesText", event.target.value)}
+            />
+          </label>
+          <label>
+            {language === "ar" ? "السعر الافتراضي" : "Default price"}
+            <input
+              min="0"
+              type="number"
+              value={variantGenerator.defaultPrice}
+              onChange={(event) => updateVariantGenerator("defaultPrice", event.target.value)}
+            />
+          </label>
+          <label>
+            {language === "ar" ? "المخزون الافتراضي" : "Default stock"}
+            <input
+              min="0"
+              type="number"
+              value={variantGenerator.defaultStock}
+              onChange={(event) => updateVariantGenerator("defaultStock", event.target.value)}
+            />
+          </label>
+          <button className="primary-action compact-action" onClick={generateVariants} type="button">
+            {language === "ar" ? "توليد الفيرنتس" : "Generate Variants"}
           </button>
         </div>
         <div className="admin-variant-grid">

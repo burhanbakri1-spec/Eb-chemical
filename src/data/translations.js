@@ -154,6 +154,7 @@ export const translations = {
       employees: "Employees",
       productsManagement: "Products Management",
       ordersManagement: "Orders Management",
+      storefront: "Storefront",
       employeesManagement: "Employees Management",
       employeeDashboard: "Employee Dashboard",
       addProduct: "Add Product",
@@ -255,6 +256,7 @@ export const translations = {
       ordersUpdateStatus: "Update Order Status",
       customersView: "View Customers",
       employeesView: "View Employees",
+      websiteMediaManage: "Manage Website Media",
     },
     employee: {
       myTasks: "My Tasks",
@@ -522,6 +524,7 @@ export const translations = {
       employees: "الموظفون",
       productsManagement: "إدارة المنتجات",
       ordersManagement: "إدارة الطلبات",
+      storefront: "واجهة الموقع",
       employeesManagement: "إدارة الموظفين",
       employeeDashboard: "لوحة الموظف",
       addProduct: "إضافة منتج",
@@ -623,6 +626,7 @@ export const translations = {
       ordersUpdateStatus: "تعديل حالة الطلب",
       customersView: "عرض العملاء",
       employeesView: "عرض الموظفين",
+      websiteMediaManage: "إدارة صور الموقع",
     },
     employee: {
       myTasks: "مهامي",

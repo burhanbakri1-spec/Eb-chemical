@@ -127,6 +127,7 @@ function Header({
   const [isMobileShopOpen, setIsMobileShopOpen] = React.useState(false);
   const [isSearchOpen, setIsSearchOpen] = React.useState(false);
   const [searchTerm, setSearchTerm] = React.useState("");
+  const [isHomeHeroActive, setIsHomeHeroActive] = React.useState(activePage === "home");
   const headerRef = React.useRef(null);
   const aboutCloseTimer = React.useRef(null);
   const megaCloseTimer = React.useRef(null);
@@ -198,6 +199,33 @@ function Header({
     document.addEventListener("pointerdown", closeMenus);
     return () => document.removeEventListener("pointerdown", closeMenus);
   }, []);
+
+  React.useEffect(() => {
+    if (activePage !== "home") {
+      setIsHomeHeroActive(false);
+      return undefined;
+    }
+
+    function updateHeaderTone() {
+      const hero = document.querySelector(".storefront-home > .hero-editorial");
+      if (!hero) {
+        setIsHomeHeroActive(window.scrollY < 120);
+        return;
+      }
+
+      const heroBottom = hero.getBoundingClientRect().bottom;
+      setIsHomeHeroActive(heroBottom > 106);
+    }
+
+    updateHeaderTone();
+    window.addEventListener("scroll", updateHeaderTone, { passive: true });
+    window.addEventListener("resize", updateHeaderTone);
+
+    return () => {
+      window.removeEventListener("scroll", updateHeaderTone);
+      window.removeEventListener("resize", updateHeaderTone);
+    };
+  }, [activePage]);
 
   function closeAllMenus() {
     setIsMegaOpen(false);
@@ -319,8 +347,17 @@ function Header({
     aboutCloseTimer.current = window.setTimeout(() => setIsAboutOpen(false), 140);
   }
 
+  const headerClassName = [
+    "site-header",
+    activePage === "home" ? "header--homepage" : "header--default",
+    activePage === "home" && isHomeHeroActive ? "header--home-light" : "",
+    activePage === "home" && !isHomeHeroActive ? "header--home-dark" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
   return (
-    <header className="site-header" ref={headerRef}>
+    <header className={headerClassName} ref={headerRef}>
       <div className="header-left-block">
         <button className="brand-logo" onClick={() => goTo("home")} type="button">
           <img

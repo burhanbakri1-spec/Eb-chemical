@@ -1,212 +1,62 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
+import React from "react";
 import { placeholderImage } from "../data/products.js";
 
-function getLocalized(value, language) {
-  if (!value) return "";
-  if (typeof value === "string") return value;
-  return value[language] || value.en || value.ar || "";
+function getProductImages(products) {
+  const seen = new Set();
+  return (products || [])
+    .flatMap((product) => [
+      product?.hoverImage,
+      product?.secondaryImage,
+      product?.image,
+      product?.galleryImages?.[0],
+      product?.gallery?.[0],
+    ])
+    .filter(Boolean)
+    .filter((image) => {
+      if (seen.has(image)) return false;
+      seen.add(image);
+      return true;
+    });
 }
 
-function pickProducts(products) {
-  if (!Array.isArray(products) || products.length === 0) return [];
-
-  const scored = products.map((product) => {
-    let score = 0;
-    if (product.offer || product.discount) score += 100;
-    if (product.bestSeller) score += 60;
-    if (product.featured || product.isFeatured) score += 40;
-    if (typeof product.salesCount === "number") score += Math.min(product.salesCount, 30);
-    const badge = `${getLocalized(product.badge, "en")} ${getLocalized(product.badge, "ar")}`.toLowerCase();
-    if (badge.includes("best") || badge.includes("الأكثر")) score += 30;
-    if (badge.includes("offer") || badge.includes("عرض")) score += 25;
-    if (badge.includes("new") || badge.includes("جديد")) score += 15;
-    if (badge.includes("gloss") || badge.includes("fresh")) score += 10;
-    return { product, score };
-  });
-
-  scored.sort((a, b) => b.score - a.score);
-
-  const seenCategory = new Set();
-  const out = [];
-  for (const { product } of scored) {
-    if (out.length >= 4) break;
-    const key = product.categoryId || product.id;
-    if (seenCategory.has(key) && out.length < 3) continue;
-    seenCategory.add(key);
-    out.push(product);
-  }
-  let i = 0;
-  while (out.length < 4 && i < scored.length) {
-    if (!out.includes(scored[i].product)) out.push(scored[i].product);
-    i++;
-  }
-  while (out.length < 4 && products.length) {
-    out.push(products[out.length % products.length]);
-  }
-  return out.slice(0, 4);
-}
-
-const CARD_CONFIG = [
-  { rotate: -2, parallax: -18, mouseX: -6, mouseY: -4, z: 2 },
-  { rotate: 1.5, parallax: 12, mouseX: 4, mouseY: 6, z: 3 },
-  { rotate: -1, parallax: -10, mouseX: -4, mouseY: 5, z: 2 },
-  { rotate: 2, parallax: 16, mouseX: 5, mouseY: -5, z: 1 },
-];
-
-function FloatingProductCollage({ language, products, onViewProduct }) {
+function FloatingProductCollage({ galleryImages = [], language, products = [] }) {
   const isArabic = language === "ar";
-  const sectionRef = useRef(null);
-  const reduceMotion = useReducedMotion();
-  const [mouse, setMouse] = useState({ x: 0, y: 0 });
-  const [isMobile, setIsMobile] = useState(false);
-  const [wordIndex, setWordIndex] = useState(0);
-  const dynamicWords = isArabic
-    ? ["فعّالة", "عملية", "منعشة", "موثوقة", "سهلة الاستخدام"]
-    : ["powerful", "practical", "fresh", "reliable", "easy-to-use"];
+  const fallbackImages = getProductImages(products);
+  const images = [...galleryImages, ...fallbackImages, placeholderImage]
+    .filter(Boolean)
+    .slice(0, 5);
 
-  useEffect(() => {
-    const mq = window.matchMedia("(max-width: 820px)");
-    const handler = () => setIsMobile(mq.matches);
-    handler();
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
-  }, []);
-
-  useEffect(() => {
-    const intervalId = window.setInterval(() => {
-      setWordIndex((current) => (current + 1) % dynamicWords.length);
-    }, 2000);
-
-    return () => window.clearInterval(intervalId);
-  }, [dynamicWords.length]);
-
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start end", "end start"],
-  });
-
-  const picks = useMemo(() => pickProducts(products), [products]);
-
-  function handleMouseMove(e) {
-    if (reduceMotion || isMobile) return;
-    const rect = sectionRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    const x = (e.clientX - rect.left) / rect.width - 0.5;
-    const y = (e.clientY - rect.top) / rect.height - 0.5;
-    setMouse({ x, y });
-  }
-
-  function handleMouseLeave() {
-    setMouse({ x: 0, y: 0 });
-  }
-
-  const labels = isArabic
-    ? ["الأكثر طلبًا", "عرض خاص", "منتج مميز", "جديد"]
-    : ["Best Seller", "Special Offer", "Featured", "New"];
-
-  if (picks.length === 0) return null;
+  if (images.length === 0) return null;
 
   return (
-    <section
-      className="floating-collage-section"
-      ref={sectionRef}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-    >
-      <div className="floating-collage-heading">
-        <p className="eyebrow">{isArabic ? "مختارات EB Chemical" : "EB Chemical picks"}</p>
-        <h2 className="floating-dynamic-title">
-          <span className="floating-title-fixed">{isArabic ? "منتجاتنا" : "Our products are"}</span>
-          <span className="floating-word-window" aria-live="polite">
-            <span className="floating-word" key={dynamicWords[wordIndex]}>
-              {dynamicWords[wordIndex]}
-            </span>
-          </span>
+    <section className="community-gallery-section" aria-labelledby="community-gallery-title">
+      <div className="community-gallery-heading">
+        <h2 id="community-gallery-title">
+          {isArabic ? "أهلًا بك في مجتمعنا" : "Welcome to our community"}
         </h2>
         <p>
           {isArabic
-            ? "اكتشف المنتجات الأكثر طلبًا والعروض المختارة لتجربة تنظيف وعناية أفضل."
-            : "Explore our best-selling and selected offer products for a better cleaning and care experience."}
+            ? "يسعدنا وجودك هنا — شاركنا تجربتك @ebchemical"
+            : "So nice to have you here — tag us @ebchemical"}
         </p>
       </div>
 
-      <div className={`floating-collage-stage ${isMobile ? "is-mobile" : ""}`}>
-        {picks.map((product, index) => (
-          <CollageCard
-            key={product.id || index}
-            product={product}
-            label={labels[index]}
-            language={language}
-            config={CARD_CONFIG[index]}
-            scrollYProgress={scrollYProgress}
-            mouse={mouse}
-            reduceMotion={reduceMotion}
-            isMobile={isMobile}
-            onViewProduct={onViewProduct}
-            index={index}
-          />
+      <div className="community-gallery-grid" aria-label={isArabic ? "صور من مجتمع EB Chemical" : "EB Chemical community gallery"}>
+        {images.map((image, index) => (
+          <figure className={`community-gallery-item community-gallery-item-${index + 1}`} key={`${image}-${index}`}>
+            <img
+              alt=""
+              aria-hidden="true"
+              loading="lazy"
+              onError={(event) => {
+                event.currentTarget.src = placeholderImage;
+              }}
+              src={image}
+            />
+          </figure>
         ))}
       </div>
     </section>
-  );
-}
-
-function CollageCard({
-  product, label, language, config, scrollYProgress, mouse, reduceMotion, isMobile, onViewProduct, index,
-}) {
-  const y = useTransform(
-    scrollYProgress,
-    [0, 1],
-    reduceMotion || isMobile ? [0, 0] : [0, config.parallax]
-  );
-
-  const image =
-    product.image ||
-    product.hoverImage ||
-    product.gallery?.[0] ||
-    product.images?.[0] ||
-    placeholderImage;
-
-  const name = getLocalized(product.name, language) || product.slug || "";
-
-  const mx = reduceMotion || isMobile ? 0 : mouse.x * config.mouseX;
-  const my = reduceMotion || isMobile ? 0 : mouse.y * config.mouseY;
-
-  return (
-    <motion.button
-      type="button"
-      className="collage-card"
-      onClick={() => product.slug && onViewProduct?.(product.slug)}
-      style={{
-        y,
-        zIndex: config.z,
-      }}
-      initial={{ opacity: 0, y: 40, rotate: 0, scale: 0.92 }}
-      whileInView={{ opacity: 1, y: 0, rotate: config.rotate, scale: 1 }}
-      viewport={{ once: true, amount: 0.25 }}
-      transition={{
-        duration: 0.9,
-        delay: index * 0.12,
-        ease: [0.22, 1, 0.36, 1],
-      }}
-      whileHover={reduceMotion ? {} : { scale: 1.02, rotate: config.rotate * 0.4, y: -4 }}
-    >
-      <motion.div
-        className="collage-card-inner"
-        style={{ x: mx, y: my }}
-        transition={{ type: "spring", stiffness: 60, damping: 18 }}
-      >
-        <span className="collage-card-label">{label}</span>
-        <img
-          src={image}
-          alt={name}
-          loading="lazy"
-          onError={(e) => { e.currentTarget.src = placeholderImage; }}
-        />
-        <span className="collage-card-name">{name}</span>
-      </motion.div>
-    </motion.button>
   );
 }
 

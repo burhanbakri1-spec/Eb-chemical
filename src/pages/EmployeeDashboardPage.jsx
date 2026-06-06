@@ -74,7 +74,7 @@ function EmployeeDashboardPage({
   const [message, setMessage] = React.useState(null);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
-  if (!["admin", "employee", "staff"].includes(currentUser?.role)) {
+  if (!["admin", "employee", "staff", "manager"].includes(currentUser?.role)) {
     return (
       <section className="page-shell">
         <div className="empty-panel">
@@ -96,11 +96,12 @@ function EmployeeDashboardPage({
   const canCreateOrders = hasPermission(currentUser, "orders.create");
   const canUpdateOrderStatus = hasPermission(currentUser, "orders.updateStatus");
   const canDeleteOrders = hasPermission(currentUser, "orders.delete");
+  const canManageWebsiteMedia = hasPermission(currentUser, "website_media.manage");
   const hasProductPermission =
     canViewProducts || canCreateProducts || canUpdateProducts || canDeleteProducts;
   const hasOrderPermission =
     canViewOrders || canCreateOrders || canUpdateOrderStatus || canDeleteOrders;
-  const hasAnyPermission = currentUser.permissions?.length > 0;
+  const hasAnyPermission = currentUser.permissions?.length > 0 || canManageWebsiteMedia;
 
   const assignedOrders = orders.filter((order) => {
     const assignedId = order.assignedToEmployeeId || order.handledByEmployeeId;
@@ -161,6 +162,12 @@ function EmployeeDashboardPage({
       setSelectedVariantId(selectedProductVariants[0]?.id || "");
     }
   }, [selectedProduct, selectedProductVariants, selectedVariantId]);
+
+  React.useEffect(() => {
+    if (activeTab === "website-media" && !canManageWebsiteMedia) {
+      setActiveTab("overview");
+    }
+  }, [activeTab, canManageWebsiteMedia]);
 
   function showMessage(type, text) {
     setMessage({ type, text });
@@ -386,6 +393,7 @@ function EmployeeDashboardPage({
             {t("employee.createCustomerOrder")}
           </button>
         )}
+        {canManageWebsiteMedia && (
         <button
           className={activeTab === "website-media" ? "nav-link active" : "nav-link"}
           onClick={() => setActiveTab("website-media")}
@@ -393,6 +401,7 @@ function EmployeeDashboardPage({
         >
           {language === "ar" ? "صور الموقع" : "Website Media"}
         </button>
+        )}
       </div>
 
       {activeTab === "overview" && (
@@ -623,7 +632,7 @@ function EmployeeDashboardPage({
         </section>
       )}
 
-      {activeTab === "website-media" && (
+      {activeTab === "website-media" && canManageWebsiteMedia && (
         <WebsiteMediaManager
           items={websiteMedia}
           language={language}

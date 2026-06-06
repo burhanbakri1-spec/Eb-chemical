@@ -91,7 +91,7 @@ export async function uploadImages(files = []) {
 
   const token = getToken();
   const formData = new FormData();
-  fileList.forEach((file) => formData.append("images", file));
+  fileList.forEach((file) => formData.append("image", file));
 
   const response = await fetch(`${apiBaseUrl}/uploads`, {
     method: "POST",

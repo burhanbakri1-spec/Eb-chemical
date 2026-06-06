@@ -177,6 +177,36 @@ function normalizeGalleryImagesForForm(product = {}) {
     .filter((entry) => entry.image_url);
 }
 
+function createGalleryImageEntry(index = 0, imageUrl = "") {
+  return {
+    id: `gallery-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+    image_url: imageUrl,
+    sort_order: index,
+  };
+}
+
+function parseVariantGeneratorColors(value = "") {
+  return value
+    .split(/\n|;/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const [name = "", colorValue = "", imageUrl = ""] = line.split("|").map((part) => part.trim());
+      return {
+        name: name || "Default",
+        value: colorValue || "#1db7d8",
+        imageUrl,
+      };
+    });
+}
+
+function parseVariantGeneratorSizes(value = "") {
+  return value
+    .split(/\n|,|;/)
+    .map((size) => size.trim())
+    .filter(Boolean);
+}
+
 function sizesFromFormVariants(variants, fallbackSize, fallbackPrice) {
   const bySize = new Map();
   variants.forEach((variant) => {
@@ -203,11 +233,13 @@ function createProductFromForm(form) {
       stock: Math.max(0, Number(variant.stock || 0)),
       sort_order: index,
     }));
-  const galleryImages = (form.galleryImages || []).map((image, index) => ({
-    id: image.id || `gallery-${index}`,
-    image_url: image.image_url,
-    sort_order: index,
-  }));
+  const galleryImages = (form.galleryImages || [])
+    .filter((image) => image.image_url)
+    .map((image, index) => ({
+      id: image.id || `gallery-${index}`,
+      image_url: image.image_url,
+      sort_order: index,
+    }));
   const parsedSizes = sizesFromFormVariants(variants, form.size, form.price);
 
   return {
@@ -502,6 +534,13 @@ function ProductWizard({ categories, editingProduct, onCancel, onSave }) {
   const [uploadError, setUploadError] = React.useState("");
   const [uploadingField, setUploadingField] = React.useState("");
   const [uploadingVariantIndex, setUploadingVariantIndex] = React.useState(-1);
+  const [uploadingGalleryIndex, setUploadingGalleryIndex] = React.useState(-1);
+  const [variantGenerator, setVariantGenerator] = React.useState({
+    colorsText: "Default|#1db7d8",
+    sizesText: "500ml, 1L, 5L",
+    defaultPrice: "18",
+    defaultStock: "24",
+  });
   const [form, setForm] = React.useState(() => ({
     id: editingProduct?.id || "",
     nameEn: getText(editingProduct?.name) || "",
@@ -582,6 +621,59 @@ function ProductWizard({ categories, editingProduct, onCancel, onSave }) {
     }));
   }
 
+  function updateVariantGenerator(field, value) {
+    setVariantGenerator((current) => ({
+      ...current,
+      [field]: value,
+    }));
+  }
+
+  function generateVariants() {
+    const colors = parseVariantGeneratorColors(variantGenerator.colorsText);
+    const sizes = parseVariantGeneratorSizes(variantGenerator.sizesText);
+
+    if (!colors.length || !sizes.length) {
+      setUploadError("Add at least one color and one size.");
+      return;
+    }
+
+    setUploadError("");
+    setForm((current) => {
+      const currentVariants = current.variants || [];
+      const existingKeys = new Set(
+        currentVariants.map((variant) => `${variant.color_name || ""}__${variant.size || ""}`.toLowerCase()),
+      );
+      const generated = [];
+
+      colors.forEach((color) => {
+        sizes.forEach((size) => {
+          const key = `${color.name}__${size}`.toLowerCase();
+          if (existingKeys.has(key)) return;
+
+          generated.push(
+            normalizeFormVariant(
+              {
+                color_name: color.name,
+                color_value: color.value,
+                size,
+                price: variantGenerator.defaultPrice,
+                stock: variantGenerator.defaultStock,
+                image_url: color.imageUrl || current.image || "",
+              },
+              currentVariants.length + generated.length,
+              current,
+            ),
+          );
+        });
+      });
+
+      return {
+        ...current,
+        variants: [...currentVariants, ...generated],
+      };
+    });
+  }
+
   async function uploadVariantImage(index, event) {
     const file = event.target.files?.[0];
     event.target.value = "";
@@ -640,6 +732,42 @@ function ProductWizard({ categories, editingProduct, onCancel, onSave }) {
     }));
   }
 
+  function addGalleryImageField() {
+    setForm((current) => {
+      const currentImages = current.galleryImages || [];
+      return {
+        ...current,
+        galleryImages: [...currentImages, createGalleryImageEntry(currentImages.length)],
+      };
+    });
+  }
+
+  function updateGalleryImage(index, value) {
+    setForm((current) => ({
+      ...current,
+      galleryImages: (current.galleryImages || []).map((image, imageIndex) =>
+        imageIndex === index ? { ...image, image_url: value } : image,
+      ),
+    }));
+  }
+
+  async function uploadGalleryItem(index, event) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+
+    setUploadError("");
+    setUploadingGalleryIndex(index);
+    try {
+      const uploaded = await uploadImage(file);
+      updateGalleryImage(index, uploaded.url || uploaded.path || "");
+    } catch (error) {
+      setUploadError(error.message || "Gallery image upload failed.");
+    } finally {
+      setUploadingGalleryIndex(-1);
+    }
+  }
+
   async function submit(event) {
     event.preventDefault();
     const result = await onSave(createProductFromForm(form));
@@ -689,6 +817,47 @@ function ProductWizard({ categories, editingProduct, onCancel, onSave }) {
                 Add Variant
               </button>
             </div>
+            <div className="variant-generator-panel">
+              <div>
+                <strong>Variant Generator</strong>
+                <p>Enter each color on a new line: name|hex|optional image URL. Separate sizes with commas.</p>
+              </div>
+              <label>
+                Colors
+                <textarea
+                  value={variantGenerator.colorsText}
+                  onChange={(event) => updateVariantGenerator("colorsText", event.target.value)}
+                />
+              </label>
+              <label>
+                Sizes
+                <input
+                  value={variantGenerator.sizesText}
+                  onChange={(event) => updateVariantGenerator("sizesText", event.target.value)}
+                />
+              </label>
+              <label>
+                Default price
+                <input
+                  min="0"
+                  type="number"
+                  value={variantGenerator.defaultPrice}
+                  onChange={(event) => updateVariantGenerator("defaultPrice", event.target.value)}
+                />
+              </label>
+              <label>
+                Default stock
+                <input
+                  min="0"
+                  type="number"
+                  value={variantGenerator.defaultStock}
+                  onChange={(event) => updateVariantGenerator("defaultStock", event.target.value)}
+                />
+              </label>
+              <button className="admin-primary-button compact-action" onClick={generateVariants} type="button">
+                Generate Variants
+              </button>
+            </div>
             <div className="admin-variant-grid">
               {(form.variants || []).map((variant, index) => (
                 <div className="admin-variant-row" key={variant.id || index}>
@@ -728,11 +897,32 @@ function ProductWizard({ categories, editingProduct, onCancel, onSave }) {
                   {uploadingField === "galleryImages" ? "Uploading..." : "Upload Gallery Images"}
                   <input accept="image/*" hidden multiple type="file" onChange={uploadGallery} />
                 </label>
+                <button className="secondary-action compact-action" onClick={addGalleryImageField} type="button">
+                  + Add image field
+                </button>
               </div>
               <div className="admin-gallery-preview-grid">
                 {(form.galleryImages || []).map((image, index) => (
                   <figure className="admin-gallery-preview" key={`${image.image_url}-${index}`}>
-                    <img alt="" src={image.image_url} />
+                    <label>
+                      Image URL
+                      <span className="image-upload-row">
+                        <input
+                          value={image.image_url}
+                          onChange={(event) => updateGalleryImage(index, event.target.value)}
+                        />
+                        <span className="upload-button-shell">
+                          <input
+                            accept="image/*"
+                            aria-label="Upload gallery image"
+                            onChange={(event) => uploadGalleryItem(index, event)}
+                            type="file"
+                          />
+                          <span>{uploadingGalleryIndex === index ? "Uploading..." : "Upload"}</span>
+                        </span>
+                      </span>
+                    </label>
+                    {image.image_url && <img alt="" src={image.image_url} />}
                     <button onClick={() => removeGalleryImage(index)} type="button">Remove</button>
                   </figure>
                 ))}

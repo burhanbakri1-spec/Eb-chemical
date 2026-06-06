@@ -19,6 +19,7 @@ import ProductsPage from "./pages/ProductsPage.jsx";
 import RegisterPage from "./pages/RegisterPage.jsx";
 import SocialPage from "./pages/SocialPage.jsx";
 import { products as initialProducts } from "./data/products.js";
+import { hasPermission } from "./data/permissions.js";
 import { createTranslator } from "./data/translations.js";
 import {
   fetchCurrentUser,
@@ -378,7 +379,7 @@ function App() {
 
   async function loadWebsiteMedia(user = null) {
     try {
-      const canManage = user && (user.role === "admin" || isStaffRole(user.role));
+      const canManage = user && hasPermission(user, "website_media.manage");
       setWebsiteMedia(canManage ? await fetchAllWebsiteMedia() : await fetchWebsiteMedia());
     } catch {
       setWebsiteMedia(await fetchWebsiteMedia());

@@ -29,6 +29,12 @@ export const permissionGroups = [
       { key: "employees.view", labelKey: "permissions.employeesView" },
     ],
   },
+  {
+    titleKey: "admin.storefront",
+    permissions: [
+      { key: "website_media.manage", labelKey: "permissions.websiteMediaManage" },
+    ],
+  },
 ];
 
 export function hasPermission(user, permission) {
@@ -36,5 +42,5 @@ export function hasPermission(user, permission) {
     return true;
   }
 
-  return ["employee", "staff"].includes(user?.role) && user.permissions?.includes(permission);
+  return ["employee", "staff", "manager"].includes(user?.role) && user.permissions?.includes(permission);
 }

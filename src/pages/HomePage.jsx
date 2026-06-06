@@ -578,6 +578,13 @@ function HomePage({
     "homepage_how_it_works_image",
     "/homepage-categories/home-care.jpg",
   );
+  const communityGalleryImages = [
+    getWebsiteMediaImage(websiteMedia, "homepage_community_gallery_1", "/homepage-categories/home-care.jpg"),
+    getWebsiteMediaImage(websiteMedia, "homepage_community_gallery_2", "/homepage-categories/car-care.jpg"),
+    getWebsiteMediaImage(websiteMedia, "homepage_community_gallery_3", "/homepage-categories/kitchen-new.jpg"),
+    getWebsiteMediaImage(websiteMedia, "homepage_community_gallery_4", "/homepage-categories/laundry.jpg"),
+    getWebsiteMediaImage(websiteMedia, "homepage_community_gallery_5", "/products/limescale-remover-hover.jpg"),
+  ];
   const siteReviews = reviews.filter(
     (review) =>
       (review.type === "store" || review.type === "site" || !review.employeeId) &&
@@ -716,9 +723,10 @@ function HomePage({
       )}
 
       <FloatingProductCollage
+        galleryImages={communityGalleryImages}
         language={language}
-        products={products}
         onViewProduct={onViewProduct}
+        products={products}
       />
 
       <section className="newsletter-band storefront-section">

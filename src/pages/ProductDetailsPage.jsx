@@ -280,7 +280,7 @@ function ProductDetailsPage({
 
       const moveRange = Math.max(track.scrollHeight - window.innerHeight, 0);
       galleryMoveRangeRef.current = moveRange;
-      hero.style.setProperty("--detail-hero-scroll-height", `${window.innerHeight}px`);
+      hero.style.setProperty("--detail-hero-scroll-height", `${window.innerHeight + moveRange}px`);
       const heroRect = hero.getBoundingClientRect();
 
       if (heroRect.bottom <= 0) {
@@ -301,8 +301,8 @@ function ProductDetailsPage({
       if (window.matchMedia("(max-width: 720px)").matches) return;
 
       const heroRect = hero.getBoundingClientRect();
-      const isHeroPinned = heroRect.top <= 1 && heroRect.bottom >= window.innerHeight - 1;
-      if (!isHeroPinned) return;
+      const isHeroActive = heroRect.top < window.innerHeight * 0.92 && heroRect.bottom > window.innerHeight * 0.18;
+      if (!isHeroActive) return;
 
       const moveRange = galleryMoveRangeRef.current;
       if (moveRange <= 0) return;
@@ -372,7 +372,13 @@ function ProductDetailsPage({
     { id: "daily", label: { en: "Daily use", ar: "استخدام يومي" } },
   ];
   const selectedUseOption = useOptions.find((item) => item.id === selectedUse) || useOptions[0];
-  const selectedImage = selectedVariant?.image || selectedTypeOption?.image || product.image;
+  const selectedColorImage = sizeOptions.find((variant) => variant.image)?.image;
+  const selectedImage =
+    selectedVariant?.image ||
+    selectedColorImage ||
+    selectedTypeOption?.image ||
+    product.image ||
+    product.hoverImage;
   const productName = localized(product.name, language, product.slug);
   const description = localized(
     product.longDescription,
@@ -380,7 +386,7 @@ function ProductDetailsPage({
     localized(product.shortDescription, language, "")
   );
   const features = localized(product.features, language, []);
-  const uniqueGallery = [...new Set(normalizeProductGallery(product, selectedImage))];
+  const uniqueGallery = [...new Set([selectedImage, ...normalizeProductGallery(product, selectedImage)])].filter(Boolean);
   const reviews = product.reviews || getFallbackReviews();
   const steps = product.usageSteps || getFallbackSteps();
   const safeSurfaces = product.safeSurfaces || getFallbackSurfaces();

@@ -4,11 +4,17 @@ import { requireAuth } from "../middleware/auth.js";
 
 const router = Router();
 const allowedRoles = new Set(["admin", "manager", "employee", "staff"]);
+const mediaPermission = "website_media.manage";
 
 function requireMediaEditor(req, res, next) {
   if (!allowedRoles.has(req.user?.role)) {
     return res.status(403).json({ message: "Admin or employee access required." });
   }
+
+  if (req.user?.role !== "admin" && !req.user?.permissions?.includes(mediaPermission)) {
+    return res.status(403).json({ message: "Website media permission required." });
+  }
+
   return next();
 }
 
