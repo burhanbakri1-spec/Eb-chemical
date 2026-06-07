@@ -250,12 +250,53 @@ function normalizeWebsiteMedia(item, index = 0) {
     sectionKey: item.sectionKey || item.section_key || `custom_section_${index}`,
     sectionLabel: item.sectionLabel || item.section_label || item.sectionKey || "Website image",
     groupKey: item.groupKey || item.group_key || "sections",
-    imageUrl: item.imageUrl || item.image_url || "",
+    fallbackImageUrl: item.fallbackImageUrl || item.fallback_image_url || "",
+    imageUrl: item.imageUrl ?? item.image_url ?? "",
     title: item.title || "",
     subtitle: item.subtitle || "",
     linkUrl: item.linkUrl || item.link_url || "",
     sortOrder: Number(item.sortOrder ?? item.sort_order ?? index),
     isActive: item.isActive !== false && item.is_active !== false,
+  };
+}
+
+function defaultWebsiteMediaDefinition(item) {
+  return {
+    ...item,
+    fallbackImageUrl: item.fallbackImageUrl || item.imageUrl || "",
+    imageUrl: "",
+  };
+}
+
+function mediaTimestamp(item) {
+  const timestamp = new Date(item?.updatedAt || item?.updated_at || item?.createdAt || item?.created_at || 0).getTime();
+  return Number.isFinite(timestamp) ? timestamp : 0;
+}
+
+function preferWebsiteMediaItem(current, next) {
+  if (!current) return next;
+
+  const currentHasImage = Boolean(current.imageUrl || current.image_url);
+  const nextHasImage = Boolean(next.imageUrl || next.image_url);
+
+  const preferred =
+    nextHasImage && !currentHasImage
+      ? next
+      : !nextHasImage && currentHasImage
+        ? current
+        : mediaTimestamp(next) >= mediaTimestamp(current)
+          ? next
+          : current;
+
+  return {
+    ...current,
+    ...preferred,
+    id: preferred.id || current.id,
+    sectionKey: preferred.sectionKey || preferred.section_key || current.sectionKey || current.section_key,
+    sectionLabel: preferred.sectionLabel || preferred.section_label || current.sectionLabel || current.section_label,
+    groupKey: preferred.groupKey || preferred.group_key || current.groupKey || current.group_key,
+    fallbackImageUrl: current.fallbackImageUrl || current.fallback_image_url || preferred.fallbackImageUrl || "",
+    imageUrl: preferred.imageUrl ?? preferred.image_url ?? "",
   };
 }
 
@@ -290,13 +331,17 @@ export const offers = ensureArray(persisted?.offers, homepageOffers).map(normali
 export const categoryCards = ensureArray(persisted?.categoryCards, homepageCategoryCards).map(normalizeCategoryCard);
 export const reviews = ensureArray(persisted?.reviews, initialReviews).map(normalizeReview);
 const persistedWebsiteMedia = Array.isArray(persisted?.websiteMedia) ? persisted.websiteMedia : [];
-const websiteMediaWithDefaults = new Map(
-  clone(defaultWebsiteMedia).map((item) => [item.id, item]),
+const websiteMediaBySection = new Map(
+  clone(defaultWebsiteMedia).map((item) => {
+    const definition = defaultWebsiteMediaDefinition(item);
+    return [definition.sectionKey || definition.id, definition];
+  }),
 );
 persistedWebsiteMedia.forEach((item, index) => {
-  websiteMediaWithDefaults.set(item.id || `persisted-website-media-${index}`, item);
+  const sectionKey = item.sectionKey || item.section_key || item.id || `persisted-website-media-${index}`;
+  websiteMediaBySection.set(sectionKey, preferWebsiteMediaItem(websiteMediaBySection.get(sectionKey), item));
 });
-export const websiteMedia = [...websiteMediaWithDefaults.values()].map(normalizeWebsiteMedia);
+export const websiteMedia = [...websiteMediaBySection.values()].map(normalizeWebsiteMedia);
 
 export function currentStoreSnapshot() {
   const store = {

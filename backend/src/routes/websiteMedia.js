@@ -6,6 +6,13 @@ const router = Router();
 const allowedRoles = new Set(["admin", "manager", "employee", "staff"]);
 const mediaPermission = "website_media.manage";
 
+router.use((_req, res, next) => {
+  res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+  res.setHeader("Pragma", "no-cache");
+  res.setHeader("Expires", "0");
+  next();
+});
+
 function requireMediaEditor(req, res, next) {
   if (!allowedRoles.has(req.user?.role)) {
     return res.status(403).json({ message: "Admin or employee access required." });
@@ -33,6 +40,7 @@ function normalizeMedia(input, existing = {}) {
     sectionKey: input.sectionKey || existing.sectionKey || "custom_section",
     sectionLabel: input.sectionLabel || existing.sectionLabel || input.sectionKey || "Website image",
     groupKey: input.groupKey || existing.groupKey || "sections",
+    fallbackImageUrl: input.fallbackImageUrl ?? input.fallback_image_url ?? existing.fallbackImageUrl ?? "",
     imageUrl: input.imageUrl ?? input.image_url ?? existing.imageUrl ?? "",
     title: input.title ?? existing.title ?? "",
     subtitle: input.subtitle ?? existing.subtitle ?? "",

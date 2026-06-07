@@ -68,6 +68,7 @@ import {
   updateReviewStatus,
 } from "./utils/homeContentApi.js";
 import {
+  clearWebsiteMediaCache,
   deleteWebsiteMedia as deleteWebsiteMediaApi,
   fetchAllWebsiteMedia,
   fetchWebsiteMedia,
@@ -379,6 +380,7 @@ function App() {
 
   async function loadWebsiteMedia(user = null) {
     try {
+      clearWebsiteMediaCache();
       const canManage = user && hasPermission(user, "website_media.manage");
       setWebsiteMedia(canManage ? await fetchAllWebsiteMedia() : await fetchWebsiteMedia());
     } catch {
@@ -802,6 +804,15 @@ function App() {
 
   async function handleSaveWebsiteMedia(item) {
     const saved = await saveWebsiteMediaApi(item);
+    setWebsiteMedia((currentItems) => {
+      const index = currentItems.findIndex(
+        (entry) => entry.id === saved.id || entry.sectionKey === saved.sectionKey,
+      );
+      if (index === -1) {
+        return [saved, ...currentItems];
+      }
+      return currentItems.map((entry, entryIndex) => (entryIndex === index ? saved : entry));
+    });
     await loadWebsiteMedia(currentUser);
     setAdminMessage(t("admin.productSaved"));
     return saved;
@@ -809,6 +820,7 @@ function App() {
 
   async function handleDeleteWebsiteMedia(id) {
     await deleteWebsiteMediaApi(id);
+    setWebsiteMedia((currentItems) => currentItems.filter((entry) => entry.id !== id));
     await loadWebsiteMedia(currentUser);
     setAdminMessage(t("admin.productDeleted"));
   }

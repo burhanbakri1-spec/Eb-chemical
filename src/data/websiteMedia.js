@@ -361,9 +361,24 @@ export const defaultWebsiteMedia = [
   },
 ];
 
+export function withWebsiteMediaVersion(imageUrl, version) {
+  if (!imageUrl || !version) return imageUrl || "";
+  const separator = imageUrl.includes("?") ? "&" : "?";
+  return `${imageUrl}${separator}v=${encodeURIComponent(version)}`;
+}
+
 export function getWebsiteMediaImage(items, sectionKey, fallback = "") {
-  const item = (items || [])
+  const uploadedItem = (items || [])
     .filter((entry) => entry.sectionKey === sectionKey && entry.isActive !== false)
-    .sort((a, b) => Number(a.sortOrder || 0) - Number(b.sortOrder || 0))[0];
-  return item?.imageUrl || fallback;
+    .filter((entry) => typeof entry.imageUrl === "string" && entry.imageUrl.trim())
+    .sort((a, b) => {
+      const updatedComparison = new Date(b.updatedAt || 0).getTime() - new Date(a.updatedAt || 0).getTime();
+      return updatedComparison || Number(a.sortOrder || 0) - Number(b.sortOrder || 0);
+    })[0];
+
+  if (!uploadedItem?.imageUrl) {
+    return fallback;
+  }
+
+  return withWebsiteMediaVersion(uploadedItem.imageUrl, uploadedItem.updatedAt || uploadedItem.id);
 }

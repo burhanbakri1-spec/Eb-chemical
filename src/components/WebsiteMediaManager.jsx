@@ -1,5 +1,6 @@
 import React from "react";
 import { ImageOff, ImagePlus, Save, Trash2, Upload } from "lucide-react";
+import { withWebsiteMediaVersion } from "../data/websiteMedia.js";
 import { uploadImage } from "../utils/api.js";
 
 const emptyItem = {
@@ -15,6 +16,19 @@ const emptyItem = {
   isActive: true,
 };
 
+const groupLabels = {
+  homepage: { en: "Homepage Sections", ar: "أقسام الصفحة الرئيسية" },
+  homepage_categories: { en: "Homepage Cards", ar: "بطاقات الصفحة الرئيسية" },
+  about: { en: "Static Sections - About", ar: "الأقسام الثابتة - من نحن" },
+  cleanups: { en: "Static Sections - Cleanups", ar: "الأقسام الثابتة - حملات التنظيف" },
+  cleanups_gallery: { en: "Cleanups Gallery", ar: "معرض حملات التنظيف" },
+  cleanups_tabs: { en: "Cleanups Tabs", ar: "تبويبات حملات التنظيف" },
+  eb_points: { en: "Static Sections - EB Points", ar: "الأقسام الثابتة - نقاط EB" },
+  how_it_works: { en: "Static Sections - How It Works", ar: "الأقسام الثابتة - كيف يعمل" },
+  ads: { en: "Ads / Banners", ar: "الإعلانات والبنرات" },
+  sections: { en: "Other Static Website Images", ar: "صور الموقع الثابتة الأخرى" },
+};
+
 function groupItems(items) {
   return items.reduce((groups, item) => {
     const sectionKey = item.sectionKey || "";
@@ -28,19 +42,6 @@ function groupItems(items) {
     return groups;
   }, {});
 }
-
-const groupLabels = {
-  homepage: { en: "Homepage Sections", ar: "أقسام الصفحة الرئيسية" },
-  homepage_categories: { en: "Homepage Cards", ar: "بطاقات الصفحة الرئيسية" },
-  about: { en: "Static Sections - About", ar: "الأقسام الثابتة - من نحن" },
-  cleanups: { en: "Static Sections - Cleanups", ar: "الأقسام الثابتة - حملات التنظيف" },
-  cleanups_gallery: { en: "Cleanups Gallery", ar: "معرض حملات التنظيف" },
-  cleanups_tabs: { en: "Cleanups Tabs", ar: "تبويبات حملات التنظيف" },
-  eb_points: { en: "Static Sections - EB Points", ar: "الأقسام الثابتة - نقاط EB" },
-  how_it_works: { en: "Static Sections - How It Works", ar: "الأقسام الثابتة - كيف يعمل" },
-  ads: { en: "Ads / Banners", ar: "الإعلانات والبنرات" },
-  sections: { en: "Other Static Website Images", ar: "صور الموقع الثابتة الأخرى" },
-};
 
 function MediaEditor({ item, language, onDelete, onSave }) {
   const [draft, setDraft] = React.useState(item);
@@ -76,10 +77,34 @@ function MediaEditor({ item, language, onDelete, onSave }) {
       setMessage(isArabic ? "أدخل مفتاح القسم." : "Section key is required.");
       return;
     }
+
     try {
       setMessage("");
-      await onSave({ ...draft, sortOrder: Number(draft.sortOrder || 0) });
+      const saved = await onSave({ ...draft, sortOrder: Number(draft.sortOrder || 0) });
+      if (saved) {
+        setDraft(saved);
+      }
       setMessage(isArabic ? "تم حفظ الصورة." : "Image saved.");
+    } catch (error) {
+      setMessage(error.message);
+    }
+  }
+
+  async function handleClearImage() {
+    const nextDraft = { ...draft, imageUrl: "", sortOrder: Number(draft.sortOrder || 0) };
+    setDraft(nextDraft);
+
+    try {
+      setMessage("");
+      const saved = await onSave(nextDraft);
+      if (saved) {
+        setDraft(saved);
+      }
+      setMessage(
+        isArabic
+          ? "تم مسح الصورة. سيظهر البديل فقط عند العرض."
+          : "Image cleared. The fallback will display only when no uploaded image exists.",
+      );
     } catch (error) {
       setMessage(error.message);
     }
@@ -89,7 +114,10 @@ function MediaEditor({ item, language, onDelete, onSave }) {
     <article className="website-media-card">
       <div className="website-media-preview">
         {draft.imageUrl ? (
-          <img alt={draft.sectionLabel || draft.sectionKey} src={draft.imageUrl} />
+          <img
+            alt={draft.sectionLabel || draft.sectionKey}
+            src={withWebsiteMediaVersion(draft.imageUrl, draft.updatedAt || draft.id)}
+          />
         ) : (
           <ImagePlus aria-hidden="true" size={30} />
         )}
@@ -148,10 +176,7 @@ function MediaEditor({ item, language, onDelete, onSave }) {
         <button
           className="website-media-clear"
           disabled={!draft.imageUrl}
-          onClick={() => {
-            update("imageUrl", "");
-            setMessage(isArabic ? "تم مسح الرابط. اضغط حفظ لاستخدام الصورة الافتراضية." : "Image URL cleared. Save to use the default fallback.");
-          }}
+          onClick={handleClearImage}
           type="button"
         >
           <ImageOff size={15} />
@@ -217,10 +242,10 @@ function WebsiteMediaManager({ language = "en", items = [], onDelete, onSave }) 
         <section className="website-media-group" key={group}>
           <h3>{groupLabels[group]?.[language] || group.replaceAll("_", " ")}</h3>
           <div className="website-media-grid">
-            {groupEntries.map((item) => (
+            {groupEntries.map((entry) => (
               <MediaEditor
-                item={item}
-                key={item.id || item._draftKey}
+                item={entry}
+                key={entry.id || entry._draftKey}
                 language={language}
                 onDelete={onDelete}
                 onSave={saveItem}

@@ -1,29 +1,65 @@
 import { defaultWebsiteMedia } from "../data/websiteMedia.js";
 import { apiRequest } from "./api.js";
 
+const websiteMediaCacheKeys = [
+  "websiteMedia",
+  "website_media",
+  "epWebsiteMedia",
+  "epChemicalWebsiteMedia",
+  "epChemicalWebsiteMediaCache",
+];
+
+function stripFallbackImage(item) {
+  return {
+    ...item,
+    fallbackImageUrl: item.fallbackImageUrl || item.imageUrl || "",
+    imageUrl: "",
+  };
+}
+
+function defaultWebsiteMediaDefinitions() {
+  return defaultWebsiteMedia.map(stripFallbackImage);
+}
+
+export function clearWebsiteMediaCache() {
+  if (typeof window === "undefined") return;
+
+  websiteMediaCacheKeys.forEach((key) => {
+    window.localStorage?.removeItem(key);
+    window.sessionStorage?.removeItem(key);
+  });
+}
+
 export async function fetchWebsiteMedia() {
   try {
-    return await apiRequest("/website-media");
+    clearWebsiteMediaCache();
+    return await apiRequest("/website-media", { cache: "no-store" });
   } catch {
-    return defaultWebsiteMedia;
+    return defaultWebsiteMediaDefinitions();
   }
 }
 
 export function fetchAllWebsiteMedia() {
-  return apiRequest("/website-media/all");
+  clearWebsiteMediaCache();
+  return apiRequest("/website-media/all", { cache: "no-store" });
 }
 
 export function fetchWebsiteMediaSection(sectionKey) {
-  return apiRequest(`/website-media/${encodeURIComponent(sectionKey)}`);
+  clearWebsiteMediaCache();
+  return apiRequest(`/website-media/${encodeURIComponent(sectionKey)}`, { cache: "no-store" });
 }
 
-export function saveWebsiteMedia(item) {
-  return apiRequest(item.id ? `/website-media/${item.id}` : "/website-media", {
+export async function saveWebsiteMedia(item) {
+  const saved = await apiRequest(item.id ? `/website-media/${item.id}` : "/website-media", {
     method: item.id ? "PUT" : "POST",
     body: JSON.stringify(item),
   });
+  clearWebsiteMediaCache();
+  return saved;
 }
 
-export function deleteWebsiteMedia(id) {
-  return apiRequest(`/website-media/${id}`, { method: "DELETE" });
+export async function deleteWebsiteMedia(id) {
+  const result = await apiRequest(`/website-media/${id}`, { method: "DELETE" });
+  clearWebsiteMediaCache();
+  return result;
 }

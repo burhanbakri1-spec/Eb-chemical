@@ -24,7 +24,7 @@ function FloatingProductCollage({ galleryImages = [], language, products = [] })
   const fallbackImages = getProductImages(products);
   const images = [...galleryImages, ...fallbackImages, placeholderImage]
     .filter(Boolean)
-    .slice(0, 5);
+    .slice(0, 4);
 
   if (images.length === 0) return null;
 
@@ -36,12 +36,15 @@ function FloatingProductCollage({ galleryImages = [], language, products = [] })
         </h2>
         <p>
           {isArabic
-            ? "يسعدنا وجودك هنا — شاركنا تجربتك @ebchemical"
-            : "So nice to have you here — tag us @ebchemical"}
+            ? "يسعدنا وجودك هنا - شاركنا تجربتك @ebchemical"
+            : "So nice to have you here - tag us @ebchemical"}
         </p>
       </div>
 
-      <div className="community-gallery-grid" aria-label={isArabic ? "صور من مجتمع EB Chemical" : "EB Chemical community gallery"}>
+      <div
+        className="community-gallery-grid"
+        aria-label={isArabic ? "صور من مجتمع EB Chemical" : "EB Chemical community gallery"}
+      >
         {images.map((image, index) => (
           <figure className={`community-gallery-item community-gallery-item-${index + 1}`} key={`${image}-${index}`}>
             <img

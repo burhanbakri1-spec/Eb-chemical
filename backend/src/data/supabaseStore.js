@@ -212,18 +212,23 @@ function orderItemRows(order) {
 }
 
 function websiteMediaRow(item, index = 0) {
+  const imageUrl = item.imageUrl ?? item.image_url ?? "";
+  const { fallbackImageUrl, fallback_image_url, ...data } = item;
   return {
     id: item.id || `website-media-${index}`,
     section_key: item.sectionKey || item.section_key || "",
     section_label: item.sectionLabel || item.section_label || "",
     group_key: item.groupKey || item.group_key || "sections",
-    image_url: item.imageUrl || item.image_url || "",
+    image_url: imageUrl,
     title: item.title || "",
     subtitle: item.subtitle || "",
     link_url: item.linkUrl || item.link_url || "",
     sort_order: Number(item.sortOrder ?? item.sort_order ?? index),
     is_active: item.isActive !== false,
-    data: item,
+    data: {
+      ...data,
+      imageUrl,
+    },
     created_at: rowDate(item.createdAt),
     updated_at: rowDate(item.updatedAt),
   };
