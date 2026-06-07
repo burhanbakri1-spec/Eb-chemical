@@ -149,7 +149,7 @@ function SliderButton({ direction, onClick }) {
 
 function FloatingAddToCart({ language, onAdd, product, selectedLabel, txt }) {
   return (
-    <aside className="detail-floating-cart" aria-label={txt.addToCart}>
+    <aside className="product-detail-floating-cart" aria-label={txt.addToCart}>
       <ProductImage alt={localized(product.name, language)} src={product.image} />
       <div>
         <strong>{localized(product.name, language)}</strong>
@@ -703,8 +703,6 @@ function ProductDetailsPage({
         </figure>
       </section>
 
-      <FloatingAddToCart language={language} onAdd={handleAddSelectedToCart} product={product} selectedLabel={floatingLabel} txt={txt} />
-
       <section className="detail-impact-section" ref={impactRef}>
         <h2>{txt.impact}</h2>
         <div className="detail-impact-images">
@@ -822,6 +820,8 @@ function ProductDetailsPage({
           <AccordionList items={productInfo} language={language} />
         </div>
       </section>
+
+      <FloatingAddToCart language={language} onAdd={handleAddSelectedToCart} product={product} selectedLabel={floatingLabel} txt={txt} />
     </main>
   );
 }

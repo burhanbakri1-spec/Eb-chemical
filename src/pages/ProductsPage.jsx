@@ -1,6 +1,7 @@
 ﻿import React from "react";
 import { categories } from "../data/categories.js";
 import { placeholderImage } from "../data/products.js";
+import { getWebsiteMediaImage } from "../data/websiteMedia.js";
 
 function getLocalized(value, language) {
   if (!value) return "";
@@ -129,13 +130,15 @@ function ProductsPage({
   onViewProduct,
   products,
   t,
+  websiteMedia = [],
 }) {
   const isArabic = language === "ar";
   const [secondaryFilter, setSecondaryFilter] = React.useState("");
-  const heroImage =
+  const heroFallbackImage =
     products.find((product) => product.categoryId === "home-cleaning")?.image ||
     products[0]?.image ||
     placeholderImage;
+  const heroImage = getWebsiteMediaImage(websiteMedia, "products_hero_image", heroFallbackImage);
   const visibleProducts = products.filter((product, index) =>
     matchesMainFilter(product, activeCategory) &&
     matchesSecondaryFilter(product, secondaryFilter, index)

@@ -914,6 +914,7 @@ function App() {
             onViewProduct={handleViewProduct}
             products={demoProducts}
             t={t}
+            websiteMedia={websiteMedia}
           />
         )}
 

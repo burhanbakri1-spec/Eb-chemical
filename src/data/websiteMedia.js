@@ -18,6 +18,15 @@ export const defaultWebsiteMedia = [
     isActive: true,
   },
   {
+    id: "website-media-products-hero",
+    sectionKey: "products_hero_image",
+    sectionLabel: "Products Page Hero Image",
+    groupKey: "products",
+    imageUrl: "/homepage-categories/home-care.jpg",
+    sortOrder: 1,
+    isActive: true,
+  },
+  {
     id: "website-media-homepage-category-home",
     sectionKey: "homepage_category_home",
     sectionLabel: "Homepage category - home care",

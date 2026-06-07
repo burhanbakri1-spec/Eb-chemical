@@ -19,6 +19,7 @@ const emptyItem = {
 const groupLabels = {
   homepage: { en: "Homepage Sections", ar: "أقسام الصفحة الرئيسية" },
   homepage_categories: { en: "Homepage Cards", ar: "بطاقات الصفحة الرئيسية" },
+  products: { en: "Products Page", ar: "صفحة المنتجات" },
   about: { en: "Static Sections - About", ar: "الأقسام الثابتة - من نحن" },
   cleanups: { en: "Static Sections - Cleanups", ar: "الأقسام الثابتة - حملات التنظيف" },
   cleanups_gallery: { en: "Cleanups Gallery", ar: "معرض حملات التنظيف" },
