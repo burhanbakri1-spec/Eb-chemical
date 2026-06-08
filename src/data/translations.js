@@ -25,11 +25,11 @@ export const translations = {
       cart: "Cart",
     },
     brand: {
-      tagline: "Practical cleaning and care solutions for homes, cars, and everyday use.",
+      tagline: "Practical cleaning solutions for homes and cars.",
       contentNotice:
-        "EB Chemical provides practical cleaning and care solutions for homes and cars, with products designed to make daily use easier and more reliable.",
+        "EB Chemical provides practical cleaning products for homes and cars, designed for reliable daily use.",
       aboutText:
-        "EB Chemical offers practical cleaning and care solutions for homes, cars, furniture, floors, fragrances, and radiator water. Our products are designed for reliable daily use, clear results, and a smooth shopping experience.",
+        "EB Chemical offers practical cleaning and car care products for reliable daily use and clear results.",
     },
     home: {
       heroHeadline: "Cleaning and care, made simple.",
@@ -44,7 +44,7 @@ export const translations = {
       highlightEyebrow: "Featured collection",
       highlightTitle: "Fresh formulas for busy homes and cars",
       highlightText:
-        "Mix compact daily-use bottles with larger 5L and 18L sizes for homes, workshops, offices, and car-care routines.",
+        "Mix compact daily bottles with larger sizes for homes and cars.",
       highlightCta: "Explore collection",
       howEyebrow: "How it works",
       howTitle: "Easier cleaning in simple steps",
@@ -69,8 +69,8 @@ export const translations = {
     },
     products: {
       eyebrow: "Products",
-      title: "EB Chemical product catalog",
-      subtitle: "Filter by category, choose a size, and add products to your cart.",
+      title: "Product catalog",
+      subtitle: "Filter by category, choose a size, and add to cart.",
     },
     productDetails: {
       notFoundTitle: "Product not found",
@@ -84,7 +84,7 @@ export const translations = {
       eyebrow: "Cart",
       title: "Shopping cart",
       emptyTitle: "Your cart is empty",
-      emptyText: "Start browsing EB Chemical products and add the items that fit your needs.",
+      emptyText: "Start browsing and add the items you need.",
       browseProducts: "Continue shopping",
       loginToAccount: "Login to your account",
       each: "each",
@@ -93,7 +93,7 @@ export const translations = {
     checkout: {
       eyebrow: "Checkout",
       title: "Checkout",
-      subtitle: "Enter your details to send the order, and we will contact you to confirm everything.",
+      subtitle: "Enter your details and we will contact you to confirm.",
       noProductsTitle: "No products in checkout",
       noProductsText: "Add products to your cart before placing an order.",
       name: "Full name",
@@ -105,10 +105,10 @@ export const translations = {
       phonePlaceholder: "+970...",
       cityPlaceholder: "Ramallah",
       addressPlaceholder: "Street, building, details",
-      notesPlaceholder: "Delivery notes or product questions",
+      notesPlaceholder: "Delivery notes",
       placeFakeOrder: "Confirm order",
       placeOrder: "Confirm order",
-      success: "Your order was sent successfully. We will contact you soon to confirm it.",
+      success: "Your order was sent successfully. We will contact you soon.",
       sendWhatsApp: "Send order on WhatsApp",
       orderPlacedSuccessfully: "Order placed successfully",
     },
@@ -133,12 +133,12 @@ export const translations = {
       loginRequired: "Please login to view your account.",
       noCustomerOrders: "No customer orders yet.",
       demoAuthNote:
-        "Secure account access is available for customers, employees, and admins.",
-      loginRequiredToBuy: "Please login before adding products to your cart or completing a purchase.",
+        "Secure account access is available for customers and staff.",
+      loginRequiredToBuy: "Please login to add products to cart and complete purchases.",
       loginPageText:
-        "Log in to your EB Chemical account to continue shopping, review orders, and complete purchases securely.",
+        "Log in to your EB Chemical account to shop, review orders, and purchase securely.",
       registerPageText:
-        "Create your EB Chemical account to track orders and complete future purchases faster.",
+        "Create your account to track orders and complete purchases faster.",
       forgotPassword: "I forgot my password",
     },
     adminLogin: {

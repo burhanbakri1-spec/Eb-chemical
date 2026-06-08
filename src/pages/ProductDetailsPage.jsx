@@ -148,8 +148,9 @@ function SliderButton({ direction, onClick }) {
 }
 
 function FloatingAddToCart({ language, onAdd, product, selectedLabel, txt }) {
+  const isArabic = language === "ar";
   return (
-    <aside className="product-detail-floating-cart" aria-label={txt.addToCart}>
+    <aside className="product-detail-floating-cart" dir={isArabic ? "rtl" : "ltr"} aria-label={txt.addToCart}>
       <ProductImage alt={localized(product.name, language)} src={product.image} />
       <div>
         <strong>{localized(product.name, language)}</strong>

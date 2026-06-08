@@ -39,8 +39,8 @@ export const homepageOffers = [
       ar: "أساسيات العناية اليومية",
     },
     description: {
-      en: "Selected cleaning and care products for a fresh home routine.",
-      ar: "منتجات تنظيف وعناية مختارة لروتين منزلي منعش.",
+      en: "Selected cleaning products for your home routine.",
+      ar: "منتجات تنظيف مختارة لروتينك المنزلي.",
     },
     image: "/images/products/multi-surface-cleaner.svg",
     ctaText: {
@@ -58,8 +58,8 @@ export const homepageOffers = [
       ar: "مختارات العناية بالسيارة",
     },
     description: {
-      en: "Gloss, freshness, and practical sizes for daily car care.",
-      ar: "لمعان وانتعاش وأحجام عملية للعناية اليومية بالسيارة.",
+      en: "Fresh and practical sizes for daily car care.",
+      ar: "انتعاش وأحجام عملية للعناية اليومية بالسيارة.",
     },
     image: "/images/products/car-shampoo-gloss.svg",
     ctaText: {
@@ -79,8 +79,8 @@ export const reviews = [
     rating: 5,
     customerName: "Maya A.",
     comment: {
-      en: "Clean packaging, fast ordering, and the products feel premium for everyday use.",
-      ar: "تغليف مرتب، طلب سريع، والمنتجات ممتازة للاستخدام اليومي.",
+      en: "Great quality products for everyday use.",
+      ar: "منتجات بجودة عالية للاستخدام اليومي.",
     },
     relatedProductName: "Multi-surface cleaner",
     employeeId: "",
@@ -94,8 +94,8 @@ export const reviews = [
     rating: 5,
     customerName: "Ahmad S.",
     comment: {
-      en: "The car care products leave a clean finish without feeling harsh.",
-      ar: "منتجات العناية بالسيارة تعطي نتيجة نظيفة بدون قسوة.",
+      en: "Excellent car care products with great results.",
+      ar: "منتجات عناية السيارة ممتازة بنتائج رائعة.",
     },
     relatedProductName: "Car care",
     employeeId: "",

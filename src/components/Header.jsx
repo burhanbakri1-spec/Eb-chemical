@@ -46,7 +46,7 @@ const shopLinks = [
 const aboutLinks = [
   { key: "mission", labelEn: "Mission", labelAr: "رسالتنا", action: "about" },
   { key: "how", labelEn: "How it Works", labelAr: "كيف يعمل", action: "how" },
-  { key: "sustainability", labelEn: "Sustainability", labelAr: "الاستدامة", action: "about" },
+  { key: "sustainability", labelEn: "Sustainability", labelAr: "الاستدامة", action: "sustainability" },
   { key: "cleanups", labelEn: "Cleanups", labelAr: "حملات التنظيف", action: "cleanups" },
   { key: "points", labelEn: "EB Points", labelAr: "نقاط EB", action: "eb-points" },
 ];
@@ -71,7 +71,7 @@ const aboutFeatureCards = [
 const aboutMenuLinks = [
   { key: "mission", labelEn: "Mission", labelAr: "رسالتنا", action: "about", activePage: "about" },
   { key: "how", labelEn: "How it Works", labelAr: "كيف يعمل", action: "how", activePage: "how" },
-  { key: "sustainability", labelEn: "Sustainability", labelAr: "الاستدامة", action: "about", activePage: "sustainability" },
+  { key: "sustainability", labelEn: "Sustainability", labelAr: "الاستدامة", action: "sustainability", activePage: "sustainability" },
   { key: "cleanups", labelEn: "Cleanups", labelAr: "حملات التنظيف", action: "cleanups", activePage: "cleanups" },
   { key: "points", labelEn: "EB Points", labelAr: "نقاط EB", action: "eb-points", activePage: "eb-points" },
 ];
@@ -423,7 +423,7 @@ function Header({
             onMouseLeave={scheduleCloseAboutMenu}
           >
             <button
-              className={["about", "how", "cleanups", "eb-points"].includes(activePage) ? "nav-link active" : "nav-link"}
+              className={["about", "how", "sustainability", "cleanups", "eb-points"].includes(activePage) ? "nav-link active" : "nav-link"}
               onClick={() => {
                 setIsAboutOpen((open) => !open);
                 setIsMegaOpen(false);
@@ -624,7 +624,7 @@ function Header({
         <button onClick={goToHow} type="button">
           {howLabel}
         </button>
-        <button onClick={() => goTo("about")} type="button">
+        <button onClick={() => goTo("sustainability")} type="button">
           {language === "ar" ? "الاستدامة" : "Sustainability"}
         </button>
         <button onClick={() => goTo("cleanups")} type="button">

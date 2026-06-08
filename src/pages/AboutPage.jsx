@@ -4,81 +4,16 @@ import { getWebsiteMediaImage } from "../data/websiteMedia.js";
 const aboutImages = {
   hero: "/images/products/multi-surface-cleaner.svg",
   banner: "/images/products/car-interior-cleaner.svg",
-  bottle: "/images/products/fabric-cleaner.svg",
-  concentrate: "/images/products/grease-oil-remover.svg",
-  material: "/images/products/car-shampoo-gloss.svg",
   cta: "/images/products/limescale-remover.svg",
-  impact: "/images/products/radiator-water-green.svg",
 };
 
 function AboutPage({ language = "en", onNavigate, websiteMedia = [] }) {
   const isArabic = language === "ar";
-  const [activeCard, setActiveCard] = React.useState(null);
   const images = {
     hero: getWebsiteMediaImage(websiteMedia, "about_hero", aboutImages.hero),
     banner: getWebsiteMediaImage(websiteMedia, "about_banner", aboutImages.banner),
-    bottle: getWebsiteMediaImage(websiteMedia, "about_card_bottle", aboutImages.bottle),
-    concentrate: getWebsiteMediaImage(websiteMedia, "about_card_concentrate", aboutImages.concentrate),
-    material: getWebsiteMediaImage(websiteMedia, "about_card_material", aboutImages.material),
     cta: getWebsiteMediaImage(websiteMedia, "about_cta", aboutImages.cta),
-    impact: getWebsiteMediaImage(websiteMedia, "about_impact", aboutImages.impact),
   };
-  const cards = isArabic
-    ? [
-        {
-          title: "كل عبوة",
-          description:
-            "صُممت عبواتنا للاستخدام اليومي المتكرر، للمساعدة في تقليل الهدر ودعم روتين تنظيف يدوم أكثر.",
-          image: images.bottle,
-        },
-        {
-          title: "التركيبات المركزة",
-          description:
-            "تساعد التركيبات المركزة على تقليل التغليف غير الضروري وجعل التنظيف أكثر كفاءة دون التأثير على الأداء.",
-          image: images.concentrate,
-        },
-        {
-          title: "المواد",
-          description:
-            "نختار المواد بعناية لدعم المتانة والعملية ونظام منتجات أكثر مسؤولية.",
-          image: images.material,
-        },
-      ]
-    : [
-        {
-          title: "Every Bottle",
-          description:
-            "Designed for repeated daily use, our bottles help reduce waste and support a longer-lasting cleaning routine.",
-          image: images.bottle,
-        },
-        {
-          title: "Concentrates",
-          description:
-            "Our concentrates reduce unnecessary packaging and make cleaning more efficient without compromising performance.",
-          image: images.concentrate,
-        },
-        {
-          title: "Materials",
-          description:
-            "We choose materials thoughtfully to support durability, practicality, and a more responsible product system.",
-          image: images.material,
-        },
-      ];
-  const stats = isArabic
-    ? [
-        { number: "+20", label: "منتج", description: "حلول تنظيف وعناية موثوقة" },
-        { number: "+500", label: "طلب", description: "تمت إدارتها عبر نظامنا المتطور" },
-        { number: "4", label: "أقسام", description: "العناية بالمنزل والسيارة والعطور والإكسسوارات" },
-      ]
-    : [
-        { number: "20+", label: "Products", description: "Reliable cleaning and care solutions" },
-        { number: "500+", label: "Orders", description: "Handled through our growing system" },
-        { number: "4", label: "Categories", description: "Home care, car care, fragrance, and accessories" },
-      ];
-
-  function toggleCard(index) {
-    setActiveCard((current) => (current === index ? null : index));
-  }
 
   return (
     <main className="about-editorial-page">
@@ -115,36 +50,6 @@ function AboutPage({ language = "en", onNavigate, websiteMedia = [] }) {
         </div>
       </section>
 
-      <section className="about-dark-cards-section">
-        <div className="about-dark-heading">
-          <h2>{isArabic ? "طريق أنظف للأمام" : "A cleaner way forward"}</h2>
-          <p>
-            {isArabic
-              ? "ماذا لو كان التنظيف اليومي أسهل وأذكى وأكثر مسؤولية؟"
-              : "What if everyday cleaning could be simpler, smarter, and more responsible?"}
-          </p>
-        </div>
-        <div className="about-interactive-grid">
-          {cards.map((card, index) => (
-            <button
-              className={activeCard === index ? "about-interactive-card active" : "about-interactive-card"}
-              key={card.title}
-              onClick={() => toggleCard(index)}
-              type="button"
-            >
-              <img alt="" aria-hidden="true" src={card.image} />
-              <span className="about-card-scrim" />
-              <span className="about-card-plus" aria-hidden="true">+</span>
-              <span className="about-card-title">{card.title}</span>
-              <span className="about-card-details">
-                <strong>{card.title}</strong>
-                <em>{card.description}</em>
-              </span>
-            </button>
-          ))}
-        </div>
-      </section>
-
       <section className="about-cta-section">
         <div className="about-cta-image">
           <img alt="" aria-hidden="true" src={images.cta} />
@@ -159,29 +64,6 @@ function AboutPage({ language = "en", onNavigate, websiteMedia = [] }) {
           <button className="primary-action large" onClick={() => onNavigate?.("products")} type="button">
             {isArabic ? "اكتشف المزيد" : "Discover more"}
           </button>
-        </div>
-      </section>
-
-      <section className="about-impact-section">
-        <div className="about-impact-head">
-          <h2>{isArabic ? "الأثر" : "Impact"}</h2>
-          <p>
-            {isArabic
-              ? "اختيارات يومية بسيطة تجعل التنظيف أسهل وأذكى وأكثر مسؤولية."
-              : "Small daily choices can make cleaning simpler, smarter, and more responsible."}
-          </p>
-        </div>
-        <div className="about-impact-media">
-          <img alt="" aria-hidden="true" src={images.impact} />
-          <div className="about-impact-stats">
-            {stats.map((stat) => (
-              <article key={stat.label}>
-                <span>{stat.number}</span>
-                <strong>{stat.label}</strong>
-                <p>{stat.description}</p>
-              </article>
-            ))}
-          </div>
         </div>
       </section>
     </main>

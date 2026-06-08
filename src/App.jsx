@@ -2,6 +2,7 @@ import React from "react";
 import Footer from "./components/Footer.jsx";
 import Header from "./components/Header.jsx";
 import AboutPage from "./pages/AboutPage.jsx";
+import SustainabilityPage from "./pages/SustainabilityPage.jsx";
 import AccountPage from "./pages/AccountPage.jsx";
 import AdminDashboardPage from "./pages/AdminDashboardPage.jsx";
 import AdminEmployeesPage from "./pages/AdminEmployeesPage.jsx";
@@ -82,6 +83,7 @@ const pagePaths = {
   home: "/",
   products: "/products",
   about: "/about",
+  sustainability: "/sustainability",
   how: "/how-it-works",
   cleanups: "/cleanups",
   "eb-points": "/eb-points",
@@ -963,6 +965,10 @@ function App() {
 
         {activePage === "about" && (
           <AboutPage language={language} onNavigate={navigate} t={t} websiteMedia={websiteMedia} />
+        )}
+
+        {activePage === "sustainability" && (
+          <SustainabilityPage language={language} onNavigate={navigate} t={t} websiteMedia={websiteMedia} />
         )}
 
         {activePage === "how" && (
