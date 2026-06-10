@@ -36,3 +36,5 @@ backend/.env.*
 *.njsproj
 *.sln
 *.sw?
+
+kinfill-static-react/

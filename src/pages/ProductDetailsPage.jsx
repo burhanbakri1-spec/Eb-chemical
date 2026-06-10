@@ -208,6 +208,7 @@ function ProductDetailsPage({
   const [activeStatement, setActiveStatement] = React.useState(0);
   const [dragStart, setDragStart] = React.useState(null);
   const [parallax, setParallax] = React.useState(0);
+  const [openAccordionIndex, setOpenAccordionIndex] = React.useState(null);
   const heroRef = React.useRef(null);
   const galleryTrackRef = React.useRef(null);
   const galleryProgressRef = React.useRef(0);
@@ -524,64 +525,89 @@ function ProductDetailsPage({
           </div>
         </div>
 
-        <aside className="detail-purchase-panel">
-          <button className="text-action detail-back" onClick={() => onNavigate("products")} type="button">
-            {txt.back}
-          </button>
-          <p className="eyebrow">{localized(category?.name, language)}</p>
-          <h1>{productName}</h1>
-          <p className="detail-description">{description}</p>
-          <div className="detail-rating-row">
-            <span>★★★★★</span>
-            <strong>{txt.ratingLine}</strong>
-          </div>
-
-          <div className="detail-option-group">
-            <h2>{txt.type}</h2>
-            <div className="detail-option-list">
-              {typeOptions.map((option) => (
-                <button
-                  className={selectedType === option.id ? "detail-choice active" : "detail-choice"}
-                  key={option.id}
-                  onClick={() => setSelectedType(option.id)}
-                  type="button"
-                >
-                  <ProductImage alt={localized(option.label, language)} src={option.image || product.image} />
-                  <span>{localized(option.label, language)}</span>
-                </button>
-              ))}
+        <aside className="detail-purchase-panel product-detail-info-panel">
+          <div className="pi-section-header">
+            <button className="pi-back" onClick={() => onNavigate("products")} type="button">
+              {txt.back}
+            </button>
+            {product.badge && <span className="pi-badge">{localized(product.badge, language)}</span>}
+            <p className="pi-eyebrow">{localized(category?.name, language)}</p>
+            <h1>{productName}</h1>
+            <p className="pi-desc">{description}</p>
+            <div className="pi-rating">
+              <span>★★★★★</span>
+              <span>{txt.ratingLine}</span>
             </div>
           </div>
 
-          {colorOptions.length > 1 && (
-            <div className="detail-option-group">
-              <h2>{language === "ar" ? "اللون" : "Color"}</h2>
-              <div className="detail-color-row">
-                {colorOptions.map((option) => (
+          {typeOptions.length > 0 && (
+            <div className="pi-card-field">
+              <p className="pi-label">{txt.type}</p>
+              <div className="pi-card-grid two-col">
+                {typeOptions.map((option) => (
                   <button
-                    className={selectedColor === option.colorName ? "detail-color-choice active" : "detail-color-choice"}
-                    key={option.colorName}
-                    onClick={() => setSelectedColor(option.colorName)}
+                    className={selectedType === option.id ? "pi-card active" : "pi-card"}
+                    key={option.id}
+                    onClick={() => setSelectedType(option.id)}
                     type="button"
                   >
-                    <span
-                      aria-hidden="true"
-                      style={{ background: option.colorValue || "#1db7d8" }}
-                    />
-                    {option.colorName}
+                    <ProductImage alt={localized(option.label, language)} src={option.image || product.image} />
+                    <span>{localized(option.label, language)}</span>
                   </button>
                 ))}
               </div>
             </div>
           )}
 
-          <div className="detail-option-grid">
-            <div className="detail-option-group">
-              <h2>{txt.size}</h2>
-              <div className="detail-pill-row">
+          <div className="pi-segmented">
+            <button
+              className={purchaseType === "one-time" ? "pi-segment active" : "pi-segment"}
+              onClick={() => setPurchaseType("one-time")}
+              type="button"
+            >
+              {txt.oneTime}
+            </button>
+            <button
+              className={purchaseType === "refill" ? "pi-segment active" : "pi-segment"}
+              onClick={() => setPurchaseType("refill")}
+              type="button"
+            >
+              {txt.refillPlan}
+            </button>
+          </div>
+
+          {colorOptions.length > 1 && (
+            <div className="pi-color-field">
+              <p className="pi-label">{language === "ar" ? "اللون" : "Color"}</p>
+              <div className="pi-color-card">
+                <ProductImage alt="" src={selectedImage} />
+                <div>
+                  <p>{language === "ar" ? "اختر اللون" : "Choose your Color"}</p>
+                  <div className="pi-color-swatches">
+                    {colorOptions.map((option) => (
+                      <button
+                        className={selectedColor === option.colorName ? "pi-color-swatch active" : "pi-color-swatch"}
+                        key={option.colorName}
+                        onClick={() => setSelectedColor(option.colorName)}
+                        style={{ background: option.colorValue || "#1db7d8" }}
+                        title={option.colorName}
+                        type="button"
+                      />
+                    ))}
+                  </div>
+                  <span className="pi-color-name">{selectedColor}</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="pi-pill-grid">
+            <div>
+              <p className="pi-label">{txt.size}</p>
+              <div className="pi-pill-row">
                 {sizeOptions.map((option) => (
                   <button
-                    className={selectedSize === option.size ? "detail-pill active" : "detail-pill"}
+                    className={selectedSize === option.size ? "pi-pill active" : "pi-pill"}
                     disabled={option.stock <= 0}
                     key={option.size}
                     onClick={() => setSelectedSize(option.size)}
@@ -593,12 +619,12 @@ function ProductDetailsPage({
                 ))}
               </div>
             </div>
-            <div className="detail-option-group">
-              <h2>{txt.use}</h2>
-              <div className="detail-pill-row">
+            <div>
+              <p className="pi-label">{txt.use}</p>
+              <div className="pi-pill-row">
                 {useOptions.map((option) => (
                   <button
-                    className={selectedUse === option.id ? "detail-pill active" : "detail-pill"}
+                    className={selectedUse === option.id ? "pi-pill active" : "pi-pill"}
                     key={option.id}
                     onClick={() => setSelectedUse(option.id)}
                     type="button"
@@ -610,52 +636,51 @@ function ProductDetailsPage({
             </div>
           </div>
 
-          <div className="detail-purchase-options">
-            <h2>{txt.purchase}</h2>
-            <button
-              className={purchaseType === "one-time" ? "detail-buy-option active" : "detail-buy-option"}
-              onClick={() => setPurchaseType("one-time")}
-              type="button"
-            >
-              <span>{txt.oneTime}</span>
-              <strong>{selectedOption.price} {t("common.ils")}</strong>
-            </button>
-            <button
-              className={purchaseType === "refill" ? "detail-buy-option active" : "detail-buy-option"}
-              onClick={() => setPurchaseType("refill")}
-              type="button"
-            >
-              <span>{txt.refillPlan}</span>
-              <small>{txt.visualOnly}</small>
-            </button>
-          </div>
-
-          <div className="detail-quantity-row">
-            <button onClick={() => setQuantity((value) => Math.max(1, value - 1))} type="button">-</button>
-            <span>{quantity}</span>
-            <button onClick={() => setQuantity((value) => value + 1)} type="button">+</button>
-          </div>
-
-          <button className="detail-add-main" disabled={selectedVariant?.stock <= 0} onClick={handleAddSelectedToCart} type="button">
-            <ShoppingBag size={20} />
-            {txt.addToCart}
-          </button>
-
-          <div className="detail-included-card">
-            <strong>{txt.whatYouGet}</strong>
-            <ul>
-              {features.slice(0, 5).map((feature) => (
-                <li key={feature}><CheckCircle2 size={16} /> {feature}</li>
-              ))}
-            </ul>
-          </div>
-
-          {product.usageNotes && (
-            <div className="detail-included-card">
-              <strong>{txt.usageNote}</strong>
-              <p>{localized(product.usageNotes, language)}</p>
+          <div className="pi-cta-bar">
+            <div className="pi-price">{selectedOption.price} {t("common.ils")}</div>
+            <div className="pi-qty-row">
+              <button onClick={() => setQuantity((value) => Math.max(1, value - 1))} type="button">−</button>
+              <span>{quantity}</span>
+              <button onClick={() => setQuantity((value) => value + 1)} type="button">+</button>
             </div>
-          )}
+            <button className="pi-add-btn" disabled={selectedVariant?.stock <= 0} onClick={handleAddSelectedToCart} type="button">
+              <ShoppingBag size={18} />
+              {txt.addToCart}
+            </button>
+          </div>
+
+          <div className="pi-accordion">
+            {features.length > 0 && (
+              <div className={openAccordionIndex === 0 ? "pi-accordion-item open" : "pi-accordion-item"}>
+                <button className="pi-accordion-trigger" onClick={() => setOpenAccordionIndex(openAccordionIndex === 0 ? null : 0)} type="button">
+                  <span>{txt.whatYouGet}</span>
+                  <span className="pi-accordion-icon">+</span>
+                </button>
+                <div className="pi-accordion-body">
+                  <div className="pi-accordion-inner">
+                    <ul className="pi-feature-list">
+                      {features.slice(0, 5).map((feature) => (
+                        <li key={feature}><CheckCircle2 size={15} /> {feature}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            )}
+            {product.usageNotes && (
+              <div className={openAccordionIndex === 1 ? "pi-accordion-item open" : "pi-accordion-item"}>
+                <button className="pi-accordion-trigger" onClick={() => setOpenAccordionIndex(openAccordionIndex === 1 ? null : 1)} type="button">
+                  <span>{txt.usageNote}</span>
+                  <span className="pi-accordion-icon">+</span>
+                </button>
+                <div className="pi-accordion-body">
+                  <div className="pi-accordion-inner">
+                    <p>{localized(product.usageNotes, language)}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </aside>
       </section>
 

@@ -365,7 +365,6 @@ function Header({
             className="brand-logo-image"
             src="/images/brand/ep-chemical-logo.png"
           />
-          <span className="brand-logo-text">{brand.logoText}</span>
         </button>
 
         <nav className="main-nav" aria-label="Main navigation">

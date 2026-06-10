@@ -195,34 +195,50 @@ function HowItWorksSplit({ image, language, onNavigate }) {
       ];
 
   return (
-    <section className="how-works-split storefront-wide-section">
-      <div className={`how-works-image${image ? " has-media" : ""}`} aria-hidden="true">
-        {image ? (
-          <img alt="" src={image} />
-        ) : (
-          <>
-            <div className="how-works-bottle how-works-bottle-main" />
-            <div className="how-works-bottle how-works-bottle-small" />
-          </>
+    <section className="how-it-works-section storefront-wide-section">
+      <div className="how-it-works-inner">
+        {/* Single background image covering the entire section */}
+        {image && (
+          <img
+            alt=""
+            className="how-it-works-bg"
+            src={image}
+            loading="lazy"
+          />
         )}
-      </div>
-      <div className="how-works-panel">
-        <p className="eyebrow">{isArabic ? "طريقة الاستخدام" : "How it works"}</p>
-        <h2>{isArabic ? "تنظيف أسهل بخطوات بسيطة" : "Easier cleaning in simple steps"}</h2>
-        <div className="how-works-steps">
-          {steps.map((step, index) => (
-            <article key={step.title}>
-              <span>{index + 1}</span>
-              <div>
-                <h3>{step.title}</h3>
-                <p>{step.text}</p>
-              </div>
-            </article>
-          ))}
+
+        {/* Glass panel on the right - like Kinfill's frosted glass card */}
+        {image && (
+          <div className="how-it-works-glass-panel" aria-hidden="true" />
+        )}
+
+        {/* Left-side gradient for steps readability */}
+        <div className="how-it-works-overlay" aria-hidden="true" />
+
+        {/* Content overlaid on background */}
+        <div className="how-it-works-grid">
+          {/* Steps - left side */}
+          <div className="how-it-works-steps">
+            {steps.map((step, index) => (
+              <article key={step.title}>
+                <span>{index + 1}</span>
+                <div>
+                  <h3>{step.title}</h3>
+                  <p>{step.text}</p>
+                </div>
+              </article>
+            ))}
+          </div>
+
+          {/* Title + button - right side */}
+          <div className="how-it-works-card">
+            <p className="eyebrow">{isArabic ? "طريقة الاستخدام" : "How it works"}</p>
+            <h2>{isArabic ? "تنظيف أسهل بخطوات بسيطة" : "Easier cleaning in simple steps"}</h2>
+            <button className="primary-action large" onClick={() => onNavigate("products")} type="button">
+              {isArabic ? "ابدأ التسوق" : "Start shopping"}
+            </button>
+          </div>
         </div>
-        <button className="primary-action large" onClick={() => onNavigate("products")} type="button">
-          {isArabic ? "ابدأ التسوق" : "Start shopping"}
-        </button>
       </div>
     </section>
   );
@@ -375,63 +391,64 @@ function PurchaseExperienceShowcase({ language, onAddToCart, onViewProduct, prod
   return (
     <section className="purchase-showcase-section storefront-wide-section">
       <div className="purchase-showcase-copy">
-        <p className="eyebrow">{isArabic ? "تجربة شراء سهلة" : "Purchase experience"}</p>
-        <h2>{name}</h2>
-        <p>{description}</p>
-
-        <div className="purchase-option-group">
-          <span>{isArabic ? "الأحجام" : "Options"}</span>
-          <div className="purchase-option-row">
-            {options.map((option) => (
-              <button
-                className={option.size === selectedSize ? "purchase-choice active" : "purchase-choice"}
-                key={option.size}
-                onClick={() => setSelectedSize(option.size)}
-                type="button"
-              >
-                <strong>{option.size}</strong>
-                <small>
-                  {option.price} {isArabic ? "شيكل" : "ILS"}
-                </small>
-              </button>
-            ))}
+        <div className="product-detail-info-panel home-product-info-preview">
+          <div className="pi-section-header">
+            <p className="pi-eyebrow">{isArabic ? "تجربة شراء سهلة" : "Purchase experience"}</p>
+            <h2>{name}</h2>
+            <p className="pi-desc">{description}</p>
           </div>
-        </div>
 
-        <div className="purchase-option-group">
-          <span>{isArabic ? "طريقة الشراء" : "Purchase"}</span>
-          <div className="purchase-option-row two">
+          <div className="pi-card-field">
+            <p className="pi-label">{isArabic ? "الأحجام" : "Options"}</p>
+            <div className="pi-card-grid two-col">
+              {options.map((option) => (
+                <button
+                  className={option.size === selectedSize ? "pi-card active" : "pi-card"}
+                  key={option.size}
+                  onClick={() => setSelectedSize(option.size)}
+                  type="button"
+                >
+                  <span className="pi-card-value">{option.size}</span>
+                  <span className="pi-card-sublabel">
+                    {option.price} {isArabic ? "شيكل" : "ILS"}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="pi-segmented">
             <button
-              className={purchaseType === "once" ? "purchase-choice active" : "purchase-choice"}
+              className={purchaseType === "once" ? "pi-segment active" : "pi-segment"}
               onClick={() => setPurchaseType("once")}
               type="button"
             >
               {isArabic ? "شراء مرة واحدة" : "One-time purchase"}
             </button>
             <button
-              className={purchaseType === "bundle" ? "purchase-choice active" : "purchase-choice"}
+              className={purchaseType === "bundle" ? "pi-segment active" : "pi-segment"}
               onClick={() => setPurchaseType("bundle")}
               type="button"
             >
               {isArabic ? "وفّر مع العرض" : "Save with bundle"}
             </button>
           </div>
-        </div>
 
-        <div className="purchase-showcase-action">
-          <strong>
-            {selectedOption?.price || 0} {isArabic ? "شيكل" : "ILS"}
-          </strong>
-          <button className="primary-action large" onClick={handleAddToCart} type="button">
-            {isArabic ? "أضف إلى السلة" : "Add to cart"}
-          </button>
-        </div>
+          <div className="pi-cta-bar">
+            <span className="pi-price">
+              {selectedOption?.price || 0} {isArabic ? "شيكل" : "ILS"}
+            </span>
+            <button className="pi-add-btn" onClick={handleAddToCart} type="button">
+              {isArabic ? "أضف إلى السلة" : "Add to cart"}
+            </button>
+          </div>
 
-        <ul className="purchase-selling-points">
-          {sellingPoints.map((point) => (
-            <li key={point}>{point}</li>
-          ))}
-        </ul>
+          <ul className="pi-feature-list">
+            {sellingPoints.map((point) => (
+              <li key={point}>{point}</li>
+            ))}
+          </ul>
+        </div>
       </div>
 
       <div className="purchase-showcase-image" aria-label={name}>
@@ -541,6 +558,7 @@ function HomePage({
   t,
   websiteMedia = [],
 }) {
+  const isArabic = language === "ar";
   const starterProducts = getPromotedProducts(products);
   const essentialsProducts =
     products
@@ -593,10 +611,19 @@ function HomePage({
       (review.status || "approved") === "approved",
   );
 
+  const avgRating = siteReviews.length
+    ? (siteReviews.reduce((sum, r) => sum + Number(r.rating || 0), 0) / siteReviews.length).toFixed(2)
+    : "0.00";
+  const reviewCount = siteReviews.length;
+
   return (
     <div className="storefront-home">
       <section className="hero-section hero-editorial">
-        <div className="hero-panel hero-panel-copy hero-copy-panel">
+        <div className="hero-bg">
+          <img src={heroLeftImage} alt={brand.name} className="hero-bg-image" />
+          <div className="hero-overlay" />
+        </div>
+        <div className="hero-content">
           <p className="eyebrow">{brand.name}</p>
           <h1>{t("home.heroHeadline")}</h1>
           <p>{t("home.heroSubheadline")}</p>
@@ -604,28 +631,9 @@ function HomePage({
             <button className="primary-action large" onClick={() => onNavigate("products")} type="button">
               {t("home.shopProducts")}
             </button>
-            <button
-              className="secondary-action large"
-              onClick={() => onNavigate("products")}
-              type="button"
-            >
+            <button className="secondary-action large" onClick={() => onNavigate("products")} type="button">
               {t("home.exploreCategories")}
             </button>
-          </div>
-        </div>
-
-        <div className="hero-panel hero-panel-visual" aria-label={brand.name}>
-          <div className="hero-image-duo hero-visuals">
-            <div
-              className="hero-image-panel hero-visual-panel hero-visual-panel-soft"
-              aria-hidden="true"
-              style={{ "--website-media-image": `url("${heroLeftImage}")` }}
-            />
-            <div
-              className="hero-image-panel hero-visual-panel hero-visual-panel-fresh"
-              aria-hidden="true"
-              style={{ "--website-media-image": `url("${heroRightImage}")` }}
-            />
           </div>
         </div>
       </section>
@@ -652,11 +660,14 @@ function HomePage({
 
       {siteReviews.length > 0 && (
         <section className="reviews-section storefront-section">
-          <div className="section-heading split-heading">
-            <div>
-              <p className="eyebrow">{t("reviews.storeReview")}</p>
-              <h2>{t("reviews.title")}</h2>
-              <p>{t("reviews.subtitle")}</p>
+          <div className="reviews-heading">
+            <h2>{t("reviews.title")}</h2>
+            <div className="reviews-summary">
+              <span className="reviews-summary-number">{avgRating}</span>
+              <span className="reviews-summary-stars" aria-label={`${avgRating} ${isArabic ? "من 5 نجوم" : "out of 5 stars"}`}>
+                {"★★★★★"}
+              </span>
+              <span className="reviews-summary-count">| {reviewCount} {isArabic ? "تقييم" : "reviews"}</span>
             </div>
           </div>
           <div className="reviews-track">
