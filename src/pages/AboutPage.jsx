@@ -272,7 +272,7 @@ function AboutPage({ language = "en", onNavigate, websiteMedia = [] }) {
             <div className="mission-impact-overlay" />
             <div className="mission-impact-stats">
               {numbers.map((stat, i) => (
-                <div className={`mission-impact-stat-row mission-impact-stat-align-${i}`} key={stat.key}>
+                <div className={`mission-impact-stat-row mission-impact-stat-pos-${i}`} key={stat.key}>
                   <div className="mission-impact-stat-card">
                     <img className="mission-impact-stat-icon" src={stat.image} alt="" aria-hidden="true" />
                     <div className="mission-impact-stat-body">

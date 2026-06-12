@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useRef } from "react";
 import { getWebsiteMediaImage } from "../data/websiteMedia.js";
+import { categories } from "../data/categories.js";
 
 const fallbackImages = {
   hero: "/homepage-categories/bathroom.jpg",
@@ -11,6 +12,7 @@ const fallbackImages = {
   stat1: "/products/limescale-remover-hover.jpg",
   stat2: "/images/products/fabric-cleaner.svg",
   stat3: "/images/products/grease-oil-remover.svg",
+  products: "/products/limescale-remover-main.jpg",
   accordion: "/products/limescale-remover-main.jpg",
   cta: "/homepage-categories/laundry.jpg",
   product: "/homepage-categories/bathroom.jpg",
@@ -18,94 +20,118 @@ const fallbackImages = {
 
 const copy = {
   en: {
-    heroTitle: "Smarter cleaning starts here",
-    heroSubtitle: "Practical products designed for cleaner homes, cars, and everyday routines.",
+    heroTitle: "Refills That Revolutionise",
+    heroSubtitle: "Smarter cleaning starts here",
     review: "Over 500+ orders from happy customers",
     intro:
       "At EB Chemical, sustainability starts with practical choices. We focus on reliable cleaning and care products that help customers use the right solution, reduce unnecessary waste, and keep everyday spaces fresh with less effort.",
     whyLabel: "Why Choose EB Chemical?",
+    designTitle: "Practical products made to last",
+    designText:
+      "Our cleaning and care products are designed for everyday use, helping customers get reliable results while reducing unnecessary waste and keeping routines simple.",
     refillableTitle: "Refillable design to last a lifetime",
     refillableText:
       "Our refillable system is built to reduce waste while keeping performance reliable. Each bottle is designed for repeated use, making it easy to maintain a cleaner routine at home and in the car.",
+    fullscreenTitle: "Reliable care for everyday spaces",
+    fullscreenText:
+      "We focus on practical cleaning and care solutions that help homes, cars, and daily environments stay fresh, clean, and easier to maintain.",
     bCorpTitle: "Committed to quality and care",
     bCorpText:
       "We take responsibility seriously. Every product is formulated with care, using ingredients that are effective yet mindful of the spaces you live and work in.",
-    safeTitle: "Safe for you, your body, and the planet",
+    safeTitle: "Safe solutions for daily use",
     safeText:
-      "Our formulations are designed with safety in mind for your home, your family, and the environment. Non-toxic, biodegradable, and practical for everyday use.",
+      "We focus on practical cleaning products that are easy to use and suitable for everyday care.",
     performanceTitle: "Performance you can trust",
     performanceText:
-      "Every EB Chemical product is carefully formulated to deliver effective cleaning results without compromise. Our concentrates are designed to work hard while using less material, so you get the best clean with minimal impact.",
-    impactTitle: "The Impact",
-    impactText: "We could tell you all about it with words, but these numbers speak for themselves.",
+      "Our formulas are designed to deliver reliable cleaning results for homes, cars, and everyday spaces while keeping routines simple and practical.",
+    impactTitle: "The impact",
+    impactText: "We believe better cleaning should be practical, reliable, and easier to maintain. These numbers reflect our commitment to improving everyday routines.",
+    impactMeta1: "Making everyday routines count",
+    impactMeta2: "Since we started",
     stat1Value: "243k",
-    stat1Label: "plastic bottles saved",
+    stat1Label: "CLEANING ROUTINES SUPPORTED",
     stat2Value: "123kg",
-    stat2Label: "plastic bags saved",
+    stat2Label: "PRODUCT WASTE REDUCED",
     stat3Value: "123kg",
-    stat3Label: "CO2 saved",
+    stat3Label: "EVERYDAY CARE IMPROVED",
     accordionTitle: "Our products",
     accordionText:
-      "Designed for practical daily use, our products focus on performance, simplicity, and care for everyday spaces.",
+      "At EB Chemical, we create practical cleaning and care products designed to deliver reliable results for homes, cars, and everyday routines.",
     accordion1Title: "Formulated with purpose",
     accordion1Text:
-      "Our formulas are made to deliver reliable cleaning results for homes, cars, and daily routines. Biodegradable and effective.",
-    accordion2Title: "Refillable by design",
+      "Our formulas are developed to support effective everyday cleaning, using practical solutions that help keep spaces fresh, clean, and easier to maintain.",
+    accordion2Title: "Practical by design",
     accordion2Text:
-      "Our product system supports practical use and helps reduce unnecessary packaging where possible. Refill, reuse, repeat.",
-    accordion3Title: "Built to last a lifetime",
+      "Our products are made to be simple to use, easy to store, and suitable for daily cleaning and care routines.",
+    accordion3Title: "Built for everyday use",
     accordion3Text:
-      "Each product is designed to be easy to use, easy to store, and suitable for everyday cleaning needs. Durable bottles built for repeated use.",
+      "From home surfaces to car care, EB Chemical products are designed to perform reliably across everyday spaces.",
     ctaTitle: "Ready to make the switch?",
     ctaText: "Discover products designed for practical, sustainable living.",
     ctaButton: "Discover products",
     goodbyeTitle: "Goodbye, waste. Hello, refills.",
     goodbyeText: "Discover products with purpose.",
+    joinTitle: "Join us in making cleaning simpler",
+    joinText:
+      "Discover practical EB Chemical products designed to make everyday cleaning easier, cleaner, and more reliable.",
+    joinButton: "Discover more",
   },
   ar: {
-    heroTitle: "تنظيف أذكى يبدأ من هنا",
-    heroSubtitle: "منتجات عملية مصممة لمنزل وسيارة وروتين يومي أنظف.",
+    heroTitle: "عبوات تعيد تعريف التنظيف",
+    heroSubtitle: "تنظيف أذكى يبدأ من هنا",
     review: "أكثر من 500 طلب من عملاء سعداء",
     intro:
       "في EB Chemical، تبدأ الاستدامة من اختيارات عملية. نركز على منتجات تنظيف وعناية موثوقة تساعد العملاء على استخدام الحل المناسب، وتقليل الهدر غير الضروري، والحفاظ على المساحات اليومية نظيفة ومنعشة بجهد أقل.",
     whyLabel: "لماذا تختار EB Chemical؟",
+    designTitle: "منتجات عملية تدوم أكثر",
+    designText:
+      "صُممت منتجات التنظيف والعناية لدينا للاستخدام اليومي، لتساعد العملاء على الحصول على نتائج موثوقة مع تقليل الهدر غير الضروري والحفاظ على روتين بسيط.",
     refillableTitle: "تصميم قابل لإعادة الاستخدام ليدوم مدى الحياة",
     refillableText:
       "نظام إعادة التعبئة لدينا مصمم لتقليل الهدر مع الحفاظ على أداء موثوق. كل عبوة مصممة للاستخدام المتكرر، مما يسهل الحفاظ على روتين نظيف في المنزل والسيارة.",
+    fullscreenTitle: "عناية موثوقة للمساحات اليومية",
+    fullscreenText:
+      "نركّز على حلول تنظيف وعناية عملية تساعد المنازل والسيارات والمساحات اليومية على البقاء نظيفة ومنعشة وأسهل في العناية.",
     bCorpTitle: "ملتزمون بالجودة والرعاية",
     bCorpText:
       "نحن نأخذ المسؤولية على محمل الجد. كل منتج يتم تركيبه بعناية، باستخدام مكونات فعالة ومراعية للمساحات التي تعيش وتعمل فيها.",
-    safeTitle: "آمن لك ولجسمك وللكوكب",
+    safeTitle: "حلول آمنة للاستخدام اليومي",
     safeText:
-      "تم تصميم تركيباتنا مع مراعاة السلامة لمنزلك وعائلتك والبيئة. غير سامة، قابلة للتحلل، وعملية للاستخدام اليومي.",
+      "نركّز على منتجات تنظيف عملية وسهلة الاستخدام ومناسبة للعناية اليومية.",
     performanceTitle: "أداء يمكنك الوثوق به",
     performanceText:
-      "كل منتج EB Chemical يتم تركيبه بعناية لتقديم نتائج تنظيف فعالة دون مساومة. تركيباتنا المركزة مصممة لتعمل بكفاءة مع استخدام مواد أقل.",
+      "صُممت تركيباتنا لتقديم نتائج تنظيف موثوقة للمنازل والسيارات والمساحات اليومية مع الحفاظ على روتين بسيط وعملي.",
     impactTitle: "الأثر",
-    impactText: "يمكننا شرح الكثير بالكلمات، لكن هذه الأرقام تتحدث بنفسها.",
+    impactText: "نؤمن أن التنظيف الأفضل يجب أن يكون عمليًا وموثوقًا وأسهل في الاستمرار. تعكس هذه الأرقام التزامنا بتحسين الروتين اليومي.",
+    impactMeta1: "نجعل الروتين اليومي أكثر قيمة",
+    impactMeta2: "منذ أن بدأنا",
     stat1Value: "243 ألف",
-    stat1Label: "زجاجة بلاستيكية تم توفيرها",
+    stat1Label: "روتين تنظيف مدعوم",
     stat2Value: "123 كجم",
-    stat2Label: "أكياس بلاستيكية تم توفيرها",
+    stat2Label: "تقليل هدر المنتجات",
     stat3Value: "123 كجم",
-    stat3Label: "ثاني أكسيد الكربون تم توفيره",
+    stat3Label: "تحسين العناية اليومية",
     accordionTitle: "منتجاتنا",
     accordionText:
-      "مصممة للاستخدام اليومي العملي، تركز منتجاتنا على الأداء والبساطة والعناية بالمساحات اليومية.",
-    accordion1Title: "تركيبات بهدف واضح",
+      "في EB Chemical، نطوّر منتجات تنظيف وعناية عملية مصممة لتقديم نتائج موثوقة للمنازل والسيارات والروتين اليومي.",
+    accordion1Title: "تركيبات هادفة",
     accordion1Text:
-      "تركيباتنا مصممة لتقديم نتائج تنظيف موثوقة للمنزل والسيارة والروتين اليومي. قابلة للتحلل وفعالة.",
-    accordion2Title: "قابلة لإعادة التعبئة بالتصميم",
+      "نطوّر تركيباتنا لدعم التنظيف اليومي الفعّال، من خلال حلول عملية تساعد في الحفاظ على المساحات نظيفة ومنعشة وأسهل في العناية.",
+    accordion2Title: "تصميم عملي",
     accordion2Text:
-      "نظام منتجاتنا يدعم الاستخدام العملي ويساعد على تقليل التغليف غير الضروري. أعد التعبئة، أعد الاستخدام، كرر.",
-    accordion3Title: "مصممة لتدوم مدى الحياة",
+      "صُممت منتجاتنا لتكون سهلة الاستخدام والتخزين ومناسبة لروتين التنظيف والعناية اليومي.",
+    accordion3Title: "مصممة للاستخدام اليومي",
     accordion3Text:
-      "كل منتج مصمم ليكون سهل الاستخدام والتخزين ومناسبًا لاحتياجات التنظيف اليومية. زجاجات متينة للاستخدام المتكرر.",
+      "من أسطح المنزل إلى العناية بالسيارة، صُممت منتجات EB Chemical لتقديم أداء موثوق في المساحات اليومية.",
     ctaTitle: "مستعد للتبديل؟",
     ctaText: "اكتشف منتجات مصممة لحياة عملية ومستدامة.",
     ctaButton: "اكتشف المنتجات",
     goodbyeTitle: "وداعًا للهدر. مرحبًا بإعادة التعبئة.",
     goodbyeText: "اكتشف منتجات ذات هدف.",
+    joinTitle: "انضم إلينا لجعل التنظيف أسهل",
+    joinText:
+      "اكتشف منتجات EB Chemical العملية المصممة لجعل التنظيف اليومي أسهل وأنظف وأكثر موثوقية.",
+    joinButton: "اكتشف المزيد",
   },
 };
 
@@ -129,9 +155,193 @@ function SustainabilityAccordion({ items }) {
   );
 }
 
-function SustainabilityPage({ language = "en", onNavigate, websiteMedia = [] }) {
+function ProductsAccordion({ items }) {
+  const [active, setActive] = React.useState(0);
+
+  return (
+    <div className="sustainability-products-section-accordion">
+      {items.map(([title, text], index) => (
+        <div key={title} className={`sustainability-products-section-row ${active === index ? "active" : ""}`}>
+          <button type="button" className="sustainability-products-section-trigger" onClick={() => setActive(active === index ? -1 : index)}>
+            <span>{title}</span>
+            <span className="sustainability-products-section-icon">
+              <svg className="sustainability-products-section-icon-svg" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M8 2V14" stroke="currentColor" strokeWidth="1"/>
+                <path d="M14 8L2 8" stroke="currentColor" strokeWidth="1"/>
+              </svg>
+            </span>
+          </button>
+          <div className="sustainability-products-section-panel">
+            <p>{text}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function getLocalized(value, language) {
+  if (!value) return "";
+  if (typeof value === "string") return value;
+  return value[language] || value.en || value.ar || "";
+}
+
+function ProductShowcaseSlider({ language, onViewProduct, products, title, variant = "primary" }) {
+  const trackRef = useRef(null);
+  const isArabic = language === "ar";
+  const [progress, setProgress] = React.useState(0);
+  const badgeLabels = isArabic
+    ? ["إصدار محدود", "عرض خاص", "الأكثر مبيعًا", "جديد"]
+    : ["Limited Edition", "Subscribe & Save 50%", "Best seller", "New arrival"];
+
+  function updateProgress() {
+    const track = trackRef.current;
+    if (!track) return;
+
+    const maxScroll = track.scrollWidth - track.clientWidth;
+    const currentScroll = Math.abs(track.scrollLeft);
+    setProgress(maxScroll > 0 ? Math.min(1, Math.max(0, currentScroll / maxScroll)) : 1);
+  }
+
+  function scrollSlider(direction) {
+    const track = trackRef.current;
+    if (!track) return;
+
+    const card = track.querySelector(".home-product-slide-card");
+    const distance = card ? card.getBoundingClientRect().width + 18 : track.clientWidth * 0.85;
+    track.scrollBy({
+      left: (isArabic ? -direction : direction) * distance,
+      behavior: "smooth",
+    });
+  }
+
+  if (!products.length) return null;
+
+  return (
+    <section className={`home-product-showcase home-product-showcase-${variant} storefront-wide-section`}>
+      <div className="home-product-showcase-head">
+        <h2>{title}</h2>
+        <div className="home-product-slider-controls" aria-label={isArabic ? "التحكم بالمنتجات" : "Product slider controls"}>
+          <button
+            aria-label={isArabic ? "السابق" : "Previous"}
+            onClick={() => scrollSlider(-1)}
+            type="button"
+          >
+            <span aria-hidden="true">‹</span>
+          </button>
+          <button
+            aria-label={isArabic ? "التالي" : "Next"}
+            onClick={() => scrollSlider(1)}
+            type="button"
+          >
+            <span aria-hidden="true">›</span>
+          </button>
+        </div>
+      </div>
+
+      <div className="home-product-slider-track" onScroll={updateProgress} ref={trackRef}>
+        {products.map((product, index) => {
+          const firstSize = product.sizes?.[0] || { size: "", price: 0 };
+          const category = categories.find((item) => item.id === product.categoryId);
+          const mainImage = product.image || product.fallbackImage || "/images/products/product-placeholder.svg";
+          const hoverImage =
+            product.hoverImage ||
+            product.secondaryImage ||
+            product.gallery?.[1] ||
+            product.images?.[1] ||
+            mainImage;
+          const hasHoverImage = hoverImage && hoverImage !== mainImage;
+          const label = getLocalized(product.badge, language) || badgeLabels[index % badgeLabels.length];
+          const details =
+            getLocalized(product.shortDescription, language) ||
+            getLocalized(category?.name, language) ||
+            (isArabic ? "حل عملي للعناية اليومية." : "A practical daily-care solution.");
+
+          return (
+            <article
+              className="home-product-slide-card"
+              key={product.id}
+              style={{ "--stagger": `${index * 70}ms` }}
+            >
+              <button
+                className="home-product-image-wrap"
+                onClick={() => onViewProduct(product.slug)}
+                type="button"
+              >
+                <span className="home-product-badge">{label}</span>
+                <img
+                  className="home-product-image-main"
+                  alt={getLocalized(product.name, language)}
+                  loading="lazy"
+                  onError={(event) => {
+                    event.currentTarget.src = product.fallbackImage || "/images/products/product-placeholder.svg";
+                  }}
+                  src={mainImage}
+                />
+                {hasHoverImage && (
+                  <img
+                    aria-hidden="true"
+                    alt=""
+                    className="home-product-image-hover"
+                    loading="lazy"
+                    onError={(event) => {
+                      event.currentTarget.style.display = "none";
+                    }}
+                    src={hoverImage}
+                  />
+                )}
+              </button>
+              <button className="home-product-slide-copy" onClick={() => onViewProduct(product.slug)} type="button">
+                <strong>{getLocalized(product.name, language)}</strong>
+                <span>{details}</span>
+                <b>
+                  {isArabic ? "من" : "From"} {firstSize.price} {isArabic ? "شيكل" : "ILS"}
+                </b>
+              </button>
+            </article>
+          );
+        })}
+      </div>
+
+      <div className="home-product-slider-progress" aria-hidden="true">
+        <span style={{ transform: `scaleX(${Math.max(progress, 0.18)})` }} />
+      </div>
+    </section>
+  );
+}
+
+function SustainabilityPage({ language = "en", onNavigate, onViewProduct, products = [], websiteMedia = [] }) {
   const isArabic = language === "ar";
   const t = copy[isArabic ? "ar" : "en"];
+
+  function getPromotedProducts(products) {
+    const promoted = products.filter((product) => {
+      const badgeText = `${getLocalized(product.badge, "en")} ${getLocalized(product.badge, "ar")}`.toLowerCase();
+      return (
+        product.featured ||
+        product.offer ||
+        product.bestSeller ||
+        product.discount ||
+        product.salesCount > 0 ||
+        badgeText.includes("best") ||
+        badgeText.includes("new") ||
+        badgeText.includes("gloss") ||
+        badgeText.includes("fresh") ||
+        badgeText.includes("الأكثر")
+      );
+    });
+
+    const seen = new Set();
+    return [...promoted, ...products]
+      .filter((product) => {
+        if (seen.has(product.id)) return false;
+        seen.add(product.id);
+        return true;
+      })
+      .slice(0, 10);
+  }
+
+  const starterProducts = getPromotedProducts(products);
 
   const image = React.useCallback(
     (key) => getWebsiteMediaImage(websiteMedia, `sustainability_${key}`, fallbackImages[key]) || fallbackImages[key],
@@ -151,119 +361,135 @@ function SustainabilityPage({ language = "en", onNavigate, websiteMedia = [] }) 
   ];
 
   return (
-    <main className="sustainability-page" dir={isArabic ? "rtl" : "ltr"}>
-      <section className="sustainability-hero">
-        <picture>
-          <img className="sustainability-media" src={image("hero")} alt="" aria-hidden="true" />
-        </picture>
-        <div className="sustainability-hero-overlay" />
-        <div className="sustainability-hero-copy">
-          <h1>{t.heroTitle}</h1>
-          <p>{t.heroSubtitle}</p>
-          <div className="sustainability-review">
-            <span>{t.review}</span>
-            <strong>4.85 ★</strong>
+    <>
+      <main className="sustainability-page" dir={isArabic ? "rtl" : "ltr"}>
+        <section className="sustainability-hero">
+          <picture>
+            <img className="sustainability-media" src={image("hero")} alt="" aria-hidden="true" />
+          </picture>
+          <div className="sustainability-hero-content">
+            <h1 className="sustainability-hero-title">{t.heroTitle}</h1>
+            <p className="sustainability-hero-subtitle">{t.heroSubtitle}</p>
+            <div className="hero-rating-badge">
+              <span className="hero-rating-text">{t.review}</span>
+              <span className="hero-rating-pill">
+                <span>4.85</span>
+                <span className="hero-rating-star">★</span>
+              </span>
+            </div>
           </div>
+        </section>
+
+        <section className="sustainability-statement">
+          <p className="sustainability-statement-text">{t.intro}</p>
+        </section>
+
+        <section className="sustainability-why">
+          <div className="sustainability-why-card">
+            <div className="sustainability-why-content">
+              <h2 className="sustainability-why-title">{t.whyLabel}</h2>
+            </div>
+            <img className="sustainability-why-image" src={image("why")} alt="" aria-hidden="true" loading="lazy" />
+          </div>
+        </section>
+
+        <section className="sustainability-design">
+          <h2 className="sustainability-design-title">{t.designTitle}</h2>
+          <p className="sustainability-design-text">{t.designText}</p>
+        </section>
+      </main>
+
+      <section className="sustainability-fullscreen" dir={isArabic ? "rtl" : "ltr"}>
+        <img className="sustainability-fullscreen-image" src={image("bcorp")} alt="" aria-hidden="true" />
+        <div className="sustainability-fullscreen-content">
+          <h2 className="sustainability-fullscreen-title">{t.fullscreenTitle}</h2>
+          <p className="sustainability-fullscreen-text">{t.fullscreenText}</p>
         </div>
       </section>
 
-      <section className="sustainability-section sustainability-intro">
-        <p>{t.intro}</p>
-      </section>
+      <main className="sustainability-page" dir={isArabic ? "rtl" : "ltr"}>
+        <div className="sustainability-connected-sections">
 
-      <section className="sustainability-section sustainability-why">
-        <div className="sustainability-why-bg">
-          <img className="sustainability-media" src={image("why")} alt="" aria-hidden="true" />
-          <div className="sustainability-why-overlay" />
-        </div>
-        <div className="sustainability-why-copy">
-          <h2>{t.whyLabel}</h2>
-        </div>
-      </section>
+          <section className="sustainability-safe">
+            <img className="sustainability-safe-image" src={image("safe")} alt="" aria-hidden="true" />
+            <div className="sustainability-safe-overlay" />
+            <div className="sustainability-safe-copy">
+              <h2 className="sustainability-safe-title">{t.safeTitle}</h2>
+              <p className="sustainability-safe-text">{t.safeText}</p>
+            </div>
+          </section>
 
-      <section className="sustainability-section sustainability-text-block">
-        <h2>{t.refillableTitle}</h2>
-        <p>{t.refillableText}</p>
-      </section>
+          <section className="sustainability-performance">
+            <div className="sustainability-performance-inner">
+              <div className="sustainability-performance-media">
+                <img src={image("performance")} alt="" aria-hidden="true" />
+              </div>
+              <div className="sustainability-performance-copy">
+                <h2 className="sustainability-performance-title">{t.performanceTitle}</h2>
+                <p className="sustainability-performance-text">{t.performanceText}</p>
+              </div>
+            </div>
+          </section>
 
-      <section className="sustainability-section sustainability-bcorp">
-        <img className="sustainability-media" src={image("bcorp")} alt="" aria-hidden="true" />
-        <div className="sustainability-bcorp-overlay" />
-        <div className="sustainability-bcorp-copy">
-          <h2>{t.bCorpTitle}</h2>
-          <p>{t.bCorpText}</p>
+          <div className="sustainability-mission-section">
+          <section className="mission-section-9-inner">
+            <div className="mission-9-header">
+              <h2 className="mission-9-title">{t.impactTitle}</h2>
+              <div className="mission-9-copy">
+                <p>{t.impactText}</p>
+              </div>
+            </div>
+            <div className="mission-9-meta">
+              <span>{t.impactMeta1}</span>
+              <span>{t.impactMeta2}</span>
+            </div>
+            <div className="mission-9-visual">
+              <img className="mission-9-bg" src={image("impact")} alt="" aria-hidden="true" />
+              <div className="mission-9-overlay" />
+              <div className="mission-9-stats">
+                {impactStats.map((stat, i) => (
+                  <div className={`mission-9-stat-row mission-9-stat-pos-${i}`} key={stat.label}>
+                    <div className="mission-9-stat-card">
+                      <img className="mission-9-stat-icon" src={stat.img} alt="" aria-hidden="true" />
+                      <div className="mission-9-stat-body">
+                        <span className="mission-9-stat-number">{stat.value}</span>
+                        <span className="mission-9-stat-label">{stat.label}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
         </div>
-      </section>
 
-      <section className="sustainability-section sustainability-safe">
-        <img className="sustainability-media" src={image("safe")} alt="" aria-hidden="true" />
-        <div className="sustainability-safe-overlay" />
-        <div className="sustainability-safe-copy">
-          <h2>{t.safeTitle}</h2>
-          <p>{t.safeText}</p>
-        </div>
-      </section>
+          <ProductShowcaseSlider
+            language={language}
+            onViewProduct={onViewProduct}
+            products={starterProducts}
+            title={isArabic ? "مجموعات التنظيف الأساسية" : "Cleaning starter kits"}
+            variant="starter"
+          />
 
-      <section className="sustainability-section sustainability-performance">
-        <div className="sustainability-performance-media">
-          <img src={image("performance")} alt="" aria-hidden="true" />
         </div>
-        <div className="sustainability-performance-copy">
-          <h2>{t.performanceTitle}</h2>
-          <p>{t.performanceText}</p>
-        </div>
-      </section>
 
-      <section className="sustainability-section sustainability-impact">
-        <img className="sustainability-impact-bg" src={image("impact")} alt="" aria-hidden="true" />
-        <div className="sustainability-impact-heading">
-          <h2>{t.impactTitle}</h2>
-          <p>{t.impactText}</p>
-        </div>
-        <div className="sustainability-impact-stats">
-          {impactStats.map((stat) => (
-            <article key={stat.label} className="sustainability-stat-pill">
-              <img src={stat.img} alt="" aria-hidden="true" />
-              <strong>{stat.value}</strong>
-              <span>{stat.label}</span>
-            </article>
-          ))}
-        </div>
-      </section>
+          <section className="sustainability-products-section">
+            <div className="sustainability-products-section-inner">
+              <div className="sustainability-products-section-content">
+                <h2 className="sustainability-products-section-title">{t.accordionTitle}</h2>
+                <p className="sustainability-products-section-text">{t.accordionText}</p>
+                <ProductsAccordion items={accordionItems} />
+              </div>
+              <div className="sustainability-products-section-media">
+                <div className="sustainability-products-section-image-wrap">
+                  <img className="sustainability-products-section-img" src={image("products")} alt="" aria-hidden="true" loading="lazy" />
+                </div>
+              </div>
+            </div>
+          </section>
 
-      <section className="sustainability-section sustainability-products-split">
-        <div className="sustainability-products-copy">
-          <h2>{t.accordionTitle}</h2>
-          <p>{t.accordionText}</p>
-          <SustainabilityAccordion items={accordionItems} />
-        </div>
-        <div className="sustainability-products-media">
-          <img src={image("accordion")} alt="" aria-hidden="true" />
-        </div>
-      </section>
-
-      <section className="sustainability-section sustainability-cta-banner">
-        <div className="sustainability-cta-bg">
-          <img className="sustainability-media" src={image("cta")} alt="" aria-hidden="true" />
-          <div className="sustainability-cta-overlay" />
-        </div>
-        <div className="sustainability-cta-copy">
-          <h2>{t.ctaTitle}</h2>
-          <p>{t.ctaText}</p>
-          <button type="button" onClick={() => onNavigate?.("products")}>{t.ctaButton}</button>
-        </div>
-      </section>
-
-      <section className="sustainability-section sustainability-two-col">
-        <div className="sustainability-two-col-media">
-          <img src={image("product")} alt="" aria-hidden="true" />
-        </div>
-        <div className="sustainability-two-col-copy">
-          <h2>{t.goodbyeTitle}</h2>
-          <p>{t.goodbyeText}</p>
-        </div>
-      </section>
-    </main>
+      </main>
+    </>
   );
 }
 

@@ -23,24 +23,47 @@ const copy = {
     heroSubtitle: "Choose the product once, clean with confidence every day.",
     badge: "Over 500+ orders from happy customers",
     rating: "4.85",
-    intro: "Simple cleaning, made for everyday routines.",
-    concentrateTitle: "Concentrate",
-    refillTitle: "Refill & Use",
-    ctaTitle: "Goodbye, waste. Hello, refills. Discover plastic-free living.",
-    ctaText: "Explore EB Chemical products designed for home and car routines.",
+    intro: "Cleaning made simple. Our system helps you choose the right product, use it with confidence, and keep your home, car, and daily spaces fresh with less effort.",
+    concentrateTitle: "Choose the right product",
+    refillTitle: "Refill and reuse",
+    ctaTitle: "Goodbye clutter. Hello, easier cleaning.",
+    ctaText: "Explore practical EB Chemical products designed for homes, cars, and everyday spaces.",
     ctaButton: "Shop now",
+    scheduleTitle: "Set Your Routine",
+    scheduleButton: "Explore products",
+    scheduleLabels: ["Pick Your Product", "Set Your Routine", "Enjoy Cleaner Spaces"],
+    scheduleTabs: [
+      {
+        label: "Pick Your Essentials",
+        title: "Pick Your Essentials",
+        text: "Choose the EB Chemical products that match your daily cleaning needs.",
+        button: "Explore products",
+      },
+      {
+        label: "Set Your Schedule",
+        title: "Set Your Schedule",
+        text: "Build a simple cleaning routine for your home, car, and everyday spaces.",
+        button: "Start now",
+      },
+      {
+        label: "Enjoy Cleaner Spaces",
+        title: "Enjoy Cleaner Spaces",
+        text: "Use your products with confidence and keep your spaces fresh with less effort.",
+        button: "Shop now",
+      },
+    ],
     productsTitle: "Popular Products",
     previous: "Previous",
     next: "Next",
     currency: "ILS",
     steps: [
-      ["Fill", "Fill the bottle with water to the marked line."],
-      ["Drop", "Drop the concentrate tablet into the water."],
-      ["Start", "Start cleaning and enjoy the fresh results."],
+      ["Select", "Choose the product that matches your cleaning need."],
+      ["Apply", "Use the product according to the surface or area."],
+      ["Clean", "Wipe, rinse, or finish the job with a simple routine."],
     ],
     refillSteps: [
-      ["Fill", "Pour the refill pouch content into your bottle."],
-      ["Start", "Start cleaning right away with a full bottle."],
+      ["Fill", "Add the product or refill to the bottle."],
+      ["Start", "Use it again whenever you need a fresh clean."],
     ],
     tabs: [
       {
@@ -65,24 +88,47 @@ const copy = {
     heroSubtitle: "اختر المنتج المناسب، ونظّف بثقة كل يوم.",
     badge: "أكثر من 500 طلب من عملاء سعداء",
     rating: "٤٫٨٥",
-    intro: "تنظيف بسيط يناسب روتينك اليومي.",
-    concentrateTitle: "التركيز والاستخدام",
-    refillTitle: "عبّئ واستخدم",
-    ctaTitle: "وداعًا للنفايات، مرحبًا بإعادة التعبئة. اكتشف حياة خالية من البلاستيك.",
-    ctaText: "اكتشف منتجات EB Chemical المصممة لروتين المنزل والسيارة.",
+    intro: "تنظيف أسهل بخطوات واضحة. يساعدك نظامنا على اختيار المنتج المناسب، واستخدامه بثقة، والحفاظ على المنزل والسيارة والمساحات اليومية نظيفة ومنعشة بجهد أقل.",
+    concentrateTitle: "اختر المنتج المناسب",
+    refillTitle: "أعد التعبئة والاستخدام",
+    ctaTitle: "وداعًا للفوضى. أهلًا بتنظيف أسهل.",
+    ctaText: "اكتشف منتجات EB Chemical العملية المصممة للمنازل والسيارات والمساحات اليومية.",
     ctaButton: "تسوق الآن",
+    scheduleTitle: "رتّب روتينك",
+    scheduleButton: "اكتشف المنتجات",
+    scheduleLabels: ["اختر المنتج المناسب", "رتّب روتينك", "استمتع بمساحات أنظف"],
+    scheduleTabs: [
+      {
+        label: "اختر الأساسيات",
+        title: "اختر الأساسيات",
+        text: "اختر منتجات EB Chemical المناسبة لاحتياجات التنظيف اليومية.",
+        button: "اكتشف المنتجات",
+      },
+      {
+        label: "رتّب روتينك",
+        title: "رتّب روتينك",
+        text: "ابنِ روتين تنظيف بسيط للمنزل والسيارة والمساحات اليومية.",
+        button: "ابدأ الآن",
+      },
+      {
+        label: "استمتع بمساحات أنظف",
+        title: "استمتع بمساحات أنظف",
+        text: "استخدم منتجاتك بثقة وحافظ على مساحاتك منعشة بجهد أقل.",
+        button: "تسوق الآن",
+      },
+    ],
     productsTitle: "المنتجات الشائعة",
     previous: "السابق",
     next: "التالي",
     currency: "شيكل",
     steps: [
-      ["املأ", "املأ الزجاجة بالماء حتى الخط المحدد."],
-      ["أسقط", "أسقط قرص المركز في الماء."],
-      ["ابدأ", "ابدأ التنظيف واستمتع بالنتائج المنعشة."],
+      ["اختر", "اختر المنتج المناسب لاحتياج التنظيف."],
+      ["استخدم", "استخدم المنتج حسب السطح أو المنطقة."],
+      ["نظّف", "امسح أو اشطف أو أكمل المهمة بخطوات بسيطة."],
     ],
     refillSteps: [
-      ["عبّئ", "اسكب محتوى كيس إعادة التعبئة في الزجاجة."],
-      ["ابدأ", "ابدأ التنظيف فورًا بزجاجة ممتلئة."],
+      ["عبّئ", "أضف المنتج أو العبوة إلى الزجاجة."],
+      ["ابدأ", "استخدمه مرة أخرى عندما تحتاج إلى تنظيف منعش."],
     ],
     tabs: [
       {
@@ -103,104 +149,6 @@ const copy = {
   },
 };
 
-function StepSection({ image, reverse = false, steps, title, label }) {
-  return (
-    <section className={`how-section how-step-section${reverse ? " reverse" : ""}`}>
-      <div className="how-step-copy">
-        <p className="how-kicker">{label}</p>
-        <h2>{title}</h2>
-        <div className="how-step-list">
-          {steps.map(([stepTitle, stepText], index) => (
-            <article className="how-step" key={stepTitle}>
-              <span className="how-step-number">{index + 1}</span>
-              <div>
-                <h3>{stepTitle}</h3>
-                <p>{stepText}</p>
-              </div>
-            </article>
-          ))}
-        </div>
-      </div>
-      <div className="how-media how-step-media">
-        <img
-          className="how-step-img"
-          src={image}
-          alt=""
-          aria-hidden="true"
-          loading="lazy"
-          onError={(event) => {
-            event.currentTarget.src = placeholderImage;
-          }}
-        />
-      </div>
-    </section>
-  );
-}
-
-function TabsSection({ tabs, image, subscribeButton, onNavigate }) {
-  const [activeTab, setActiveTab] = useState(0);
-  const [progress, setProgress] = useState(0);
-  const [isHovering, setIsHovering] = useState(false);
-
-  useEffect(() => {
-    if (isHovering) return;
-    const interval = setInterval(() => {
-      setProgress((prev) => {
-        const next = prev + 100 / 80;
-        if (next >= 100) {
-          setActiveTab((prevTab) => (prevTab + 1) % tabs.length);
-          return 0;
-        }
-        return next;
-      });
-    }, 50);
-    return () => clearInterval(interval);
-  }, [isHovering, tabs.length]);
-
-  function handleTabClick(index) {
-    setActiveTab(index);
-    setProgress(0);
-  }
-
-  return (
-    <section
-      className="how-section how-tabs-section"
-      onMouseEnter={() => setIsHovering(true)}
-      onMouseLeave={() => setIsHovering(false)}
-    >
-      <div className="how-media">
-        <img className="how-tabs-img" src={image} alt="" aria-hidden="true" loading="lazy" />
-      </div>
-      <div className="how-tabs-copy">
-        <div className="how-tabs-content">
-          <h3>{tabs[activeTab].title}</h3>
-          <p>{tabs[activeTab].text}</p>
-        </div>
-        <div className="how-tabs-list">
-          {tabs.map((tab, index) => (
-            <div
-              key={index}
-              className="how-tab-title"
-              onClick={() => handleTabClick(index)}
-            >
-              <span className={index === activeTab ? "active" : ""}>{tab.title}</span>
-              <div className="how-tab-progress">
-                <div
-                  className="how-tab-progress-bar"
-                  style={{ width: `${index === activeTab ? progress : 0}%` }}
-                />
-              </div>
-            </div>
-          ))}
-        </div>
-        <button className="how-primary-action" type="button" onClick={() => onNavigate?.("products")}>
-          {subscribeButton}
-        </button>
-      </div>
-    </section>
-  );
-}
-
 function HowProductCarousel({ language, onViewProduct, products, t }) {
   const isArabic = language === "ar";
   const trackRef = React.useRef(null);
@@ -210,31 +158,51 @@ function HowProductCarousel({ language, onViewProduct, products, t }) {
   function updateProgress() {
     const track = trackRef.current;
     if (!track) return;
+
     const maxScroll = track.scrollWidth - track.clientWidth;
-    setProgress(maxScroll > 0 ? Math.min(1, Math.abs(track.scrollLeft) / maxScroll) : 1);
+    const currentScroll = Math.abs(track.scrollLeft);
+    setProgress(maxScroll > 0 ? Math.min(1, Math.max(0, currentScroll / maxScroll)) : 1);
   }
 
-  function scrollProducts(direction) {
+  function scrollSlider(direction) {
     const track = trackRef.current;
     if (!track) return;
-    const card = track.querySelector(".how-product-card");
-    const distance = card ? card.getBoundingClientRect().width + 20 : track.clientWidth * 0.8;
-    track.scrollBy({ left: (isArabic ? -direction : direction) * distance, behavior: "smooth" });
+
+    const card = track.querySelector(".how-product-slide-card");
+    const distance = card ? card.getBoundingClientRect().width + 18 : track.clientWidth * 0.85;
+    track.scrollBy({
+      left: (isArabic ? -direction : direction) * distance,
+      behavior: "smooth",
+    });
   }
 
   if (!visibleProducts.length) return null;
 
   return (
-    <section className="how-section how-products-section">
-      <div className="how-products-head">
+    <section className="how-product-showcase">
+      <div className="how-product-showcase-head">
         <h2>{t.productsTitle}</h2>
-        <div className="how-products-controls">
-          <button aria-label={t.previous} onClick={() => scrollProducts(-1)} type="button">‹</button>
-          <button aria-label={t.next} onClick={() => scrollProducts(1)} type="button">›</button>
+        <div className="how-product-slider-controls" aria-label={isArabic ? "التحكم بالمنتجات" : "Product slider controls"}>
+          <button
+            aria-label={isArabic ? "السابق" : "Previous"}
+            onClick={() => scrollSlider(-1)}
+            type="button"
+          >
+            <span aria-hidden="true">‹</span>
+          </button>
+          <button
+            aria-label={isArabic ? "التالي" : "Next"}
+            onClick={() => scrollSlider(1)}
+            type="button"
+          >
+            <span aria-hidden="true">›</span>
+          </button>
         </div>
       </div>
-      <div className="how-products-track" onScroll={updateProgress} ref={trackRef}>
+
+      <div className="how-product-slider-track" onScroll={updateProgress} ref={trackRef}>
         {visibleProducts.map((product, index) => {
+          const firstSize = product.sizes?.[0] || { size: "", price: 0 };
           const mainImage = product.image || product.fallbackImage || placeholderImage;
           const hoverImage =
             product.hoverImage ||
@@ -242,29 +210,60 @@ function HowProductCarousel({ language, onViewProduct, products, t }) {
             product.gallery?.[1] ||
             product.images?.[1] ||
             mainImage;
-          const firstSize = product.sizes?.[0] || { price: 0 };
+          const hasHoverImage = hoverImage && hoverImage !== mainImage;
+          const label = localize(product.badge, language) || t.badges[index % t.badges.length];
+          const details =
+            localize(product.shortDescription, language) ||
+            (isArabic ? "حل عملي للعناية اليومية." : "A practical daily-care solution.");
           const productName = localize(product.name, language);
-          const badge = localize(product.badge, language) || t.badges[index % t.badges.length];
 
           return (
-            <article className="how-product-card" key={product.id || product.slug || productName}>
-              <button className="how-product-image" onClick={() => onViewProduct?.(product.slug)} type="button">
-                <span>{badge}</span>
-                <img className="how-product-main" src={mainImage} alt={productName} loading="lazy" />
-                <img className="how-product-hover" src={hoverImage} alt="" aria-hidden="true" loading="lazy" />
+            <article
+              className="how-product-slide-card"
+              key={product.id || product.slug || productName}
+              style={{ "--stagger": `${index * 70}ms` }}
+            >
+              <button
+                className="how-product-image-wrap"
+                onClick={() => onViewProduct?.(product.slug)}
+                type="button"
+              >
+                <span className="how-product-badge">{label}</span>
+                <img
+                  className="how-product-image-main"
+                  alt={productName}
+                  loading="lazy"
+                  onError={(event) => {
+                    event.currentTarget.src = product.fallbackImage || placeholderImage;
+                  }}
+                  src={mainImage}
+                />
+                {hasHoverImage && (
+                  <img
+                    aria-hidden="true"
+                    alt=""
+                    className="how-product-image-hover"
+                    loading="lazy"
+                    onError={(event) => {
+                      event.currentTarget.style.display = "none";
+                    }}
+                    src={hoverImage}
+                  />
+                )}
               </button>
-              <button className="how-product-copy" onClick={() => onViewProduct?.(product.slug)} type="button">
+              <button className="how-product-slide-copy" onClick={() => onViewProduct?.(product.slug)} type="button">
                 <strong>{productName}</strong>
-                <small>{localize(product.shortDescription, language)}</small>
+                <span>{details}</span>
                 <b>
-                  {firstSize.price} {t.currency}
+                  {isArabic ? "من" : "From"} {firstSize.price} {t.currency}
                 </b>
               </button>
             </article>
           );
         })}
       </div>
-      <div className="how-products-progress" aria-hidden="true">
+
+      <div className="how-product-slider-progress" aria-hidden="true">
         <span style={{ transform: `scaleX(${Math.max(progress, 0.18)})` }} />
       </div>
     </section>
@@ -274,6 +273,15 @@ function HowProductCarousel({ language, onViewProduct, products, t }) {
 function HowItWorksPage({ language = "en", onNavigate, onViewProduct, products = [], websiteMedia = [] }) {
   const isArabic = language === "ar";
   const t = copy[isArabic ? "ar" : "en"];
+  const scheduleTabs = t.scheduleTabs;
+  const [activeScheduleTab, setActiveScheduleTab] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveScheduleTab((current) => (current + 1) % scheduleTabs.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [scheduleTabs.length]);
   const image = React.useCallback(
     (key) => getWebsiteMediaImage(websiteMedia, `how_it_works_${key}`, fallbackImages[key]) || fallbackImages[key],
     [websiteMedia]
@@ -281,48 +289,110 @@ function HowItWorksPage({ language = "en", onNavigate, onViewProduct, products =
 
   return (
     <main className="how-page" dir={isArabic ? "rtl" : "ltr"}>
-      <section className="how-section how-hero">
-        <picture>
-          <source srcSet={image("hero")} media="(min-width: 768px)" />
-          <img className="how-hero-img" src={image("hero")} alt="" aria-hidden="true" />
-        </picture>
+      <section className="how-hero">
+        <img className="how-hero-bg" src={image("hero")} alt="" aria-hidden="true" />
         <div className="how-hero-overlay" />
-        <div className="how-hero-copy">
-          <span className="how-rating-badge">
-            {t.badge}
-            <b>{t.rating} ★</b>
-          </span>
-          <h1>{t.heroTitle}</h1>
-          <p>{t.heroSubtitle}</p>
+        <div className="how-hero-content">
+          <h1 className="how-hero-title">{t.heroTitle}</h1>
+          <p className="how-hero-subtitle">{t.heroSubtitle}</p>
+          <div className="hero-rating-badge">
+            <span className="hero-rating-text">{t.badge}</span>
+            <span className="hero-rating-pill">
+              <span>{t.rating}</span>
+              <span className="hero-rating-star">★</span>
+            </span>
+          </div>
         </div>
       </section>
 
-      <section className="how-section how-intro">
-        <p>{t.intro}</p>
+      <section className="how-section how-statement">
+        <p className="how-statement-text">{t.intro}</p>
       </section>
 
-      <StepSection image={image("concentrate")} label={t.label} steps={t.steps} title={t.concentrateTitle} />
-      <StepSection image={image("refill")} label={t.label} reverse steps={t.refillSteps} title={t.refillTitle} />
+      <div className="how-process-list">
+        <section className="how-section how-process-block">
+          <div className="how-process-content">
+            <p className="how-process-label">{t.label}</p>
+            <h2 className="how-process-title">{t.concentrateTitle}</h2>
+            <div className="how-process-steps">
+              {t.steps.map(([stepTitle, stepText], index) => (
+                <div className="how-process-step" key={stepTitle}>
+                  <span className="how-process-step-number">{index + 1}</span>
+                  <div className="how-process-step-body">
+                    <h3 className="how-process-step-title">{stepTitle}</h3>
+                    <p className="how-process-step-text">{stepText}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="how-process-media">
+            <img className="how-process-image" src={image("concentrate")} alt="" aria-hidden="true" loading="lazy" onError={(event) => { event.currentTarget.src = placeholderImage; }} />
+          </div>
+        </section>
+        <section className="how-section how-process-block">
+          <div className="how-process-content">
+            <p className="how-process-label">{t.label}</p>
+            <h2 className="how-process-title">{t.refillTitle}</h2>
+            <div className="how-process-steps">
+              {t.refillSteps.map(([stepTitle, stepText], index) => (
+                <div className="how-process-step" key={stepTitle}>
+                  <span className="how-process-step-number">{index + 1}</span>
+                  <div className="how-process-step-body">
+                    <h3 className="how-process-step-title">{stepTitle}</h3>
+                    <p className="how-process-step-text">{stepText}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="how-process-media">
+            <img className="how-process-image" src={image("refill")} alt="" aria-hidden="true" loading="lazy" onError={(event) => { event.currentTarget.src = placeholderImage; }} />
+          </div>
+        </section>
+      </div>
 
-      <section className="how-section how-shop-cta how-card">
-        <div className="how-media">
-          <img className="how-cta-img" src={image("cta")} alt="" aria-hidden="true" loading="lazy" />
-        </div>
-        <div className="how-dark-panel">
-          <h2>{t.ctaTitle}</h2>
-          <p>{t.ctaText}</p>
-          <button className="how-primary-action" type="button" onClick={() => onNavigate?.("products")}>
-            {t.ctaButton}
-          </button>
-        </div>
-      </section>
+      <div className="how-split-sections">
+        <section className="how-split-row">
+          <div className="how-split-card how-split-card-dark">
+            <h2 className="how-split-title">{t.ctaTitle}</h2>
+            <p className="how-split-text">{t.ctaText}</p>
+            <button className="how-split-button" type="button" onClick={() => onNavigate?.("products")}>
+              {t.ctaButton}
+            </button>
+          </div>
+          <div className="how-split-card how-split-media">
+            <img className="how-split-image" src={image("cta")} alt="" aria-hidden="true" loading="lazy" onError={(event) => { event.currentTarget.src = placeholderImage; }} />
+          </div>
+        </section>
 
-      <TabsSection
-        tabs={t.tabs}
-        image={image("essentials")}
-        subscribeButton={t.subscribeButton}
-        onNavigate={onNavigate}
-      />
+        <section className="how-split-row">
+          <div className="how-split-card how-split-media">
+            <img className="how-split-image" src={image("essentials")} alt="" aria-hidden="true" loading="lazy" onError={(event) => { event.currentTarget.src = placeholderImage; }} />
+          </div>
+          <div className="how-split-card how-split-card-light how-schedule-card">
+            <div className="how-schedule-content">
+              <h2 className="how-split-title">{scheduleTabs[activeScheduleTab].title}</h2>
+              <p className="how-schedule-text">{scheduleTabs[activeScheduleTab].text}</p>
+              <button className="how-split-button" type="button" onClick={() => onNavigate?.("products")}>
+                {scheduleTabs[activeScheduleTab].button}
+              </button>
+            </div>
+            <div className="how-schedule-tabs">
+              {scheduleTabs.map((tab, i) => (
+                <button
+                  className={`how-schedule-tab${i === activeScheduleTab ? " how-schedule-tab-active" : ""}`}
+                  key={i}
+                  type="button"
+                  onClick={() => { setActiveScheduleTab(i); }}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </section>
+      </div>
 
       <HowProductCarousel language={language} onViewProduct={onViewProduct} products={products} t={t} />
     </main>

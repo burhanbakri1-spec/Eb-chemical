@@ -968,7 +968,7 @@ function App() {
         )}
 
         {activePage === "sustainability" && (
-          <SustainabilityPage language={language} onNavigate={navigate} t={t} websiteMedia={websiteMedia} />
+          <SustainabilityPage language={language} onNavigate={navigate} t={t} websiteMedia={websiteMedia} products={demoProducts} onViewProduct={handleViewProduct} />
         )}
 
         {activePage === "how" && (
