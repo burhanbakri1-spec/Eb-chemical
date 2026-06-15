@@ -13549,37 +13549,65 @@ html[dir="rtl"] .cleanups-tabs-section {
   overflow-y: visible;
 }
 
-.detail-hero-grid {
+.detail-kinfill-hero {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(360px, 1.12fr) minmax(340px, 1.02fr) minmax(360px, 0.88fr);
+  grid-template-columns: 2fr 1fr;
   gap: 0;
-  min-height: var(--detail-hero-scroll-height, calc(var(--detail-gallery-frames, 1) * 100vh));
+  min-height: 100vh;
   align-items: start;
   background: #fbfff6;
 }
 
-.detail-packshot-column,
-.detail-scroll-gallery,
-.detail-purchase-panel {
-  min-width: 0;
-}
-
-.detail-packshot-column {
-  position: sticky;
-  top: 0;
-  display: grid;
-  align-content: center;
-  min-height: 100vh;
+.detail-kinfill-media {
+  position: relative;
+  display: flex;
+  overflow-x: auto;
+  gap: 0;
+  margin: 0;
   padding: 0;
-  overflow: hidden;
-  background: linear-gradient(180deg, #fbfff6, #f4f9f1);
 }
 
-.detail-subscribe-badge {
+.detail-kinfill-main-column {
+  flex: none;
+}
+
+.detail-kinfill-main-sticky {
+  position: relative;
+}
+
+.detail-kinfill-gallery-column {
+  position: relative;
+  display: flex;
+  flex: none;
+  flex-direction: row;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.detail-kinfill-gallery-picture {
+  display: block;
+  flex: none;
+  margin: 0;
+  padding: 0;
+}
+
+.detail-kinfill-media .current-product-image,
+.detail-kinfill-gallery-image {
+  display: block;
+  width: 90vw;
+  height: 550px;
+  object-fit: cover;
+  object-position: center;
+  margin: 0;
+  padding: 0;
+}
+
+.detail-kinfill-media .detail-subscribe-badge {
   position: absolute;
-  top: clamp(96px, 10vw, 150px);
-  inset-inline-start: clamp(18px, 3vw, 42px);
+  top: 52px;
+  inset-inline-start: 24px;
   z-index: 2;
   display: inline-flex;
   width: fit-content;
@@ -13594,7 +13622,7 @@ html[dir="rtl"] .cleanups-tabs-section {
   box-shadow: 0 18px 42px rgba(6, 31, 51, 0.18);
 }
 
-.detail-subscribe-badge::before {
+.detail-kinfill-media .detail-subscribe-badge::before {
   width: 9px;
   height: 9px;
   border-radius: 999px;
@@ -13602,65 +13630,44 @@ html[dir="rtl"] .cleanups-tabs-section {
   content: "";
 }
 
-.detail-packshot-card {
-  display: grid;
-  place-items: center;
-  min-height: 100vh;
-  padding: clamp(92px, 9vw, 150px) clamp(18px, 3vw, 42px) 42px;
-}
+@media (min-width: 1024px) {
+  .detail-kinfill-media {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+    overflow-x: visible;
+    margin-right: 2rem;
+  }
 
-.detail-packshot-card img {
-  width: min(92%, 680px);
-  max-height: 84vh;
-  object-fit: contain;
-  filter: drop-shadow(0 34px 46px rgba(6, 31, 51, 0.14));
-}
+  html[dir="rtl"] .detail-kinfill-media {
+    margin-right: 0;
+    margin-left: 2rem;
+  }
 
-.detail-scroll-gallery {
-  position: sticky;
-  top: 0;
-  gap: 0;
-  height: 100vh;
-  background: #f8fbf4;
-  overflow: hidden;
-  overscroll-behavior: auto;
-  scrollbar-width: none;
-}
+  .detail-kinfill-main-sticky {
+    position: sticky;
+    top: 0;
+  }
 
-.detail-gallery-track {
-  display: grid;
-  will-change: transform;
-  transition: transform 0.08s linear;
-}
+  .detail-kinfill-gallery-column {
+    flex-direction: column;
+  }
 
-.detail-scroll-gallery::-webkit-scrollbar {
-  display: none;
-}
+  .detail-kinfill-media .current-product-image {
+    width: 100%;
+    height: 100vh;
+    aspect-ratio: 450 / 600;
+  }
 
-.detail-gallery-frame {
-  position: relative;
-  min-height: 100vh;
-  margin: 0;
-  overflow: hidden;
-  background: #f4f7ef;
-  border: 0;
-}
-
-.detail-gallery-frame img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.detail-gallery-frame:nth-child(even) img {
-  object-fit: cover;
-  padding: 0;
-  background: #f4f7ef;
+  .detail-kinfill-gallery-image {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 450 / 600;
+  }
 }
 
 .detail-purchase-panel {
-  position: sticky;
-  top: 0;
+  position: relative;
   align-self: start;
   display: flex;
   flex-direction: column;
@@ -13935,6 +13942,10 @@ html[dir="rtl"] .cleanups-tabs-section {
 .detail-related-section {
   padding: clamp(64px, 8vw, 126px) clamp(18px, 3vw, 64px);
   background: #fffdf8;
+}
+
+.detail-reviews-section {
+  padding-top: clamp(18px, 3vw, 42px);
 }
 
 .detail-slider-shell {
@@ -14536,33 +14547,18 @@ html[dir="rtl"] .detail-safe-section {
 }
 
 @media (max-width: 1180px) {
-  .detail-hero-grid {
+  .detail-kinfill-hero {
     grid-template-columns: 1fr;
     min-height: auto;
   }
 
-  .detail-packshot-column,
   .detail-purchase-panel {
     position: relative;
     min-height: auto;
   }
 
-  .detail-scroll-gallery {
-    position: relative;
-    display: grid;
-    height: auto;
-    min-height: auto;
-    overflow: visible;
-    scroll-snap-type: none;
-  }
-
-  .detail-gallery-track {
-    transform: none;
-  }
-
-  .detail-gallery-frame {
-    min-height: clamp(560px, 86vh, 760px);
-    scroll-snap-align: none;
+  .detail-kinfill-gallery-column {
+    flex-direction: row;
   }
 
   .detail-how-section,
@@ -14579,36 +14575,13 @@ html[dir="rtl"] .detail-safe-section {
 }
 
 @media (min-width: 721px) and (max-width: 1180px) {
-  .detail-hero-grid {
-    grid-template-columns: minmax(180px, 0.78fr) minmax(240px, 1.12fr) minmax(230px, 0.92fr);
-    min-height: var(--detail-hero-scroll-height, 100vh);
-  }
-
-  .detail-packshot-column,
-  .detail-scroll-gallery,
-  .detail-purchase-panel {
-    position: sticky;
-    top: 0;
-    min-height: 100vh;
-  }
-
-  .detail-scroll-gallery {
-    display: block;
-    height: 100vh;
-    overflow: hidden;
-  }
-
-  .detail-gallery-track {
-    will-change: transform;
-  }
-
-  .detail-gallery-frame {
-    min-height: 100vh;
+  .detail-kinfill-hero {
+    grid-template-columns: 1fr;
   }
 
   .detail-purchase-panel {
-    max-height: none;
-    overflow: visible;
+    position: relative;
+    min-height: auto;
     padding: clamp(92px, 9vw, 128px) clamp(16px, 3vw, 34px) 34px;
   }
 
@@ -14623,49 +14596,22 @@ html[dir="rtl"] .detail-safe-section {
 }
 
 @media (max-width: 720px) {
-  .detail-hero-grid {
+  .detail-kinfill-hero {
     grid-template-columns: 1fr;
+    height: auto !important;
     min-height: auto !important;
+    max-height: none !important;
   }
 
-  .detail-packshot-column,
-  .detail-scroll-gallery,
   .detail-purchase-panel {
     position: relative;
     top: auto;
     min-height: auto;
-  }
-
-  .detail-scroll-gallery {
-    height: auto;
-    min-height: auto;
-    overflow: visible;
-  }
-
-  .detail-gallery-track {
-    transform: none !important;
-  }
-
-  .detail-packshot-column {
-    padding-inline: 0;
-  }
-
-  .detail-purchase-panel {
     padding-inline: 18px;
   }
 
-  .detail-packshot-card {
-    min-height: 86vh;
-    padding: 72px 0 0;
-  }
-
-  .detail-packshot-card img {
-    width: 100%;
-    max-height: none;
-  }
-
-  .detail-gallery-frame {
-    min-height: 86vh;
+  .detail-kinfill-gallery-column {
+    flex-direction: row;
   }
 
   .detail-option-grid {
@@ -14678,21 +14624,6 @@ html[dir="rtl"] .detail-safe-section {
 
   .detail-slider-shell > .detail-circle-button {
     display: none;
-  }
-
-  .detail-how-section,
-  .detail-safe-section,
-  .detail-formula-section,
-  .detail-faq-section {
-    padding: 10px;
-  }
-
-  .detail-how-copy,
-  .detail-how-image,
-  .detail-safe-section > figure,
-  .detail-formula-section > figure,
-  .detail-faq-section > figure {
-    min-height: 420px;
   }
 
   .product-detail-floating-cart {
@@ -14729,46 +14660,15 @@ html[dir="rtl"] .detail-safe-section {
 }
 
 @media (min-width: 521px) and (max-width: 720px) {
-  .detail-hero-grid {
+  .detail-kinfill-hero {
     grid-template-columns: 1fr;
     min-height: auto !important;
   }
 
-  .detail-packshot-column,
-  .detail-scroll-gallery,
   .detail-purchase-panel {
     position: relative;
     top: auto;
     min-height: auto;
-  }
-
-  .detail-packshot-card {
-    min-height: 100vh;
-    padding: 76px 8px 18px;
-  }
-
-  .detail-packshot-card img {
-    width: 100%;
-    max-height: 68vh;
-  }
-
-  .detail-scroll-gallery {
-    display: block;
-    height: auto;
-    min-height: auto;
-    overflow: visible;
-  }
-
-  .detail-gallery-track {
-    transform: none;
-    will-change: transform;
-  }
-
-  .detail-gallery-frame {
-    min-height: 100vh;
-  }
-
-  .detail-purchase-panel {
     max-height: none;
     overflow: visible;
     padding: 78px 12px 18px;
@@ -21809,5 +21709,15 @@ html[dir="ltr"] .header-mega-panel.open,
 
   .sustainability-page .sustainability-split-product-cta-heading {
     font-size: clamp(1.4rem, 7vw, 2.4rem);
+  }
+}
+
+@media (min-width: 1024px) {
+  .detail-kinfill-hero > .detail-purchase-panel {
+    position: sticky;
+    top: 0;
+    height: fit-content;
+    min-height: 0;
+    align-self: start;
   }
 }

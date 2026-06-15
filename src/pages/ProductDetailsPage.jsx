@@ -209,11 +209,6 @@ function ProductDetailsPage({
   const [dragStart, setDragStart] = React.useState(null);
   const [parallax, setParallax] = React.useState(0);
   const [openAccordionIndex, setOpenAccordionIndex] = React.useState(null);
-  const heroRef = React.useRef(null);
-  const galleryTrackRef = React.useRef(null);
-  const galleryProgressRef = React.useRef(0);
-  const galleryOffsetRef = React.useRef(0);
-  const galleryMoveRangeRef = React.useRef(0);
   const reviewsRef = React.useRef(null);
   const relatedRef = React.useRef(null);
   const impactRef = React.useRef(null);
@@ -254,62 +249,6 @@ function ProductDetailsPage({
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  React.useEffect(() => {
-    const hero = heroRef.current;
-    const track = galleryTrackRef.current;
-    if (!hero || !track || !product) return undefined;
-
-    let frameId = 0;
-    let refreshTimer = 0;
-
-    function setGalleryOffset(nextOffset) {
-      const moveRange = galleryMoveRangeRef.current;
-      const offset = Math.max(0, Math.min(moveRange, nextOffset));
-      galleryOffsetRef.current = offset;
-      galleryProgressRef.current = moveRange > 0 ? offset / moveRange : 0;
-      track.style.transform = `translate3d(0, ${-offset}px, 0)`;
-    }
-
-    function syncGalleryDimensions() {
-      if (window.matchMedia("(max-width: 720px)").matches) {
-        track.style.transform = "";
-        hero.style.removeProperty("--detail-hero-scroll-height");
-        galleryOffsetRef.current = 0;
-        galleryMoveRangeRef.current = 0;
-        return;
-      }
-
-      const moveRange = Math.max(track.scrollHeight - window.innerHeight, 0);
-      galleryMoveRangeRef.current = moveRange;
-      hero.style.setProperty("--detail-hero-scroll-height", `${window.innerHeight + moveRange}px`);
-      const heroRect = hero.getBoundingClientRect();
-
-      if (heroRect.bottom <= 0) {
-        setGalleryOffset(moveRange);
-      } else if (heroRect.top >= window.innerHeight) {
-        setGalleryOffset(0);
-      } else {
-        setGalleryOffset(-heroRect.top);
-      }
-    }
-
-    function requestUpdate() {
-      window.cancelAnimationFrame(frameId);
-      frameId = window.requestAnimationFrame(() => syncGalleryDimensions());
-    }
-
-    syncGalleryDimensions();
-    refreshTimer = window.setTimeout(requestUpdate, 350);
-    window.addEventListener("scroll", requestUpdate, { passive: true });
-    window.addEventListener("resize", requestUpdate);
-    return () => {
-      window.clearTimeout(refreshTimer);
-      window.cancelAnimationFrame(frameId);
-      window.removeEventListener("scroll", requestUpdate);
-      window.removeEventListener("resize", requestUpdate);
-    };
-  }, [product, selectedType, selectedColor, selectedSize]);
 
   React.useEffect(() => {
     const availableForColor = productVariants.filter((variant) => variant.colorName === selectedColor);
@@ -365,6 +304,7 @@ function ProductDetailsPage({
   );
   const features = localized(product.features, language, []);
   const uniqueGallery = [...new Set([selectedImage, ...normalizeProductGallery(product, selectedImage)])].filter(Boolean);
+  const staticGalleryImage = uniqueGallery[0] || selectedImage || product.image || placeholderImage;
   const reviews = product.reviews || getFallbackReviews();
   const steps = product.usageSteps || getFallbackSteps();
   const safeSurfaces = product.safeSurfaces || getFallbackSurfaces();
@@ -476,27 +416,34 @@ function ProductDetailsPage({
 
   return (
     <main className="product-detail-redesign">
-      <section
-        className="detail-hero-grid"
-        ref={heroRef}
-        style={{ "--detail-gallery-frames": Math.max(uniqueGallery.slice(0, 5).length, 1) }}
-      >
-        <div className="detail-packshot-column">
+      <section className="detail-kinfill-hero">
+        <div className="detail-kinfill-media">
           {product.badge && <span className="detail-subscribe-badge">{localized(product.badge, language)}</span>}
-          <div className="detail-packshot-card">
-            <ProductImage alt={productName} src={selectedImage} />
+          <div className="detail-kinfill-main-column">
+            <div className="detail-kinfill-main-sticky">
+              <img
+                className="current-product-image"
+                alt={productName}
+                src={safeImage(selectedImage)}
+                loading="eager"
+                decoding="async"
+                onError={(e) => { e.currentTarget.src = placeholderImage; }}
+              />
+            </div>
           </div>
-        </div>
 
-        <div
-          className="detail-scroll-gallery"
-          aria-label={`${productName} gallery`}
-        >
-          <div className="detail-gallery-track" ref={galleryTrackRef}>
-            {uniqueGallery.slice(0, 5).map((image, index) => (
-              <figure className="detail-gallery-frame" key={`${image}-${index}`}>
-                <ProductImage alt={`${productName} ${index + 1}`} src={image} />
-              </figure>
+          <div className="detail-kinfill-gallery-column">
+            {uniqueGallery.slice(1).map((image, index) => (
+              <picture className="detail-kinfill-gallery-picture" key={image || index}>
+                <img
+                  className="detail-kinfill-gallery-image"
+                  alt={`${productName} ${index + 2}`}
+                  src={safeImage(image)}
+                  loading="lazy"
+                  decoding="async"
+                  onError={(e) => { e.currentTarget.src = placeholderImage; }}
+                />
+              </picture>
             ))}
           </div>
         </div>
