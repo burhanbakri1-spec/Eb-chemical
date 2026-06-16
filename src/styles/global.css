@@ -19009,6 +19009,21 @@ html[dir="rtl"] .home-community-card-4 {
   transform: rotate(-4deg);
 }
 
+/* Remove all gradient/overlay pseudo-elements from Home page image cards */
+.home-community-card::after {
+  display: none !important;
+}
+
+.split-category-panel::after,
+.home-category-cards-section .split-category-panel::after {
+  display: none !important;
+}
+
+.wide-promo-banner::after,
+.home-feature-banner-section.wide-promo-banner::after {
+  display: none !important;
+}
+
 @media (max-width: 900px) {
   .home-community-section {
     padding: 58px 18px 68px;

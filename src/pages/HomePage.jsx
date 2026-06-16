@@ -390,7 +390,6 @@ function CleaningSystemShowcase({ categoryCards = fallbackSystemCards, language 
               loading="lazy"
               src={card.image}
             />
-            <span className="cleaning-system-card-overlay" />
             <div className="cleaning-system-card-copy">
               <small>{card.label[language]}</small>
               <strong>{card.title[language]}</strong>
@@ -667,7 +666,6 @@ function HomePage({
       <section className="hero-section hero-editorial">
         <div className="hero-bg">
           <img src={heroLeftImage} alt={brand.name} className="hero-bg-image" />
-          <div className="hero-overlay" />
         </div>
         <div className="hero-content">
           <p className="eyebrow">{brand.name}</p>
