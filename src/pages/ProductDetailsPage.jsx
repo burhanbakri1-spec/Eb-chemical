@@ -293,6 +293,7 @@ function ProductDetailsPage({
   const selectedUseOption = useOptions.find((item) => item.id === selectedUse) || useOptions[0];
   const selectedColorImage = sizeOptions.find((variant) => variant.image)?.image;
   const selectedImage =
+    detailImages.mainImage ||
     selectedVariant?.image ||
     selectedColorImage ||
     selectedTypeOption?.image ||

@@ -14,6 +14,8 @@ const emptyForm = {
   shortAr: "",
   image: placeholderImage,
   hoverImage: "",
+  productsPageImage: "",
+  productsPageHoverImage: "",
   galleryImages: [],
   variants: [],
   badgeEn: "Featured",
@@ -150,6 +152,8 @@ function productToForm(product) {
     shortAr: product.shortDescription.ar,
     image: product.image || placeholderImage,
     hoverImage: product.hoverImage || product.secondaryImage || "",
+    productsPageImage: product.productsPageImage || "",
+    productsPageHoverImage: product.productsPageHoverImage || "",
     galleryImages: normalizeGalleryImages(product),
     variants: normalizeVariants(product).length ? normalizeVariants(product) : [createDefaultVariant(product)],
     badgeEn: product.badge?.en || "Featured",
@@ -166,6 +170,7 @@ function productToForm(product) {
     dsiPracticalBanner: dsi.practicalBanner || "",
     dsiIngredients: dsi.ingredients || "",
     dsiFaq: dsi.faq || "",
+    dsiMainImage: dsi.mainImage || "",
     detailStatements: product.detailStatements || product.detail_statements || [],
   };
 }
@@ -462,6 +467,8 @@ function AdminProductForm({ editingProduct, language, onCancel, onSave, t }) {
       },
       image: form.image || placeholderImage,
       hoverImage: form.hoverImage || "",
+      productsPageImage: form.productsPageImage || "",
+      productsPageHoverImage: form.productsPageHoverImage || "",
       fallbackImage: placeholderImage,
       variants,
       sizes: sizesFromVariants(variants),
@@ -484,6 +491,7 @@ function AdminProductForm({ editingProduct, language, onCancel, onSave, t }) {
         practicalBanner: form.dsiPracticalBanner || "",
         ingredients: form.dsiIngredients || "",
         faq: form.dsiFaq || "",
+        mainImage: form.dsiMainImage || "",
       },
       detailStatements: form.detailStatements || [],
       usageNotes: {
@@ -563,10 +571,47 @@ function AdminProductForm({ editingProduct, language, onCancel, onSave, t }) {
         "admin.uploadHoverImage",
         "admin.hoverImagePreview",
       )}
+      {(() => {
+        const ppiUp = uploadingField === "productsPageImage";
+        const pphiUp = uploadingField === "productsPageHoverImage";
+        return (
+          <>
+            <label>
+              {language === "ar" ? "صورة صفحة المنتجات" : "Products Page Image Path"}
+              <span className="image-upload-row">
+                <input name="productsPageImage" onChange={handleChange} value={form.productsPageImage || ""} />
+                <span className="upload-button-shell">
+                  <input accept="image/*" aria-label="Products Page Image" onChange={(e) => handleImageUpload("productsPageImage", e)} type="file" />
+                  <span>{ppiUp ? t("admin.uploading") : t("admin.uploadImage")}</span>
+                </span>
+              </span>
+              {form.productsPageImage && (
+                <img alt="" className="admin-image-preview" src={form.productsPageImage}
+                  onError={(e) => { e.currentTarget.src = placeholderImage; }} />
+              )}
+            </label>
+            <label>
+              {language === "ar" ? "صورة التمرير لصفحة المنتجات" : "Products Page Hover Image Path"}
+              <span className="image-upload-row">
+                <input name="productsPageHoverImage" onChange={handleChange} value={form.productsPageHoverImage || ""} />
+                <span className="upload-button-shell">
+                  <input accept="image/*" aria-label="Products Page Hover Image" onChange={(e) => handleImageUpload("productsPageHoverImage", e)} type="file" />
+                  <span>{pphiUp ? t("admin.uploading") : t("admin.uploadImage")}</span>
+                </span>
+              </span>
+              {form.productsPageHoverImage && (
+                <img alt="" className="admin-image-preview" src={form.productsPageHoverImage}
+                  onError={(e) => { e.currentTarget.src = placeholderImage; }} />
+              )}
+            </label>
+          </>
+        );
+      })()}
       <div className="full-field">
         <strong>{language === "ar" ? "صور أقسام تفاصيل المنتج" : "Product Details Section Images"}</strong>
         <div className="admin-dsi-grid">
           {[
+            { key: "dsiMainImage", label: language === "ar" ? "الصورة الرئيسية لتفاصيل المنتج" : "Product Details Main Image" },
             { key: "dsiHowItWorks1", label: language === "ar" ? "صورة طريقة الاستخدام 1" : "How it Works image 1" },
             { key: "dsiHowItWorks2", label: language === "ar" ? "صورة طريقة الاستخدام 2" : "How it Works image 2" },
             { key: "dsiHowItWorks3", label: language === "ar" ? "صورة طريقة الاستخدام 3" : "How it Works image 3" },

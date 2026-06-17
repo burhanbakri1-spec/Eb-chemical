@@ -13662,10 +13662,17 @@ html[dir="rtl"] .cleanups-tabs-section {
 
 .detail-kinfill-main-column {
   flex: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .detail-kinfill-main-sticky {
   position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .detail-kinfill-gallery-column {

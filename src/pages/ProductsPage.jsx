@@ -229,8 +229,13 @@ function createShopCategoryConfig(allHeroImage, websiteMedia = []) {
 function ShopProductCard({ language, onAddToCart, onViewProduct, product, t }) {
   const isArabic = language === "ar";
   const firstSize = product.sizes?.[0] || { size: "", price: 0 };
-  const mainImage = product.image || product.fallbackImage || placeholderImage;
+  const mainImage =
+    product.productsPageImage ||
+    product.image ||
+    product.fallbackImage ||
+    placeholderImage;
   const hoverImage =
+    product.productsPageHoverImage ||
     product.hoverImage ||
     product.secondaryImage ||
     product.gallery?.[1] ||
