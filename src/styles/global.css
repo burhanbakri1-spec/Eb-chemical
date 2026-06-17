@@ -2372,6 +2372,25 @@ textarea:focus {
   font-size: 27px;
 }
 
+.newsletter-band {
+  position: relative;
+  background: #F4F1EA;
+  padding-bottom: 56px;
+}
+
+.newsletter-band::before {
+  content: '';
+  position: absolute;
+  top: -22px;
+  height: calc(100% + 22px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100vw;
+  background: #F4F1EA;
+  z-index: -1;
+  pointer-events: none;
+}
+
 .site-footer {
   background: #f4f2ec;
   border-top: 1px solid #e3dfd7;
