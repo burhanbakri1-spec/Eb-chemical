@@ -292,13 +292,20 @@ function ProductDetailsPage({
   ];
   const selectedUseOption = useOptions.find((item) => item.id === selectedUse) || useOptions[0];
   const selectedColorImage = sizeOptions.find((variant) => variant.image)?.image;
+  const detailImages = product?.detailSectionImages || product?.detail_section_images || {};
+  const detailMainImage =
+    product?.detailMainImage ||
+    product?.detail_main_image ||
+    detailImages?.mainImage ||
+    detailImages?.main_image;
   const selectedImage =
-    detailImages.mainImage ||
+    detailMainImage ||
     selectedVariant?.image ||
     selectedColorImage ||
     selectedTypeOption?.image ||
     product.image ||
-    product.hoverImage;
+    product.hoverImage ||
+    placeholderImage;
   const productName = localized(product.name, language, product.slug);
   const description = localized(
     product.longDescription,
@@ -315,7 +322,6 @@ function ProductDetailsPage({
   const faqItems = product.faq || getFallbackFaq();
   const productInfo = product.productInfo || getFallbackInfo();
   const relatedProducts = getRelatedProducts();
-  const detailImages = product.detailSectionImages || product.detail_section_images || {};
   const floatingLabel = `${selectedColor !== "Default" ? `${selectedColor} / ` : ""}${selectedOption.size}`;
 
   function getStatements() {
