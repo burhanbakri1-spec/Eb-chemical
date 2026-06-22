@@ -4,7 +4,9 @@ import { categories } from "../data/categories.js";
 
 const fallbackImages = {
   hero: "/homepage-categories/bathroom.jpg",
+  intro: "/homepage-categories/home-care.jpg",
   why: "/homepage-categories/home-care.jpg",
+  feature: "/homepage-categories/bathroom.jpg",
   bcorp: "/homepage-categories/bathroom.jpg",
   safe: "/homepage-categories/home-care.jpg",
   performance: "/products/limescale-remover-main.jpg",
@@ -391,7 +393,7 @@ function SustainabilityPage({ language = "en", onNavigate, onViewProduct, produc
             <div className="sustainability-why-content">
               <h2 className="sustainability-why-title">{t.whyLabel}</h2>
             </div>
-            <img className="sustainability-why-image" src={image("why")} alt="" aria-hidden="true" loading="lazy" />
+            <img className="sustainability-why-image" src={image("intro")} alt="" aria-hidden="true" loading="lazy" />
           </div>
         </section>
 
@@ -402,7 +404,7 @@ function SustainabilityPage({ language = "en", onNavigate, onViewProduct, produc
       </main>
 
       <section className="sustainability-fullscreen" dir={isArabic ? "rtl" : "ltr"}>
-        <img className="sustainability-fullscreen-image" src={image("bcorp")} alt="" aria-hidden="true" />
+        <img className="sustainability-fullscreen-image" src={image("feature")} alt="" aria-hidden="true" />
         <div className="sustainability-fullscreen-content">
           <h2 className="sustainability-fullscreen-title">{t.fullscreenTitle}</h2>
           <p className="sustainability-fullscreen-text">{t.fullscreenText}</p>

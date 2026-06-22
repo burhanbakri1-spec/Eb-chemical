@@ -25,6 +25,7 @@ const groupLabels = {
   cleanups_gallery: { en: "Cleanups Gallery", ar: "معرض حملات التنظيف" },
   cleanups_tabs: { en: "Cleanups Tabs", ar: "تبويبات حملات التنظيف" },
   eb_points: { en: "Static Sections - EB Points", ar: "الأقسام الثابتة - نقاط EB" },
+  sustainability: { en: "Static Sections - Sustainability", ar: "الأقسام الثابتة - الاستدامة" },
   how_it_works: { en: "Static Sections - How It Works", ar: "الأقسام الثابتة - كيف يعمل" },
   ads: { en: "Ads / Banners", ar: "الإعلانات والبنرات" },
   header_dropdown: { en: "Header Dropdown Images", ar: "صور القوائم المنسدلة في الرأس" },
