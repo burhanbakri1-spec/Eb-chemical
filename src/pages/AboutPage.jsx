@@ -160,6 +160,21 @@ const stats = {
   ],
 };
 
+const mobileIntroCards = [
+  {
+    title: "Practical products",
+    text: "Solutions made for homes, cars, and daily spaces.",
+  },
+  {
+    title: "Simple routines",
+    text: "Cleaning steps that are easy to use every day.",
+  },
+  {
+    title: "Reliable results",
+    text: "Products designed to make cleaning faster and more effective.",
+  },
+];
+
 function AboutPage({ language = "en", onNavigate, websiteMedia = [] }) {
   const isArabic = language === "ar";
   const t = content[isArabic ? "ar" : "en"];
@@ -174,7 +189,7 @@ function AboutPage({ language = "en", onNavigate, websiteMedia = [] }) {
 
   return (
     <main className="mission-page" dir={isArabic ? "rtl" : "ltr"}>
-      <section className="mission-hero">
+      <section className="mission-hero" data-header-theme="light">
         <div className="mission-hero-content">
           <h1 className="mission-hero-title">{t.heroTitle}</h1>
           <p className="mission-hero-subtitle">{t.heroSubtitle}</p>
@@ -196,6 +211,17 @@ function AboutPage({ language = "en", onNavigate, websiteMedia = [] }) {
 
       <section className="mission-section mission-statement">
         <p className="mission-statement-text">{t.intro}</p>
+        <div className="mission-intro-cards" aria-label="Built for easier everyday cleaning">
+          <h2 className="mission-intro-title">Built for easier everyday cleaning</h2>
+          <div className="mission-intro-card-list">
+            {mobileIntroCards.map((card) => (
+              <article className="mission-intro-card" key={card.title}>
+                <h3>{card.title}</h3>
+                <p>{card.text}</p>
+              </article>
+            ))}
+          </div>
+        </div>
       </section>
 
       <div className="mission-sections-3-4">

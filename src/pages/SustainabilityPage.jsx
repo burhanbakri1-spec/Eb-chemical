@@ -27,6 +27,14 @@ const copy = {
     review: "Over 500+ orders from happy customers",
     intro:
       "At EB Chemical, sustainability starts with practical choices. We focus on reliable cleaning and care products that help customers use the right solution, reduce unnecessary waste, and keep everyday spaces fresh with less effort.",
+    featureCards: {
+      heading: "Sustainability made practical",
+      cards: [
+        { title: "Smarter choices", text: "Reliable cleaning products made for everyday use." },
+        { title: "Less waste", text: "Refill-focused solutions that help reduce unnecessary packaging." },
+        { title: "Fresh spaces", text: "Simple care routines for homes, cars, and daily spaces." },
+      ],
+    },
     whyLabel: "Why Choose EB Chemical?",
     designTitle: "Practical products made to last",
     designText:
@@ -84,6 +92,14 @@ const copy = {
     review: "أكثر من 500 طلب من عملاء سعداء",
     intro:
       "في EB Chemical، تبدأ الاستدامة من اختيارات عملية. نركز على منتجات تنظيف وعناية موثوقة تساعد العملاء على استخدام الحل المناسب، وتقليل الهدر غير الضروري، والحفاظ على المساحات اليومية نظيفة ومنعشة بجهد أقل.",
+    featureCards: {
+      heading: "الاستدامة بشكل عملي",
+      cards: [
+        { title: "خيارات أذكى", text: "منتجات تنظيف موثوقة مصممة للاستخدام اليومي." },
+        { title: "هدر أقل", text: "حلول قابلة لإعادة التعبئة تساعد في تقليل التغليف غير الضروري." },
+        { title: "مساحات منعشة", text: "روتين عناية بسيط للمنازل والسيارات والمساحات اليومية." },
+      ],
+    },
     whyLabel: "لماذا تختار EB Chemical؟",
     designTitle: "منتجات عملية تدوم أكثر",
     designText:
@@ -367,7 +383,7 @@ function SustainabilityPage({ language = "en", onNavigate, onViewProduct, produc
   return (
     <>
       <main className="sustainability-page" dir={isArabic ? "rtl" : "ltr"}>
-        <section className="sustainability-hero">
+        <section className="sustainability-hero" data-header-theme="light">
           <picture>
             <img className="sustainability-media" src={image("hero")} alt="" aria-hidden="true" />
           </picture>
@@ -386,6 +402,15 @@ function SustainabilityPage({ language = "en", onNavigate, onViewProduct, produc
 
         <section className="sustainability-statement">
           <p className="sustainability-statement-text">{t.intro}</p>
+          <div className="sustainability-feature-cards">
+            <h2 className="sustainability-feature-heading">{t.featureCards.heading}</h2>
+            {t.featureCards.cards.map((card, i) => (
+              <div key={i} className="sustainability-feature-card">
+                <h3 className="sustainability-feature-card-title">{card.title}</h3>
+                <p className="sustainability-feature-card-text">{card.text}</p>
+              </div>
+            ))}
+          </div>
         </section>
 
         <section className="sustainability-why">

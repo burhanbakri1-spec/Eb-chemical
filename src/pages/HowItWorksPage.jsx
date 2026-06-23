@@ -25,6 +25,14 @@ const copy = {
     badge: "Over 500+ orders from happy customers",
     rating: "4.85",
     intro: "Cleaning made simple. Our system helps you choose the right product, use it with confidence, and keep your home, car, and daily spaces fresh with less effort.",
+    featureCards: {
+      heading: "Cleaning made simple",
+      cards: [
+        { title: "Choose the right product", text: "Find the cleaner that matches your space and need." },
+        { title: "Use with confidence", text: "Simple steps help you clean without confusion." },
+        { title: "Keep spaces fresh", text: "Make home, car, and daily care easier with less effort." },
+      ],
+    },
     concentrateTitle: "Choose the right product",
     refillTitle: "Refill and reuse",
     ctaTitle: "Goodbye clutter. Hello, easier cleaning.",
@@ -90,6 +98,14 @@ const copy = {
     badge: "أكثر من 500 طلب من عملاء سعداء",
     rating: "٤٫٨٥",
     intro: "تنظيف أسهل بخطوات واضحة. يساعدك نظامنا على اختيار المنتج المناسب، واستخدامه بثقة، والحفاظ على المنزل والسيارة والمساحات اليومية نظيفة ومنعشة بجهد أقل.",
+    featureCards: {
+      heading: "تنظيف أسهل بخطوات واضحة",
+      cards: [
+        { title: "اختر المنتج المناسب", text: "ابحث عن المنظف الذي يناسب مساحتك واحتياجك." },
+        { title: "استخدم بثقة", text: "خطوات بسيطة تساعدك على التنظيف دون ارتباك." },
+        { title: "حافظ على المساحات منعشة", text: "اجعل العناية بالمنزل والسيارة والمساحات اليومية أسهل بجهد أقل." },
+      ],
+    },
     concentrateTitle: "اختر المنتج المناسب",
     refillTitle: "أعد التعبئة والاستخدام",
     ctaTitle: "وداعًا للفوضى. أهلًا بتنظيف أسهل.",
@@ -290,7 +306,7 @@ function HowItWorksPage({ language = "en", onNavigate, onViewProduct, products =
 
   return (
     <main className="how-page" dir={isArabic ? "rtl" : "ltr"}>
-      <section className="how-hero">
+      <section className="how-hero" data-header-theme="light">
         <img className="how-hero-bg" src={image("hero")} alt="" aria-hidden="true" />
         <div className="how-hero-content">
           <h1 className="how-hero-title">{t.heroTitle}</h1>
@@ -307,6 +323,15 @@ function HowItWorksPage({ language = "en", onNavigate, onViewProduct, products =
 
       <section className="how-section how-statement">
         <p className="how-statement-text">{t.intro}</p>
+        <div className="how-feature-cards">
+          <h2 className="how-feature-heading">{t.featureCards.heading}</h2>
+          {t.featureCards.cards.map((card, i) => (
+            <div key={i} className="how-feature-card">
+              <h3 className="how-feature-card-title">{card.title}</h3>
+              <p className="how-feature-card-text">{card.text}</p>
+            </div>
+          ))}
+        </div>
       </section>
 
       <div className="how-process-list">

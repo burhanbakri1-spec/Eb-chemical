@@ -206,7 +206,7 @@ function CleanupsPage({ language = "en", onNavigate, websiteMedia = [] }) {
 
   return (
     <section className="cleanups-page">
-      <section className="cleanups-hero-section">
+      <section className="cleanups-hero-section" data-header-theme="light">
         <div className="cleanups-hero-inner">
           <img className="cleanups-hero-image" alt="" aria-hidden="true" src={heroImage} />
           <div className="cleanups-hero-content">

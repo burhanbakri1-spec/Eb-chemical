@@ -5,6 +5,12 @@ const instagramUrl = "https://www.instagram.com/eb_chemical";
 const facebookUrl = "https://www.facebook.com/profile.php?id=61586630773060";
 
 function Footer({ onNavigate, t }) {
+  const [openSection, setOpenSection] = React.useState("shop");
+
+  function toggleSection(section) {
+    setOpenSection((current) => (current === section ? "" : section));
+  }
+
   return (
     <footer className="site-footer">
       <div className="footer-inner">
@@ -19,8 +25,16 @@ function Footer({ onNavigate, t }) {
           </div>
         </div>
 
-        <div className="footer-col footer-col-shop">
-          <h4>{t("footer.shop")}</h4>
+        <div className={openSection === "shop" ? "footer-col footer-col-shop is-open" : "footer-col footer-col-shop"}>
+          <button
+            aria-expanded={openSection === "shop"}
+            className="footer-section-toggle"
+            onClick={() => toggleSection("shop")}
+            type="button"
+          >
+            <span>{t("footer.shop")}</span>
+            <span className="footer-section-icon" aria-hidden="true">{openSection === "shop" ? "−" : "+"}</span>
+          </button>
           <p className="footer-brand-text">{t("footer.description")}</p>
           <nav>
             <button onClick={() => onNavigate("products")} type="button">{t("footer.products")}</button>
@@ -32,8 +46,16 @@ function Footer({ onNavigate, t }) {
           </nav>
         </div>
 
-        <div className="footer-col footer-col-about">
-          <h4>About</h4>
+        <div className={openSection === "about" ? "footer-col footer-col-about is-open" : "footer-col footer-col-about"}>
+          <button
+            aria-expanded={openSection === "about"}
+            className="footer-section-toggle"
+            onClick={() => toggleSection("about")}
+            type="button"
+          >
+            <span>About</span>
+            <span className="footer-section-icon" aria-hidden="true">{openSection === "about" ? "−" : "+"}</span>
+          </button>
           <nav>
             <button onClick={() => onNavigate("about")} type="button">About us</button>
             <button type="button">How it Works</button>
@@ -44,8 +66,16 @@ function Footer({ onNavigate, t }) {
           </nav>
         </div>
 
-        <div className="footer-col footer-col-help">
-          <h4>Help & support</h4>
+        <div className={openSection === "help" ? "footer-col footer-col-help is-open" : "footer-col footer-col-help"}>
+          <button
+            aria-expanded={openSection === "help"}
+            className="footer-section-toggle"
+            onClick={() => toggleSection("help")}
+            type="button"
+          >
+            <span>Help & support</span>
+            <span className="footer-section-icon" aria-hidden="true">{openSection === "help" ? "−" : "+"}</span>
+          </button>
           <nav>
             <button type="button">Frequently asked questions</button>
             <button type="button">Shipping Information</button>

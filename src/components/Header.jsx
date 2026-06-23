@@ -129,7 +129,9 @@ function Header({
   const [isMobileShopOpen, setIsMobileShopOpen] = React.useState(false);
   const [isSearchOpen, setIsSearchOpen] = React.useState(false);
   const [searchTerm, setSearchTerm] = React.useState("");
-  const [isHomeHeroActive, setIsHomeHeroActive] = React.useState(activePage === "home");
+  const [isHeaderOnDark, setIsHeaderOnDark] = React.useState(() =>
+    ["home", "about", "how", "sustainability", "cleanups"].includes(activePage)
+  );
   const [dropdownStyles, setDropdownStyles] = React.useState({ shop: {}, about: {} });
   const headerRef = React.useRef(null);
   const shopMenuRef = React.useRef(null);
@@ -242,29 +244,41 @@ function Header({
   }, [isMegaOpen, isAboutOpen, language]);
 
   React.useEffect(() => {
-    if (activePage !== "home") {
-      setIsHomeHeroActive(false);
-      return undefined;
-    }
+    let frameId = 0;
 
     function updateHeaderTone() {
-      const hero = document.querySelector(".storefront-home > .hero-editorial");
-      if (!hero) {
-        setIsHomeHeroActive(window.scrollY < 120);
-        return;
-      }
+      frameId = 0;
+      const headerRect = headerRef.current?.getBoundingClientRect();
+      const sampleX = headerRect
+        ? Math.min(window.innerWidth - 1, Math.max(0, headerRect.left + headerRect.width / 2))
+        : window.innerWidth / 2;
+      const sampleY = headerRect
+        ? Math.min(window.innerHeight - 1, Math.max(0, headerRect.top + headerRect.height / 2))
+        : 72;
+      const themedSections = Array.from(document.querySelectorAll('[data-header-theme="light"]'));
+      const isOverDarkSection = themedSections.some((section) => {
+        const rect = section.getBoundingClientRect();
+        return rect.top <= sampleY && rect.bottom >= sampleY && rect.left <= sampleX && rect.right >= sampleX;
+      });
 
-      const heroBottom = hero.getBoundingClientRect().bottom;
-      setIsHomeHeroActive(heroBottom > 106);
+      setIsHeaderOnDark(isOverDarkSection);
     }
 
-    updateHeaderTone();
-    window.addEventListener("scroll", updateHeaderTone, { passive: true });
-    window.addEventListener("resize", updateHeaderTone);
+    function scheduleHeaderToneUpdate() {
+      if (frameId) return;
+      frameId = window.requestAnimationFrame(updateHeaderTone);
+    }
+
+    scheduleHeaderToneUpdate();
+    window.addEventListener("scroll", scheduleHeaderToneUpdate, { passive: true });
+    window.addEventListener("resize", scheduleHeaderToneUpdate);
 
     return () => {
-      window.removeEventListener("scroll", updateHeaderTone);
-      window.removeEventListener("resize", updateHeaderTone);
+      if (frameId) {
+        window.cancelAnimationFrame(frameId);
+      }
+      window.removeEventListener("scroll", scheduleHeaderToneUpdate);
+      window.removeEventListener("resize", scheduleHeaderToneUpdate);
     };
   }, [activePage]);
 
@@ -422,8 +436,9 @@ function Header({
   const headerClassName = [
     "site-header",
     activePage === "home" ? "header--homepage" : "header--default",
-    activePage === "home" && isHomeHeroActive ? "header--home-light" : "",
-    activePage === "home" && !isHomeHeroActive ? "header--home-dark" : "",
+    isHeaderOnDark ? "header-on-dark" : "header-on-light",
+    activePage === "home" && isHeaderOnDark ? "header--home-light" : "",
+    activePage === "home" && !isHeaderOnDark ? "header--home-dark" : "",
   ]
     .filter(Boolean)
     .join(" ");

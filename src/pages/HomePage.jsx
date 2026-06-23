@@ -39,6 +39,10 @@ function getPromotedProducts(products) {
     .slice(0, 10);
 }
 
+function isIsolatedProductImage(src = "") {
+  return /\.svg(?:\?|$)/i.test(src) || src.includes("/images/products/");
+}
+
 function HomeCommunityGallery({ galleryImages = [] }) {
   const images = galleryImages.filter(Boolean).slice(0, 4);
 
@@ -170,7 +174,9 @@ function ProductShowcaseSlider({ language, onViewProduct, products, title, varia
               >
                 <span className="home-product-badge">{label}</span>
                 <img
-                  className="home-product-image-main"
+                  className={`home-product-image-main ${
+                    isIsolatedProductImage(mainImage) ? "home-product-image-isolated" : "home-product-image-scene"
+                  }`}
                   alt={getLocalized(product.name, language)}
                   loading="lazy"
                   onError={(event) => {
@@ -182,7 +188,9 @@ function ProductShowcaseSlider({ language, onViewProduct, products, title, varia
                   <img
                     aria-hidden="true"
                     alt=""
-                    className="home-product-image-hover"
+                    className={`home-product-image-hover ${
+                      isIsolatedProductImage(hoverImage) ? "home-product-image-isolated" : "home-product-image-scene"
+                    }`}
                     loading="lazy"
                     onError={(event) => {
                       event.currentTarget.style.display = "none";
@@ -668,7 +676,7 @@ function HomePage({
 
   return (
     <div className="storefront-home">
-      <section className="hero-section hero-editorial">
+      <section className="hero-section hero-editorial" data-header-theme="light">
         <div className="hero-bg">
           <img src={heroLeftImage} alt={brand.name} className="hero-bg-image" />
         </div>
