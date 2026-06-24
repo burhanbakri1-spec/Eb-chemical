@@ -23,10 +23,10 @@ const content = {
     heroSubtitle: "Practical cleaning and care products for homes, cars, and everyday spaces.",
     review: "Over 500+ orders from happy customers",
     intro:
-      "At EB Chemical, we create practical cleaning and care products designed for everyday use. Our goal is to make home and car care easier, cleaner, and more effective through reliable products and simple routines.",
+      "EB Chemical creates practical cleaning and care products for everyday use. We make home and car care easier, cleaner, and more effective. All built on reliable products and simple routines.",
     rethinkTitle: "Rethinking clean",
     rethinkText:
-      "EB Chemical was created to make everyday cleaning simpler, more reliable, and more effective. We focus on practical products for homes, cars, and daily spaces, helping people get strong results with clear and easy routines.",
+      "EB Chemical makes everyday cleaning simpler, more reliable, and more effective. We focus on practical products for homes, cars, and daily spaces. Strong results start with clear and easy routines.",
     pillarsTitle: "A cleaner way forward",
     pillarsSubtitle: "What if everyday cleaning could be easier, smarter, and more effective?",
     ctaTitle: "Join us in making cleaning simpler",
@@ -37,17 +37,17 @@ const content = {
     impactMeta1: "MAKING EVERYDAY CLEANING COUNT",
     impactMeta2: "SINCE WE STARTED",
     impactText:
-      "We believe the results of good cleaning should be practical, visible, and reliable. These numbers represent our commitment to better routines for homes, cars, and everyday spaces.",
+      "Good cleaning results should be practical, visible, and reliable. These numbers represent our commitment to better routines for homes, cars, and everyday spaces.",
   },
   ar: {
     heroTitle: "نحن هنا لجعل التنظيف أسهل",
     heroSubtitle: "منتجات تنظيف وعناية عملية للمنزل والسيارة والمساحات اليومية.",
     review: "أكثر من 500 طلب من عملاء سعداء",
     intro:
-      "في EB Chemical، نطوّر منتجات تنظيف وعناية عملية مصممة للاستخدام اليومي. هدفنا أن نجعل العناية بالمنزل والسيارة أسهل وأنظف وأكثر فعالية من خلال منتجات موثوقة وروتين بسيط.",
+      "نطوّر في EB Chemical منتجات تنظيف وعناية عملية للاستخدام اليومي. نهدف لجعل العناية بالمنزل والسيارة أسهل وأنظف وأكثر فعالية. كل ذلك بمنتجات موثوقة وروتين بسيط.",
     rethinkTitle: "إعادة التفكير في التنظيف",
     rethinkText:
-      "تأسست EB Chemical لجعل التنظيف اليومي أسهل وأكثر موثوقية وفعالية. نركز على منتجات عملية للمنازل والسيارات والمساحات اليومية، لمساعدة الناس على الحصول على نتائج قوية بروتين بسيط وواضح.",
+      "تأسست EB Chemical لتجعل التنظيف اليومي أسهل وأكثر موثوقية وفعالية. نركز على منتجات عملية للمنازل والسيارات والمساحات اليومية. نتائج قوية تبدأ بروتين بسيط وواضح.",
     pillarsTitle: "طريقة أنظف للأمام",
     pillarsSubtitle: "ماذا لو كان التنظيف اليومي أسهل، أذكى، وأكثر فعالية؟",
     ctaTitle: "انضم إلينا لجعل التنظيف أسهل",
@@ -58,7 +58,7 @@ const content = {
     impactMeta1: "نجعل التنظيف اليومي أكثر قيمة",
     impactMeta2: "منذ أن بدأنا",
     impactText:
-      "نؤمن أن نتائج التنظيف الجيد يجب أن تكون عملية وواضحة وموثوقة. تمثل هذه الأرقام التزامنا بروتين أفضل للمنازل والسيارات والمساحات اليومية.",
+      "نتائج التنظيف الجيد يجب أن تكون عملية وواضحة وموثوقة. تمثل هذه الأرقام التزامنا بروتين أفضل للمنازل والسيارات والمساحات اليومية.",
   },
 };
 
@@ -163,15 +163,15 @@ const stats = {
 const mobileIntroCards = [
   {
     title: "Practical products",
-    text: "Solutions made for homes, cars, and daily spaces.",
+    text: "Cleaning and care solutions made for homes, cars, and daily spaces.",
   },
   {
     title: "Simple routines",
-    text: "Cleaning steps that are easy to use every day.",
+    text: "Easy-to-use products that make daily cleaning more practical.",
   },
   {
     title: "Reliable results",
-    text: "Products designed to make cleaning faster and more effective.",
+    text: "Focused formulas designed to help spaces feel cleaner and fresher.",
   },
 ];
 
@@ -210,8 +210,7 @@ function AboutPage({ language = "en", onNavigate, websiteMedia = [] }) {
       </section>
 
       <section className="mission-section mission-statement">
-        <p className="mission-statement-text">{t.intro}</p>
-        <div className="mission-intro-cards" aria-label="Built for easier everyday cleaning">
+        <div className="mission-intro-cards" aria-label="Built for easier everyday cleaning" dir="ltr">
           <h2 className="mission-intro-title">Built for easier everyday cleaning</h2>
           <div className="mission-intro-card-list">
             {mobileIntroCards.map((card) => (

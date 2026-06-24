@@ -24,12 +24,12 @@ const copy = {
     heroSubtitle: "Choose the product once, clean with confidence every day.",
     badge: "Over 500+ orders from happy customers",
     rating: "4.85",
-    intro: "Cleaning made simple. Our system helps you choose the right product, use it with confidence, and keep your home, car, and daily spaces fresh with less effort.",
+    intro: "Cleaning made simple. Choose the right product, use it with confidence, and keep your home, car, and daily spaces fresh with less effort.",
     featureCards: {
       heading: "Cleaning made simple",
       cards: [
-        { title: "Choose the right product", text: "Find the cleaner that matches your space and need." },
-        { title: "Use with confidence", text: "Simple steps help you clean without confusion." },
+        { title: "Choose the right product", text: "Select the cleaner that matches your space and cleaning need." },
+        { title: "Use with confidence", text: "Follow simple steps and use each product with less confusion." },
         { title: "Keep spaces fresh", text: "Make home, car, and daily care easier with less effort." },
       ],
     },
@@ -97,7 +97,7 @@ const copy = {
     heroSubtitle: "اختر المنتج المناسب، ونظّف بثقة كل يوم.",
     badge: "أكثر من 500 طلب من عملاء سعداء",
     rating: "٤٫٨٥",
-    intro: "تنظيف أسهل بخطوات واضحة. يساعدك نظامنا على اختيار المنتج المناسب، واستخدامه بثقة، والحفاظ على المنزل والسيارة والمساحات اليومية نظيفة ومنعشة بجهد أقل.",
+    intro: "تنظيف أسهل بخطوات واضحة. اختر المنتج المناسب، واستخدمه بثقة، وحافظ على منزلك وسيارتك ومساحاتك اليومية نظيفة ومنعشة بجهد أقل.",
     featureCards: {
       heading: "تنظيف أسهل بخطوات واضحة",
       cards: [
@@ -322,7 +322,6 @@ function HowItWorksPage({ language = "en", onNavigate, onViewProduct, products =
       </section>
 
       <section className="how-section how-statement">
-        <p className="how-statement-text">{t.intro}</p>
         <div className="how-feature-cards">
           <h2 className="how-feature-heading">{t.featureCards.heading}</h2>
           {t.featureCards.cards.map((card, i) => (

@@ -26,25 +26,25 @@ const copy = {
     heroSubtitle: "Smarter cleaning starts here",
     review: "Over 500+ orders from happy customers",
     intro:
-      "At EB Chemical, sustainability starts with practical choices. We focus on reliable cleaning and care products that help customers use the right solution, reduce unnecessary waste, and keep everyday spaces fresh with less effort.",
+      "Sustainability starts with practical choices. We create reliable cleaning products that help customers use the right solution, reduce waste, and keep spaces fresh with less effort.",
     featureCards: {
       heading: "Sustainability made practical",
       cards: [
-        { title: "Smarter choices", text: "Reliable cleaning products made for everyday use." },
-        { title: "Less waste", text: "Refill-focused solutions that help reduce unnecessary packaging." },
-        { title: "Fresh spaces", text: "Simple care routines for homes, cars, and daily spaces." },
+        { title: "Smarter choices", text: "Practical cleaning products designed for everyday use." },
+        { title: "Less waste", text: "Refill-focused options that help reduce unnecessary packaging." },
+        { title: "Fresh spaces", text: "Simple routines that help keep homes, cars, and daily spaces clean." },
       ],
     },
     whyLabel: "Why Choose EB Chemical?",
     designTitle: "Practical products made to last",
     designText:
-      "Our cleaning and care products are designed for everyday use, helping customers get reliable results while reducing unnecessary waste and keeping routines simple.",
+      "Our cleaning and care products are made for everyday use. They deliver reliable results while reducing waste and keeping routines simple.",
     refillableTitle: "Refillable design to last a lifetime",
     refillableText:
       "Our refillable system is built to reduce waste while keeping performance reliable. Each bottle is designed for repeated use, making it easy to maintain a cleaner routine at home and in the car.",
     fullscreenTitle: "Reliable care for everyday spaces",
     fullscreenText:
-      "We focus on practical cleaning and care solutions that help homes, cars, and daily environments stay fresh, clean, and easier to maintain.",
+      "We focus on practical solutions that keep homes, cars, and daily spaces fresh, clean, and easy to maintain.",
     bCorpTitle: "Committed to quality and care",
     bCorpText:
       "We take responsibility seriously. Every product is formulated with care, using ingredients that are effective yet mindful of the spaces you live and work in.",
@@ -53,9 +53,9 @@ const copy = {
       "We focus on practical cleaning products that are easy to use and suitable for everyday care.",
     performanceTitle: "Performance you can trust",
     performanceText:
-      "Our formulas are designed to deliver reliable cleaning results for homes, cars, and everyday spaces while keeping routines simple and practical.",
+      "Our formulas deliver reliable cleaning results for homes, cars, and everyday spaces. Routines stay simple and practical.",
     impactTitle: "The impact",
-    impactText: "We believe better cleaning should be practical, reliable, and easier to maintain. These numbers reflect our commitment to improving everyday routines.",
+    impactText: "Better cleaning should be practical, reliable, and easy to maintain. These numbers reflect our commitment to improving everyday routines.",
     impactMeta1: "Making everyday routines count",
     impactMeta2: "Since we started",
     stat1Value: "243k",
@@ -66,16 +66,16 @@ const copy = {
     stat3Label: "EVERYDAY CARE IMPROVED",
     accordionTitle: "Our products",
     accordionText:
-      "At EB Chemical, we create practical cleaning and care products designed to deliver reliable results for homes, cars, and everyday routines.",
+      "EB Chemical creates practical cleaning products that deliver reliable results for homes, cars, and everyday routines.",
     accordion1Title: "Formulated with purpose",
     accordion1Text:
-      "Our formulas are developed to support effective everyday cleaning, using practical solutions that help keep spaces fresh, clean, and easier to maintain.",
+      "Our formulas support effective everyday cleaning. Practical solutions keep spaces fresh, clean, and easy to maintain.",
     accordion2Title: "Practical by design",
     accordion2Text:
-      "Our products are made to be simple to use, easy to store, and suitable for daily cleaning and care routines.",
+      "Our products are simple to use, easy to store, and built for daily cleaning and care.",
     accordion3Title: "Built for everyday use",
     accordion3Text:
-      "From home surfaces to car care, EB Chemical products are designed to perform reliably across everyday spaces.",
+      "From home surfaces to car care, EB Chemical products perform reliably across everyday spaces.",
     ctaTitle: "Ready to make the switch?",
     ctaText: "Discover products designed for practical, sustainable living.",
     ctaButton: "Discover products",
@@ -91,7 +91,7 @@ const copy = {
     heroSubtitle: "تنظيف أذكى يبدأ من هنا",
     review: "أكثر من 500 طلب من عملاء سعداء",
     intro:
-      "في EB Chemical، تبدأ الاستدامة من اختيارات عملية. نركز على منتجات تنظيف وعناية موثوقة تساعد العملاء على استخدام الحل المناسب، وتقليل الهدر غير الضروري، والحفاظ على المساحات اليومية نظيفة ومنعشة بجهد أقل.",
+      "الاستدامة تبدأ من اختيارات عملية. نقدّم منتجات تنظيف موثوقة تساعد العملاء على استخدام الحل المناسب، وتقليل الهدر، والحفاظ على المساحات منعشة بجهد أقل.",
     featureCards: {
       heading: "الاستدامة بشكل عملي",
       cards: [
@@ -103,13 +103,13 @@ const copy = {
     whyLabel: "لماذا تختار EB Chemical؟",
     designTitle: "منتجات عملية تدوم أكثر",
     designText:
-      "صُممت منتجات التنظيف والعناية لدينا للاستخدام اليومي، لتساعد العملاء على الحصول على نتائج موثوقة مع تقليل الهدر غير الضروري والحفاظ على روتين بسيط.",
+      "صُممت منتجاتنا للاستخدام اليومي. تمنحك نتائج موثوقة مع تقليل الهدر والحفاظ على روتين بسيط.",
     refillableTitle: "تصميم قابل لإعادة الاستخدام ليدوم مدى الحياة",
     refillableText:
       "نظام إعادة التعبئة لدينا مصمم لتقليل الهدر مع الحفاظ على أداء موثوق. كل عبوة مصممة للاستخدام المتكرر، مما يسهل الحفاظ على روتين نظيف في المنزل والسيارة.",
     fullscreenTitle: "عناية موثوقة للمساحات اليومية",
     fullscreenText:
-      "نركّز على حلول تنظيف وعناية عملية تساعد المنازل والسيارات والمساحات اليومية على البقاء نظيفة ومنعشة وأسهل في العناية.",
+      "نركّز على حلول عملية تحافظ على المنازل والسيارات والمساحات اليومية نظيفة ومنعشة وسهلة العناية.",
     bCorpTitle: "ملتزمون بالجودة والرعاية",
     bCorpText:
       "نحن نأخذ المسؤولية على محمل الجد. كل منتج يتم تركيبه بعناية، باستخدام مكونات فعالة ومراعية للمساحات التي تعيش وتعمل فيها.",
@@ -118,9 +118,9 @@ const copy = {
       "نركّز على منتجات تنظيف عملية وسهلة الاستخدام ومناسبة للعناية اليومية.",
     performanceTitle: "أداء يمكنك الوثوق به",
     performanceText:
-      "صُممت تركيباتنا لتقديم نتائج تنظيف موثوقة للمنازل والسيارات والمساحات اليومية مع الحفاظ على روتين بسيط وعملي.",
+      "تقدم تركيباتنا نتائج تنظيف موثوقة للمنازل والسيارات والمساحات اليومية. روتينك يبقى بسيطاً وعملياً.",
     impactTitle: "الأثر",
-    impactText: "نؤمن أن التنظيف الأفضل يجب أن يكون عمليًا وموثوقًا وأسهل في الاستمرار. تعكس هذه الأرقام التزامنا بتحسين الروتين اليومي.",
+    impactText: "التنظيف الأفضل يجب أن يكون عملياً وموثوقاً وأسهل في الاستمرار. تعكس هذه الأرقام التزامنا بتحسين الروتين اليومي.",
     impactMeta1: "نجعل الروتين اليومي أكثر قيمة",
     impactMeta2: "منذ أن بدأنا",
     stat1Value: "243 ألف",
@@ -131,16 +131,16 @@ const copy = {
     stat3Label: "تحسين العناية اليومية",
     accordionTitle: "منتجاتنا",
     accordionText:
-      "في EB Chemical، نطوّر منتجات تنظيف وعناية عملية مصممة لتقديم نتائج موثوقة للمنازل والسيارات والروتين اليومي.",
+      "نقدّم في EB Chemical منتجات تنظيف عملية تمنح نتائج موثوقة للمنازل والسيارات والروتين اليومي.",
     accordion1Title: "تركيبات هادفة",
     accordion1Text:
-      "نطوّر تركيباتنا لدعم التنظيف اليومي الفعّال، من خلال حلول عملية تساعد في الحفاظ على المساحات نظيفة ومنعشة وأسهل في العناية.",
+      "تركيباتنا تدعم التنظيف اليومي الفعّال. حلول عملية تحافظ على المساحات نظيفة ومنعشة وسهلة العناية.",
     accordion2Title: "تصميم عملي",
     accordion2Text:
-      "صُممت منتجاتنا لتكون سهلة الاستخدام والتخزين ومناسبة لروتين التنظيف والعناية اليومي.",
+      "منتجاتنا سهلة الاستخدام، بسيطة التخزين، ومصممة للعناية اليومية.",
     accordion3Title: "مصممة للاستخدام اليومي",
     accordion3Text:
-      "من أسطح المنزل إلى العناية بالسيارة، صُممت منتجات EB Chemical لتقديم أداء موثوق في المساحات اليومية.",
+      "من أسطح المنزل إلى العناية بالسيارة، منتجات EB Chemical تؤدي بموثوقية في كل المساحات اليومية.",
     ctaTitle: "مستعد للتبديل؟",
     ctaText: "اكتشف منتجات مصممة لحياة عملية ومستدامة.",
     ctaButton: "اكتشف المنتجات",
@@ -401,7 +401,6 @@ function SustainabilityPage({ language = "en", onNavigate, onViewProduct, produc
         </section>
 
         <section className="sustainability-statement">
-          <p className="sustainability-statement-text">{t.intro}</p>
           <div className="sustainability-feature-cards">
             <h2 className="sustainability-feature-heading">{t.featureCards.heading}</h2>
             {t.featureCards.cards.map((card, i) => (
@@ -594,7 +593,7 @@ function SustainabilityPage({ language = "en", onNavigate, onViewProduct, produc
                     {isArabic ? "وداعًا للهدر. أهلاً بمنتجات عناية مصممة بهدف." : "Goodbye, waste. Hello, care products made with purpose."}
                   </h2>
                   <p className="sustainability-split-product-cta-subtitle">
-                    {isArabic ? "اكتشف منتجات EB Chemical العملية المصممة للتنظيف والعناية اليومية." : "Explore practical EB Chemical products designed for everyday cleaning and care."}
+                    {isArabic ? "اكتشف منتجات EB Chemical العملية للتنظيف والعناية اليومية." : "Explore practical EB Chemical products for everyday cleaning and care."}
                   </p>
                   <button
                     className="sustainability-split-product-cta-btn"

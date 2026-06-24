@@ -190,18 +190,24 @@ function createGalleryImageEntry(index = 0, imageUrl = "") {
 }
 
 function parseVariantGeneratorColors(value = "") {
-  return value
+  const seen = new Set();
+  const result = [];
+
+  value
     .split(/\n|;/)
     .map((line) => line.trim())
     .filter(Boolean)
-    .map((line) => {
+    .forEach((line) => {
       const [name = "", colorValue = "", imageUrl = ""] = line.split("|").map((part) => part.trim());
-      return {
-        name: name || "Default",
-        value: colorValue || "#1db7d8",
-        imageUrl,
-      };
+      const colorName = name || "Default";
+      const hex = (colorValue || "#1db7d8").toLowerCase();
+      const key = `${colorName.toLowerCase()}|${hex}`;
+      if (seen.has(key)) return;
+      seen.add(key);
+      result.push({ name: colorName, value: hex, imageUrl });
     });
+
+  return result;
 }
 
 function parseVariantGeneratorSizes(value = "") {
@@ -678,14 +684,18 @@ function ProductWizard({ categories, editingProduct, onCancel, onSave }) {
     setForm((current) => {
       const currentVariants = current.variants || [];
       const existingKeys = new Set(
-        currentVariants.map((variant) => `${variant.color_name || ""}__${variant.size || ""}`.toLowerCase()),
+        currentVariants.map(
+          (variant) => `${(variant.color_name || "").toLowerCase()}|${(variant.color_value || "").toLowerCase()}|${(variant.size || "").toLowerCase()}`,
+        ),
       );
       const generated = [];
+      const batchKeys = new Set();
 
       colors.forEach((color) => {
         sizes.forEach((size) => {
-          const key = `${color.name}__${size}`.toLowerCase();
-          if (existingKeys.has(key)) return;
+          const key = `${color.name.toLowerCase()}|${color.value.toLowerCase()}|${size.toLowerCase()}`;
+          if (existingKeys.has(key) || batchKeys.has(key)) return;
+          batchKeys.add(key);
 
           generated.push(
             normalizeFormVariant(

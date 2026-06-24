@@ -19,11 +19,11 @@ const content = {
   en: {
     heroTitle: "We started with your home, and we're helping clean the spaces around it.",
     heroText:
-      "EB Chemical creates practical cleaning and care products for everyday spaces, with a focus on cleaner homes, cars, and shared environments.",
+      "EB Chemical creates practical cleaning products for everyday spaces. We focus on cleaner homes, cars, and shared environments.",
     galleryTitle: "CleanUps",
     ctaTitle: "Sign up for the next CleanUp",
     ctaText:
-      "Sign up through the link below to be the first to know about our upcoming CleanUp events in Ramallah and inside Palestine. We organize community activities regularly, and you'll receive all updates and details directly to your inbox.",
+      "Sign up to be the first to know about our upcoming CleanUp events in Ramallah and across Palestine. We organize community activities regularly. You'll receive all updates and details directly to your inbox.",
     signUp: "Sign up",
     gallery: [
       {
@@ -63,9 +63,9 @@ const content = {
         label: "Community",
         title: "Community",
         description:
-          "We believe cleaner spaces start with people. EB Chemical supports community-driven cleaning efforts that bring people together around practical care.",
+          "Cleaner spaces start with people. EB Chemical supports community-driven cleaning efforts that bring people together for practical care.",
         button: "Join us",
-        buttonAction: "social",
+        buttonAction: "follow-us",
         image: cleanupImages.community,
       },
       {
@@ -73,9 +73,9 @@ const content = {
         label: "Collaborations",
         title: "Collaborations",
         description:
-          "Are you interested in hosting a CleanUp event with EB Chemical? Send us a message and let's work together to create cleaner shared spaces.",
+          "Interested in hosting a CleanUp event with EB Chemical? Send us a message and let's work together to create cleaner shared spaces.",
         button: "Sign up",
-        buttonAction: "social",
+        buttonAction: "follow-us",
         image: cleanupImages.collaborations,
       },
       {
@@ -83,7 +83,7 @@ const content = {
         label: "Locations",
         title: "Locations",
         description:
-          "We focus on everyday spaces where cleaning matters most, from homes and workplaces to cars, shops, and shared environments.",
+          "We focus on everyday spaces where cleaning matters most. From homes and workplaces to cars, shops, and shared environments.",
         button: "Explore locations",
         buttonAction: "products",
         image: cleanupImages.locations,
@@ -93,11 +93,11 @@ const content = {
   ar: {
     heroTitle: "بدأنا من منزلك، ونساعد في تنظيف المساحات من حولك.",
     heroText:
-      "تقدّم EB Chemical منتجات تنظيف وعناية عملية للمساحات اليومية، مع التركيز على منازل وسيارات وبيئات مشتركة أكثر نظافة.",
+      "تقدّم EB Chemical منتجات تنظيف عملية للمساحات اليومية. نركّز على منازل وسيارات وبيئات مشتركة أكثر نظافة.",
     galleryTitle: "حملات التنظيف",
     ctaTitle: "سجّل في حملة التنظيف القادمة",
     ctaText:
-      "سجّل لتكون أول من يعرف عن حملات التنظيف القادمة في رام الله والداخل الفلسطيني. ننظم مبادرات مجتمعية بشكل دوري، وستصلك جميع التفاصيل والتحديثات مباشرة.",
+      "سجّل لتكون أول من يعرف عن حملات التنظيف القادمة في رام الله والداخل الفلسطيني. ننظم مبادرات مجتمعية بشكل دوري. وستصلك جميع التفاصيل والتحديثات مباشرة.",
     signUp: "سجّل الآن",
     gallery: [
       {
@@ -137,9 +137,9 @@ const content = {
         label: "المجتمع",
         title: "المجتمع",
         description:
-          "نؤمن أن المساحات الأنظف تبدأ من الناس. تدعم EB Chemical جهود التنظيف المجتمعية التي تجمع الناس حول العناية العملية.",
+          "المساحات الأنظف تبدأ من الناس. تدعم EB Chemical جهود التنظيف المجتمعية التي تجمع الناس للعناية العملية.",
         button: "انضم إلينا",
-        buttonAction: "social",
+        buttonAction: "follow-us",
         image: cleanupImages.community,
       },
       {
@@ -147,9 +147,9 @@ const content = {
         label: "التعاونات",
         title: "التعاونات",
         description:
-          "هل ترغب في تنظيم فعالية تنظيف بالتعاون مع EB Chemical؟ أرسل لنا رسالة لنعمل معًا على إنشاء مساحات مشتركة أكثر نظافة.",
+          "هل ترغب في تنظيم فعالية تنظيف مع EB Chemical؟ أرسل لنا رسالة لنعمل معًا على إنشاء مساحات مشتركة أكثر نظافة.",
         button: "سجّل الآن",
-        buttonAction: "social",
+        buttonAction: "follow-us",
         image: cleanupImages.collaborations,
       },
       {
@@ -157,7 +157,7 @@ const content = {
         label: "المواقع",
         title: "المواقع",
         description:
-          "نركّز على المساحات اليومية التي يكون فيها التنظيف مهمًا، من المنازل وأماكن العمل إلى السيارات والمتاجر والبيئات المشتركة.",
+          "نركّز على المساحات اليومية التي يكون فيها التنظيف مهمًا. من المنازل وأماكن العمل إلى السيارات والمتاجر والبيئات المشتركة.",
         button: "استكشف المواقع",
         buttonAction: "products",
         image: cleanupImages.locations,
@@ -255,7 +255,7 @@ function CleanupsPage({ language = "en", onNavigate, websiteMedia = [] }) {
           <div className="cleanups-tabs-body" key={activeTabContent.key}>
             <h2 className="cleanups-tabs-heading">{activeTabContent.title}</h2>
             <p className="cleanups-tabs-description">{activeTabContent.description}</p>
-            <button className="cleanup-yellow-button" onClick={() => onNavigate?.(activeTabContent.buttonAction || "social")} type="button">
+            <button className="cleanup-yellow-button" onClick={() => onNavigate?.(activeTabContent.buttonAction || "follow-us")} type="button">
               {activeTabContent.button || text.signUp}
             </button>
           </div>

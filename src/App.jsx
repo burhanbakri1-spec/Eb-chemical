@@ -19,7 +19,7 @@ import LoginPage from "./pages/LoginPage.jsx";
 import ProductDetailsPage from "./pages/ProductDetailsPage.jsx";
 import ProductsPage from "./pages/ProductsPage.jsx";
 import RegisterPage from "./pages/RegisterPage.jsx";
-import SocialPage from "./pages/SocialPage.jsx";
+
 import { products as initialProducts } from "./data/products.js";
 import { hasPermission } from "./data/permissions.js";
 import { createTranslator } from "./data/translations.js";
@@ -88,7 +88,7 @@ const pagePaths = {
   how: "/how-it-works",
   cleanups: "/cleanups",
   "eb-points": "/eb-points",
-  social: "/social",
+  social: "/follow-us",
   "follow-us": "/follow-us",
   login: "/login",
   "admin-login": "/admin/login",
@@ -999,9 +999,7 @@ function App() {
           />
         )}
 
-        {activePage === "social" && <SocialPage t={t} />}
-
-        {activePage === "follow-us" && <FollowUsPage />}
+        {(activePage === "social" || activePage === "follow-us") && <FollowUsPage />}
 
         {activePage === "login" && (
           <LoginPage

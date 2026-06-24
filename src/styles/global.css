@@ -302,7 +302,50 @@ html[dir="rtl"] body {
 }
 
 .how-page .how-feature-cards {
-  display: none;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+@media (min-width: 1024px) {
+  .how-page .how-feature-cards {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 20px !important;
+  }
+
+  .how-page .how-feature-heading {
+    grid-column: 1 / -1 !important;
+    margin: 0 0 4px !important;
+    font-size: clamp(28px, 2.5vw, 42px) !important;
+    font-weight: 700 !important;
+    color: #111 !important;
+    line-height: 1.2 !important;
+  }
+
+  .how-page .how-feature-card {
+    background: #fff !important;
+    border-radius: 14px !important;
+    padding: 22px 24px !important;
+    border: 1px solid rgba(0, 0, 0, 0.06) !important;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04) !important;
+  }
+
+  .how-page .how-feature-card-title {
+    margin: 0 0 6px !important;
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    color: #111 !important;
+    line-height: 1.3 !important;
+  }
+
+  .how-page .how-feature-card-text {
+    margin: 0 !important;
+    font-size: 14px !important;
+    font-weight: 400 !important;
+    color: #555 !important;
+    line-height: 1.5 !important;
+  }
 }
 
 .how-page .how-process {
@@ -3218,22 +3261,206 @@ html[dir="rtl"] .footer-col nav a:hover {
 
 .mobile-nav-panel {
   position: absolute;
+  z-index: 10000;
   inset-block-start: 76px;
   inset-inline: 0;
   display: none;
-  padding: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.28);
+  padding: 0;
+  border: none;
   border-radius: 18px;
-  background: rgba(255, 253, 247, 0.96);
+  background: #fff;
   color: #1c1c1a;
   box-shadow: 0 24px 70px rgba(31, 46, 36, 0.18);
-  backdrop-filter: blur(18px);
   pointer-events: auto;
+  max-height: calc(100vh - 100px);
+  overflow: hidden;
 }
 
 .mobile-nav-panel.open {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   animation: fadeUp 180ms ease both;
+}
+
+/* Mobile menu top bar — back / close row */
+.mobile-menu-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  flex-shrink: 0;
+}
+
+.mobile-menu-back {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.mobile-menu-back .header-icon {
+  width: 20px;
+  height: 20px;
+  transform: rotate(-90deg);
+  flex-shrink: 0;
+}
+
+.mobile-menu-back:hover {
+  background: rgba(0,0,0,0.06);
+}
+
+.mobile-menu-close {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.mobile-menu-close .header-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.mobile-menu-close:hover {
+  background: rgba(0,0,0,0.06);
+}
+
+/* Main menu view */
+.mobile-menu-main {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 0;
+}
+
+.mobile-menu-main button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font-size: 18px;
+  font-weight: 600;
+  text-align: start;
+  cursor: pointer;
+  letter-spacing: -0.01em;
+}
+
+.mobile-menu-main button:hover {
+  background: rgba(0,0,0,0.04);
+}
+
+.mobile-menu-main .header-icon {
+  width: 20px;
+  height: 20px;
+  transform: rotate(90deg);
+  flex-shrink: 0;
+  opacity: 0.4;
+}
+
+/* Submenu view */
+.mobile-menu-submenu {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  padding: 8px 0;
+}
+
+.mobile-menu-submenu-links {
+  padding: 4px 0;
+}
+
+.mobile-menu-submenu-links button {
+  width: 100%;
+  padding: 14px 24px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font-size: 17px;
+  font-weight: 500;
+  text-align: start;
+  cursor: pointer;
+}
+
+.mobile-menu-submenu-links button:hover {
+  background: rgba(0,0,0,0.04);
+}
+
+/* Promo card grid inside submenus */
+.mobile-menu-promo-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  padding: 20px 24px 24px;
+  border-top: 1px solid rgba(0,0,0,0.06);
+  margin-block-start: auto;
+}
+
+.mobile-menu-promo-card {
+  display: grid;
+  gap: 8px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  text-align: center;
+  cursor: pointer;
+}
+
+.mobile-menu-promo-image {
+  display: block;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #f5f0e2, #d9ede7);
+}
+
+.mobile-menu-promo-image img {
+  width: 100%;
+  height: 100%;
+  padding: 22px;
+  object-fit: contain;
+  display: block;
+}
+
+.mobile-menu-promo-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: inherit;
+  line-height: 1.3;
+}
+
+.mobile-menu-promo-card:hover .mobile-menu-promo-image img {
+  transform: scale(1.055);
+  transition: transform 260ms ease-out;
+}
+
+/* RTL adjustments for mobile menu */
+html[dir="rtl"] .mobile-menu-back .header-icon {
+  transform: rotate(90deg);
+}
+
+html[dir="rtl"] .mobile-menu-main .header-icon {
+  transform: rotate(-90deg);
 }
 
 html[dir="rtl"] .site-header .mega-menu {
@@ -8263,8 +8490,8 @@ html[dir="rtl"] .floating-word-window {
 .search-panel-card,
 .account-menu,
 .mobile-nav-panel {
-  background: rgba(247, 250, 249, 0.97) !important;
-  border-color: rgba(11, 46, 78, 0.08) !important;
+  background: #fff !important;
+  border: none !important;
   box-shadow: 0 28px 90px rgba(11, 46, 78, 0.16) !important;
   color: var(--brand-navy) !important;
 }
@@ -19980,7 +20207,8 @@ html[dir="rtl"] .home-community-card-4 {
 }
 
 .mission-page .mission-intro-cards {
-  display: none;
+  display: grid;
+  gap: 18px;
 }
 
 /* === WRAPPER removes grid gap between sections 3 and 4 === */
@@ -21074,6 +21302,52 @@ html[dir="ltr"] .header-mega-panel.open,
 .mission-page .mission-impact-meta *,
 .mission-page .mission-impact-stat-label {
   color: #ffffff !important;
+}
+
+@media (min-width: 1024px) {
+  .mission-page .mission-intro-cards {
+    display: grid !important;
+    gap: 24px !important;
+    max-width: 1000px !important;
+  }
+
+  .mission-page .mission-intro-title {
+    margin: 0 !important;
+    color: #061f33 !important;
+    font-size: clamp(28px, 2.5vw, 42px) !important;
+    font-weight: 700 !important;
+    line-height: 1.02 !important;
+    letter-spacing: -0.02em !important;
+  }
+
+  .mission-page .mission-intro-card-list {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 16px !important;
+  }
+
+  .mission-page .mission-intro-card {
+    padding: 20px 22px !important;
+    border: 1px solid rgba(6, 31, 51, 0.08) !important;
+    border-radius: 16px !important;
+    background: rgba(255, 255, 255, 0.72) !important;
+    box-shadow: 0 12px 28px rgba(6, 31, 51, 0.06) !important;
+  }
+
+  .mission-page .mission-intro-card h3 {
+    margin: 0 0 6px !important;
+    color: #061f33 !important;
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    line-height: 1.15 !important;
+  }
+
+  .mission-page .mission-intro-card p {
+    margin: 0 !important;
+    color: #4f5b62 !important;
+    font-size: 14px !important;
+    line-height: 1.45 !important;
+  }
 }
 
 /* === HOW IT WORKS: reduce vertical gaps between hero, statement, and process === */
@@ -23232,7 +23506,50 @@ html[dir="ltr"] .header-mega-panel.open,
 }
 
 .sustainability-page .sustainability-feature-cards {
-  display: none;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+@media (min-width: 1024px) {
+  .sustainability-page .sustainability-feature-cards {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 20px !important;
+  }
+
+  .sustainability-page .sustainability-feature-heading {
+    grid-column: 1 / -1 !important;
+    margin: 0 0 4px !important;
+    font-size: clamp(28px, 2.5vw, 42px) !important;
+    font-weight: 700 !important;
+    color: #111 !important;
+    line-height: 1.2 !important;
+  }
+
+  .sustainability-page .sustainability-feature-card {
+    background: #fff !important;
+    border-radius: 14px !important;
+    padding: 22px 24px !important;
+    border: 1px solid rgba(0, 0, 0, 0.06) !important;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04) !important;
+  }
+
+  .sustainability-page .sustainability-feature-card-title {
+    margin: 0 0 6px !important;
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    color: #111 !important;
+    line-height: 1.3 !important;
+  }
+
+  .sustainability-page .sustainability-feature-card-text {
+    margin: 0 !important;
+    font-size: 14px !important;
+    font-weight: 400 !important;
+    color: #555 !important;
+    line-height: 1.5 !important;
+  }
 }
 
 /* === Sustainability section 4: design statement === */

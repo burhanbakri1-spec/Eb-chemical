@@ -126,7 +126,7 @@ function Header({
   const [isAboutOpen, setIsAboutOpen] = React.useState(false);
   const [isAccountOpen, setIsAccountOpen] = React.useState(false);
   const [isMobileOpen, setIsMobileOpen] = React.useState(false);
-  const [isMobileShopOpen, setIsMobileShopOpen] = React.useState(false);
+  const [mobileSubmenu, setMobileSubmenu] = React.useState(null);
   const [isSearchOpen, setIsSearchOpen] = React.useState(false);
   const [searchTerm, setSearchTerm] = React.useState("");
   const [isHeaderOnDark, setIsHeaderOnDark] = React.useState(() =>
@@ -198,7 +198,7 @@ function Header({
         setIsMegaOpen(false);
         setIsAboutOpen(false);
         setIsAccountOpen(false);
-        setIsMobileShopOpen(false);
+        setMobileSubmenu(null);
         setIsSearchOpen(false);
       }
     }
@@ -287,7 +287,7 @@ function Header({
     setIsAboutOpen(false);
     setIsAccountOpen(false);
     setIsMobileOpen(false);
-    setIsMobileShopOpen(false);
+    setMobileSubmenu(null);
     setIsSearchOpen(false);
   }
 
@@ -364,7 +364,7 @@ function Header({
     setIsAccountOpen((open) => !open);
     setIsMegaOpen(false);
     setIsAboutOpen(false);
-    setIsMobileShopOpen(false);
+    setMobileSubmenu(null);
     setIsSearchOpen(false);
   }
 
@@ -572,7 +572,7 @@ function Header({
                 {t("auth.myAccount")}
               </button>
             )}
-            <button onClick={() => goTo("social")} type="button">
+            <button onClick={() => goTo("follow-us")} type="button">
               {socialLabel}
             </button>
             {currentUser ? (
@@ -714,76 +714,79 @@ function Header({
       </div>
 
       <div className={isMobileOpen ? "mobile-nav-panel open" : "mobile-nav-panel"}>
-        <button
-          className="mobile-shop-toggle"
-          onClick={() => setIsMobileShopOpen((open) => !open)}
-          type="button"
-        >
-          {shopLabel}
-          <span className={isMobileShopOpen ? "chevron-wrap open" : "chevron-wrap"}>
-            <Icon name="chevron" />
-          </span>
-        </button>
-        {isMobileShopOpen && (
-          <div className="mobile-shop-links">
-            {shopLinks.map((link) => (
-              <button key={link.key} onClick={() => handleShopLink(link)} type="button">
-                {language === "ar" ? link.labelAr : link.labelEn}
-              </button>
-            ))}
+        <div className="mobile-menu-top">
+          {mobileSubmenu ? (
+            <button className="mobile-menu-back" onClick={() => setMobileSubmenu(null)} type="button">
+              <Icon name="chevron" />
+              {language === "ar" ? "رجوع" : "Back"}
+            </button>
+          ) : (
+            <span />
+          )}
+          <button className="mobile-menu-close" onClick={closeAllMenus} type="button">
+            <Icon name="close" />
+          </button>
+        </div>
+
+        {!mobileSubmenu && (
+          <div className="mobile-menu-main">
+            <button onClick={() => setMobileSubmenu("shop")} type="button">
+              {shopLabel}
+              <Icon name="chevron" />
+            </button>
+            <button onClick={() => setMobileSubmenu("about")} type="button">
+              {aboutLabel}
+              <Icon name="chevron" />
+            </button>
+            <button onClick={goToHow} type="button">{howLabel}</button>
           </div>
         )}
-        <button onClick={() => goTo("about")} type="button">
-          {language === "ar" ? "رسالتنا" : "Mission"}
-        </button>
-        <button onClick={goToHow} type="button">
-          {howLabel}
-        </button>
-        <button onClick={() => goTo("sustainability")} type="button">
-          {language === "ar" ? "الاستدامة" : "Sustainability"}
-        </button>
-        <button onClick={() => goTo("cleanups")} type="button">
-          {language === "ar" ? "حملات التنظيف" : "Cleanups"}
-        </button>
-        <button onClick={() => goTo("eb-points")} type="button">
-          {language === "ar" ? "نقاط EB" : "EB Points"}
-        </button>
-        <button onClick={() => goTo("social")} type="button">
-          {socialLabel}
-        </button>
-        {isAdmin && (
-          <button onClick={() => goTo("admin")} type="button">
-            {t("admin.dashboard")}
-          </button>
+
+        {mobileSubmenu === "shop" && (
+          <div className="mobile-menu-submenu">
+            <div className="mobile-menu-submenu-links">
+              {shopLinks.map((link) => (
+                <button key={link.key} onClick={() => handleShopLink(link)} type="button">
+                  {language === "ar" ? link.labelAr : link.labelEn}
+                </button>
+              ))}
+            </div>
+            <div className="mobile-menu-promo-grid">
+              {megaFeatureCards.map((card) => (
+                <button key={card.titleEn} className="mobile-menu-promo-card" onClick={() => handleFeatureCard(card)} type="button">
+                  <span className="mobile-menu-promo-image">
+                    <img src={card.image} alt={language === "ar" ? card.titleAr : card.titleEn} />
+                  </span>
+                  <span className="mobile-menu-promo-label">{language === "ar" ? card.titleAr : card.titleEn}</span>
+                </button>
+              ))}
+            </div>
+          </div>
         )}
-        {isAdmin && (
-          <button onClick={() => goTo("admin-employees")} type="button">
-            {t("admin.employees")}
-          </button>
-        )}
-        {isEmployee && (
-          <button onClick={() => goTo("employee")} type="button">
-            {t("admin.employeeDashboard")}
-          </button>
-        )}
-        {isCustomer && (
-          <button onClick={() => goTo("account")} type="button">
-            {t("auth.myAccount")}
-          </button>
-        )}
-        {currentUser ? (
-          <button onClick={handleLogout} type="button">
-            {t("auth.logout")}
-          </button>
-        ) : (
-          <>
-            <button onClick={() => goTo("login")} type="button">
-              {t("auth.login")}
-            </button>
-            <button onClick={() => goTo("register")} type="button">
-              {t("auth.register")}
-            </button>
-          </>
+
+        {mobileSubmenu === "about" && (
+          <div className="mobile-menu-submenu">
+            <div className="mobile-menu-submenu-links">
+              {aboutMenuLinks.map((link) => (
+                <button key={link.key} onClick={() => handleAboutLink(link)} type="button">
+                  {language === "ar" ? link.labelAr : link.labelEn}
+                </button>
+              ))}
+            </div>
+            <div className="mobile-menu-promo-grid">
+              {aboutFeatureCards.map((card) => (
+                <button key={card.key} className="mobile-menu-promo-card" onClick={() => handleFeatureCard(card)} type="button">
+                  <span className="mobile-menu-promo-image">
+                    <img
+                      src={getWebsiteMediaImage(websiteMedia, `header_about_card_${card.key}`, card.image)}
+                      alt={language === "ar" ? card.titleAr : card.titleEn}
+                    />
+                  </span>
+                  <span className="mobile-menu-promo-label">{language === "ar" ? card.titleAr : card.titleEn}</span>
+                </button>
+              ))}
+            </div>
+          </div>
         )}
       </div>
     </header>
