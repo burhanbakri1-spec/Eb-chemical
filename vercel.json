@@ -3,6 +3,14 @@
   "outputDirectory": "dist",
   "rewrites": [
     {
+      "source": "/catalog.xml",
+      "destination": "/api/catalog"
+    },
+    {
+      "source": "/product-feed.xml",
+      "destination": "/api/catalog"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

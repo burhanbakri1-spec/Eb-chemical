@@ -3,12 +3,16 @@ import { Minus, Plus, Search, Upload } from "lucide-react";
 import AdminLayout from "../components/AdminLayout.jsx";
 import AdminOrdersTable from "../components/AdminOrdersTable.jsx";
 import WebsiteMediaManager from "../components/WebsiteMediaManager.jsx";
-import { categories as defaultCategories } from "../data/categories.js";
 import { uploadImage, uploadImages } from "../utils/api.js";
+import {
+  adminCategoriesStorageKey,
+  defaultAdminCategories,
+  getSelectableAdminCategories,
+} from "../utils/adminCategories.js";
 
 const storageKeys = {
   brands: "ebAdminBrands",
-  categories: "ebAdminCategories",
+  categories: adminCategoriesStorageKey,
   inventory: "ebAdminInventory",
   movements: "ebAdminStockMovements",
   settings: "ebAdminSettings",
@@ -548,6 +552,7 @@ function ProductsListPage({ categories, filters, onAdd, onDeleteProduct, onEdit,
 
 function ProductWizard({ categories, editingProduct, onCancel, onSave }) {
   const [step, setStep] = React.useState("basic");
+  const initialCategoryOptions = getSelectableAdminCategories(categories, editingProduct?.categoryId);
   const [uploadError, setUploadError] = React.useState("");
   const [uploadingField, setUploadingField] = React.useState("");
   const [uploadingVariantIndex, setUploadingVariantIndex] = React.useState(-1);
@@ -564,7 +569,7 @@ function ProductWizard({ categories, editingProduct, onCancel, onSave }) {
     nameAr: editingProduct?.name?.ar || "",
     slug: editingProduct?.slug || "",
     sku: editingProduct?.sku || "",
-    categoryId: editingProduct?.categoryId || categories[0]?.id || "",
+    categoryId: editingProduct?.categoryId || initialCategoryOptions[0]?.id || "",
     brand: editingProduct?.brand || "EB Chemical",
     size: editingProduct?.sizes?.[0]?.size || "500ml",
     price: editingProduct?.sizes?.[0]?.price || "",
@@ -609,6 +614,7 @@ function ProductWizard({ categories, editingProduct, onCancel, onSave }) {
 
   const tabs = ["basic", "variants", "media", "seo", "showcase"];
   const tabLabels = ["Basic", "Variants", "Media", "SEO", "Showcase"];
+  const selectableCategories = getSelectableAdminCategories(categories, form.categoryId);
 
   function change(event) {
     const { checked, name, type, value } = event.target;
@@ -821,7 +827,7 @@ function ProductWizard({ categories, editingProduct, onCancel, onSave }) {
             <label>Arabic Product Name<input name="nameAr" value={form.nameAr} onChange={change} /></label>
             <label>Slug<input name="slug" value={form.slug} onChange={change} /></label>
             <label>SKU<input name="sku" value={form.sku} onChange={change} /></label>
-            <label>Category *<select name="categoryId" required value={form.categoryId} onChange={change}>{categories.map((category) => <option key={category.id} value={category.id}>{getText(category.name)}</option>)}</select></label>
+            <label>Category *<select name="categoryId" required value={form.categoryId} onChange={change}>{selectableCategories.map((category) => <option key={category.id} value={category.id}>{getText(category.name)}</option>)}</select></label>
             <label>Brand<input name="brand" value={form.brand} onChange={change} /></label>
             <label>Short Description<textarea name="shortDescription" value={form.shortDescription} onChange={change} /></label>
             <label>Full Description<textarea name="fullDescription" value={form.fullDescription} onChange={change} /></label>
@@ -1242,7 +1248,7 @@ function AdminDashboardPage({
 }) {
   const [editingProduct, setEditingProduct] = React.useState(null);
   const [filters, setFilters] = React.useState({ brand: "all", category: "all", search: "", status: "all" });
-  const [adminCategories, setAdminCategories] = React.useState(() => readStorage(storageKeys.categories, defaultCategories));
+  const [adminCategories, setAdminCategories] = React.useState(() => readStorage(storageKeys.categories, defaultAdminCategories));
   const [brands, setBrands] = React.useState(() => readStorage(storageKeys.brands, [{ id: "eb-chemical", name: "EB Chemical", slug: "eb-chemical", country: "Palestine", active: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }]));
   const [vlogs, setVlogs] = React.useState(() => readStorage(storageKeys.vlogs, []));
   const [vlogHero, setVlogHero] = React.useState(() => readStorage(storageKeys.vlogHero, { image: "", title: "EB Chemical care stories" }));

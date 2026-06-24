@@ -1,6 +1,6 @@
 import React from "react";
-import { categories } from "../data/categories.js";
 import { uploadImage, uploadImages } from "../utils/api.js";
+import { getSelectableAdminCategories, readAdminCategories } from "../utils/adminCategories.js";
 
 const placeholderImage = "/images/products/product-placeholder.svg";
 
@@ -105,6 +105,13 @@ function createEmptyForm() {
   };
 }
 
+function getCategoryLabel(category, language = "en") {
+  const name = category?.name;
+  if (!name) return category?.id || "";
+  if (typeof name === "string") return name;
+  return name[language] || name.en || name.ar || category.id || "";
+}
+
 function createGalleryImageEntry(index = 0, imageUrl = "") {
   return {
     id: `gallery-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
@@ -175,7 +182,7 @@ function productToForm(product) {
   };
 }
 
-function AdminProductForm({ editingProduct, language, onCancel, onSave, t }) {
+function AdminProductForm({ categoryOptions, editingProduct, language, onCancel, onSave, t }) {
   const [form, setForm] = React.useState(() => productToForm(editingProduct));
   const [isSaving, setIsSaving] = React.useState(false);
   const [uploadingField, setUploadingField] = React.useState("");
@@ -193,6 +200,11 @@ function AdminProductForm({ editingProduct, language, onCancel, onSave, t }) {
     setForm(productToForm(editingProduct));
     setUploadError("");
   }, [editingProduct]);
+
+  const availableCategories = getSelectableAdminCategories(
+    categoryOptions || readAdminCategories(),
+    form.categoryId,
+  );
 
   function handleChange(event) {
     const { name, value } = event.target;
@@ -552,9 +564,9 @@ function AdminProductForm({ editingProduct, language, onCancel, onSave, t }) {
       <label>
         {t("admin.category")}
         <select name="categoryId" onChange={handleChange} value={form.categoryId}>
-          {categories.map((category) => (
+          {availableCategories.map((category) => (
             <option key={category.id} value={category.id}>
-              {category.name[language]}
+              {getCategoryLabel(category, language)}
             </option>
           ))}
         </select>
