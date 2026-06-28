@@ -1,5 +1,9 @@
 import { Router } from "express";
-import { persistStore, users, workSessions } from "../data/store.js";
+import {
+  persistCompanyStore,
+  userRepository,
+  workSessionRepository,
+} from "../data/store.js";
 import { getSessionUser, publicUser, requireAuth, signToken } from "../middleware/auth.js";
 
 const router = Router();
@@ -8,10 +12,11 @@ function isStaffRole(role) {
   return role === "employee" || role === "staff";
 }
 
-async function startEmployeeSession(user) {
+async function startEmployeeSession(user, companyId) {
   if (!isStaffRole(user.role)) return null;
   const today = new Date().toISOString().slice(0, 10);
-  let session = workSessions.find(
+  let session = workSessionRepository.findByCompany(
+    companyId,
     (entry) => entry.employeeId === user.id && entry.date === today && !entry.logoutTime,
   );
   if (!session) {
@@ -23,15 +28,16 @@ async function startEmployeeSession(user) {
       loginTime: new Date().toISOString(),
       logoutTime: null,
     };
-    workSessions.unshift(session);
-    await persistStore();
+    workSessionRepository.createForCompany(companyId, session, { prepend: true });
+    await persistCompanyStore(companyId);
   }
   return session;
 }
 
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
-  const user = users.find(
+  const user = userRepository.findByCompany(
+    req.companyId,
     (entry) => entry.email === email && entry.password === password && entry.isActive !== false,
   );
 
@@ -43,13 +49,13 @@ router.post("/login", async (req, res) => {
   return res.json({
     token,
     user: publicUser(user),
-    workSession: await startEmployeeSession(user),
+    workSession: await startEmployeeSession(user, req.companyId),
   });
 });
 
 router.post("/register", async (req, res) => {
   const { name, email, phone, password } = req.body;
-  if (users.some((user) => user.email === email)) {
+  if (userRepository.getByCompany(req.companyId).some((user) => user.email === email)) {
     return res.status(409).json({ message: "Email already exists." });
   }
 
@@ -66,8 +72,8 @@ router.post("/register", async (req, res) => {
     totalPointsRedeemed: 0,
     isActive: true,
   };
-  users.push(user);
-  await persistStore();
+  userRepository.createForCompany(req.companyId, user);
+  await persistCompanyStore(req.companyId);
   const token = signToken(user);
   return res.status(201).json({ token, user: publicUser(user) });
 });
@@ -81,10 +87,13 @@ router.post("/logout", async (req, res) => {
 
   let workSession = null;
   if (isStaffRole(user?.role)) {
-    workSession = workSessions.find((entry) => entry.employeeId === user.id && !entry.logoutTime);
+    workSession = workSessionRepository.findByCompany(
+      req.companyId,
+      (entry) => entry.employeeId === user.id && !entry.logoutTime,
+    );
     if (workSession) {
       workSession.logoutTime = new Date().toISOString();
-      await persistStore();
+      await persistCompanyStore(req.companyId);
     }
   }
 

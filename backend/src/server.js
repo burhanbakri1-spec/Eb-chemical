@@ -1,6 +1,8 @@
 import cors from "cors";
 import "dotenv/config";
 import express from "express";
+import { resolveCompany } from "./middleware/company.js";
+import { sanitizeTenantRequestBody } from "./middleware/tenantInput.js";
 import adminRoutes from "./routes/admin.js";
 import authRoutes from "./routes/auth.js";
 import cartRoutes from "./routes/cart.js";
@@ -34,6 +36,8 @@ app.use(
 );
 app.use("/uploads", express.static(uploadsDir));
 app.use(express.json({ limit: "1mb" }));
+app.use(sanitizeTenantRequestBody);
+app.use(resolveCompany);
 app.use((req, res, next) => {
   if (req.path.startsWith("/api")) {
     res.setHeader("Content-Type", "application/json; charset=utf-8");

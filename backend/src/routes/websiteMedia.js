@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { persistStore, websiteMedia } from "../data/store.js";
+import { persistCompanyStore, websiteMediaRepository } from "../data/store.js";
 import { requireAuth } from "../middleware/auth.js";
 
 const router = Router();
@@ -52,42 +52,45 @@ function normalizeMedia(input, existing = {}) {
   };
 }
 
-router.get("/", (_req, res) => {
-  res.json(sortMedia(websiteMedia.filter((item) => item.isActive !== false)));
+router.get("/", (req, res) => {
+  res.json(sortMedia(websiteMediaRepository.getByCompany(req.companyId).filter((item) => item.isActive !== false)));
 });
 
-router.get("/all", requireAuth, requireMediaEditor, (_req, res) => {
-  res.json(sortMedia(websiteMedia));
+router.get("/all", requireAuth, requireMediaEditor, (req, res) => {
+  res.json(sortMedia(websiteMediaRepository.getByCompany(req.companyId)));
 });
 
 router.get("/:sectionKey", (req, res) => {
-  res.json(sortMedia(websiteMedia.filter(
+  res.json(sortMedia(websiteMediaRepository.getByCompany(req.companyId).filter(
     (item) => item.sectionKey === req.params.sectionKey && item.isActive !== false,
   )));
 });
 
 router.post("/", requireAuth, requireMediaEditor, async (req, res) => {
   const item = normalizeMedia(req.body);
-  websiteMedia.push(item);
-  await persistStore();
+  websiteMediaRepository.createForCompany(req.companyId, item);
+  await persistCompanyStore(req.companyId);
   return res.status(201).json(item);
 });
 
 router.put("/:id", requireAuth, requireMediaEditor, async (req, res) => {
-  const index = websiteMedia.findIndex((item) => item.id === req.params.id);
-  if (index === -1) return res.status(404).json({ message: "Website media item not found." });
+  const existing = websiteMediaRepository.findByCompany(req.companyId, req.params.id);
+  if (!existing) return res.status(404).json({ message: "Website media item not found." });
 
-  websiteMedia[index] = normalizeMedia({ ...req.body, id: req.params.id }, websiteMedia[index]);
-  await persistStore();
-  return res.json(websiteMedia[index]);
+  const updated = websiteMediaRepository.updateForCompany(
+    req.companyId,
+    req.params.id,
+    normalizeMedia({ ...req.body, id: req.params.id }, existing),
+  );
+  await persistCompanyStore(req.companyId);
+  return res.json(updated);
 });
 
 router.delete("/:id", requireAuth, requireMediaEditor, async (req, res) => {
-  const index = websiteMedia.findIndex((item) => item.id === req.params.id);
-  if (index === -1) return res.status(404).json({ message: "Website media item not found." });
+  const removed = websiteMediaRepository.deleteForCompany(req.companyId, req.params.id);
+  if (!removed) return res.status(404).json({ message: "Website media item not found." });
 
-  websiteMedia.splice(index, 1);
-  await persistStore({ pruneMissing: true });
+  await persistCompanyStore(req.companyId, { pruneMissing: true });
   return res.status(204).end();
 });
 

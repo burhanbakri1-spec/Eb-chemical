@@ -1,3 +1,9 @@
+import {
+  DEFAULT_COMPANY_ID,
+  companyStoragePath,
+  normalizeCompanyId,
+} from "../tenancy/company.js";
+
 const SUPABASE_REST_TIMEOUT_MS = 15000;
 
 function supabaseUrl() {
@@ -72,20 +78,63 @@ async function upsertRows(table, rows) {
   });
 }
 
-async function deleteRow(table, id) {
-  await supabaseFetch(`/rest/v1/${table}?id=eq.${encodeURIComponent(id)}`, {
-    method: "DELETE",
-    headers: { Prefer: "return=minimal" },
-  });
+function companyQuery(companyId, select = "*") {
+  const company = normalizeCompanyId(companyId);
+  const normalized = encodeURIComponent(company);
+  return company === DEFAULT_COMPANY_ID
+    ? `select=${select}&or=(company_id.eq.${normalized},company_id.is.null)`
+    : `select=${select}&company_id=eq.${normalized}`;
 }
 
-async function deleteMissingRows(table, currentIds) {
-  const existing = await selectAll(table, "select=id");
+function companyMutationFilter(companyId) {
+  const company = normalizeCompanyId(companyId);
+  const normalized = encodeURIComponent(company);
+  return company === DEFAULT_COMPANY_ID
+    ? `or=(company_id.eq.${normalized},company_id.is.null)`
+    : `company_id=eq.${normalized}`;
+}
+
+async function selectCompanyRows(table, companyId, select = "*") {
+  return selectAll(table, companyQuery(companyId, select));
+}
+
+async function deleteCompanyRow(table, id, companyId) {
+  await supabaseFetch(
+    `/rest/v1/${table}?id=eq.${encodeURIComponent(id)}&${companyMutationFilter(companyId)}`,
+    {
+    method: "DELETE",
+    headers: { Prefer: "return=minimal" },
+    },
+  );
+}
+
+async function deleteMissingCompanyRows(table, currentIds, companyId) {
+  const existing = await selectCompanyRows(table, companyId, "id,company_id");
   const keep = new Set(currentIds);
   const staleIds = existing.map((row) => row.id).filter((id) => !keep.has(id));
   for (const id of staleIds) {
-    await deleteRow(table, id);
+    await deleteCompanyRow(table, id, companyId);
   }
+}
+
+async function assertNoCrossCompanyConflicts(table, rows, companyId) {
+  if (!rows.length) return;
+  const normalized = normalizeCompanyId(companyId);
+  const incomingIds = new Set(rows.map((row) => row.id));
+  const existing = await selectAll(table, "select=id,company_id");
+  const conflict = existing.find(
+    (row) => incomingIds.has(row.id) && normalizeCompanyId(row.company_id) !== normalized,
+  );
+  if (conflict) {
+    throw new Error(
+      `Tenant isolation prevented ${table} row ${conflict.id} from being overwritten by ${normalized}.`,
+    );
+  }
+}
+
+async function upsertCompanyRows(table, rows, companyId) {
+  await assertNoCrossCompanyConflicts(table, rows, companyId);
+  await upsertRows(table, rows);
 }
 
 function rowDate(value) {
@@ -127,10 +176,11 @@ function ensureUniqueRowIds(rows, fallbackIdForRow) {
   });
 }
 
-function productRow(product) {
+function productRow(product, companyId) {
   const firstVariant = Array.isArray(product.variants) ? product.variants[0] : null;
   return {
     id: product.id,
+    company_id: normalizeCompanyId(companyId),
     slug: product.slug || product.id,
     name: typeof product.name === "object" ? product.name?.en || product.id : product.name || product.id,
     name_ar: typeof product.name === "object" ? product.name?.ar || "" : product.nameAr || product.name_ar || "",
@@ -149,9 +199,10 @@ function productRow(product) {
   };
 }
 
-function variantRows(product) {
+function variantRows(product, companyId) {
   const rows = (product.variants || []).map((variant, index) => ({
     id: variant.id || `${product.id}-variant-${index}`,
+    company_id: normalizeCompanyId(companyId),
     product_id: product.id,
     color_name: variant.color_name || variant.colorName || "Default",
     color_value: variant.color_value || variant.colorValue || variant.colorHex || "",
@@ -168,7 +219,7 @@ function variantRows(product) {
   return ensureUniqueRowIds(rows, (row, index) => `${row.product_id}-variant-${index}`);
 }
 
-function galleryRows(product) {
+function galleryRows(product, companyId) {
   const source = product.gallery_images || product.galleryImages || [];
   const rows = source
     .map((entry, index) => {
@@ -176,6 +227,7 @@ function galleryRows(product) {
       if (!imageUrl) return null;
       return {
         id: typeof entry === "object" && entry?.id ? entry.id : `${product.id}-gallery-${index}`,
+        company_id: normalizeCompanyId(companyId),
         product_id: product.id,
         image_url: imageUrl,
         sort_order: Number(typeof entry === "object" ? entry?.sort_order ?? entry?.sortOrder ?? index : index),
@@ -209,9 +261,29 @@ function userRow(user) {
   };
 }
 
-function orderRow(order) {
+function membershipRow(user, companyId) {
+  const normalized = normalizeCompanyId(companyId);
+  const role =
+    user.role === "admin"
+      ? "company_admin"
+      : ["employee", "staff", "manager"].includes(user.role)
+        ? "employee"
+        : "customer";
+  return {
+    id: `${normalized}:${user.id}`,
+    company_id: normalized,
+    user_id: user.id,
+    role,
+    permissions: user.permissions || [],
+    is_active: user.isActive !== false,
+    updated_at: rowDate(user.updatedAt),
+  };
+}
+
+function orderRow(order, companyId) {
   return {
     id: order.id,
+    company_id: normalizeCompanyId(companyId),
     customer_user_id: order.customerUserId || null,
     customer: order.customer || {},
     subtotal: Number(order.subtotal || 0),
@@ -231,9 +303,10 @@ function orderRow(order) {
   };
 }
 
-function orderItemRows(order) {
+function orderItemRows(order, companyId) {
   return (order.items || []).map((item, index) => ({
     id: item.id || `${order.id}-item-${index}`,
+    company_id: normalizeCompanyId(companyId),
     order_id: order.id,
     product_id: item.productId || item.id || "",
     product_name: item.productName || item.name || "",
@@ -250,11 +323,12 @@ function orderItemRows(order) {
   }));
 }
 
-function websiteMediaRow(item, index = 0) {
+function websiteMediaRow(item, index = 0, companyId = DEFAULT_COMPANY_ID) {
   const imageUrl = item.imageUrl ?? item.image_url ?? "";
   const { fallbackImageUrl, fallback_image_url, ...data } = item;
   return {
     id: item.id || `website-media-${index}`,
+    company_id: normalizeCompanyId(companyId),
     section_key: item.sectionKey || item.section_key || "",
     section_label: item.sectionLabel || item.section_label || "",
     group_key: item.groupKey || item.group_key || "sections",
@@ -388,9 +462,11 @@ function mergeOrder(row, orderItems) {
   };
 }
 
-export async function loadStoreFromSupabase() {
+export async function loadStoreFromSupabase(companyId = DEFAULT_COMPANY_ID) {
+  const normalizedCompanyId = normalizeCompanyId(companyId);
   const [
-    users,
+    allUsers,
+    memberships,
     products,
     variants,
     galleryImages,
@@ -404,18 +480,29 @@ export async function loadStoreFromSupabase() {
     websiteMedia,
   ] = await Promise.all([
     selectAll("users", "select=*"),
-    selectAll("products", "select=*"),
-    selectAll("product_variants", "select=*"),
-    selectAll("product_gallery_images", "select=*"),
-    selectAll("orders", "select=*"),
-    selectAll("order_items", "select=*"),
-    selectAll("carts", "select=*"),
-    selectAll("homepage_offers", "select=*"),
-    selectAll("homepage_category_cards", "select=*"),
-    selectAll("reviews", "select=*"),
-    selectAll("work_sessions", "select=*"),
-    selectAll("website_media", "select=*"),
+    selectAll(
+      "company_memberships",
+      `select=*&company_id=eq.${encodeURIComponent(normalizedCompanyId)}`,
+    ),
+    selectCompanyRows("products", normalizedCompanyId),
+    selectCompanyRows("product_variants", normalizedCompanyId),
+    selectCompanyRows("product_gallery_images", normalizedCompanyId),
+    selectCompanyRows("orders", normalizedCompanyId),
+    selectCompanyRows("order_items", normalizedCompanyId),
+    selectCompanyRows("carts", normalizedCompanyId),
+    selectCompanyRows("homepage_offers", normalizedCompanyId),
+    selectCompanyRows("homepage_category_cards", normalizedCompanyId),
+    selectCompanyRows("reviews", normalizedCompanyId),
+    selectCompanyRows("work_sessions", normalizedCompanyId),
+    selectCompanyRows("website_media", normalizedCompanyId),
   ]);
+
+  const memberUserIds = new Set(memberships.map((membership) => membership.user_id));
+  const users = memberships.length
+    ? allUsers.filter((user) => memberUserIds.has(user.id))
+    : normalizedCompanyId === DEFAULT_COMPANY_ID
+      ? allUsers
+      : [];
 
   const hasRows = [
     users,
@@ -451,6 +538,7 @@ export async function loadStoreFromSupabase() {
 }
 
 export async function saveStoreToSupabase(store, options = {}) {
+  const companyId = normalizeCompanyId(options.companyId);
   const pruneMissing = options.pruneMissing === true;
   const products = store.products || [];
   const orders = store.orders || [];
@@ -462,20 +550,22 @@ export async function saveStoreToSupabase(store, options = {}) {
   const websiteMedia = store.websiteMedia || [];
   const carts = Object.entries(store.carts || {});
 
-  const productRows = products.map(productRow);
+  const productRows = products.map((product) => productRow(product, companyId));
   const productVariantRows = ensureUniqueRowIds(
-    products.flatMap(variantRows),
+    products.flatMap((product) => variantRows(product, companyId)),
     (row, index) => `${row.product_id}-variant-${index}`
   );
   const productGalleryRows = ensureUniqueRowIds(
-    products.flatMap(galleryRows),
+    products.flatMap((product) => galleryRows(product, companyId)),
     (row, index) => `${row.product_id}-gallery-${index}`
   );
-  const orderRows = orders.map(orderRow);
-  const itemRows = orders.flatMap(orderItemRows);
+  const orderRows = orders.map((order) => orderRow(order, companyId));
+  const itemRows = orders.flatMap((order) => orderItemRows(order, companyId));
   const userRows = users.map(userRow);
+  const membershipRows = users.map((user) => membershipRow(user, companyId));
   const offerRows = offers.map((offer, index) => ({
     id: offer.id,
+    company_id: companyId,
     display_order: Number(offer.displayOrder || index + 1),
     is_active: offer.isActive !== false,
     data: offer,
@@ -484,6 +574,7 @@ export async function saveStoreToSupabase(store, options = {}) {
   }));
   const cardRows = categoryCards.map((card, index) => ({
     id: card.key || card.id || `card-${index}`,
+    company_id: companyId,
     card_key: card.key || card.id || `card-${index}`,
     display_order: Number(card.displayOrder || index + 1),
     is_active: card.isActive !== false,
@@ -493,6 +584,7 @@ export async function saveStoreToSupabase(store, options = {}) {
   }));
   const reviewRows = reviews.map((review) => ({
     id: review.id,
+    company_id: companyId,
     type: review.type || "store",
     rating: Number(review.rating || 5),
     status: review.status || "approved",
@@ -503,6 +595,7 @@ export async function saveStoreToSupabase(store, options = {}) {
   }));
   const workSessionRows = workSessions.map((session) => ({
     id: session.id,
+    company_id: companyId,
     employee_id: session.employeeId,
     date: session.date,
     login_time: session.loginTime,
@@ -513,64 +606,84 @@ export async function saveStoreToSupabase(store, options = {}) {
   }));
   const cartRows = carts.map(([userId, items]) => ({
     id: userId,
+    company_id: companyId,
     user_id: userId,
     items,
     updated_at: new Date().toISOString(),
   }));
-  const websiteMediaRows = websiteMedia.map(websiteMediaRow);
+  const websiteMediaRows = websiteMedia.map((item, index) =>
+    websiteMediaRow(item, index, companyId),
+  );
 
   await upsertRows("users", userRows);
-  await upsertRows("products", productRows);
+  await upsertRows("company_memberships", membershipRows);
+  await upsertCompanyRows("products", productRows, companyId);
   // Delete orphaned variant rows before re-inserting current set
   const productVariantProductIds = [...new Set(productVariantRows.map((row) => row.product_id))];
   for (const pid of productVariantProductIds) {
-    await supabaseFetch(`/rest/v1/product_variants?product_id=eq.${encodeURIComponent(pid)}`, {
-      method: "DELETE",
-      headers: { Prefer: "return=minimal" },
-    });
+    await supabaseFetch(
+      `/rest/v1/product_variants?product_id=eq.${encodeURIComponent(pid)}&${companyMutationFilter(companyId)}`,
+      {
+        method: "DELETE",
+        headers: { Prefer: "return=minimal" },
+      },
+    );
   }
-  await upsertRows("product_variants", productVariantRows);
+  await upsertCompanyRows("product_variants", productVariantRows, companyId);
   // Delete orphaned gallery rows before re-inserting current set
   const productGalleryProductIds = [...new Set(productGalleryRows.map((row) => row.product_id))];
   for (const pid of productGalleryProductIds) {
-    await supabaseFetch(`/rest/v1/product_gallery_images?product_id=eq.${encodeURIComponent(pid)}`, {
-      method: "DELETE",
-      headers: { Prefer: "return=minimal" },
-    });
+    await supabaseFetch(
+      `/rest/v1/product_gallery_images?product_id=eq.${encodeURIComponent(pid)}&${companyMutationFilter(companyId)}`,
+      {
+        method: "DELETE",
+        headers: { Prefer: "return=minimal" },
+      },
+    );
   }
-  await upsertRows("product_gallery_images", productGalleryRows);
-  await upsertRows("orders", orderRows);
-  await upsertRows("order_items", itemRows);
-  await upsertRows("carts", cartRows);
-  await upsertRows("homepage_offers", offerRows);
-  await upsertRows("homepage_category_cards", cardRows);
-  await upsertRows("reviews", reviewRows);
-  await upsertRows("work_sessions", workSessionRows);
-  await upsertRows("website_media", websiteMediaRows);
+  await upsertCompanyRows("product_gallery_images", productGalleryRows, companyId);
+  await upsertCompanyRows("orders", orderRows, companyId);
+  await upsertCompanyRows("order_items", itemRows, companyId);
+  await upsertCompanyRows("carts", cartRows, companyId);
+  await upsertCompanyRows("homepage_offers", offerRows, companyId);
+  await upsertCompanyRows("homepage_category_cards", cardRows, companyId);
+  await upsertCompanyRows("reviews", reviewRows, companyId);
+  await upsertCompanyRows("work_sessions", workSessionRows, companyId);
+  await upsertCompanyRows("website_media", websiteMediaRows, companyId);
 
   if (pruneMissing) {
-    await deleteMissingRows("users", userRows.map((row) => row.id));
-    await deleteMissingRows("products", productRows.map((row) => row.id));
-    await deleteMissingRows("product_variants", productVariantRows.map((row) => row.id));
-    await deleteMissingRows("product_gallery_images", productGalleryRows.map((row) => row.id));
-    await deleteMissingRows("orders", orderRows.map((row) => row.id));
-    await deleteMissingRows("order_items", itemRows.map((row) => row.id));
-    await deleteMissingRows("carts", cartRows.map((row) => row.id));
-    await deleteMissingRows("homepage_offers", offerRows.map((row) => row.id));
-    await deleteMissingRows("homepage_category_cards", cardRows.map((row) => row.id));
-    await deleteMissingRows("reviews", reviewRows.map((row) => row.id));
-    await deleteMissingRows("work_sessions", workSessionRows.map((row) => row.id));
-    await deleteMissingRows("website_media", websiteMediaRows.map((row) => row.id));
+    await deleteMissingCompanyRows("company_memberships", membershipRows.map((row) => row.id), companyId);
+    await deleteMissingCompanyRows("products", productRows.map((row) => row.id), companyId);
+    await deleteMissingCompanyRows("product_variants", productVariantRows.map((row) => row.id), companyId);
+    await deleteMissingCompanyRows("product_gallery_images", productGalleryRows.map((row) => row.id), companyId);
+    await deleteMissingCompanyRows("orders", orderRows.map((row) => row.id), companyId);
+    await deleteMissingCompanyRows("order_items", itemRows.map((row) => row.id), companyId);
+    await deleteMissingCompanyRows("carts", cartRows.map((row) => row.id), companyId);
+    await deleteMissingCompanyRows("homepage_offers", offerRows.map((row) => row.id), companyId);
+    await deleteMissingCompanyRows("homepage_category_cards", cardRows.map((row) => row.id), companyId);
+    await deleteMissingCompanyRows("reviews", reviewRows.map((row) => row.id), companyId);
+    await deleteMissingCompanyRows("work_sessions", workSessionRows.map((row) => row.id), companyId);
+    await deleteMissingCompanyRows("website_media", websiteMediaRows.map((row) => row.id), companyId);
   }
 }
 
-export async function uploadImageToSupabaseStorage({ filename, contentType, data }) {
+export async function uploadImageToSupabaseStorage({
+  companyId = DEFAULT_COMPANY_ID,
+  filename,
+  contentType,
+  data,
+}) {
   if (!isSupabaseStorageConfigured()) {
     throw new Error("Supabase Storage is not configured.");
   }
 
   const bucket = process.env.SUPABASE_BUCKET;
-  const storagePath = `uploads/${new Date().toISOString().slice(0, 10)}/${filename}`;
+  const storagePath = companyStoragePath(
+    companyId,
+    "uploads",
+    new Date().toISOString().slice(0, 10),
+    filename,
+  );
   const encodedPath = encodeStoragePath(storagePath);
   await supabaseFetch(`/storage/v1/object/${encodeURIComponent(bucket)}/${encodedPath}`, {
     method: "POST",

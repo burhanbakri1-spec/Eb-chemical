@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { persistStore, productCatalog } from "../data/store.js";
+import { persistCompanyStore, productRepository } from "../data/store.js";
 
 const router = Router();
 const placeholderImage = "/images/products/product-placeholder.svg";
@@ -152,7 +152,7 @@ function mergeProductUpdate(existingProduct, incomingProduct) {
 }
 
 router.get("/", (_req, res) => {
-  res.json(productCatalog.map(normalizeProduct));
+  res.json(productRepository.getByCompany(_req.companyId).map(normalizeProduct));
 });
 
 router.post("/", async (req, res) => {
@@ -161,31 +161,30 @@ router.post("/", async (req, res) => {
     id: req.body.id || `product-${Date.now()}`,
     slug: req.body.slug || `product-${Date.now()}`,
   });
-  productCatalog.unshift(product);
-  await persistStore();
+  productRepository.createForCompany(req.companyId, product, { prepend: true });
+  await persistCompanyStore(req.companyId);
   res.status(201).json(product);
 });
 
 router.put("/:id", async (req, res) => {
-  const index = productCatalog.findIndex((product) => product.id === req.params.id);
-  if (index === -1) {
+  const existing = productRepository.findByCompany(req.companyId, req.params.id);
+  if (!existing) {
     return res.status(404).json({ message: "Product not found." });
   }
-  productCatalog[index] = normalizeProduct(mergeProductUpdate(productCatalog[index], {
+  const updated = productRepository.updateForCompany(req.companyId, req.params.id, normalizeProduct(mergeProductUpdate(existing, {
     ...req.body,
     id: req.params.id,
-  }));
-  await persistStore();
-  return res.json(productCatalog[index]);
+  })));
+  await persistCompanyStore(req.companyId);
+  return res.json(updated);
 });
 
 router.delete("/:id", async (req, res) => {
-  const index = productCatalog.findIndex((product) => product.id === req.params.id);
-  if (index === -1) {
+  const removed = productRepository.deleteForCompany(req.companyId, req.params.id);
+  if (!removed) {
     return res.status(404).json({ message: "Product not found." });
   }
-  productCatalog.splice(index, 1);
-  await persistStore({ pruneMissing: true });
+  await persistCompanyStore(req.companyId, { pruneMissing: true });
   return res.status(204).end();
 });
 

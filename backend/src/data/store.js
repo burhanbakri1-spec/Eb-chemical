@@ -9,6 +9,7 @@ import {
   loadStoreFromSupabase,
   saveStoreToSupabase,
 } from "./supabaseStore.js";
+import { DEFAULT_COMPANY_ID, normalizeCompanyId } from "../tenancy/company.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const dataDir = process.env.DATA_STORE_DIR
@@ -64,6 +65,38 @@ const seedUsers = [
 
 function clone(value) {
   return JSON.parse(JSON.stringify(value));
+}
+
+const recordCompanies = new WeakMap();
+
+function inputCompanyId(record) {
+  return normalizeCompanyId(record?.company_id || record?.companyId);
+}
+
+function withoutCompanyFields(record) {
+  if (!record || typeof record !== "object") return record;
+  const { company_id: _companyId, companyId: _camelCompanyId, ...data } = record;
+  return data;
+}
+
+function tagRecord(record, companyId = DEFAULT_COMPANY_ID) {
+  if (record && typeof record === "object") {
+    recordCompanies.set(record, normalizeCompanyId(companyId));
+  }
+  return record;
+}
+
+function normalizeTenantRecords(source, fallback, normalizer) {
+  return ensureArray(source, fallback).map((record, index) => {
+    const companyId = inputCompanyId(record);
+    return tagRecord(normalizer(withoutCompanyFields(record), index), companyId);
+  });
+}
+
+export function getRecordCompanyId(record) {
+  return normalizeCompanyId(
+    recordCompanies.get(record) || record?.company_id || record?.companyId,
+  );
 }
 
 function readPersistedStore() {
@@ -300,13 +333,13 @@ function preferWebsiteMediaItem(current, next) {
   };
 }
 
-async function readInitialStore() {
+async function readInitialStore(companyId = DEFAULT_COMPANY_ID) {
   if (!isSupabaseConfigured()) {
     return { persisted: readPersistedStore(), canPersistToSupabase: false };
   }
 
   try {
-    const result = await loadStoreFromSupabase();
+    const result = await loadStoreFromSupabase(companyId);
     return {
       persisted: result.isEmpty ? readPersistedStore() : result.store,
       canPersistToSupabase: true,
@@ -321,15 +354,27 @@ const initialStore = await readInitialStore();
 const persisted = initialStore.persisted;
 let canPersistToSupabase = initialStore.canPersistToSupabase;
 
-export const users = ensureArray(persisted?.users, seedUsers).map(normalizeUser);
-export const orders = ensureArray(persisted?.orders, []).map(normalizeOrder);
+export const users = normalizeTenantRecords(persisted?.users, seedUsers, normalizeUser);
+export const orders = normalizeTenantRecords(persisted?.orders, [], normalizeOrder);
 export const sessions = new Map();
-export const carts = new Map(Object.entries(persisted?.carts || {}));
-export const workSessions = ensureArray(persisted?.workSessions, []);
-export const productCatalog = ensureArray(persisted?.products, products).map(normalizeProduct);
-export const offers = ensureArray(persisted?.offers, homepageOffers).map(normalizeOffer);
-export const categoryCards = ensureArray(persisted?.categoryCards, homepageCategoryCards).map(normalizeCategoryCard);
-export const reviews = ensureArray(persisted?.reviews, initialReviews).map(normalizeReview);
+export const carts = new Map();
+export const workSessions = normalizeTenantRecords(
+  persisted?.workSessions,
+  [],
+  (session) => session,
+);
+export const productCatalog = normalizeTenantRecords(
+  persisted?.products,
+  products,
+  normalizeProduct,
+);
+export const offers = normalizeTenantRecords(persisted?.offers, homepageOffers, normalizeOffer);
+export const categoryCards = normalizeTenantRecords(
+  persisted?.categoryCards,
+  homepageCategoryCards,
+  normalizeCategoryCard,
+);
+export const reviews = normalizeTenantRecords(persisted?.reviews, initialReviews, normalizeReview);
 const persistedWebsiteMedia = Array.isArray(persisted?.websiteMedia) ? persisted.websiteMedia : [];
 const websiteMediaBySection = new Map(
   clone(defaultWebsiteMedia).map((item) => {
@@ -337,25 +382,124 @@ const websiteMediaBySection = new Map(
     return [definition.sectionKey || definition.id, definition];
   }),
 );
-persistedWebsiteMedia.forEach((item, index) => {
+persistedWebsiteMedia
+  .filter((item) => inputCompanyId(item) === DEFAULT_COMPANY_ID)
+  .forEach((item, index) => {
   const sectionKey = item.sectionKey || item.section_key || item.id || `persisted-website-media-${index}`;
   websiteMediaBySection.set(sectionKey, preferWebsiteMediaItem(websiteMediaBySection.get(sectionKey), item));
 });
-export const websiteMedia = [...websiteMediaBySection.values()].map(normalizeWebsiteMedia);
+export const websiteMedia = [...websiteMediaBySection.values()].map((item, index) =>
+  tagRecord(normalizeWebsiteMedia(withoutCompanyFields(item), index), DEFAULT_COMPANY_ID),
+);
 
-export function currentStoreSnapshot() {
+class TenantRepository {
+  constructor(collection, idKey = "id") {
+    this.collection = collection;
+    this.idKey = idKey;
+  }
+
+  getByCompany(companyId) {
+    const normalized = normalizeCompanyId(companyId);
+    return this.collection.filter((record) => getRecordCompanyId(record) === normalized);
+  }
+
+  findByCompany(companyId, predicateOrId) {
+    const predicate =
+      typeof predicateOrId === "function"
+        ? predicateOrId
+        : (record) => record?.[this.idKey] === predicateOrId;
+    return this.getByCompany(companyId).find(predicate) || null;
+  }
+
+  createForCompany(companyId, record, options = {}) {
+    tagRecord(record, companyId);
+    if (options.prepend) this.collection.unshift(record);
+    else this.collection.push(record);
+    return record;
+  }
+
+  updateForCompany(companyId, id, update) {
+    const normalized = normalizeCompanyId(companyId);
+    const index = this.collection.findIndex(
+      (record) => getRecordCompanyId(record) === normalized && record?.[this.idKey] === id,
+    );
+    if (index === -1) return null;
+
+    const current = this.collection[index];
+    const next = typeof update === "function" ? update(current) : { ...current, ...update };
+    tagRecord(next, normalized);
+    this.collection[index] = next;
+    return next;
+  }
+
+  deleteForCompany(companyId, id) {
+    const normalized = normalizeCompanyId(companyId);
+    const index = this.collection.findIndex(
+      (record) => getRecordCompanyId(record) === normalized && record?.[this.idKey] === id,
+    );
+    if (index === -1) return null;
+    return this.collection.splice(index, 1)[0];
+  }
+}
+
+function cartKey(companyId, userId) {
+  return `${normalizeCompanyId(companyId)}:${userId}`;
+}
+
+const initialCarts =
+  persisted?.companyCarts?.[DEFAULT_COMPANY_ID] || persisted?.carts || {};
+Object.entries(initialCarts).forEach(([userId, items]) => {
+  carts.set(cartKey(DEFAULT_COMPANY_ID, userId), items);
+});
+
+export const cartRepository = {
+  getByCompany(companyId) {
+    const prefix = `${normalizeCompanyId(companyId)}:`;
+    return [...carts.entries()]
+      .filter(([key]) => key.startsWith(prefix))
+      .map(([key, items]) => ({ userId: key.slice(prefix.length), items }));
+  },
+  findByCompany(companyId, userId) {
+    return carts.get(cartKey(companyId, userId)) || null;
+  },
+  createForCompany(companyId, { userId, items = [] }) {
+    carts.set(cartKey(companyId, userId), items);
+    return items;
+  },
+  updateForCompany(companyId, userId, items = []) {
+    carts.set(cartKey(companyId, userId), items);
+    return items;
+  },
+  deleteForCompany(companyId, userId) {
+    return carts.delete(cartKey(companyId, userId));
+  },
+};
+
+export const userRepository = new TenantRepository(users);
+export const orderRepository = new TenantRepository(orders);
+export const workSessionRepository = new TenantRepository(workSessions);
+export const productRepository = new TenantRepository(productCatalog);
+export const offerRepository = new TenantRepository(offers);
+export const categoryCardRepository = new TenantRepository(categoryCards, "key");
+export const reviewRepository = new TenantRepository(reviews);
+export const websiteMediaRepository = new TenantRepository(websiteMedia);
+
+export function currentStoreSnapshot(companyId = DEFAULT_COMPANY_ID) {
+  const normalized = normalizeCompanyId(companyId);
   const store = {
     version: 1,
     savedAt: new Date().toISOString(),
-    users,
-    orders,
-    products: productCatalog,
-    offers,
-    categoryCards,
-    reviews,
-    websiteMedia,
-    workSessions,
-    carts: Object.fromEntries(carts.entries()),
+    users: userRepository.getByCompany(normalized),
+    orders: orderRepository.getByCompany(normalized),
+    products: productRepository.getByCompany(normalized),
+    offers: offerRepository.getByCompany(normalized),
+    categoryCards: categoryCardRepository.getByCompany(normalized),
+    reviews: reviewRepository.getByCompany(normalized),
+    websiteMedia: websiteMediaRepository.getByCompany(normalized),
+    workSessions: workSessionRepository.getByCompany(normalized),
+    carts: Object.fromEntries(
+      cartRepository.getByCompany(normalized).map(({ userId, items }) => [userId, items]),
+    ),
   };
   return store;
 }
@@ -368,19 +512,72 @@ function persistLocalStore(store) {
   return store;
 }
 
-export async function persistStore(options = {}) {
-  const store = currentStoreSnapshot();
+function serializeTenantRecords(records, companyId) {
+  return records.map((record) => ({ ...record, company_id: normalizeCompanyId(companyId) }));
+}
+
+function mergeLocalTenantRecords(existing, records, companyId) {
+  const normalized = normalizeCompanyId(companyId);
+  const otherCompanies = (Array.isArray(existing) ? existing : []).filter(
+    (record) => inputCompanyId(record) !== normalized,
+  );
+  return [...serializeTenantRecords(records, normalized), ...otherCompanies];
+}
+
+function persistLocalCompanyStore(companyId, store) {
+  const normalized = normalizeCompanyId(companyId);
+  const existing = readPersistedStore() || {};
+  const merged = {
+    ...existing,
+    version: Math.max(2, Number(existing.version || store.version || 1)),
+    savedAt: store.savedAt,
+  };
+
+  for (const key of [
+    "users",
+    "orders",
+    "products",
+    "offers",
+    "categoryCards",
+    "reviews",
+    "websiteMedia",
+    "workSessions",
+  ]) {
+    merged[key] = mergeLocalTenantRecords(existing[key], store[key], normalized);
+  }
+
+  merged.companyCarts = {
+    ...(existing.companyCarts || {}),
+    [normalized]: store.carts,
+  };
+  if (normalized === DEFAULT_COMPANY_ID) {
+    merged.carts = store.carts;
+  }
+
+  return persistLocalStore(merged);
+}
+
+export async function persistCompanyStore(companyId, options = {}) {
+  const normalized = normalizeCompanyId(companyId);
+  const store = currentStoreSnapshot(normalized);
 
   if (isSupabaseConfigured()) {
     if (!canPersistToSupabase) {
       throw new Error("Supabase persistence is configured but unavailable. Refusing local fallback for persistent data.");
     }
 
-    await saveStoreToSupabase(store, { pruneMissing: options.pruneMissing === true });
+    await saveStoreToSupabase(store, {
+      companyId: normalized,
+      pruneMissing: options.pruneMissing === true,
+    });
     return store;
   }
 
-  return persistLocalStore(store);
+  return persistLocalCompanyStore(normalized, store);
+}
+
+export async function persistStore(options = {}) {
+  return persistCompanyStore(DEFAULT_COMPANY_ID, options);
 }
 
 if (!isSupabaseConfigured() && !fs.existsSync(dataFile)) {

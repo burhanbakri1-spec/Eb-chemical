@@ -4,6 +4,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { requireAuth } from "../middleware/auth.js";
 import { isSupabaseStorageConfigured, uploadImageToSupabaseStorage } from "../data/supabaseStore.js";
+import { companyStoragePath, companyStorageSegment } from "../tenancy/company.js";
 
 const router = express.Router();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -105,10 +106,10 @@ function parseMultipartImages(body, boundary) {
   return uploads;
 }
 
-function buildPublicUrl(req, filename) {
+function buildPublicUrl(req, relativePath) {
   const forwardedProtocol = req.headers["x-forwarded-proto"]?.split(",")[0]?.trim();
   const protocol = forwardedProtocol || req.protocol;
-  return `${protocol}://${req.get("host")}/uploads/${filename}`;
+  return `${protocol}://${req.get("host")}/uploads/${relativePath}`;
 }
 
 function requiresPersistentStorage() {
@@ -139,9 +140,8 @@ router.post(
       });
     }
 
-    if (!useSupabaseStorage) {
-      fs.mkdirSync(uploadsDir, { recursive: true });
-    }
+    const companyUploadDir = path.join(uploadsDir, companyStorageSegment(req.companyId));
+    if (!useSupabaseStorage) fs.mkdirSync(companyUploadDir, { recursive: true });
 
     const savedFiles = [];
 
@@ -158,16 +158,18 @@ router.post(
       if (useSupabaseStorage) {
         savedFiles.push(
           await uploadImageToSupabaseStorage({
+            companyId: req.companyId,
             filename,
             contentType: upload.contentType,
             data: upload.data,
           }),
         );
       } else {
-        fs.writeFileSync(path.join(uploadsDir, filename), upload.data);
+        const relativePath = companyStoragePath(req.companyId, filename);
+        fs.writeFileSync(path.join(companyUploadDir, filename), upload.data);
         savedFiles.push({
-          path: `/uploads/${filename}`,
-          url: buildPublicUrl(req, filename),
+          path: `/uploads/${relativePath}`,
+          url: buildPublicUrl(req, relativePath),
         });
       }
     }

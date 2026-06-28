@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { orders, persistStore } from "../data/store.js";
+import { orderRepository, persistCompanyStore } from "../data/store.js";
 import { publicUser, requireAuth } from "../middleware/auth.js";
 
 const router = Router();
@@ -11,6 +11,7 @@ function isStaffRole(role) {
 }
 
 router.get("/", (req, res) => {
+  const orders = orderRepository.getByCompany(req.companyId);
   if (req.user.role === "admin" || req.user.permissions?.includes("orders.view")) {
     if (isStaffRole(req.user.role)) {
       return res.json(
@@ -28,7 +29,11 @@ router.get("/", (req, res) => {
 });
 
 router.get("/my-orders", (req, res) => {
-  res.json(orders.filter((order) => order.customerUserId === req.user.id));
+  res.json(
+    orderRepository
+      .getByCompany(req.companyId)
+      .filter((order) => order.customerUserId === req.user.id),
+  );
 });
 
 router.post("/", async (req, res) => {
@@ -66,40 +71,39 @@ router.post("/", async (req, res) => {
     req.user.totalPointsRedeemed = Math.max(0, Number(req.user.totalPointsRedeemed || 0)) + pointsRedeemed;
   }
 
-  orders.unshift(order);
-  await persistStore();
+  orderRepository.createForCompany(req.companyId, order, { prepend: true });
+  await persistCompanyStore(req.companyId);
   res.status(201).json(order);
 });
 
 router.put("/:id/status", async (req, res) => {
-  const order = orders.find((entry) => entry.id === req.params.id);
+  const order = orderRepository.findByCompany(req.companyId, req.params.id);
   if (!order) return res.status(404).json({ message: "Order not found." });
 
   order.status = req.body.status || order.status;
   order.lastUpdatedBy = publicUser(req.user);
   order.updatedAt = new Date().toISOString();
-  await persistStore();
+  await persistCompanyStore(req.companyId);
   return res.json(order);
 });
 
 router.put("/:id/assign-employee", async (req, res) => {
-  const order = orders.find((entry) => entry.id === req.params.id);
+  const order = orderRepository.findByCompany(req.companyId, req.params.id);
   if (!order) return res.status(404).json({ message: "Order not found." });
 
   order.handledByEmployeeId = req.body.employeeId || "";
   order.assignedToEmployeeId = req.body.employeeId || "";
   order.lastUpdatedBy = publicUser(req.user);
   order.updatedAt = new Date().toISOString();
-  await persistStore();
+  await persistCompanyStore(req.companyId);
   return res.json(order);
 });
 
 router.delete("/:id", async (req, res) => {
-  const index = orders.findIndex((entry) => entry.id === req.params.id);
-  if (index === -1) return res.status(404).json({ message: "Order not found." });
+  const removed = orderRepository.deleteForCompany(req.companyId, req.params.id);
+  if (!removed) return res.status(404).json({ message: "Order not found." });
 
-  orders.splice(index, 1);
-  await persistStore({ pruneMissing: true });
+  await persistCompanyStore(req.companyId, { pruneMissing: true });
   return res.status(204).end();
 });
 

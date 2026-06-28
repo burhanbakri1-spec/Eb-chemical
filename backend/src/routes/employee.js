@@ -1,11 +1,15 @@
 import { Router } from "express";
-import { persistStore, users, workSessions } from "../data/store.js";
+import {
+  persistCompanyStore,
+  userRepository,
+  workSessionRepository,
+} from "../data/store.js";
 import { publicUser, requireAuth, requireAdmin } from "../middleware/auth.js";
 
 const router = Router();
 
-router.get("/", requireAuth, requireAdmin, (_req, res) => {
-  res.json(users.filter((user) => user.role === "employee").map(publicUser));
+router.get("/", requireAuth, requireAdmin, (req, res) => {
+  res.json(userRepository.getByCompany(req.companyId).filter((user) => user.role === "employee").map(publicUser));
 });
 
 router.post("/", requireAuth, requireAdmin, async (req, res) => {
@@ -17,49 +21,61 @@ router.post("/", requireAuth, requireAdmin, async (req, res) => {
     permissions: req.body.permissions || ["dashboard.view", "products.view", "orders.view"],
     isActive: req.body.isActive !== false,
   };
-  users.push(employee);
-  await persistStore();
+  userRepository.createForCompany(req.companyId, employee);
+  await persistCompanyStore(req.companyId);
   res.status(201).json(publicUser(employee));
 });
 
 router.put("/:id", requireAuth, requireAdmin, async (req, res) => {
-  const employee = users.find((user) => user.id === req.params.id && user.role === "employee");
+  const employee = userRepository.findByCompany(
+    req.companyId,
+    (user) => user.id === req.params.id && user.role === "employee",
+  );
   if (!employee) return res.status(404).json({ message: "Employee not found." });
 
   Object.assign(employee, req.body, { id: employee.id, role: "employee" });
-  await persistStore();
+  await persistCompanyStore(req.companyId);
   return res.json(publicUser(employee));
 });
 
 router.put("/:id/permissions", requireAuth, requireAdmin, async (req, res) => {
-  const employee = users.find((user) => user.id === req.params.id && user.role === "employee");
+  const employee = userRepository.findByCompany(
+    req.companyId,
+    (user) => user.id === req.params.id && user.role === "employee",
+  );
   if (!employee) return res.status(404).json({ message: "Employee not found." });
 
   employee.permissions = req.body.permissions || [];
-  await persistStore();
+  await persistCompanyStore(req.companyId);
   return res.json(publicUser(employee));
 });
 
 router.put("/:id/status", requireAuth, requireAdmin, async (req, res) => {
-  const employee = users.find((user) => user.id === req.params.id && user.role === "employee");
+  const employee = userRepository.findByCompany(
+    req.companyId,
+    (user) => user.id === req.params.id && user.role === "employee",
+  );
   if (!employee) return res.status(404).json({ message: "Employee not found." });
 
   employee.isActive = Boolean(req.body.isActive);
-  await persistStore();
+  await persistCompanyStore(req.companyId);
   return res.json(publicUser(employee));
 });
 
 router.delete("/:id", requireAuth, requireAdmin, async (req, res) => {
-  const index = users.findIndex((user) => user.id === req.params.id && user.role === "employee");
-  if (index === -1) return res.status(404).json({ message: "Employee not found." });
+  const employee = userRepository.findByCompany(
+    req.companyId,
+    (user) => user.id === req.params.id && user.role === "employee",
+  );
+  if (!employee) return res.status(404).json({ message: "Employee not found." });
 
-  users.splice(index, 1);
-  await persistStore({ pruneMissing: true });
+  userRepository.deleteForCompany(req.companyId, employee.id);
+  await persistCompanyStore(req.companyId, { pruneMissing: true });
   return res.status(204).end();
 });
 
-router.get("/work-sessions", requireAuth, requireAdmin, (_req, res) => {
-  res.json(workSessions);
+router.get("/work-sessions", requireAuth, requireAdmin, (req, res) => {
+  res.json(workSessionRepository.getByCompany(req.companyId));
 });
 
 export default router;

@@ -1,5 +1,5 @@
 import crypto from "node:crypto";
-import { users } from "../data/store.js";
+import { userRepository } from "../data/store.js";
 
 const JWT_SECRET = process.env.JWT_SECRET || "ep-chemical-jwt-dev-secret";
 const JWT_EXPIRY_SECONDS = 86400;
@@ -59,7 +59,7 @@ export function getSessionUser(req) {
   const payload = verifyToken(token);
   if (!payload) return null;
 
-  return users.find((u) => u.id === payload.id) || null;
+  return userRepository.findByCompany(req.companyId, payload.id);
 }
 
 export function requireAuth(req, res, next) {

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { orders, persistStore, reviews } from "../data/store.js";
+import { orderRepository, persistCompanyStore, reviewRepository } from "../data/store.js";
 import { requireAuth } from "../middleware/auth.js";
 
 const router = Router();
@@ -14,11 +14,12 @@ function visibleReviews(items) {
     .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
 }
 
-router.get("/", (_req, res) => {
-  res.json(visibleReviews(reviews).filter((review) => review.type === "store"));
+router.get("/", (req, res) => {
+  res.json(visibleReviews(reviewRepository.getByCompany(req.companyId)).filter((review) => review.type === "store"));
 });
 
 router.get("/all", requireAuth, (req, res) => {
+  const reviews = reviewRepository.getByCompany(req.companyId);
   if (isStaffRole(req.user.role)) {
     return res.json(reviews.filter((review) => review.employeeId === req.user.id));
   }
@@ -26,6 +27,7 @@ router.get("/all", requireAuth, (req, res) => {
 });
 
 router.post("/", requireAuth, async (req, res) => {
+  const orders = orderRepository.getByCompany(req.companyId);
   const order = req.body.orderId
     ? orders.find((entry) => entry.id === req.body.orderId)
     : orders.find((entry) => entry.customerUserId === req.user.id);
@@ -53,8 +55,8 @@ router.post("/", requireAuth, async (req, res) => {
     isApproved: req.user.role === "customer" ? false : req.body.status !== "rejected",
     isActive: req.user.role === "customer" ? false : req.body.isActive !== false,
   };
-  reviews.unshift(review);
-  await persistStore();
+  reviewRepository.createForCompany(req.companyId, review, { prepend: true });
+  await persistCompanyStore(req.companyId);
   res.status(201).json(review);
 });
 
@@ -63,14 +65,14 @@ router.put("/:id/status", requireAuth, async (req, res) => {
     return res.status(403).json({ message: "Admin access required." });
   }
 
-  const review = reviews.find((entry) => entry.id === req.params.id);
+  const review = reviewRepository.findByCompany(req.companyId, req.params.id);
   if (!review) return res.status(404).json({ message: "Review not found." });
 
   const status = req.body.status || review.status || "approved";
   review.status = status;
   review.isApproved = status === "approved";
   review.isActive = status === "approved" ? req.body.isActive !== false : false;
-  await persistStore();
+  await persistCompanyStore(req.companyId);
   return res.json(review);
 });
 
@@ -79,20 +81,20 @@ router.put("/:id", requireAuth, async (req, res) => {
     return res.status(403).json({ message: "Admin access required." });
   }
 
-  const index = reviews.findIndex((review) => review.id === req.params.id);
-  if (index === -1) return res.status(404).json({ message: "Review not found." });
+  const existing = reviewRepository.findByCompany(req.companyId, req.params.id);
+  if (!existing) return res.status(404).json({ message: "Review not found." });
 
-  const status = req.body.status || reviews[index].status || "approved";
-  reviews[index] = {
-    ...reviews[index],
+  const status = req.body.status || existing.status || "approved";
+  const updated = reviewRepository.updateForCompany(req.companyId, req.params.id, {
+    ...existing,
     ...req.body,
     id: req.params.id,
     type: req.body.type === "employee" || req.body.employeeId ? "employee" : "store",
     status,
     isApproved: status === "approved",
-  };
-  await persistStore();
-  return res.json(reviews[index]);
+  });
+  await persistCompanyStore(req.companyId);
+  return res.json(updated);
 });
 
 router.delete("/:id", requireAuth, async (req, res) => {
@@ -100,11 +102,10 @@ router.delete("/:id", requireAuth, async (req, res) => {
     return res.status(403).json({ message: "Admin access required." });
   }
 
-  const index = reviews.findIndex((review) => review.id === req.params.id);
-  if (index === -1) return res.status(404).json({ message: "Review not found." });
+  const removed = reviewRepository.deleteForCompany(req.companyId, req.params.id);
+  if (!removed) return res.status(404).json({ message: "Review not found." });
 
-  reviews.splice(index, 1);
-  await persistStore({ pruneMissing: true });
+  await persistCompanyStore(req.companyId, { pruneMissing: true });
   return res.status(204).end();
 });
 
