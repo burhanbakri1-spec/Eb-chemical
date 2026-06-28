@@ -1,4 +1,5 @@
 import crypto from "node:crypto";
+import { isSuperAdmin } from "../auth/roles.js";
 import { userRepository } from "../data/store.js";
 
 const JWT_SECRET = process.env.JWT_SECRET || "ep-chemical-jwt-dev-secret";
@@ -74,6 +75,13 @@ export function requireAuth(req, res, next) {
 export function requireAdmin(req, res, next) {
   if (req.user?.role !== "admin") {
     return res.status(403).json({ message: "Admin access required." });
+  }
+  return next();
+}
+
+export function requireSuperAdmin(req, res, next) {
+  if (!isSuperAdmin(req.user)) {
+    return res.status(403).json({ message: "Super Admin access required." });
   }
   return next();
 }

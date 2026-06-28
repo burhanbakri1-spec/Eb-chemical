@@ -135,6 +135,17 @@ EB Chemical remains the only operational company. Do not enable a second company
 until Super Admin controls, verified domain ownership, and the Phase 1 migration
 have all been validated against a restored staging database.
 
+## Phase 4 Super Admin backend foundation
+
+The backend now has a strict `super_admin` authorization guard and a protected,
+read-only `GET /api/platform/companies` endpoint. There is no Super Admin UI and
+company creation, editing, and deletion are not enabled.
+
+No existing `admin` user is promoted automatically. EB Chemical remains the only
+operational company, and a second company stays blocked until Super Admin flows,
+verified domains, and migration behavior have been validated in staging before
+any production deployment.
+
 ## 2. Environment variables
 
 Set these on the backend deployment, including Vercel if the backend is deployed there:

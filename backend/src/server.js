@@ -10,6 +10,7 @@ import companyRoutes from "./routes/company.js";
 import employeeRoutes from "./routes/employee.js";
 import homeOfferRoutes from "./routes/homeOffers.js";
 import orderRoutes from "./routes/orders.js";
+import platformRoutes from "./routes/platform.js";
 import productRoutes from "./routes/products.js";
 import reviewRoutes from "./routes/reviews.js";
 import uploadRoutes, { uploadsDir } from "./routes/uploads.js";
@@ -51,6 +52,7 @@ app.get("/api/health", (_req, res) => {
 });
 
 app.use("/api/company", companyRoutes);
+app.use("/api/platform", platformRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/orders", orderRoutes);
