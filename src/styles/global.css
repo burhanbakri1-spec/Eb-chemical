@@ -6657,6 +6657,91 @@ html[dir="rtl"] .admin-nav-button.active::before {
   font-size: 15px;
 }
 
+.company-management-page {
+  display: grid;
+  gap: 18px;
+}
+
+.company-toolbar > div {
+  display: grid;
+  gap: 3px;
+}
+
+.company-toolbar > div > span {
+  color: var(--admin-muted);
+  font-size: 12px;
+}
+
+.company-toolbar .admin-primary-button,
+.company-row-actions,
+.company-row-actions .text-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.company-table code {
+  color: var(--admin-text);
+  font-size: 12px;
+}
+
+.company-row-actions {
+  flex-wrap: wrap;
+}
+
+.company-row-actions .text-action {
+  min-height: 32px;
+  border: 0;
+  border-radius: 7px;
+  padding: 5px 9px;
+  cursor: pointer;
+}
+
+.company-row-actions .company-disable-button {
+  color: #a52222 !important;
+}
+
+.company-editor-card {
+  display: grid;
+  gap: 16px;
+}
+
+.admin-layout .company-form {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+}
+
+.company-access-denied {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  border-color: rgba(165, 34, 34, 0.2);
+}
+
+.company-access-denied > svg {
+  flex: 0 0 auto;
+  color: #a52222;
+}
+
+.company-access-denied h2,
+.company-access-denied p {
+  margin: 0;
+}
+
+.company-access-denied p {
+  margin-top: 5px;
+}
+
+.company-loading {
+  color: var(--admin-muted);
+}
+
+@media (max-width: 720px) {
+  .admin-layout .company-form {
+    grid-template-columns: 1fr;
+  }
+}
+
 .admin-vlog-hero {
   display: grid;
   grid-template-columns: minmax(220px, 1fr) minmax(220px, 1fr) auto;

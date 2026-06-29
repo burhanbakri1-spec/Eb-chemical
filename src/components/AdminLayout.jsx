@@ -1,6 +1,7 @@
 import React from "react";
 import {
   Archive,
+  Building2,
   Boxes,
   ChevronDown,
   ClipboardList,
@@ -25,6 +26,13 @@ import {
 } from "lucide-react";
 
 const navSections = [
+  {
+    id: "platform",
+    icon: Building2,
+    label: { en: "Platform", ar: "المنصة" },
+    roles: ["super_admin"],
+    items: [{ key: "admin-platform-companies", icon: Building2, label: { en: "Companies", ar: "الشركات" } }],
+  },
   {
     id: "dashboard",
     icon: Grid3X3,
@@ -109,10 +117,16 @@ function AdminLayout({
   onToggleDarkMode,
 }) {
   const activeKey = normalizedActive(activePage);
+  const visibleNavSections = React.useMemo(
+    () => navSections.filter(
+      (section) => !section.roles || section.roles.includes(currentUser?.role)
+    ),
+    [currentUser?.role]
+  );
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [openSections, setOpenSections] = React.useState(() => {
     const defaults = {};
-    navSections.forEach((section) => {
+    visibleNavSections.forEach((section) => {
       defaults[section.id] = section.items.some((item) => item.key === activeKey) || section.id === "dashboard";
     });
     return defaults;
@@ -121,14 +135,14 @@ function AdminLayout({
   React.useEffect(() => {
     setOpenSections((current) => {
       const next = { ...current };
-      navSections.forEach((section) => {
+      visibleNavSections.forEach((section) => {
         if (section.items.some((item) => item.key === activeKey)) {
           next[section.id] = true;
         }
       });
       return next;
     });
-  }, [activeKey]);
+  }, [activeKey, visibleNavSections]);
 
   const labels = {
     admin: language === "ar" ? "الإدارة" : "Admin",
@@ -156,7 +170,7 @@ function AdminLayout({
         </div>
 
         <nav className="admin-nav" aria-label="Admin navigation">
-          {navSections.map((section) => {
+          {visibleNavSections.map((section) => {
             const SectionIcon = section.icon;
             const isSingle = section.items.length === 1 && section.id === "dashboard";
             const isOpen = openSections[section.id];

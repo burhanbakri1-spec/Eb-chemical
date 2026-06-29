@@ -4,6 +4,7 @@ import Header from "./components/Header.jsx";
 import AboutPage from "./pages/AboutPage.jsx";
 import SustainabilityPage from "./pages/SustainabilityPage.jsx";
 import AccountPage from "./pages/AccountPage.jsx";
+import AdminCompaniesPage from "./pages/AdminCompaniesPage.jsx";
 import AdminDashboardPage from "./pages/AdminDashboardPage.jsx";
 import AdminEmployeesPage from "./pages/AdminEmployeesPage.jsx";
 import CartPage from "./pages/CartPage.jsx";
@@ -97,6 +98,7 @@ const pagePaths = {
   cart: "/cart",
   checkout: "/checkout",
   admin: "/admin/dashboard",
+  "admin-platform-companies": "/admin/platform/companies",
   "admin-products": "/admin/products",
   "admin-products-new": "/admin/products/new",
   "admin-categories": "/admin/categories",
@@ -121,6 +123,7 @@ const pagePaths = {
 
 const adminPageKeys = [
   "admin",
+  "admin-platform-companies",
   "admin-products",
   "admin-products-new",
   "admin-categories",
@@ -234,7 +237,9 @@ function App() {
     const portalPages = [...adminPageKeys, "employee"];
 
     if (activePage === "admin-login" && currentUser) {
-      if (currentUser.role === "admin" || currentUser.role === "manager") {
+      if (currentUser.role === "super_admin") {
+        navigate("admin-platform-companies");
+      } else if (currentUser.role === "admin" || currentUser.role === "manager") {
         navigate("admin");
       } else if (isStaffRole(currentUser.role)) {
         navigate("employee");
@@ -521,7 +526,9 @@ function App() {
       setUser(session.user);
       setWorkSession(session.workSession || null);
       navigate(
-        session.user.role === "admin"
+        session.user.role === "super_admin"
+          ? "admin-platform-companies"
+          : session.user.role === "admin"
           ? "admin"
           : isStaffRole(session.user.role)
             ? "employee"
@@ -536,6 +543,13 @@ function App() {
     try {
       const session = await loginUser(credentials.email, credentials.password);
       const role = session.user?.role;
+
+      if (role === "super_admin") {
+        setUser(session.user);
+        setWorkSession(session.workSession || null);
+        navigate("admin-platform-companies");
+        return;
+      }
 
       if (role === "admin") {
         setUser(session.user);
@@ -1067,7 +1081,7 @@ function App() {
           />
         )}
 
-        {adminPageKeys.includes(activePage) && !["admin-staff", "admin-staff-new", "admin-employees"].includes(activePage) && (
+        {adminPageKeys.includes(activePage) && !["admin-platform-companies", "admin-staff", "admin-staff-new", "admin-employees"].includes(activePage) && (
           <AdminDashboardPage
             activePage={activePage}
             currentUser={currentUser}
@@ -1104,6 +1118,22 @@ function App() {
             websiteMedia={websiteMedia}
             onSaveWebsiteMedia={handleSaveWebsiteMedia}
             onDeleteWebsiteMedia={handleDeleteWebsiteMedia}
+          />
+        )}
+
+        {activePage === "admin-platform-companies" && (
+          <AdminCompaniesPage
+            currentUser={currentUser}
+            isDarkMode={isAdminDarkMode}
+            language={language}
+            onLanguageChange={() =>
+              setLanguage((currentLanguage) =>
+                currentLanguage === "en" ? "ar" : "en"
+              )
+            }
+            onLogout={handleAdminLogout}
+            onNavigate={navigate}
+            onToggleDarkMode={() => setIsAdminDarkMode((current) => !current)}
           />
         )}
 
