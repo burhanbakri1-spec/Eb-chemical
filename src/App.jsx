@@ -170,8 +170,100 @@ function getStoredCart() {
 function mergeCatalogDetails(products) {
   return products.map((product) => {
     const localProduct = initialProducts.find((item) => item.id === product.id || item.slug === product.slug);
-    return localProduct ? { ...localProduct, ...product } : product;
+    if (!localProduct) return product;
+
+    const mergedProduct = { ...localProduct, ...product };
+    const apiOwnedMediaFields = [
+      "image",
+      "image_url",
+      "hoverImage",
+      "hover_image",
+      "fallbackImage",
+      "fallback_image",
+      "secondaryImage",
+      "secondary_image",
+      "productsPageImage",
+      "products_page_image",
+      "productsPageHoverImage",
+      "products_page_hover_image",
+      "gallery",
+      "images",
+      "galleryImages",
+      "gallery_images",
+      "detailMainImage",
+      "detail_main_image",
+      "detailSectionImages",
+      "detail_section_images",
+    ];
+
+    apiOwnedMediaFields.forEach((field) => {
+      if (!Object.prototype.hasOwnProperty.call(product, field)) {
+        delete mergedProduct[field];
+      }
+    });
+
+    if (!Object.prototype.hasOwnProperty.call(product, "detailOptions") && mergedProduct.detailOptions) {
+      mergedProduct.detailOptions = {
+        ...mergedProduct.detailOptions,
+        productTypes: (mergedProduct.detailOptions.productTypes || []).map((option) => {
+          const safeOption = { ...option };
+          delete safeOption.image;
+          delete safeOption.imageUrl;
+          delete safeOption.image_url;
+          return safeOption;
+        }),
+      };
+    }
+
+    if (!Object.prototype.hasOwnProperty.call(product, "usageSteps") && mergedProduct.usageSteps) {
+      mergedProduct.usageSteps = mergedProduct.usageSteps.map((step) => {
+        const safeStep = { ...step };
+        delete safeStep.image;
+        delete safeStep.imageUrl;
+        delete safeStep.image_url;
+        return safeStep;
+      });
+    }
+
+    return mergedProduct;
   });
+}
+
+function combineLoadStates(...states) {
+  if (states.includes("error")) return "error";
+  if (states.includes("loading")) return "loading";
+  return "ready";
+}
+
+function StorefrontDataState({ language, status }) {
+  const isArabic = language === "ar";
+  const isError = status === "error";
+
+  return (
+    <section className="page-shell storefront-data-state" aria-live="polite">
+      <div className="storefront-neutral-placeholder" aria-hidden="true" />
+      <div className="empty-panel">
+        <h1>
+          {isError
+            ? isArabic
+              ? "تعذر تحميل المحتوى"
+              : "Content unavailable"
+            : isArabic
+              ? "جارٍ تحميل المحتوى"
+              : "Loading content"}
+        </h1>
+        <p>
+          {isError
+            ? isArabic
+              ? "يرجى المحاولة مرة أخرى بعد قليل."
+              : "Please try again in a moment."
+            : isArabic
+              ? "يتم الآن تحميل أحدث بيانات EB Chemical."
+              : "The latest EB Chemical content is loading."}
+        </p>
+      </div>
+    </section>
+  );
 }
 
 function App() {
@@ -179,7 +271,8 @@ function App() {
   const [activeCategory, setActiveCategory] = React.useState("All");
   const [activeProductSlug, setActiveProductSlug] = React.useState("");
   const [cartItems, setCartItems] = React.useState(getStoredCart);
-  const [demoProducts, setDemoProducts] = React.useState(initialProducts);
+  const [demoProducts, setDemoProducts] = React.useState([]);
+  const [productsLoadState, setProductsLoadState] = React.useState("loading");
   const [employees, setEmployees] = React.useState([]);
   const [orders, setOrders] = React.useState([]);
   const [workSession, setWorkSession] = React.useState(null);
@@ -188,6 +281,8 @@ function App() {
   const [homepageCategoryCards, setHomepageCategoryCards] = React.useState([]);
   const [reviews, setReviews] = React.useState([]);
   const [websiteMedia, setWebsiteMedia] = React.useState([]);
+  const [homeContentLoadState, setHomeContentLoadState] = React.useState("loading");
+  const [websiteMediaLoadState, setWebsiteMediaLoadState] = React.useState("loading");
   const [currentUser, setUser] = React.useState(getCurrentUser);
   const [loginMessage, setLoginMessage] = React.useState("");
   const [adminLoginMessage, setAdminLoginMessage] = React.useState("");
@@ -280,7 +375,10 @@ function App() {
   async function loadProducts() {
     try {
       setDemoProducts(mergeCatalogDetails(await fetchProducts()));
+      setProductsLoadState("ready");
     } catch (error) {
+      setDemoProducts([]);
+      setProductsLoadState("error");
       setAdminMessage(error.message);
     }
   }
@@ -384,9 +482,25 @@ function App() {
   }
 
   async function loadHomeContent() {
-    setHomepageOffers(await fetchHomepageOffers());
-    setHomepageCategoryCards(await fetchHomepageCategoryCards());
-    setReviews(await fetchReviews());
+    try {
+      const [offers, categoryCards] = await Promise.all([
+        fetchHomepageOffers(),
+        fetchHomepageCategoryCards(),
+      ]);
+      setHomepageOffers(offers);
+      setHomepageCategoryCards(categoryCards);
+      setHomeContentLoadState("ready");
+    } catch {
+      setHomepageOffers([]);
+      setHomepageCategoryCards([]);
+      setHomeContentLoadState("error");
+    }
+
+    try {
+      setReviews(await fetchReviews());
+    } catch {
+      setReviews([]);
+    }
   }
 
   async function loadWebsiteMedia(user = null) {
@@ -394,8 +508,10 @@ function App() {
       clearWebsiteMediaCache();
       const canManage = user && hasPermission(user, "website_media.manage");
       setWebsiteMedia(canManage ? await fetchAllWebsiteMedia() : await fetchWebsiteMedia());
+      setWebsiteMediaLoadState("ready");
     } catch {
-      setWebsiteMedia(await fetchWebsiteMedia());
+      setWebsiteMedia([]);
+      setWebsiteMediaLoadState("error");
     }
   }
 
@@ -885,6 +1001,12 @@ function App() {
   const isPortalLoginPage = activePage === "admin-login";
   const isAdminPanelPage = adminPageKeys.includes(activePage);
   const isAdminShellPage = isPortalLoginPage || isAdminPanelPage;
+  const homeLoadState = combineLoadStates(
+    productsLoadState,
+    homeContentLoadState,
+    websiteMediaLoadState,
+  );
+  const productsPageLoadState = combineLoadStates(productsLoadState, websiteMediaLoadState);
 
   return (
     <div className={isPortalLoginPage ? "app-shell admin-login-shell" : "app-shell"}>
@@ -910,7 +1032,11 @@ function App() {
       )}
 
       <main className={isPortalLoginPage ? "admin-login-main" : isAdminPanelPage ? "admin-panel-main" : undefined}>
-        {activePage === "home" && (
+        {activePage === "home" && homeLoadState !== "ready" && (
+          <StorefrontDataState language={language} status={homeLoadState} />
+        )}
+
+        {activePage === "home" && homeLoadState === "ready" && (
           <HomePage
             homepageCategoryCards={homepageCategoryCards}
             homepageOffers={homepageOffers}
@@ -926,7 +1052,11 @@ function App() {
           />
         )}
 
-        {activePage === "products" && (
+        {activePage === "products" && productsPageLoadState !== "ready" && (
+          <StorefrontDataState language={language} status={productsPageLoadState} />
+        )}
+
+        {activePage === "products" && productsPageLoadState === "ready" && (
           <ProductsPage
             activeCategory={activeCategory}
             language={language}
@@ -939,7 +1069,11 @@ function App() {
           />
         )}
 
-        {activePage === "product" && (
+        {activePage === "product" && productsLoadState !== "ready" && (
+          <StorefrontDataState language={language} status={productsLoadState} />
+        )}
+
+        {activePage === "product" && productsLoadState === "ready" && (
           <ProductDetailsPage
             language={language}
             onAddToCart={handleAddToCart}

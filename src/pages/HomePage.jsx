@@ -1,10 +1,10 @@
 import React, { useRef } from "react";
 import { brand } from "../data/brand.js";
 import { categories } from "../data/categories.js";
-import { homepageCategoryCards as defaultHomepageCategoryCards } from "../data/homeContent.js";
 import { getWebsiteMediaImage } from "../data/websiteMedia.js";
 
 const INSTAGRAM_URL = "https://www.instagram.com/eb_chemical";
+const neutralImage = "/images/products/product-placeholder.svg";
 
 function getLocalized(value, language) {
   if (!value) return "";
@@ -319,40 +319,7 @@ function HowItWorksSplit({ image, language, onNavigate }) {
   );
 }
 
-const fallbackSystemCards = [
-  {
-    key: "home",
-    image: "/homepage-categories/home-care.jpg",
-    label: { en: "Home care", ar: "العناية بالمنزل" },
-    title: { en: "Daily cleaning made easier", ar: "تنظيف يومي أسهل" },
-  },
-  {
-    key: "car",
-    image: "/homepage-categories/car-care.jpg",
-    label: { en: "Car care", ar: "العناية بالسيارة" },
-    title: { en: "Fresh finish for every ride", ar: "لمسة نظيفة لكل رحلة" },
-  },
-  {
-    key: "kitchen",
-    image: "/homepage-categories/kitchen-new.jpg",
-    label: { en: "Kitchen", ar: "المطبخ" },
-    title: { en: "Cuts grease with less effort", ar: "إزالة الدهون بجهد أقل" },
-  },
-  {
-    key: "bathroom",
-    image: "/homepage-categories/kitchen.jpg",
-    label: { en: "Bathroom", ar: "الحمام" },
-    title: { en: "Shine for sinks and tiles", ar: "لمعان للأحواض والبلاط" },
-  },
-  {
-    key: "laundry",
-    image: "/homepage-categories/laundry.jpg",
-    label: { en: "Laundry", ar: "الغسيل" },
-    title: { en: "Care for fabrics every day", ar: "عناية يومية بالأقمشة" },
-  },
-];
-
-function CleaningSystemShowcase({ categoryCards = fallbackSystemCards, language }) {
+function CleaningSystemShowcase({ categoryCards = [], language }) {
   const isArabic = language === "ar";
   const trackRef = useRef(null);
   const words = isArabic
@@ -628,7 +595,7 @@ function WidePromoBanner({ language, onNavigate, image }) {
         onError={(event) => {
           event.currentTarget.src = "/images/products/product-placeholder.svg";
         }}
-        src={image || "/images/products/car-shampoo-gloss.svg"}
+        src={image || neutralImage}
       />
       <div className="wide-promo-copy">
         <h2>{isArabic ? "عناية منعشة لكل مساحة" : "Fresh care for every space"}</h2>
@@ -651,8 +618,7 @@ function SplitCategoryBanner({ language, onCategorySelect, products, websiteMedi
         getWebsiteMediaImage(
           websiteMedia,
           "homepage_split_home",
-          products.find((product) => product.categoryId === "home-cleaning")?.image ||
-            "/images/products/multi-surface-cleaner.svg",
+          products.find((product) => product.categoryId === "home-cleaning")?.image || neutralImage,
         ),
     },
     {
@@ -662,8 +628,7 @@ function SplitCategoryBanner({ language, onCategorySelect, products, websiteMedi
         getWebsiteMediaImage(
           websiteMedia,
           "homepage_split_car",
-          products.find((product) => product.categoryId === "car-care")?.image ||
-            "/images/products/car-interior-cleaner.svg",
+          products.find((product) => product.categoryId === "car-care")?.image || neutralImage,
         ),
     },
   ];
@@ -697,7 +662,7 @@ function SplitCategoryBanner({ language, onCategorySelect, products, websiteMedi
 }
 
 function HomePage({
-  homepageCategoryCards = defaultHomepageCategoryCards,
+  homepageCategoryCards = [],
   homepageOffers = [],
   language,
   onAddToCart,
@@ -728,34 +693,35 @@ function HomePage({
       products.find((product) => product.categoryId === "car-care")?.image ||
       products[0]?.image,
   );
-  const resolvedHomepageCategoryCards = homepageCategoryCards.length
-    ? homepageCategoryCards
-    : defaultHomepageCategoryCards;
-  const mediaCategoryCards = resolvedHomepageCategoryCards.map((card) => ({
+  const mediaCategoryCards = homepageCategoryCards.map((card) => ({
     ...card,
-    image: getWebsiteMediaImage(websiteMedia, `homepage_category_${card.key}`, card.image),
+    image: getWebsiteMediaImage(
+      websiteMedia,
+      `homepage_category_${card.key}`,
+      card.image || neutralImage,
+    ),
   }));
   const heroLeftImage = getWebsiteMediaImage(
     websiteMedia,
     "homepage_hero_left",
-    "/products/limescale-remover-hover.jpg",
+    neutralImage,
   );
   const heroRightImage = getWebsiteMediaImage(
     websiteMedia,
     "homepage_hero_right",
-    "/products/limescale-remover-main.jpg",
+    neutralImage,
   );
   const howItWorksImage = getWebsiteMediaImage(
     websiteMedia,
     "homepage_how_it_works_image",
-    "/homepage-categories/home-care.jpg",
+    neutralImage,
   );
   const communityGalleryImages = [
-    getWebsiteMediaImage(websiteMedia, "homepage_community_gallery_1", "/homepage-categories/home-care.jpg"),
-    getWebsiteMediaImage(websiteMedia, "homepage_community_gallery_2", "/homepage-categories/car-care.jpg"),
-    getWebsiteMediaImage(websiteMedia, "homepage_community_gallery_3", "/homepage-categories/kitchen-new.jpg"),
-    getWebsiteMediaImage(websiteMedia, "homepage_community_gallery_4", "/homepage-categories/laundry.jpg"),
-    getWebsiteMediaImage(websiteMedia, "homepage_community_gallery_5", "/products/limescale-remover-hover.jpg"),
+    getWebsiteMediaImage(websiteMedia, "homepage_community_gallery_1", neutralImage),
+    getWebsiteMediaImage(websiteMedia, "homepage_community_gallery_2", neutralImage),
+    getWebsiteMediaImage(websiteMedia, "homepage_community_gallery_3", neutralImage),
+    getWebsiteMediaImage(websiteMedia, "homepage_community_gallery_4", neutralImage),
+    getWebsiteMediaImage(websiteMedia, "homepage_community_gallery_5", neutralImage),
   ];
   const siteReviews = reviews.filter(
     (review) =>
