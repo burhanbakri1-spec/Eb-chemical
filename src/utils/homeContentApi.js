@@ -1,19 +1,40 @@
+import {
+  homepageCategoryCards as fallbackCategoryCards,
+  homepageOffers as fallbackOffers,
+  reviews as fallbackReviews,
+} from "../data/homeContent.js";
 import { apiRequest } from "./api.js";
 
-export function fetchHomepageOffers() {
-  return apiRequest("/home-offers");
+export async function fetchHomepageOffers() {
+  try {
+    return await apiRequest("/home-offers");
+  } catch (error) {
+    return fallbackOffers;
+  }
 }
 
-export function fetchAllHomepageOffers() {
-  return apiRequest("/home-offers/all");
+export async function fetchAllHomepageOffers() {
+  try {
+    return await apiRequest("/home-offers/all");
+  } catch (error) {
+    return fallbackOffers;
+  }
 }
 
-export function fetchHomepageCategoryCards() {
-  return apiRequest("/home-offers/category-cards");
+export async function fetchHomepageCategoryCards() {
+  try {
+    return await apiRequest("/home-offers/category-cards");
+  } catch (error) {
+    return fallbackCategoryCards;
+  }
 }
 
-export function fetchAllHomepageCategoryCards() {
-  return apiRequest("/home-offers/category-cards/all");
+export async function fetchAllHomepageCategoryCards() {
+  try {
+    return await apiRequest("/home-offers/category-cards/all");
+  } catch (error) {
+    return fallbackCategoryCards;
+  }
 }
 
 export async function saveHomepageCategoryCard(card) {
@@ -37,12 +58,20 @@ export async function deleteHomepageOffer(offerId) {
   });
 }
 
-export function fetchReviews() {
-  return apiRequest("/reviews");
+export async function fetchReviews() {
+  try {
+    return await apiRequest("/reviews");
+  } catch (error) {
+    return fallbackReviews.filter((review) => review.isActive);
+  }
 }
 
-export function fetchAllReviews() {
-  return apiRequest("/reviews/all");
+export async function fetchAllReviews() {
+  try {
+    return await apiRequest("/reviews/all");
+  } catch (error) {
+    return fallbackReviews;
+  }
 }
 
 export async function saveReview(review) {

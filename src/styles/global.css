@@ -2430,42 +2430,6 @@ textarea:focus {
   padding: 30px;
 }
 
-.storefront-data-state {
-  display: grid;
-  gap: 24px;
-  min-height: 58vh;
-  align-content: center;
-}
-
-.storefront-data-state .empty-panel {
-  width: min(100%, 760px);
-}
-
-.storefront-neutral-placeholder {
-  width: min(100%, 760px);
-  height: 220px;
-  border-radius: 28px;
-  background: linear-gradient(110deg, #f1f1ed 30%, #fafaf7 45%, #f1f1ed 60%);
-  background-size: 220% 100%;
-  animation: storefront-neutral-loading 1.4s ease-in-out infinite;
-}
-
-@keyframes storefront-neutral-loading {
-  from {
-    background-position: 100% 0;
-  }
-
-  to {
-    background-position: -100% 0;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .storefront-neutral-placeholder {
-    animation: none;
-  }
-}
-
 .brand-content-note,
 .success-panel {
   padding: 18px;

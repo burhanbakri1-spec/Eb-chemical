@@ -4,8 +4,6 @@ import { hasPermission } from "../data/permissions.js";
 import WorkTimer from "./WorkTimer.jsx";
 import { getWebsiteMediaImage } from "../data/websiteMedia.js";
 
-const neutralImage = "/images/products/product-placeholder.svg";
-
 const shopLinks = [
   { key: "all", labelEn: "Shop All", labelAr: "كل المنتجات", action: "products" },
   {
@@ -59,14 +57,14 @@ const aboutFeatureCards = [
     key: "start",
     titleEn: "Join the next CleanUp",
     titleAr: "شارك في حملة التنظيف القادمة",
-    image: neutralImage,
+    image: "/images/products/green-radiator-water.svg",
     action: "cleanups",
   },
   {
     key: "shop",
     titleEn: "Shop cleaning essentials",
     titleAr: "تسوق أساسيات التنظيف",
-    image: neutralImage,
+    image: "/images/products/fabric-cleaner.svg",
     categoryId: "home-cleaning",
   },
 ];
@@ -150,13 +148,13 @@ function Header({
       {
         titleEn: "Start here",
         titleAr: "ابدأ من هنا",
-        image: getWebsiteMediaImage(websiteMedia, "header_mega_card_0", neutralImage),
+        image: getWebsiteMediaImage(websiteMedia, "header_mega_card_0", "/images/products/fabric-cleaner.svg"),
         action: "products",
       },
       {
         titleEn: "Shop featured products",
         titleAr: "تسوق المنتجات المميزة",
-        image: getWebsiteMediaImage(websiteMedia, "header_mega_card_1", neutralImage),
+        image: getWebsiteMediaImage(websiteMedia, "header_mega_card_1", "/images/products/car-shampoo.svg"),
         categoryId: "car-care",
       },
     ];
@@ -168,7 +166,7 @@ function Header({
       return {
         titleEn: index === 0 ? "Start here" : "Shop featured products",
         titleAr: index === 0 ? "ابدأ من هنا" : "تسوق المنتجات المميزة",
-        image: product.image,
+        image: fallbackCards[index].image,
         categoryId: product.categoryId,
         productSlug: product.slug,
       };
