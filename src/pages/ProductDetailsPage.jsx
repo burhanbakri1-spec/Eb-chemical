@@ -8,8 +8,9 @@ import {
   ShoppingBag,
   Star,
 } from "lucide-react";
+import { StorefrontEmptyState, StorefrontLoadingState } from "../components/StorefrontLoadingState.jsx";
 import { categories } from "../data/categories.js";
-import { placeholderImage } from "../data/products.js";
+import { neutralImage as placeholderImage, resolveImageUrl, showNeutralImage } from "../utils/images.js";
 
 const productText = {
   en: {
@@ -80,7 +81,7 @@ function localized(value, language, fallback = "") {
 }
 
 function safeImage(image, fallback = placeholderImage) {
-  return image || fallback;
+  return resolveImageUrl(image, fallback);
 }
 
 function normalizeProductVariants(product = {}) {
@@ -142,7 +143,7 @@ function ProductImage({ alt, className = "", src, ...imageProps }) {
       className={className}
       loading="lazy"
       onError={(event) => {
-        event.currentTarget.src = placeholderImage;
+        showNeutralImage(event);
       }}
       src={safeImage(src)}
       {...imageProps}
@@ -199,7 +200,9 @@ function AccordionList({ items, language }) {
 }
 
 function ProductDetailsPage({
+  isLoading = false,
   language,
+  loadError = "",
   onAddToCart,
   onNavigate,
   onViewProduct,
@@ -270,6 +273,19 @@ function ProductDetailsPage({
       setSelectedSize(availableForColor[0].size);
     }
   }, [productVariants, selectedColor, selectedSize]);
+
+  if (isLoading) {
+    return <StorefrontLoadingState label="Loading product details" />;
+  }
+
+  if (loadError && !product) {
+    return (
+      <StorefrontEmptyState
+        message={language === "ar" ? "يرجى تحديث الصفحة والمحاولة مرة أخرى." : "Please refresh the page and try again."}
+        title={language === "ar" ? "تعذر تحميل المنتج" : "We couldn't load this product"}
+      />
+    );
+  }
 
   if (!product) {
     return (
@@ -480,7 +496,7 @@ function ProductDetailsPage({
                 src={safeImage(selectedImage)}
                 loading="eager"
                 decoding="async"
-                onError={(e) => { e.currentTarget.src = placeholderImage; }}
+                onError={showNeutralImage}
               />
             </div>
           </div>
@@ -494,7 +510,7 @@ function ProductDetailsPage({
                   src={safeImage(image)}
                   loading="lazy"
                   decoding="async"
-                  onError={(e) => { e.currentTarget.src = placeholderImage; }}
+                  onError={showNeutralImage}
                 />
               </picture>
             ))}

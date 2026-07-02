@@ -1,5 +1,5 @@
 import React from "react";
-import { placeholderImage } from "../data/products.js";
+import { neutralImage, resolveImageUrl, showNeutralImage } from "../utils/images.js";
 
 function getProductImages(products) {
   const seen = new Set();
@@ -22,7 +22,8 @@ function getProductImages(products) {
 function FloatingProductCollage({ galleryImages = [], language, products = [] }) {
   const isArabic = language === "ar";
   const fallbackImages = getProductImages(products);
-  const images = [...galleryImages, ...fallbackImages, placeholderImage]
+  const images = [...galleryImages, ...fallbackImages, neutralImage]
+    .map((image) => resolveImageUrl(image))
     .filter(Boolean)
     .slice(0, 4);
 
@@ -52,7 +53,7 @@ function FloatingProductCollage({ galleryImages = [], language, products = [] })
               aria-hidden="true"
               loading="lazy"
               onError={(event) => {
-                event.currentTarget.src = placeholderImage;
+                showNeutralImage(event);
               }}
               src={image}
             />

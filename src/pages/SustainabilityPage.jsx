@@ -1,6 +1,7 @@
 import React, { useRef } from "react";
 import { getWebsiteMediaImage } from "../data/websiteMedia.js";
 import { categories } from "../data/categories.js";
+import { resolveImageUrl, showNeutralImage } from "../utils/images.js";
 
 const fallbackImages = {
   hero: "/homepage-categories/bathroom.jpg",
@@ -261,7 +262,7 @@ function ProductShowcaseSlider({ language, onViewProduct, products, title, varia
         {products.map((product, index) => {
           const firstSize = product.sizes?.[0] || { size: "", price: 0 };
           const category = categories.find((item) => item.id === product.categoryId);
-          const mainImage = product.image || product.fallbackImage || "/images/products/product-placeholder.svg";
+          const mainImage = resolveImageUrl(product.image, product.fallbackImage);
           const hoverImage =
             product.hoverImage ||
             product.secondaryImage ||
@@ -292,7 +293,7 @@ function ProductShowcaseSlider({ language, onViewProduct, products, title, varia
                   alt={getLocalized(product.name, language)}
                   loading="lazy"
                   onError={(event) => {
-                    event.currentTarget.src = product.fallbackImage || "/images/products/product-placeholder.svg";
+                    showNeutralImage(event);
                   }}
                   src={mainImage}
                 />
@@ -571,7 +572,8 @@ function SustainabilityPage({ language = "en", onNavigate, onViewProduct, produc
                   <div className="sustainability-split-product-cta-callout-card">
                     <img
                       className="sustainability-split-product-cta-callout-thumb"
-                      src={featuredProduct?.image || "/images/products/product-placeholder.svg"}
+                      src={resolveImageUrl(featuredProduct?.image, featuredProduct?.fallbackImage)}
+                      onError={showNeutralImage}
                       alt=""
                       loading="lazy"
                     />

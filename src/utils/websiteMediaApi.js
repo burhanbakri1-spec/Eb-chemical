@@ -1,4 +1,3 @@
-import { defaultWebsiteMedia } from "../data/websiteMedia.js";
 import { apiRequest } from "./api.js";
 
 const websiteMediaCacheKeys = [
@@ -8,18 +7,6 @@ const websiteMediaCacheKeys = [
   "epChemicalWebsiteMedia",
   "epChemicalWebsiteMediaCache",
 ];
-
-function stripFallbackImage(item) {
-  return {
-    ...item,
-    fallbackImageUrl: item.fallbackImageUrl || item.imageUrl || "",
-    imageUrl: "",
-  };
-}
-
-function defaultWebsiteMediaDefinitions() {
-  return defaultWebsiteMedia.map(stripFallbackImage);
-}
 
 export function clearWebsiteMediaCache() {
   if (typeof window === "undefined") return;
@@ -31,12 +18,8 @@ export function clearWebsiteMediaCache() {
 }
 
 export async function fetchWebsiteMedia() {
-  try {
-    clearWebsiteMediaCache();
-    return await apiRequest("/website-media", { cache: "no-store" });
-  } catch {
-    return defaultWebsiteMediaDefinitions();
-  }
+  clearWebsiteMediaCache();
+  return apiRequest("/website-media", { cache: "no-store" });
 }
 
 export function fetchAllWebsiteMedia() {

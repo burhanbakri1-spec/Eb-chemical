@@ -1,9 +1,10 @@
 import React from "react";
 import QuantityControl from "../components/QuantityControl.jsx";
-import { placeholderImage } from "../data/products.js";
+import { StorefrontLoadingState } from "../components/StorefrontLoadingState.jsx";
 import { getWebsiteMediaImage } from "../data/websiteMedia.js";
+import { neutralImage, resolveImageUrl, showNeutralImage } from "../utils/images.js";
 
-const cartEmptyFallbackImage = "/images/products/concentrated-wax-car-shampoo.svg";
+const cartEmptyFallbackImage = neutralImage;
 
 const cartCopy = {
   en: {
@@ -59,7 +60,7 @@ function RecommendedProductCard({
   product,
 }) {
   const text = cartCopy[language] || cartCopy.en;
-  const mainImage = product.image || placeholderImage;
+  const mainImage = resolveImageUrl(product.image, product.fallbackImage);
   const hoverImage =
     product.hoverImage ||
     product.secondaryImage ||
@@ -87,7 +88,7 @@ function RecommendedProductCard({
             alt={name}
             className="cart-reco-img-main"
             onError={(event) => {
-              event.currentTarget.src = product.fallbackImage || placeholderImage;
+              showNeutralImage(event);
             }}
             src={mainImage}
           />
@@ -119,6 +120,7 @@ function RecommendedProductCard({
 function CartPage({
   cartItems,
   currentUser,
+  isLoading = false,
   language,
   onAddToCart,
   onNavigate,
@@ -174,6 +176,10 @@ function CartPage({
   const emptyCartBackgroundImage =
     getWebsiteMediaImage(websiteMedia, "cart_empty_background_image", cartEmptyFallbackImage) ||
     cartEmptyFallbackImage;
+
+  if (isLoading) {
+    return <StorefrontLoadingState label="Loading cart products" />;
+  }
 
   if (cartItems.length === 0) {
     return (
@@ -252,9 +258,9 @@ function CartPage({
                       <img
                         alt={productName}
                         onError={(event) => {
-                          event.currentTarget.src = item.fallbackImage || placeholderImage;
+                          showNeutralImage(event);
                         }}
-                        src={item.image || placeholderImage}
+                        src={resolveImageUrl(product?.image)}
                       />
                     </button>
 

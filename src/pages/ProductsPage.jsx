@@ -1,7 +1,8 @@
 ﻿import React from "react";
 import { categories } from "../data/categories.js";
-import { placeholderImage } from "../data/products.js";
 import { getWebsiteMediaImage } from "../data/websiteMedia.js";
+import { StorefrontEmptyState, StorefrontLoadingState } from "../components/StorefrontLoadingState.jsx";
+import { neutralImage, resolveImageUrl, showNeutralImage } from "../utils/images.js";
 
 function getLocalized(value, language) {
   if (!value) return "";
@@ -105,7 +106,7 @@ function createShopCategoryConfig(allHeroImage, websiteMedia = []) {
         en: "Practical cleaning products for everyday home care.",
         ar: "منتجات تنظيف عملية للعناية اليومية بالمنزل.",
       },
-      image: heroImage("home_cleaning", "/homepage-categories/home-care.jpg"),
+      image: heroImage("home_cleaning", neutralImage),
       productCategoryKeys: ["home-cleaning", "home-cleaners", "cleaning-products"],
       heroLayout: "home-care",
     },
@@ -117,7 +118,7 @@ function createShopCategoryConfig(allHeroImage, websiteMedia = []) {
         en: "Care for sinks, showers, tiles, and limescale-prone surfaces.",
         ar: "عناية بالمغاسل والدش والبلاط والأسطح المعرضة للتكلسات.",
       },
-      image: heroImage("bathroom_cleaning", "/homepage-categories/bathroom.jpg"),
+      image: heroImage("bathroom_cleaning", neutralImage),
       productCategoryKeys: ["bathroom-cleaning", "bathroom-cleaners"],
       heroLayout: "shop-all",
     },
@@ -129,7 +130,7 @@ function createShopCategoryConfig(allHeroImage, websiteMedia = []) {
         en: "Clean, polish, and refresh your car inside and out.",
         ar: "نظّف ولمّع وأنعش سيارتك من الداخل والخارج.",
       },
-      image: heroImage("car_care", "/homepage-categories/car-care.jpg"),
+      image: heroImage("car_care", neutralImage),
       productCategoryKeys: ["car-care"],
       heroLayout: "shop-all",
     },
@@ -141,7 +142,7 @@ function createShopCategoryConfig(allHeroImage, websiteMedia = []) {
         en: "Useful add-ons for simpler cleaning routines.",
         ar: "إضافات عملية تجعل روتين التنظيف أسهل.",
       },
-      image: heroImage("accessories", "/homepage-categories/kitchen-new.jpg"),
+      image: heroImage("accessories", neutralImage),
       productCategoryKeys: ["accessories", "accessory"],
       heroLayout: "shop-all",
     },
@@ -153,7 +154,7 @@ function createShopCategoryConfig(allHeroImage, websiteMedia = []) {
         en: "Care essentials for hands, body, and daily routines.",
         ar: "أساسيات عناية لليدين والجسم والروتين اليومي.",
       },
-      image: heroImage("hand_body", "/homepage-categories/home-care.jpg"),
+      image: heroImage("hand_body", neutralImage),
       productCategoryKeys: ["hand-body", "hand-and-body", "body-care", "hand-care"],
       heroLayout: "shop-all",
     },
@@ -165,7 +166,7 @@ function createShopCategoryConfig(allHeroImage, websiteMedia = []) {
         en: "Larger practical sizes for products you use often.",
         ar: "أحجام عملية أكبر للمنتجات التي تستخدمها باستمرار.",
       },
-      image: heroImage("refills", "/products/limescale-remover-hover.jpg"),
+      image: heroImage("refills", neutralImage),
       productCategoryKeys: ["refills", "refill"],
       matcher: (product) => hasProductType(product, "refill") || hasBulkOrRefillSize(product),
       heroLayout: "shop-all",
@@ -178,7 +179,7 @@ function createShopCategoryConfig(allHeroImage, websiteMedia = []) {
         en: "Grouped essentials for home, car, and everyday care.",
         ar: "أساسيات مجمعة للمنزل والسيارة والعناية اليومية.",
       },
-      image: heroImage("bundles_sets", "/homepage-categories/home-care.jpg"),
+      image: heroImage("bundles_sets", neutralImage),
       productCategoryKeys: ["bundles-sets", "bundles", "sets", "set"],
       matcher: (product) => product.offer || product.discount || getProductLookupText(product).includes("set"),
       heroLayout: "shop-all",
@@ -191,7 +192,7 @@ function createShopCategoryConfig(allHeroImage, websiteMedia = []) {
         en: "Everything you need to start a cleaner routine.",
         ar: "كل ما تحتاجه لبدء روتين تنظيف أسهل.",
       },
-      image: heroImage("starter_kits", "/products/limescale-remover-main.jpg"),
+      image: heroImage("starter_kits", neutralImage),
       productCategoryKeys: ["starter-kits", "starter-kit", "kit"],
       matcher: (product) => {
         const lookup = getProductLookupText(product);
@@ -207,7 +208,7 @@ function createShopCategoryConfig(allHeroImage, websiteMedia = []) {
         en: "Fresh scents made for everyday spaces.",
         ar: "روائح منعشة مصممة للمساحات اليومية.",
       },
-      image: heroImage("fragrances", "/images/products/ocean-breeze-home-car-fragrance.svg"),
+      image: heroImage("fragrances", neutralImage),
       productCategoryKeys: ["fragrances", "air-fresheners", "scents"],
       heroLayout: "shop-all",
     },
@@ -219,7 +220,7 @@ function createShopCategoryConfig(allHeroImage, websiteMedia = []) {
         en: "Practical radiator water products for daily vehicle care.",
         ar: "منتجات ماء رديتر عملية للعناية اليومية بالسيارة.",
       },
-      image: heroImage("radiator_water", "/images/products/green-radiator-water.svg"),
+      image: heroImage("radiator_water", neutralImage),
       productCategoryKeys: ["radiator-water"],
       heroLayout: "shop-all",
     },
@@ -229,11 +230,11 @@ function createShopCategoryConfig(allHeroImage, websiteMedia = []) {
 function ShopProductCard({ language, onAddToCart, onViewProduct, product, t }) {
   const isArabic = language === "ar";
   const firstSize = product.sizes?.[0] || { size: "", price: 0 };
-  const mainImage =
-    product.productsPageImage ||
-    product.image ||
-    product.fallbackImage ||
-    placeholderImage;
+  const mainImage = resolveImageUrl(
+    product.productsPageImage,
+    product.image,
+    product.fallbackImage,
+  );
   const hoverImage =
     product.productsPageHoverImage ||
     product.hoverImage ||
@@ -270,7 +271,7 @@ function ShopProductCard({ language, onAddToCart, onViewProduct, product, t }) {
           className="shop-product-image-main"
           loading="lazy"
           onError={(event) => {
-            event.currentTarget.src = product.fallbackImage || placeholderImage;
+            showNeutralImage(event);
           }}
           src={mainImage}
         />
@@ -327,19 +328,22 @@ function ShopProductCard({ language, onAddToCart, onViewProduct, product, t }) {
 
 function ProductsPage({
   activeCategory,
+  isLoading = false,
   language,
+  loadError = "",
   onAddToCart,
   onCategoryChange,
   onViewProduct,
   products,
   t,
   websiteMedia = [],
+  websiteMediaError = "",
 }) {
   const isArabic = language === "ar";
   const heroFallbackImage =
     products.find((product) => product.categoryId === "home-cleaning")?.image ||
     products[0]?.image ||
-    placeholderImage;
+    neutralImage;
   const allHeroImage = getWebsiteMediaImage(websiteMedia, "products_hero_image", heroFallbackImage);
   const shopCategoryConfig = React.useMemo(
     () => createShopCategoryConfig(allHeroImage, websiteMedia),
@@ -363,8 +367,26 @@ function ProductsPage({
     })),
   );
 
+  if (isLoading) {
+    return <StorefrontLoadingState label="Loading products" />;
+  }
+
+  if (loadError && !products.length) {
+    return (
+      <StorefrontEmptyState
+        message={isArabic ? "يرجى تحديث الصفحة والمحاولة مرة أخرى." : "Please refresh the page and try again."}
+        title={isArabic ? "تعذر تحميل المنتجات" : "We couldn't load the latest products"}
+      />
+    );
+  }
+
   return (
     <section className="page-shell products-page shop-page">
+      {websiteMediaError && (
+        <p className="storefront-content-notice" role="status">
+          {isArabic ? "تعذر تحميل بعض صور الصفحة." : "Some page media could not load."}
+        </p>
+      )}
       {activeCategoryKey === "home-cleaning" && heroEntry.heroLayout === "home-care" ? (
         <section className="collection-hero--home-care">
           <div className="collection-hero--home-care__bg">
@@ -387,7 +409,7 @@ function ProductsPage({
             aria-hidden="true"
             loading="lazy"
             onError={(event) => {
-              event.currentTarget.src = placeholderImage;
+              showNeutralImage(event);
             }}
             src={heroImage}
           />
@@ -405,7 +427,7 @@ function ProductsPage({
               <div className="homecare-feature-card__image-col">
                 <div className="homecare-feature-card__image-wrap">
                   <img
-                    src={getWebsiteMediaImage(websiteMedia, "products_feature_dishsoap", "/products/limescale-remover-main.jpg")}
+                    src={getWebsiteMediaImage(websiteMedia, "products_feature_dishsoap", neutralImage)}
                     alt="The Dish Soap"
                     loading="lazy"
                   />
@@ -446,7 +468,7 @@ function ProductsPage({
               <div className="homecare-feature-side__image-wrap">
                 <img
                   className="homecare-feature-side__image"
-                  src={getWebsiteMediaImage(websiteMedia, "products_feature_side", "/products/limescale-remover-hover.jpg")}
+                  src={getWebsiteMediaImage(websiteMedia, "products_feature_side", neutralImage)}
                   alt=""
                   loading="lazy"
                 />

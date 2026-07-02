@@ -1,6 +1,6 @@
 import React from "react";
-import { placeholderImage } from "../data/products.js";
 import { categories } from "../data/categories.js";
+import { resolveImageUrl, showNeutralImage } from "../utils/images.js";
 
 function ProductCard({ language, product, onAddToCart, onViewProduct, t }) {
   const firstSize = product.sizes[0];
@@ -11,7 +11,7 @@ function ProductCard({ language, product, onAddToCart, onViewProduct, t }) {
       ? "منتج عملي مصمم لتجربة تنظيف أسهل ونتيجة أفضل."
       : "A practical product designed for easier cleaning and a better result.");
 
-  const mainImage = product.image || placeholderImage;
+  const mainImage = resolveImageUrl(product.image, product.fallbackImage);
   const hoverImage =
     product.hoverImage ||
     product.gallery?.[1] ||
@@ -32,7 +32,7 @@ function ProductCard({ language, product, onAddToCart, onViewProduct, t }) {
           className="primary-image"
           loading="lazy"
           onError={(event) => {
-            event.currentTarget.src = product.fallbackImage || placeholderImage;
+            showNeutralImage(event);
           }}
           src={mainImage}
         />

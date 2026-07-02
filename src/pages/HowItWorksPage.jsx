@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { placeholderImage } from "../data/products.js";
 import { getWebsiteMediaImage } from "../data/websiteMedia.js";
+import { neutralImage as placeholderImage, resolveImageUrl, showNeutralImage } from "../utils/images.js";
 
 const fallbackImages = {
-  hero: "/products/limescale-remover-hover.jpg",
-  concentrate: "/products/limescale-remover-main.jpg",
-  steps: "/products/limescale-remover-main.jpg",
-  refill: "/images/products/fabric-cleaner.svg",
-  cta: "/homepage-categories/car-care.jpg",
-  essentials: "/homepage-categories/home-care.jpg",
+  hero: placeholderImage,
+  concentrate: placeholderImage,
+  steps: placeholderImage,
+  refill: placeholderImage,
+  cta: placeholderImage,
+  essentials: placeholderImage,
 };
 
 function localize(value, language) {
@@ -220,7 +220,7 @@ function HowProductCarousel({ language, onViewProduct, products, t }) {
       <div className="how-product-slider-track" onScroll={updateProgress} ref={trackRef}>
         {visibleProducts.map((product, index) => {
           const firstSize = product.sizes?.[0] || { size: "", price: 0 };
-          const mainImage = product.image || product.fallbackImage || placeholderImage;
+          const mainImage = resolveImageUrl(product.image, product.fallbackImage);
           const hoverImage =
             product.hoverImage ||
             product.secondaryImage ||
@@ -251,7 +251,7 @@ function HowProductCarousel({ language, onViewProduct, products, t }) {
                   alt={productName}
                   loading="lazy"
                   onError={(event) => {
-                    event.currentTarget.src = product.fallbackImage || placeholderImage;
+                    showNeutralImage(event);
                   }}
                   src={mainImage}
                 />
@@ -351,7 +351,7 @@ function HowItWorksPage({ language = "en", onNavigate, onViewProduct, products =
             </div>
           </div>
           <div className="how-process-media">
-            <img className="how-process-image" src={image("steps")} alt="" aria-hidden="true" loading="lazy" onError={(event) => { event.currentTarget.src = placeholderImage; }} />
+            <img className="how-process-image" src={image("steps")} alt="" aria-hidden="true" loading="lazy" onError={showNeutralImage} />
           </div>
         </section>
         <section className="how-section how-process-block">
@@ -371,7 +371,7 @@ function HowItWorksPage({ language = "en", onNavigate, onViewProduct, products =
             </div>
           </div>
           <div className="how-process-media">
-            <img className="how-process-image" src={image("refill")} alt="" aria-hidden="true" loading="lazy" onError={(event) => { event.currentTarget.src = placeholderImage; }} />
+            <img className="how-process-image" src={image("refill")} alt="" aria-hidden="true" loading="lazy" onError={showNeutralImage} />
           </div>
         </section>
       </div>
@@ -386,13 +386,13 @@ function HowItWorksPage({ language = "en", onNavigate, onViewProduct, products =
             </button>
           </div>
           <div className="how-split-card how-split-media">
-            <img className="how-split-image" src={image("cta")} alt="" aria-hidden="true" loading="lazy" onError={(event) => { event.currentTarget.src = placeholderImage; }} />
+            <img className="how-split-image" src={image("cta")} alt="" aria-hidden="true" loading="lazy" onError={showNeutralImage} />
           </div>
         </section>
 
         <section className="how-split-row">
           <div className="how-split-card how-split-media">
-            <img className="how-split-image" src={image("essentials")} alt="" aria-hidden="true" loading="lazy" onError={(event) => { event.currentTarget.src = placeholderImage; }} />
+            <img className="how-split-image" src={image("essentials")} alt="" aria-hidden="true" loading="lazy" onError={showNeutralImage} />
           </div>
           <div className="how-split-card how-split-card-light how-schedule-card">
             <div className="how-schedule-content">

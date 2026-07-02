@@ -1,4 +1,5 @@
 import React from "react";
+import { resolveImageUrl, showNeutralImage } from "../utils/images.js";
 import StatusBadge from "../components/StatusBadge.jsx";
 
 function formatPrice(value, t) {
@@ -242,7 +243,8 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
                 <span className="account-product-image-wrap">
                   <img
                     alt={getLocalized(product.name, language, product.slug)}
-                    src={product.image || product.fallbackImage}
+                    onError={showNeutralImage}
+                    src={resolveImageUrl(product.image, product.fallbackImage)}
                   />
                 </span>
                 <strong>{getLocalized(product.name, language, product.slug)}</strong>
@@ -332,7 +334,8 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
             {promoProduct && (
               <img
                 alt={getLocalized(promoProduct.name, language, promoProduct.slug)}
-                src={promoProduct.image || promoProduct.fallbackImage}
+                onError={showNeutralImage}
+                src={resolveImageUrl(promoProduct.image, promoProduct.fallbackImage)}
               />
             )}
             <button onClick={() => onNavigate("products")} type="button">
@@ -377,7 +380,8 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
             {pointsProduct && (
               <img
                 alt={getLocalized(pointsProduct.name, language, pointsProduct.slug)}
-                src={pointsProduct.image || pointsProduct.fallbackImage}
+                onError={showNeutralImage}
+                src={resolveImageUrl(pointsProduct.image, pointsProduct.fallbackImage)}
               />
             )}
             <h3>{copy.pointsText}</h3>

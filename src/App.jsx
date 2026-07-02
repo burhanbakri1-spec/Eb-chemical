@@ -21,7 +21,6 @@ import ProductDetailsPage from "./pages/ProductDetailsPage.jsx";
 import ProductsPage from "./pages/ProductsPage.jsx";
 import RegisterPage from "./pages/RegisterPage.jsx";
 
-import { products as initialProducts } from "./data/products.js";
 import { hasPermission } from "./data/permissions.js";
 import { createTranslator } from "./data/translations.js";
 import {
@@ -167,19 +166,14 @@ function getStoredCart() {
   }
 }
 
-function mergeCatalogDetails(products) {
-  return products.map((product) => {
-    const localProduct = initialProducts.find((item) => item.id === product.id || item.slug === product.slug);
-    return localProduct ? { ...localProduct, ...product } : product;
-  });
-}
-
 function App() {
   const [activePage, setActivePage] = React.useState(getInitialPageFromPath);
   const [activeCategory, setActiveCategory] = React.useState("All");
   const [activeProductSlug, setActiveProductSlug] = React.useState("");
   const [cartItems, setCartItems] = React.useState(getStoredCart);
-  const [demoProducts, setDemoProducts] = React.useState(initialProducts);
+  const [demoProducts, setDemoProducts] = React.useState([]);
+  const [productsLoading, setProductsLoading] = React.useState(true);
+  const [productsError, setProductsError] = React.useState("");
   const [employees, setEmployees] = React.useState([]);
   const [orders, setOrders] = React.useState([]);
   const [workSession, setWorkSession] = React.useState(null);
@@ -188,6 +182,10 @@ function App() {
   const [homepageCategoryCards, setHomepageCategoryCards] = React.useState([]);
   const [reviews, setReviews] = React.useState([]);
   const [websiteMedia, setWebsiteMedia] = React.useState([]);
+  const [homeContentLoading, setHomeContentLoading] = React.useState(true);
+  const [homeContentError, setHomeContentError] = React.useState("");
+  const [websiteMediaLoading, setWebsiteMediaLoading] = React.useState(true);
+  const [websiteMediaError, setWebsiteMediaError] = React.useState("");
   const [currentUser, setUser] = React.useState(getCurrentUser);
   const [loginMessage, setLoginMessage] = React.useState("");
   const [adminLoginMessage, setAdminLoginMessage] = React.useState("");
@@ -278,16 +276,22 @@ function App() {
   );
 
   async function loadProducts() {
+    setProductsLoading(true);
+    setProductsError("");
     try {
-      setDemoProducts(mergeCatalogDetails(await fetchProducts()));
+      setDemoProducts(await fetchProducts());
     } catch (error) {
+      setDemoProducts([]);
+      setProductsError(error.message || "Products could not be loaded.");
       setAdminMessage(error.message);
+    } finally {
+      setProductsLoading(false);
     }
   }
 
   async function refreshProducts() {
     try {
-      const products = mergeCatalogDetails(await fetchProducts());
+      const products = await fetchProducts();
       setDemoProducts(products);
       return products;
     } catch (error) {
@@ -384,18 +388,35 @@ function App() {
   }
 
   async function loadHomeContent() {
-    setHomepageOffers(await fetchHomepageOffers());
-    setHomepageCategoryCards(await fetchHomepageCategoryCards());
-    setReviews(await fetchReviews());
+    setHomeContentLoading(true);
+    setHomeContentError("");
+    const results = await Promise.allSettled([
+      fetchHomepageOffers(),
+      fetchHomepageCategoryCards(),
+      fetchReviews(),
+    ]);
+    const [offersResult, cardsResult, reviewsResult] = results;
+    setHomepageOffers(offersResult.status === "fulfilled" ? offersResult.value : []);
+    setHomepageCategoryCards(cardsResult.status === "fulfilled" ? cardsResult.value : []);
+    setReviews(reviewsResult.status === "fulfilled" ? reviewsResult.value : []);
+    if (results.some((result) => result.status === "rejected")) {
+      setHomeContentError("Some homepage content could not be loaded.");
+    }
+    setHomeContentLoading(false);
   }
 
   async function loadWebsiteMedia(user = null) {
+    setWebsiteMediaLoading(true);
+    setWebsiteMediaError("");
     try {
       clearWebsiteMediaCache();
       const canManage = user && hasPermission(user, "website_media.manage");
       setWebsiteMedia(canManage ? await fetchAllWebsiteMedia() : await fetchWebsiteMedia());
-    } catch {
-      setWebsiteMedia(await fetchWebsiteMedia());
+    } catch (error) {
+      setWebsiteMedia([]);
+      setWebsiteMediaError(error.message || "Website media could not be loaded.");
+    } finally {
+      setWebsiteMediaLoading(false);
     }
   }
 
@@ -912,36 +933,45 @@ function App() {
       <main className={isPortalLoginPage ? "admin-login-main" : isAdminPanelPage ? "admin-panel-main" : undefined}>
         {activePage === "home" && (
           <HomePage
+            homeContentError={homeContentError}
             homepageCategoryCards={homepageCategoryCards}
             homepageOffers={homepageOffers}
+            isLoading={productsLoading || homeContentLoading || websiteMediaLoading}
             language={language}
             onAddToCart={handleAddToCart}
             onCategorySelect={handleCategorySelect}
             onNavigate={navigate}
             onViewProduct={handleViewProduct}
             products={demoProducts}
+            productsError={productsError}
             reviews={reviews}
             t={t}
             websiteMedia={websiteMedia}
+            websiteMediaError={websiteMediaError}
           />
         )}
 
         {activePage === "products" && (
           <ProductsPage
             activeCategory={activeCategory}
+            isLoading={productsLoading || websiteMediaLoading}
             language={language}
+            loadError={productsError}
             onAddToCart={handleAddToCart}
             onCategoryChange={setActiveCategory}
             onViewProduct={handleViewProduct}
             products={demoProducts}
             t={t}
             websiteMedia={websiteMedia}
+            websiteMediaError={websiteMediaError}
           />
         )}
 
         {activePage === "product" && (
           <ProductDetailsPage
+            isLoading={productsLoading}
             language={language}
+            loadError={productsError}
             onAddToCart={handleAddToCart}
             onNavigate={navigate}
             onViewProduct={handleViewProduct}
@@ -956,6 +986,7 @@ function App() {
             cartItems={cartItems}
             currentUser={currentUser}
             language={language}
+            isLoading={productsLoading || websiteMediaLoading}
             onAddToCart={handleAddToCart}
             onNavigate={navigate}
             onRemoveItem={handleRemoveItem}

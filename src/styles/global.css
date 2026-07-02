@@ -2430,6 +2430,74 @@ textarea:focus {
   padding: 30px;
 }
 
+.storefront-loading-state {
+  display: grid;
+  gap: 28px;
+  min-height: 70vh;
+  padding: clamp(110px, 14vw, 170px) clamp(20px, 5vw, 72px) 72px;
+}
+
+.storefront-skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.storefront-skeleton {
+  border-radius: 28px;
+  background: linear-gradient(110deg, #ededE8 30%, #fafaf7 45%, #ededE8 60%);
+  background-size: 220% 100%;
+  animation: storefront-skeleton-loading 1.4s ease-in-out infinite;
+}
+
+.storefront-skeleton-hero {
+  min-height: 360px;
+}
+
+.storefront-skeleton-card {
+  min-height: 310px;
+}
+
+.storefront-empty-state {
+  display: grid;
+  min-height: 65vh;
+  align-content: center;
+}
+
+.storefront-content-notice {
+  margin: 0;
+  padding: 12px 24px;
+  background: #f6f2e8;
+  color: #4a4334;
+  text-align: center;
+}
+
+@keyframes storefront-skeleton-loading {
+  from {
+    background-position: 100% 0;
+  }
+
+  to {
+    background-position: -100% 0;
+  }
+}
+
+@media (max-width: 760px) {
+  .storefront-skeleton-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .storefront-skeleton-card:nth-child(n + 2) {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .storefront-skeleton {
+    animation: none;
+  }
+}
+
 .brand-content-note,
 .success-panel {
   padding: 18px;
@@ -5615,7 +5683,7 @@ main {
   padding: 110px 18px 40px;
   background:
     linear-gradient(90deg, rgba(0, 0, 0, 0.44), rgba(0, 0, 0, 0.08)),
-    var(--cart-empty-background-image, url("/images/products/concentrated-wax-car-shampoo.svg")) center/cover no-repeat,
+    var(--cart-empty-background-image, linear-gradient(135deg, #ecece6, #f8f8f4)) center/cover no-repeat,
     #b9aa8a;
 }
 

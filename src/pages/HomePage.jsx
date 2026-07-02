@@ -1,8 +1,9 @@
 import React, { useRef } from "react";
+import { StorefrontEmptyState, StorefrontLoadingState } from "../components/StorefrontLoadingState.jsx";
 import { brand } from "../data/brand.js";
 import { categories } from "../data/categories.js";
-import { homepageCategoryCards as defaultHomepageCategoryCards } from "../data/homeContent.js";
 import { getWebsiteMediaImage } from "../data/websiteMedia.js";
+import { neutralImage, resolveImageUrl, showNeutralImage } from "../utils/images.js";
 
 const INSTAGRAM_URL = "https://www.instagram.com/eb_chemical";
 
@@ -89,7 +90,7 @@ function HomeCommunityGallery({ galleryImages = [] }) {
                 alt="EB Chemical community"
                 loading="lazy"
                 onError={(event) => {
-                  event.currentTarget.src = "/images/products/product-placeholder.svg";
+                  showNeutralImage(event);
                 }}
                 src={image}
               />
@@ -166,7 +167,7 @@ function ProductShowcaseSlider({ language, onViewProduct, products, title, varia
         {products.map((product, index) => {
           const firstSize = product.sizes?.[0] || { size: "", price: 0 };
           const category = categories.find((item) => item.id === product.categoryId);
-          const mainImage = product.image || product.fallbackImage || "/images/products/product-placeholder.svg";
+          const mainImage = resolveImageUrl(product.image, product.fallbackImage);
           const hoverImage =
             product.hoverImage ||
             product.secondaryImage ||
@@ -199,7 +200,7 @@ function ProductShowcaseSlider({ language, onViewProduct, products, title, varia
                   alt={getLocalized(product.name, language)}
                   loading="lazy"
                   onError={(event) => {
-                    event.currentTarget.src = product.fallbackImage || "/images/products/product-placeholder.svg";
+                    showNeutralImage(event);
                   }}
                   src={mainImage}
                 />
@@ -322,37 +323,37 @@ function HowItWorksSplit({ image, language, onNavigate }) {
 const fallbackSystemCards = [
   {
     key: "home",
-    image: "/homepage-categories/home-care.jpg",
+    image: neutralImage,
     label: { en: "Home care", ar: "العناية بالمنزل" },
     title: { en: "Daily cleaning made easier", ar: "تنظيف يومي أسهل" },
   },
   {
     key: "car",
-    image: "/homepage-categories/car-care.jpg",
+    image: neutralImage,
     label: { en: "Car care", ar: "العناية بالسيارة" },
     title: { en: "Fresh finish for every ride", ar: "لمسة نظيفة لكل رحلة" },
   },
   {
     key: "kitchen",
-    image: "/homepage-categories/kitchen-new.jpg",
+    image: neutralImage,
     label: { en: "Kitchen", ar: "المطبخ" },
     title: { en: "Cuts grease with less effort", ar: "إزالة الدهون بجهد أقل" },
   },
   {
     key: "bathroom",
-    image: "/homepage-categories/kitchen.jpg",
+    image: neutralImage,
     label: { en: "Bathroom", ar: "الحمام" },
     title: { en: "Shine for sinks and tiles", ar: "لمعان للأحواض والبلاط" },
   },
   {
     key: "laundry",
-    image: "/homepage-categories/laundry.jpg",
+    image: neutralImage,
     label: { en: "Laundry", ar: "الغسيل" },
     title: { en: "Care for fabrics every day", ar: "عناية يومية بالأقمشة" },
   },
 ];
 
-function CleaningSystemShowcase({ categoryCards = fallbackSystemCards, language }) {
+function CleaningSystemShowcase({ categoryCards = [], language }) {
   const isArabic = language === "ar";
   const trackRef = useRef(null);
   const words = isArabic
@@ -481,8 +482,7 @@ function PurchaseExperienceShowcase({ language, onAddToCart, onViewProduct, prod
     product?.secondaryImage ||
     product?.images?.[1] ||
     product?.galleryImages?.[1] ||
-    product?.image ||
-    "/images/products/multi-surface-cleaner.svg";
+    resolveImageUrl(product?.image);
   const name =
     getLocalized(product?.name, language) ||
     (isArabic ? "منظف متعدد الاستخدامات" : "Every Surface Cleaner");
@@ -522,7 +522,7 @@ function PurchaseExperienceShowcase({ language, onAddToCart, onViewProduct, prod
                   aria-hidden="true"
                   loading="lazy"
                   onError={(event) => {
-                    event.currentTarget.src = "/images/products/product-placeholder.svg";
+                    showNeutralImage(event);
                   }}
                   src={image}
                 />
@@ -607,7 +607,7 @@ function PurchaseExperienceShowcase({ language, onAddToCart, onViewProduct, prod
           alt={name}
           loading="lazy"
           onError={(event) => {
-            event.currentTarget.src = "/images/products/product-placeholder.svg";
+            showNeutralImage(event);
           }}
           src={image}
         />
@@ -626,9 +626,9 @@ function WidePromoBanner({ language, onNavigate, image }) {
         aria-hidden="true"
         loading="lazy"
         onError={(event) => {
-          event.currentTarget.src = "/images/products/product-placeholder.svg";
+          showNeutralImage(event);
         }}
-        src={image || "/images/products/car-shampoo-gloss.svg"}
+        src={resolveImageUrl(image)}
       />
       <div className="wide-promo-copy">
         <h2>{isArabic ? "عناية منعشة لكل مساحة" : "Fresh care for every space"}</h2>
@@ -651,8 +651,7 @@ function SplitCategoryBanner({ language, onCategorySelect, products, websiteMedi
         getWebsiteMediaImage(
           websiteMedia,
           "homepage_split_home",
-          products.find((product) => product.categoryId === "home-cleaning")?.image ||
-            "/images/products/multi-surface-cleaner.svg",
+          resolveImageUrl(products.find((product) => product.categoryId === "home-cleaning")?.image),
         ),
     },
     {
@@ -662,8 +661,7 @@ function SplitCategoryBanner({ language, onCategorySelect, products, websiteMedi
         getWebsiteMediaImage(
           websiteMedia,
           "homepage_split_car",
-          products.find((product) => product.categoryId === "car-care")?.image ||
-            "/images/products/car-interior-cleaner.svg",
+          resolveImageUrl(products.find((product) => product.categoryId === "car-care")?.image),
         ),
     },
   ];
@@ -682,7 +680,7 @@ function SplitCategoryBanner({ language, onCategorySelect, products, websiteMedi
             aria-hidden="true"
             loading="lazy"
             onError={(event) => {
-              event.currentTarget.src = "/images/products/product-placeholder.svg";
+              showNeutralImage(event);
             }}
             src={panel.image}
           />
@@ -697,18 +695,35 @@ function SplitCategoryBanner({ language, onCategorySelect, products, websiteMedi
 }
 
 function HomePage({
-  homepageCategoryCards = defaultHomepageCategoryCards,
+  homeContentError = "",
+  homepageCategoryCards = [],
   homepageOffers = [],
+  isLoading = false,
   language,
   onAddToCart,
   onCategorySelect,
   onNavigate,
   onViewProduct,
   products,
+  productsError = "",
   reviews = [],
   t,
   websiteMedia = [],
+  websiteMediaError = "",
 }) {
+  if (isLoading) {
+    return <StorefrontLoadingState label="Loading homepage content" />;
+  }
+
+  if (productsError && !products.length) {
+    return (
+      <StorefrontEmptyState
+        message={language === "ar" ? "يرجى تحديث الصفحة والمحاولة مرة أخرى." : "Please refresh the page and try again."}
+        title={language === "ar" ? "تعذر تحميل المنتجات" : "We couldn't load the latest products"}
+      />
+    );
+  }
+
   const isArabic = language === "ar";
   const starterProducts = getPromotedProducts(products);
   const essentialsProducts =
@@ -728,34 +743,31 @@ function HomePage({
       products.find((product) => product.categoryId === "car-care")?.image ||
       products[0]?.image,
   );
-  const resolvedHomepageCategoryCards = homepageCategoryCards.length
-    ? homepageCategoryCards
-    : defaultHomepageCategoryCards;
-  const mediaCategoryCards = resolvedHomepageCategoryCards.map((card) => ({
+  const mediaCategoryCards = homepageCategoryCards.map((card) => ({
     ...card,
     image: getWebsiteMediaImage(websiteMedia, `homepage_category_${card.key}`, card.image),
   }));
   const heroLeftImage = getWebsiteMediaImage(
     websiteMedia,
     "homepage_hero_left",
-    "/products/limescale-remover-hover.jpg",
+    neutralImage,
   );
   const heroRightImage = getWebsiteMediaImage(
     websiteMedia,
     "homepage_hero_right",
-    "/products/limescale-remover-main.jpg",
+    neutralImage,
   );
   const howItWorksImage = getWebsiteMediaImage(
     websiteMedia,
     "homepage_how_it_works_image",
-    "/homepage-categories/home-care.jpg",
+    neutralImage,
   );
   const communityGalleryImages = [
-    getWebsiteMediaImage(websiteMedia, "homepage_community_gallery_1", "/homepage-categories/home-care.jpg"),
-    getWebsiteMediaImage(websiteMedia, "homepage_community_gallery_2", "/homepage-categories/car-care.jpg"),
-    getWebsiteMediaImage(websiteMedia, "homepage_community_gallery_3", "/homepage-categories/kitchen-new.jpg"),
-    getWebsiteMediaImage(websiteMedia, "homepage_community_gallery_4", "/homepage-categories/laundry.jpg"),
-    getWebsiteMediaImage(websiteMedia, "homepage_community_gallery_5", "/products/limescale-remover-hover.jpg"),
+    getWebsiteMediaImage(websiteMedia, "homepage_community_gallery_1", neutralImage),
+    getWebsiteMediaImage(websiteMedia, "homepage_community_gallery_2", neutralImage),
+    getWebsiteMediaImage(websiteMedia, "homepage_community_gallery_3", neutralImage),
+    getWebsiteMediaImage(websiteMedia, "homepage_community_gallery_4", neutralImage),
+    getWebsiteMediaImage(websiteMedia, "homepage_community_gallery_5", neutralImage),
   ];
   const siteReviews = reviews.filter(
     (review) =>
@@ -772,6 +784,13 @@ function HomePage({
 
   return (
     <div className="storefront-home">
+      {(homeContentError || websiteMediaError) && (
+        <p className="storefront-content-notice" role="status">
+          {language === "ar"
+            ? "تعذر تحميل بعض محتوى الصفحة، لكن المنتجات المتاحة محدثة."
+            : "Some page content could not load, but available products are up to date."}
+        </p>
+      )}
       <section className="hero-section hero-editorial" data-header-theme="light">
         <div className="hero-bg">
           <img src={heroLeftImage} alt={brand.name} className="hero-bg-image" />

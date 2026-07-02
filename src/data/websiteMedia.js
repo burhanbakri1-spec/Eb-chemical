@@ -1,3 +1,5 @@
+import { neutralImage, safeImageUrl } from "../utils/images.js";
+
 export const defaultWebsiteMedia = [
   {
     id: "website-media-homepage-hero-left",
@@ -721,14 +723,14 @@ export function withWebsiteMediaVersion(imageUrl, version) {
 export function getWebsiteMediaImage(items, sectionKey, fallback = "") {
   const uploadedItem = (items || [])
     .filter((entry) => entry.sectionKey === sectionKey && entry.isActive !== false)
-    .filter((entry) => typeof entry.imageUrl === "string" && entry.imageUrl.trim())
+    .filter((entry) => safeImageUrl(entry.imageUrl))
     .sort((a, b) => {
       const updatedComparison = new Date(b.updatedAt || 0).getTime() - new Date(a.updatedAt || 0).getTime();
       return updatedComparison || Number(a.sortOrder || 0) - Number(b.sortOrder || 0);
     })[0];
 
   if (!uploadedItem?.imageUrl) {
-    return fallback;
+    return safeImageUrl(fallback) || neutralImage;
   }
 
   return withWebsiteMediaVersion(uploadedItem.imageUrl, uploadedItem.updatedAt || uploadedItem.id);
