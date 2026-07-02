@@ -459,12 +459,6 @@ function App() {
   }
 
   function handleAddToCart(product, size, variant = null) {
-    if (!currentUser) {
-      setLoginMessage(t("auth.loginRequiredToBuy"));
-      navigate("login");
-      return;
-    }
-
     const selectedSize =
       variant ||
       product.variants?.find((option) => option.size === size) ||
@@ -878,8 +872,10 @@ function App() {
       setLastOrder(order);
       setCheckoutMessage(t("checkout.orderPlacedSuccessfully"));
       setCartItems([]);
-      const refreshedUser = await fetchCurrentUser();
-      setUser(refreshedUser);
+      if (currentUser) {
+        const refreshedUser = await fetchCurrentUser();
+        setUser(refreshedUser);
+      }
       return order;
     } catch (error) {
       setCheckoutMessage("");

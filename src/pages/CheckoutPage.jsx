@@ -39,6 +39,8 @@ function CheckoutPage({
     ...initialCheckoutForm,
     name: currentUser?.role === "customer" ? currentUser.name : "",
     phone: currentUser?.role === "customer" ? currentUser.phone : "",
+    city: currentUser?.role === "customer" ? currentUser.city || "" : "",
+    address: currentUser?.role === "customer" ? currentUser.address || "" : "",
   }));
   const [orderPlaced, setOrderPlaced] = React.useState(false);
   const [orderError, setOrderError] = React.useState("");
@@ -50,6 +52,8 @@ function CheckoutPage({
         ...currentForm,
         name: currentForm.name || currentUser.name,
         phone: currentForm.phone || currentUser.phone,
+        city: currentForm.city || currentUser.city || "",
+        address: currentForm.address || currentUser.address || "",
       }));
     }
   }, [currentUser]);

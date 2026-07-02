@@ -161,11 +161,6 @@ function CartPage({
   }
 
   function handleCheckout() {
-    if (!currentUser) {
-      onNavigate("login");
-      return;
-    }
-
     onNavigate("checkout");
   }
 
@@ -313,8 +308,6 @@ function CartPage({
               </div>
             </div>
 
-            {!currentUser && <div className="message-panel soft">{t("auth.loginRequiredToBuy")}</div>}
-
             <div className="cart-summary-total">
               <span>{text.totalDue}</span>
               <strong>
@@ -322,7 +315,7 @@ function CartPage({
               </strong>
             </div>
             <button className="checkout-wide-button" onClick={handleCheckout} type="button">
-              {currentUser ? text.checkout : t("auth.login")}
+              {text.checkout}
             </button>
           </section>
 
