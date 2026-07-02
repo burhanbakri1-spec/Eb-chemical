@@ -76,6 +76,7 @@ import {
   fetchWebsiteMedia,
   saveWebsiteMedia as saveWebsiteMediaApi,
 } from "./utils/websiteMediaApi.js";
+import { isVariantVisible } from "./utils/productVariants.js";
 import "./styles/global.css";
 
 const cartStorageKey = "epChemicalCart";
@@ -459,16 +460,20 @@ function App() {
   }
 
   function handleAddToCart(product, size, variant = null) {
+    const visibleVariants = (product.variants || []).filter(isVariantVisible);
+    const selectedVariant =
+      (variant && isVariantVisible(variant) ? variant : null) ||
+      visibleVariants.find((option) => option.size === size) ||
+      null;
     const selectedSize =
-      variant ||
-      product.variants?.find((option) => option.size === size) ||
-      product.sizes?.find((option) => option.size === size);
+      selectedVariant ||
+      (!product.variants?.length ? product.sizes?.find((option) => option.size === size) : null);
 
-    if (!selectedSize) {
+    if (!selectedSize || (product.variants?.length && !visibleVariants.length)) {
       return;
     }
 
-    const selectedVariantId = variant?.id || selectedSize.id || "";
+    const selectedVariantId = selectedVariant?.id || selectedSize.id || "";
     const cartId = `${product.id}-${selectedVariantId || selectedSize.size}`;
 
     setCartItems((currentItems) => {
@@ -493,13 +498,13 @@ function App() {
           slug: product.slug,
           categoryId: product.categoryId,
           productName: product.name?.en || product.slug,
-          image: variant?.image || variant?.image_url || product.image,
+          image: selectedVariant?.image || selectedVariant?.image_url || product.image,
           fallbackImage: product.fallbackImage,
           size: selectedSize.size,
           selectedSize: selectedSize.size,
           variantId: selectedVariantId,
-          colorName: variant?.colorName || variant?.color_name || selectedSize.colorName || selectedSize.color_name || "",
-          colorValue: variant?.colorValue || variant?.color_value || selectedSize.colorValue || selectedSize.color_value || "",
+          colorName: selectedVariant?.colorName || selectedVariant?.color_name || selectedSize.colorName || selectedSize.color_name || "",
+          colorValue: selectedVariant?.colorValue || selectedVariant?.color_value || selectedSize.colorValue || selectedSize.color_value || "",
           price: selectedSize.price,
           quantity: 1,
         },

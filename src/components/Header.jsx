@@ -144,35 +144,26 @@ function Header({
   const howLabel = language === "ar" ? "كيف يعمل" : "How it Works";
   const socialLabel = language === "ar" ? "السوشيال ميديا" : t("nav.social");
   const megaFeatureCards = React.useMemo(() => {
-    const distinctProducts = products.filter((product) => product?.image).slice(0, 2);
+    const headerDropdownMedia = websiteMedia.filter(
+      (item) => item?.groupKey === "header_dropdown" && item?.isActive !== false
+    );
     const fallbackCards = [
       {
         titleEn: "Start here",
         titleAr: "ابدأ من هنا",
-        image: getWebsiteMediaImage(websiteMedia, "header_mega_card_0", neutralImage),
+        image: getWebsiteMediaImage(headerDropdownMedia, "header_mega_card_0", neutralImage),
         action: "products",
       },
       {
         titleEn: "Shop featured products",
         titleAr: "تسوق المنتجات المميزة",
-        image: getWebsiteMediaImage(websiteMedia, "header_mega_card_1", neutralImage),
+        image: getWebsiteMediaImage(headerDropdownMedia, "header_mega_card_1", neutralImage),
         categoryId: "car-care",
       },
     ];
 
-    return [0, 1].map((index) => {
-      const product = distinctProducts[index];
-      if (!product) return fallbackCards[index];
-
-      return {
-        titleEn: index === 0 ? "Start here" : "Shop featured products",
-        titleAr: index === 0 ? "ابدأ من هنا" : "تسوق المنتجات المميزة",
-        image: resolveImageUrl(product.image, fallbackCards[index].image),
-        categoryId: product.categoryId,
-        productSlug: product.slug,
-      };
-    });
-  }, [products, websiteMedia]);
+    return fallbackCards;
+  }, [websiteMedia]);
 
 
   const searchResults = React.useMemo(() => {

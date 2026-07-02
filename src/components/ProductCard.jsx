@@ -1,9 +1,18 @@
 import React from "react";
 import { categories } from "../data/categories.js";
 import { resolveImageUrl, showNeutralImage } from "../utils/images.js";
+import { getVisibleVariants } from "../utils/productVariants.js";
 
 function ProductCard({ language, product, onAddToCart, onViewProduct, t }) {
-  const firstSize = product.sizes[0];
+  const visibleVariants = getVisibleVariants(product);
+  const hasVariantModel = Array.isArray(product.variants) && product.variants.length > 0;
+  const firstVariant = visibleVariants.find((variant) => Number(variant.stock ?? variant.stockQty ?? 1) > 0) || visibleVariants[0];
+  const firstSize = firstVariant
+    ? { size: firstVariant.size, price: Number(firstVariant.price || 0) }
+    : hasVariantModel
+      ? null
+      : product.sizes?.[0] || null;
+  const isAvailable = Boolean(firstSize) && (!firstVariant || Number(firstVariant.stock ?? firstVariant.stockQty ?? 1) > 0);
   const category = categories.find((item) => item.id === product.categoryId);
   const description =
     product.shortDescription?.[language] ||
@@ -53,14 +62,14 @@ function ProductCard({ language, product, onAddToCart, onViewProduct, t }) {
       <div className="product-card-body">
         <div className="product-meta-row">
           <span>{category?.name[language]}</span>
-          <strong>{firstSize.size}</strong>
+          <strong>{firstSize?.size || "Unavailable"}</strong>
         </div>
         <h3>{product.name[language]}</h3>
         <p>{description}</p>
         <div className="product-price-row">
           <span>{t("common.from")}</span>
           <strong>
-            {firstSize.price} {t("common.ils")}
+            {firstSize?.price || 0} {t("common.ils")}
           </strong>
         </div>
       </div>
@@ -75,10 +84,11 @@ function ProductCard({ language, product, onAddToCart, onViewProduct, t }) {
         </button>
         <button
           className="primary-action"
-          onClick={() => onAddToCart(product, firstSize.size)}
+          disabled={!isAvailable}
+          onClick={() => onAddToCart(product, firstSize.size, firstVariant)}
           type="button"
         >
-          {t("common.add")}
+          {isAvailable ? t("common.add") : "Unavailable"}
         </button>
       </div>
     </article>

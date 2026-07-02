@@ -4,6 +4,7 @@ import AdminLayout from "../components/AdminLayout.jsx";
 import AdminOrdersTable from "../components/AdminOrdersTable.jsx";
 import WebsiteMediaManager from "../components/WebsiteMediaManager.jsx";
 import { uploadImage, uploadImages } from "../utils/api.js";
+import { isVariantVisible } from "../utils/productVariants.js";
 import {
   adminCategoriesStorageKey,
   defaultAdminCategories,
@@ -128,6 +129,7 @@ function normalizeFormVariant(variant = {}, index = 0, product = {}) {
     stock: Math.max(0, Number(variant.stock ?? variant.stockQty ?? product.stockQty ?? 0)),
     image_url: variant.image_url || variant.imageUrl || variant.image || "",
     sort_order: Number(variant.sort_order ?? variant.sortOrder ?? index),
+    isVisible: isVariantVisible(variant),
   };
 }
 
@@ -251,15 +253,16 @@ function parseVariantGeneratorSizes(value = "") {
 
 function sizesFromFormVariants(variants, fallbackSize, fallbackPrice) {
   const bySize = new Map();
-  variants.forEach((variant) => {
+  variants.filter(isVariantVisible).forEach((variant) => {
     if (!variant.size) return;
     const current = bySize.get(variant.size);
     if (!current || Number(variant.price) < Number(current.price)) {
       bySize.set(variant.size, { size: variant.size, price: Number(variant.price || 0) });
     }
   });
-  return bySize.size
-    ? Array.from(bySize.values())
+  if (bySize.size) return Array.from(bySize.values());
+  return variants.length
+    ? []
     : [{ size: fallbackSize || "500ml", price: Number(fallbackPrice || 0) || 0 }];
 }
 
@@ -316,11 +319,11 @@ function createProductFromForm(form) {
     isNewArrival: form.newArrival,
     isBestseller: form.bestseller,
     stockQty: variants.length
-      ? variants.reduce((sum, variant) => sum + Number(variant.stock || 0), 0)
+      ? variants.filter(isVariantVisible).reduce((sum, variant) => sum + Number(variant.stock || 0), 0)
       : Number(form.stockQty || 0) || 0,
     stockStatus:
       (variants.length
-        ? variants.reduce((sum, variant) => sum + Number(variant.stock || 0), 0)
+        ? variants.filter(isVariantVisible).reduce((sum, variant) => sum + Number(variant.stock || 0), 0)
         : Number(form.stockQty || 0)) > 0
         ? "In Stock"
         : "Out of Stock",
@@ -957,6 +960,15 @@ function ProductWizard({ categories, editingProduct, onCancel, onSave }) {
                       </span>
                     </span>
                     {variant.image_url && <img className="admin-image-preview small-preview" alt="" src={variant.image_url} />}
+                  </label>
+                  <label className="checkbox-line">
+                    <input
+                      checked={variant.isVisible !== false}
+                      onChange={(event) => updateVariant(index, "isVisible", event.target.checked)}
+                      type="checkbox"
+                    />
+                    Show on website
+                    <span>{variant.isVisible !== false ? "Visible" : "Hidden"}</span>
                   </label>
                   <button className="text-action danger" onClick={() => removeVariant(index)} type="button">Remove</button>
                 </div>

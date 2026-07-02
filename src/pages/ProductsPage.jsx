@@ -3,6 +3,7 @@ import { categories } from "../data/categories.js";
 import { getWebsiteMediaImage } from "../data/websiteMedia.js";
 import { StorefrontEmptyState, StorefrontLoadingState } from "../components/StorefrontLoadingState.jsx";
 import { neutralImage, resolveImageUrl, showNeutralImage } from "../utils/images.js";
+import { getVisibleVariants } from "../utils/productVariants.js";
 
 function getLocalized(value, language) {
   if (!value) return "";
@@ -229,7 +230,14 @@ function createShopCategoryConfig(allHeroImage, websiteMedia = []) {
 
 function ShopProductCard({ language, onAddToCart, onViewProduct, product, t }) {
   const isArabic = language === "ar";
-  const firstSize = product.sizes?.[0] || { size: "", price: 0 };
+  const visibleVariants = getVisibleVariants(product);
+  const hasVariantModel = Array.isArray(product.variants) && product.variants.length > 0;
+  const firstVisibleVariant = visibleVariants[0] || null;
+  const firstSize = firstVisibleVariant
+    ? { size: firstVisibleVariant.size, price: Number(firstVisibleVariant.price || 0) }
+    : hasVariantModel
+      ? null
+      : product.sizes?.[0] || null;
   const mainImage = resolveImageUrl(
     product.productsPageImage,
     product.image,
@@ -308,7 +316,7 @@ function ShopProductCard({ language, onAddToCart, onViewProduct, product, t }) {
         </div>
         <div className="shop-product-price-row">
           <strong>
-            {firstSize.price} {t("common.ils")}
+            {firstSize ? `${firstSize.price} ${t("common.ils")}` : "Unavailable"}
           </strong>
           {oldPrice && (
             <del>

@@ -4,6 +4,7 @@ import { brand } from "../data/brand.js";
 import { categories } from "../data/categories.js";
 import { getWebsiteMediaImage } from "../data/websiteMedia.js";
 import { neutralImage, resolveImageUrl, showNeutralImage } from "../utils/images.js";
+import { isVariantVisible } from "../utils/productVariants.js";
 
 const INSTAGRAM_URL = "https://www.instagram.com/eb_chemical";
 
@@ -47,7 +48,7 @@ function isIsolatedProductImage(src = "") {
 function normalizeHomeProductVariants(product = {}) {
   if (!Array.isArray(product?.variants) || !product.variants.length) return [];
 
-  return product.variants.map((variant, index) => ({
+  return product.variants.filter(isVariantVisible).map((variant, index) => ({
     id: variant.id || `${product.id || product.slug || "product"}-variant-${index}`,
     colorName: (variant.color_name || variant.colorName || "Default").trim(),
     colorValue: variant.color_value || variant.colorValue || "",
@@ -438,8 +439,18 @@ function PurchaseExperienceShowcase({ language, onAddToCart, onViewProduct, prod
     { size: "1L", price: 25 },
     { size: "5L", price: 85 },
   ];
-  const options = (product?.sizes?.length ? product.sizes : fallbackSizes).slice(0, 3);
+  const hasVariantModel = Array.isArray(product?.variants) && product.variants.length > 0;
   const productVariants = React.useMemo(() => normalizeHomeProductVariants(product), [product]);
+  const visibleVariantSizes = React.useMemo(
+    () => Array.from(new Map(productVariants.map((variant) => [variant.size, { size: variant.size, price: variant.price }])).values()),
+    [productVariants]
+  );
+  const options = (hasVariantModel
+    ? visibleVariantSizes
+    : product?.sizes?.length
+      ? product.sizes
+      : fallbackSizes
+  ).slice(0, 3);
   const colorOptions = React.useMemo(() => {
     const colorMap = new Map();
     productVariants
@@ -456,8 +467,8 @@ function PurchaseExperienceShowcase({ language, onAddToCart, onViewProduct, prod
   const [purchaseType, setPurchaseType] = React.useState("once");
 
   React.useEffect(() => {
-    setSelectedSize(options[0]?.size || "500ml");
-  }, [product?.id]);
+    setSelectedSize(options[0]?.size || "");
+  }, [product?.id, options[0]?.size]);
 
   React.useEffect(() => {
     setSelectedColor((currentColor) =>
@@ -497,6 +508,7 @@ function PurchaseExperienceShowcase({ language, onAddToCart, onViewProduct, prod
 
   function handleAddToCart() {
     if (product && onAddToCart) {
+      if (hasVariantModel && !selectedVariantForCart) return;
       onAddToCart(product, selectedOption?.size || product.sizes?.[0]?.size, selectedVariantForCart);
       return;
     }
@@ -589,7 +601,8 @@ function PurchaseExperienceShowcase({ language, onAddToCart, onViewProduct, prod
             <span className="pi-price">
               {selectedOption?.price || 0} {isArabic ? "شيكل" : "ILS"}
             </span>
-            <button className="pi-add-btn" onClick={handleAddToCart} type="button">
+            {hasVariantModel && !selectedVariantForCart && <span role="status">Unavailable</span>}
+            <button className="pi-add-btn" disabled={hasVariantModel && !selectedVariantForCart} onClick={handleAddToCart} type="button">
               {isArabic ? "أضف إلى السلة" : "Add to cart"}
             </button>
           </div>

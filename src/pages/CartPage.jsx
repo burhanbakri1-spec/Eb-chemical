@@ -3,6 +3,7 @@ import QuantityControl from "../components/QuantityControl.jsx";
 import { StorefrontLoadingState } from "../components/StorefrontLoadingState.jsx";
 import { getWebsiteMediaImage } from "../data/websiteMedia.js";
 import { neutralImage, resolveImageUrl, showNeutralImage } from "../utils/images.js";
+import { findCartItemVariant, getVisibleVariants, isVariantVisible } from "../utils/productVariants.js";
 
 const cartEmptyFallbackImage = neutralImage;
 
@@ -71,7 +72,8 @@ function RecommendedProductCard({
   const name = getLocalized(product.name, product.slug);
   const badge = getLocalized(product.badge, text.featured);
   const detail = getLocalized(product.shortDescription, "");
-  const price = product.sizes?.[0]?.price || 0;
+  const firstVariant = getVisibleVariants(product).find((variant) => Number(variant.stock ?? 1) > 0);
+  const price = firstVariant?.price || product.sizes?.[0]?.price || 0;
 
   function handleAdd(event) {
     event.preventDefault();
@@ -154,15 +156,27 @@ function CartPage({
   }
 
   function addRecommended(product) {
-    const firstVariant = product?.variants?.find((variant) => Number(variant.stock ?? 1) > 0);
+    const firstVariant = getVisibleVariants(product).find((variant) => Number(variant.stock ?? 1) > 0);
+    if (product?.variants?.length && !firstVariant) return;
     const firstSize = firstVariant?.size || product?.sizes?.[0]?.size;
     if (!firstSize) return;
     onAddToCart?.(product, firstSize, firstVariant);
   }
 
   function handleCheckout() {
+    if (cartHasUnavailableItems) return;
     onNavigate("checkout");
   }
+
+  function isCartItemAvailable(item) {
+    const product = getProduct(item);
+    if (!product) return false;
+    if (!Array.isArray(product.variants) || !product.variants.length) return true;
+    const variant = findCartItemVariant(product, item);
+    return Boolean(variant && isVariantVisible(variant) && Number(variant.stock ?? variant.stockQty ?? 0) > 0);
+  }
+
+  const cartHasUnavailableItems = cartItems.some((item) => !isCartItemAvailable(item));
 
   const cartProductIds = new Set(cartItems.map((item) => item.productId));
   const productPool = products.filter((product) => !cartProductIds.has(product.id));
@@ -246,6 +260,7 @@ function CartPage({
                 const productName = getLocalized(product?.name, item.productName || item.slug);
                 const productBadge = getLocalized(product?.badge, text.featured);
                 const lineTotal = item.price * item.quantity;
+                const itemAvailable = isCartItemAvailable(item);
 
                 return (
                   <article className="cart-line-item" key={item.cartId}>
@@ -266,6 +281,7 @@ function CartPage({
                         {text.size}: {item.size}
                         {item.colorName ? ` · ${(text.color || "Color")}: ${item.colorName}` : ""}
                       </p>
+                      {!itemAvailable && <p className="message-panel error">This variant is no longer available.</p>}
                       <div className="cart-line-actions">
                         <QuantityControl
                           onDecrease={() => onUpdateQuantity(item.cartId, item.quantity - 1)}
@@ -314,9 +330,10 @@ function CartPage({
                 {cartTotal} {currency}
               </strong>
             </div>
-            <button className="checkout-wide-button" onClick={handleCheckout} type="button">
+            <button className="checkout-wide-button" disabled={cartHasUnavailableItems} onClick={handleCheckout} type="button">
               {text.checkout}
             </button>
+            {cartHasUnavailableItems && <p className="message-panel error">This variant is no longer available.</p>}
           </section>
 
           {compactRecommendations.length > 0 && (

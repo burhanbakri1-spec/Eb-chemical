@@ -11,6 +11,7 @@ import {
 import { StorefrontEmptyState, StorefrontLoadingState } from "../components/StorefrontLoadingState.jsx";
 import { categories } from "../data/categories.js";
 import { neutralImage as placeholderImage, resolveImageUrl, showNeutralImage } from "../utils/images.js";
+import { isVariantVisible } from "../utils/productVariants.js";
 
 const productText = {
   en: {
@@ -86,7 +87,7 @@ function safeImage(image, fallback = placeholderImage) {
 
 function normalizeProductVariants(product = {}) {
   if (Array.isArray(product.variants) && product.variants.length) {
-    return product.variants.map((variant, index) => ({
+    return product.variants.filter(isVariantVisible).map((variant, index) => ({
       id: variant.id || `${product.id || "product"}-variant-${index}`,
       colorName: (variant.color_name || variant.colorName || "Default").trim(),
       colorValue: variant.color_value || variant.colorValue || "",
@@ -160,7 +161,7 @@ function SliderButton({ direction, onClick }) {
   );
 }
 
-function FloatingAddToCart({ language, onAdd, product, selectedLabel, txt }) {
+function FloatingAddToCart({ disabled, language, onAdd, product, selectedLabel, txt }) {
   const isArabic = language === "ar";
   return (
     <aside className="product-detail-floating-cart" dir={isArabic ? "rtl" : "ltr"} aria-label={txt.addToCart}>
@@ -169,8 +170,8 @@ function FloatingAddToCart({ language, onAdd, product, selectedLabel, txt }) {
         <strong>{localized(product.name, language)}</strong>
         <span>{selectedLabel}</span>
       </div>
-      <button className="detail-accent-button" onClick={onAdd} type="button">
-        {txt.addToCart}
+      <button className="detail-accent-button" disabled={disabled} onClick={onAdd} type="button">
+        {disabled ? "Unavailable" : txt.addToCart}
       </button>
     </aside>
   );
@@ -212,7 +213,7 @@ function ProductDetailsPage({
 }) {
   const txt = productText[language] || productText.en;
   const productVariants = React.useMemo(() => normalizeProductVariants(product), [product]);
-  const [selectedSize, setSelectedSize] = React.useState(product?.sizes?.[0]?.size || "");
+  const [selectedSize, setSelectedSize] = React.useState(productVariants[0]?.size || "");
   const [selectedColor, setSelectedColor] = React.useState(productVariants[0]?.colorName || "Default");
   const [quantity, setQuantity] = React.useState(1);
   const [selectedType, setSelectedType] = React.useState(product?.detailOptions?.productTypes?.[0]?.id || "standard");
@@ -232,7 +233,7 @@ function ProductDetailsPage({
   React.useEffect(() => {
     const nextVariants = normalizeProductVariants(product);
     setSelectedColor(nextVariants[0]?.colorName || "Default");
-    setSelectedSize(nextVariants[0]?.size || product?.sizes?.[0]?.size || "");
+    setSelectedSize(nextVariants[0]?.size || "");
     setQuantity(1);
     setSelectedType(product?.detailOptions?.productTypes?.[0]?.id || "standard");
     setSelectedUse(product?.detailOptions?.uses?.[0]?.id || "default");
@@ -310,7 +311,7 @@ function ProductDetailsPage({
     productVariants[0];
   const selectedOption = selectedVariant
     ? { size: selectedVariant.size, price: selectedVariant.price }
-    : product.sizes?.find((option) => option.size === selectedSize) || product.sizes?.[0] || { size: "", price: 0 };
+    : { size: "", price: 0 };
   const typeOptions = product.detailOptions?.productTypes || [
     { id: "standard", label: { en: "Standard bottle", ar: "العبوة الأساسية" }, image: product.image },
   ];
@@ -377,7 +378,9 @@ function ProductDetailsPage({
   const faqItems = product.faq || getFallbackFaq();
   const productInfo = product.productInfo || getFallbackInfo();
   const relatedProducts = getRelatedProducts();
-  const floatingLabel = `${selectedColor !== "Default" ? `${selectedColor} / ` : ""}${selectedOption.size}`;
+  const floatingLabel = selectedVariant
+    ? `${selectedColor !== "Default" ? `${selectedColor} / ` : ""}${selectedOption.size}`
+    : "Unavailable";
 
   function getStatements() {
     const customStatements = product.detailStatements || product.detail_statements;
@@ -454,7 +457,7 @@ function ProductDetailsPage({
   }
 
   function handleAddSelectedToCart() {
-    if (selectedVariant?.stock <= 0) {
+    if (!selectedVariant || selectedVariant.stock <= 0) {
       return;
     }
 
@@ -635,9 +638,9 @@ function ProductDetailsPage({
               <span>{quantity}</span>
               <button onClick={() => setQuantity((value) => value + 1)} type="button">+</button>
             </div>
-            <button className="pi-add-btn" disabled={selectedVariant?.stock <= 0} onClick={handleAddSelectedToCart} type="button">
+            <button className="pi-add-btn" disabled={!selectedVariant || selectedVariant.stock <= 0} onClick={handleAddSelectedToCart} type="button">
               <ShoppingBag size={18} />
-              {txt.addToCart}
+              {selectedVariant ? txt.addToCart : "Unavailable"}
             </button>
           </div>
 
@@ -839,7 +842,7 @@ function ProductDetailsPage({
         </div>
       </section>
 
-      <FloatingAddToCart language={language} onAdd={handleAddSelectedToCart} product={product} selectedLabel={floatingLabel} txt={txt} />
+      <FloatingAddToCart disabled={!selectedVariant || selectedVariant.stock <= 0} language={language} onAdd={handleAddSelectedToCart} product={product} selectedLabel={floatingLabel} txt={txt} />
     </main>
   );
 }
