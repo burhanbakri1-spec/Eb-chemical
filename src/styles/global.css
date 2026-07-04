@@ -25021,8 +25021,8 @@ html[dir="ltr"] .header-mega-panel.open,
     height: min(550px, 135vw) !important;
     min-height: 0 !important;
     margin: 0 !important;
-    padding: clamp(14px, 4vw, 20px) !important;
-    overflow: visible !important;
+    padding: 0 !important;
+    overflow: hidden !important;
     border-radius: 18px !important;
     background: #f3f5ef;
     box-sizing: border-box !important;
@@ -25034,7 +25034,7 @@ html[dir="ltr"] .header-mega-panel.open,
     height: 100% !important;
     min-height: 0 !important;
     border-radius: inherit !important;
-    overflow: visible !important;
+    overflow: hidden !important;
   }
 
   .product-detail-redesign .detail-kinfill-gallery-column {
@@ -25053,7 +25053,7 @@ html[dir="ltr"] .header-mega-panel.open,
     max-height: 100% !important;
     padding: 0 !important;
     aspect-ratio: auto !important;
-    object-fit: contain !important;
+    object-fit: cover !important;
     object-position: center center !important;
     transform: none !important;
     box-sizing: border-box !important;
