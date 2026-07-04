@@ -219,6 +219,23 @@ function App() {
   }, [cartItems]);
 
   React.useEffect(() => {
+    const pageKey = activePage === "product" ? `${activePage}:${activeProductSlug}` : activePage;
+
+    if (!window.__ebMetaPixelSpaReady) {
+      window.__ebMetaPixelSpaReady = true;
+      window.__ebMetaPixelLastPageKey = pageKey;
+      return;
+    }
+
+    if (window.__ebMetaPixelLastPageKey === pageKey) return;
+
+    window.__ebMetaPixelLastPageKey = pageKey;
+    if (typeof window.fbq === "function") {
+      window.fbq("track", "PageView");
+    }
+  }, [activePage, activeProductSlug]);
+
+  React.useEffect(() => {
     loadProducts();
     loadHomeContent();
     loadWebsiteMedia();
