@@ -24999,10 +24999,18 @@ html[dir="ltr"] .header-mega-panel.open,
     padding: 0 5vw 4px !important;
     overflow-x: auto !important;
     overflow-y: hidden !important;
+    direction: ltr !important;
     scroll-behavior: smooth;
+    scroll-snap-type: x mandatory;
     scroll-padding-inline: 5vw;
     overscroll-behavior-inline: contain;
     -webkit-overflow-scrolling: touch;
+  }
+
+  html[dir="rtl"] .product-detail-redesign .detail-kinfill-media .detail-subscribe-badge {
+    right: 24px;
+    left: auto;
+    direction: rtl;
   }
 
   .product-detail-redesign .detail-kinfill-main-column,
@@ -25013,9 +25021,12 @@ html[dir="ltr"] .header-mega-panel.open,
     height: min(550px, 135vw) !important;
     min-height: 0 !important;
     margin: 0 !important;
-    overflow: hidden !important;
+    padding: clamp(14px, 4vw, 20px) !important;
+    overflow: visible !important;
     border-radius: 18px !important;
     background: #f3f5ef;
+    box-sizing: border-box !important;
+    scroll-snap-align: start;
   }
 
   .product-detail-redesign .detail-kinfill-main-sticky {
@@ -25023,6 +25034,7 @@ html[dir="ltr"] .header-mega-panel.open,
     height: 100% !important;
     min-height: 0 !important;
     border-radius: inherit !important;
+    overflow: visible !important;
   }
 
   .product-detail-redesign .detail-kinfill-gallery-column {
@@ -25036,10 +25048,15 @@ html[dir="ltr"] .header-mega-panel.open,
   .product-detail-redesign .detail-kinfill-gallery-image {
     display: block !important;
     width: 100% !important;
-    max-width: none !important;
+    max-width: 100% !important;
     height: 100% !important;
+    max-height: 100% !important;
+    padding: 0 !important;
+    aspect-ratio: auto !important;
     object-fit: contain !important;
-    object-position: center !important;
+    object-position: center center !important;
+    transform: none !important;
+    box-sizing: border-box !important;
   }
 
   .product-detail-redesign .detail-purchase-panel {
