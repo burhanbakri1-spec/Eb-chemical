@@ -77,7 +77,8 @@ function AdminPlatformMembershipsPage({
         ]);
         if (active) {
           setMemberships(Array.isArray(membershipsResult) ? membershipsResult : membershipsResult?.memberships || membershipsResult);
-          setCompanies(Array.isArray(companiesResult) ? companiesResult : []);
+          const raw = Array.isArray(companiesResult) ? companiesResult : [];
+          setCompanies(raw.map((c) => ({ ...c, _id: c.id || c.companyId || c.company_id })));
         }
       } catch (requestError) {
         if (!active) return;
@@ -209,7 +210,7 @@ function AdminPlatformMembershipsPage({
                   <select value={form.companyId} onChange={(e) => handleFormChange("companyId", e.target.value)}>
                     <option value="">Select company...</option>
                     {companies.map((c) => (
-                      <option key={c.id} value={c.id}>{c.name} ({c.id})</option>
+                      <option key={c._id} value={c._id}>{c.name} ({c._id})</option>
                     ))}
                   </select>
                 </label>

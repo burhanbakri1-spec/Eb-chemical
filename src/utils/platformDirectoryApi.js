@@ -37,9 +37,16 @@ export async function fetchPlatformMemberships() {
 }
 
 export async function createPlatformMembership(membership) {
+  const safe = {
+    companyId: membership.companyId,
+    email: membership.email,
+    name: membership.name || "",
+    role: membership.role,
+    status: membership.status,
+  };
   return apiRequest("/platform/memberships", {
     method: "POST",
-    body: JSON.stringify(membership),
+    body: JSON.stringify(safe),
   });
 }
 
