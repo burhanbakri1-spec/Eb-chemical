@@ -5,6 +5,8 @@ import AboutPage from "./pages/AboutPage.jsx";
 import SustainabilityPage from "./pages/SustainabilityPage.jsx";
 import AccountPage from "./pages/AccountPage.jsx";
 import AdminCompaniesPage from "./pages/AdminCompaniesPage.jsx";
+import AdminPlatformMembershipsPage from "./pages/AdminPlatformMembershipsPage.jsx";
+import AdminPlatformUsersPage from "./pages/AdminPlatformUsersPage.jsx";
 import AdminDashboardPage from "./pages/AdminDashboardPage.jsx";
 import AdminEmployeesPage from "./pages/AdminEmployeesPage.jsx";
 import CartPage from "./pages/CartPage.jsx";
@@ -99,6 +101,8 @@ const pagePaths = {
   checkout: "/checkout",
   admin: "/admin/dashboard",
   "admin-platform-companies": "/admin/platform/companies",
+  "admin-platform-users": "/admin/platform/users",
+  "admin-platform-memberships": "/admin/platform/memberships",
   "admin-products": "/admin/products",
   "admin-products-new": "/admin/products/new",
   "admin-categories": "/admin/categories",
@@ -124,6 +128,8 @@ const pagePaths = {
 const adminPageKeys = [
   "admin",
   "admin-platform-companies",
+  "admin-platform-users",
+  "admin-platform-memberships",
   "admin-products",
   "admin-products-new",
   "admin-categories",
@@ -143,6 +149,12 @@ const adminPageKeys = [
   "admin-staff-new",
   "admin-employees",
   "admin-settings",
+];
+
+const platformAdminPageKeys = [
+  "admin-platform-companies",
+  "admin-platform-users",
+  "admin-platform-memberships",
 ];
 
 function getInitialPageFromPath() {
@@ -257,7 +269,7 @@ function App() {
     if (
       portalPages.includes(activePage) &&
       currentUser?.role === "super_admin" &&
-      activePage !== "admin-platform-companies"
+      !platformAdminPageKeys.includes(activePage)
     ) {
       navigate("admin-platform-companies");
       return;
@@ -1122,7 +1134,7 @@ function App() {
           />
         )}
 
-        {adminPageKeys.includes(activePage) && !["admin-platform-companies", "admin-staff", "admin-staff-new", "admin-employees"].includes(activePage) && (
+        {adminPageKeys.includes(activePage) && ![...platformAdminPageKeys, "admin-staff", "admin-staff-new", "admin-employees"].includes(activePage) && (
           <AdminDashboardPage
             activePage={activePage}
             currentUser={currentUser}
@@ -1164,6 +1176,38 @@ function App() {
 
         {activePage === "admin-platform-companies" && (
           <AdminCompaniesPage
+            currentUser={currentUser}
+            isDarkMode={isAdminDarkMode}
+            language={language}
+            onLanguageChange={() =>
+              setLanguage((currentLanguage) =>
+                currentLanguage === "en" ? "ar" : "en"
+              )
+            }
+            onLogout={handleAdminLogout}
+            onNavigate={navigate}
+            onToggleDarkMode={() => setIsAdminDarkMode((current) => !current)}
+          />
+        )}
+
+        {activePage === "admin-platform-users" && (
+          <AdminPlatformUsersPage
+            currentUser={currentUser}
+            isDarkMode={isAdminDarkMode}
+            language={language}
+            onLanguageChange={() =>
+              setLanguage((currentLanguage) =>
+                currentLanguage === "en" ? "ar" : "en"
+              )
+            }
+            onLogout={handleAdminLogout}
+            onNavigate={navigate}
+            onToggleDarkMode={() => setIsAdminDarkMode((current) => !current)}
+          />
+        )}
+
+        {activePage === "admin-platform-memberships" && (
+          <AdminPlatformMembershipsPage
             currentUser={currentUser}
             isDarkMode={isAdminDarkMode}
             language={language}

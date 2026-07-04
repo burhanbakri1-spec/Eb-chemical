@@ -365,7 +365,7 @@ function AdminCompaniesPage({
       onLogout={onLogout}
       onNavigate={onNavigate}
       onToggleDarkMode={onToggleDarkMode}
-      subtitle="Manage company records without enabling public tenant switching."
+      subtitle="Manage tenant companies under iGroup without enabling public tenant switching."
       title="Companies"
     >
       {accessDenied ? (
@@ -374,7 +374,7 @@ function AdminCompaniesPage({
         <div className="company-management-page">
           <div className="admin-toolbar company-toolbar">
             <div>
-              <strong>Platform companies</strong>
+              <strong>Companies managed by iGroup</strong>
               <span>{companies.length} total</span>
             </div>
             <button className="admin-primary-button" onClick={beginCreate} type="button">
@@ -432,7 +432,7 @@ function AdminCompaniesPage({
                       <td>{preferredCompanyDomain(company) || "Not assigned"}</td>
                       <td>
                         {company.isDefault ? (
-                          <span className="admin-status-pill active">Default</span>
+                          <span className="admin-status-pill active">Default tenant</span>
                         ) : (
                           "-"
                         )}

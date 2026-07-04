@@ -31,7 +31,11 @@ const navSections = [
     icon: Building2,
     label: { en: "Platform", ar: "المنصة" },
     roles: ["super_admin"],
-    items: [{ key: "admin-platform-companies", icon: Building2, label: { en: "Companies", ar: "الشركات" } }],
+    items: [
+      { key: "admin-platform-companies", icon: Building2, label: { en: "Companies", ar: "الشركات" } },
+      { key: "admin-platform-users", icon: Users, label: { en: "Users", ar: "المستخدمون" } },
+      { key: "admin-platform-memberships", icon: ShieldCheck, label: { en: "Memberships", ar: "العضويات" } },
+    ],
   },
   {
     id: "dashboard",
@@ -117,6 +121,7 @@ function AdminLayout({
   onToggleDarkMode,
 }) {
   const activeKey = normalizedActive(activePage);
+  const isPlatformAdmin = currentUser?.role === "super_admin";
   const visibleNavSections = React.useMemo(
     () => navSections.filter((section) => {
       if (currentUser?.role === "super_admin") {
@@ -167,8 +172,8 @@ function AdminLayout({
         <div className="admin-sidebar-brand">
           <span className="admin-logo-mark">EB</span>
           <div>
-            <strong>EB Chemical</strong>
-            <small>{labels.admin}</small>
+            <strong>{isPlatformAdmin ? "iGroup" : "EB Chemical"}</strong>
+            <small>{isPlatformAdmin ? "Platform Administration" : labels.admin}</small>
           </div>
         </div>
 
