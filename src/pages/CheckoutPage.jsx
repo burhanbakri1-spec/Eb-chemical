@@ -1,4 +1,5 @@
 import React from "react";
+import { trackContact } from "../utils/metaPixel.js";
 import { buildWhatsAppOrderUrl } from "../utils/whatsapp.js";
 
 const initialCheckoutForm = {
@@ -84,6 +85,7 @@ function CheckoutPage({
 
       setOrderPlaced(true);
       if (typeof window !== "undefined") {
+        trackContact({ method: "whatsapp", url: whatsappUrl });
         window.open(whatsappUrl, "_blank", "noopener,noreferrer");
       }
     } catch (error) {
@@ -214,7 +216,13 @@ function CheckoutPage({
               {messageTotal} {t("common.ils")}
             </strong>
           </div>
-          <a className="whatsapp-action" href={whatsappUrl} rel="noopener noreferrer" target="_blank">
+          <a
+            className="whatsapp-action"
+            href={whatsappUrl}
+            onClick={() => trackContact({ method: "whatsapp", url: whatsappUrl })}
+            rel="noopener noreferrer"
+            target="_blank"
+          >
             {t("checkout.sendWhatsApp")}
           </a>
         </aside>

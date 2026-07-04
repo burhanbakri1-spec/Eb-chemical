@@ -79,6 +79,14 @@ import {
   saveWebsiteMedia as saveWebsiteMediaApi,
 } from "./utils/websiteMediaApi.js";
 import { isVariantVisible } from "./utils/productVariants.js";
+import {
+  trackAddToCart,
+  trackInitiateCheckout,
+  trackPurchase,
+  trackRemoveFromCart,
+  trackViewCategory,
+  trackViewContent,
+} from "./utils/metaPixel.js";
 import "./styles/global.css";
 
 const cartStorageKey = "epChemicalCart";
@@ -179,6 +187,21 @@ function getStoredCart() {
   }
 }
 
+function getTrackingName(value, language, fallback = "") {
+  if (typeof value === "string") return value;
+  return value?.[language] || value?.en || value?.ar || fallback;
+}
+
+function getProductTrackingValue(product) {
+  const visibleVariant = (product?.variants || []).find(isVariantVisible);
+  const value = visibleVariant?.price ?? product?.sizes?.[0]?.price ?? product?.price ?? 0;
+  return Number(value) || 0;
+}
+
+function getCartTrackingId(item) {
+  return item?.productId || item?.slug || item?.cartId;
+}
+
 function App() {
   const [activePage, setActivePage] = React.useState(getInitialPageFromPath);
   const [activeCategory, setActiveCategory] = React.useState("All");
@@ -212,6 +235,8 @@ function App() {
   const [isAdminDarkMode, setIsAdminDarkMode] = React.useState(
     () => localStorage.getItem("epChemicalAdminDarkMode") === "true"
   );
+  const lastViewedProductRef = React.useRef("");
+  const checkoutTrackedRef = React.useRef(false);
   const t = React.useMemo(() => createTranslator(language), [language]);
 
   React.useEffect(() => {
@@ -234,6 +259,40 @@ function App() {
       window.fbq("track", "PageView");
     }
   }, [activePage, activeProductSlug]);
+
+  React.useEffect(() => {
+    if (activePage !== "product") {
+      lastViewedProductRef.current = "";
+      return;
+    }
+
+    const viewedProduct = demoProducts.find((product) => product.slug === activeProductSlug);
+    if (!viewedProduct || lastViewedProductRef.current === viewedProduct.slug) return;
+
+    lastViewedProductRef.current = viewedProduct.slug;
+    trackViewContent({
+      contentName: getTrackingName(viewedProduct.name, language, viewedProduct.slug),
+      contentIds: [viewedProduct.id || viewedProduct.slug],
+      value: getProductTrackingValue(viewedProduct),
+      category: viewedProduct.categoryId || viewedProduct.categoryKey || "",
+    });
+  }, [activePage, activeProductSlug, demoProducts, language]);
+
+  React.useEffect(() => {
+    if (activePage !== "checkout") {
+      checkoutTrackedRef.current = false;
+      return;
+    }
+
+    if (checkoutTrackedRef.current || cartItems.length === 0) return;
+
+    checkoutTrackedRef.current = true;
+    trackInitiateCheckout({
+      contentIds: cartItems.map(getCartTrackingId),
+      value: cartItems.reduce((sum, item) => sum + Number(item.price || 0) * Number(item.quantity || 0), 0),
+      numItems: cartItems.reduce((sum, item) => sum + Number(item.quantity || 0), 0),
+    });
+  }, [activePage, cartItems]);
 
   React.useEffect(() => {
     loadProducts();
@@ -488,8 +547,14 @@ function App() {
   }
 
   function handleCategorySelect(categoryName) {
+    trackViewCategory(categoryName);
     setActiveCategory(categoryName);
     navigate("products");
+  }
+
+  function handleProductCategoryChange(categoryName) {
+    trackViewCategory(categoryName);
+    setActiveCategory(categoryName);
   }
 
   function handleViewProduct(slug) {
@@ -513,6 +578,14 @@ function App() {
 
     const selectedVariantId = selectedVariant?.id || selectedSize.id || "";
     const cartId = `${product.id}-${selectedVariantId || selectedSize.size}`;
+
+    trackAddToCart({
+      contentName: getTrackingName(product.name, language, product.slug),
+      contentIds: [product.id || product.slug],
+      value: Number(selectedSize.price) || 0,
+      quantity: 1,
+      category: product.categoryId || product.categoryKey || "",
+    });
 
     setCartItems((currentItems) => {
       const existingItem = currentItems.find((item) => item.cartId === cartId);
@@ -569,6 +642,17 @@ function App() {
   }
 
   function handleRemoveItem(cartId) {
+    const removedItem = cartItems.find((item) => item.cartId === cartId);
+    if (removedItem) {
+      trackRemoveFromCart({
+        contentName: removedItem.productName || removedItem.slug,
+        contentIds: [getCartTrackingId(removedItem)],
+        value: Number(removedItem.price || 0) * Number(removedItem.quantity || 0),
+        quantity: removedItem.quantity,
+        category: removedItem.categoryId || "",
+      });
+    }
+
     setCartItems((currentItems) =>
       currentItems.filter((item) => item.cartId !== cartId)
     );
@@ -911,6 +995,14 @@ function App() {
         total: cartTotal,
       });
 
+      const purchasedItems = order?.items?.length ? order.items : cartItems;
+      trackPurchase({
+        contentIds: purchasedItems.map(getCartTrackingId),
+        value: order?.total ?? cartTotal,
+        numItems: purchasedItems.reduce((sum, item) => sum + Number(item.quantity || 0), 0),
+        orderId: order?.id || order?.orderId || order?.order_id,
+      });
+
       setOrders((currentOrders) => [order, ...currentOrders]);
       setLastOrder(order);
       setCheckoutMessage(t("checkout.orderPlacedSuccessfully"));
@@ -997,7 +1089,7 @@ function App() {
             language={language}
             loadError={productsError}
             onAddToCart={handleAddToCart}
-            onCategoryChange={setActiveCategory}
+            onCategoryChange={handleProductCategoryChange}
             onViewProduct={handleViewProduct}
             products={demoProducts}
             t={t}

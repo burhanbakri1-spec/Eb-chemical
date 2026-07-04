@@ -1,5 +1,6 @@
 import React from "react";
 import { brand } from "../data/brand.js";
+import { trackContact, trackSocialClick } from "../utils/metaPixel.js";
 
 const instagramUrl = "https://www.instagram.com/eb_chemical";
 const facebookUrl = "https://www.facebook.com/profile.php?id=61586630773060";
@@ -80,9 +81,28 @@ function Footer({ onNavigate, t }) {
             <button type="button">Frequently asked questions</button>
             <button type="button">Shipping Information</button>
             <button type="button">{t("footer.contact")}</button>
-            <a href={`https://wa.me/${brand.whatsappLinkNumber}`}>WhatsApp</a>
-            <a href={instagramUrl} rel="noopener noreferrer" target="_blank">Instagram</a>
-            <a href={facebookUrl} rel="noopener noreferrer" target="_blank">Facebook</a>
+            <a
+              href={`https://wa.me/${brand.whatsappLinkNumber}`}
+              onClick={() => trackContact({ method: "whatsapp", url: `https://wa.me/${brand.whatsappLinkNumber}` })}
+            >
+              WhatsApp
+            </a>
+            <a
+              href={instagramUrl}
+              onClick={() => trackSocialClick({ platform: "instagram", url: instagramUrl })}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              Instagram
+            </a>
+            <a
+              href={facebookUrl}
+              onClick={() => trackSocialClick({ platform: "facebook", url: facebookUrl })}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              Facebook
+            </a>
             <button type="button">Terms & Conditions</button>
           </nav>
         </div>

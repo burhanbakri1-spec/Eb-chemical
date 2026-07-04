@@ -4,6 +4,7 @@ import { hasPermission } from "../data/permissions.js";
 import WorkTimer from "./WorkTimer.jsx";
 import { getWebsiteMediaImage } from "../data/websiteMedia.js";
 import { neutralImage, resolveImageUrl } from "../utils/images.js";
+import { trackSearch } from "../utils/metaPixel.js";
 
 const shopLinks = [
   { key: "all", labelEn: "Shop All", labelAr: "كل المنتجات", action: "products" },
@@ -139,6 +140,7 @@ function Header({
   const aboutMenuRef = React.useRef(null);
   const aboutCloseTimer = React.useRef(null);
   const megaCloseTimer = React.useRef(null);
+  const lastTrackedSearchRef = React.useRef("");
   const shopLabel = language === "ar" ? "المتجر" : "Shop";
   const aboutLabel = language === "ar" ? "عن الشركة" : "About us";
   const howLabel = language === "ar" ? "كيف يعمل" : "How it Works";
@@ -183,6 +185,22 @@ function Header({
       })
       .slice(0, 7);
   }, [products, searchTerm]);
+
+  React.useEffect(() => {
+    const query = searchTerm.trim();
+    if (!isSearchOpen || !query) {
+      if (!isSearchOpen) lastTrackedSearchRef.current = "";
+      return undefined;
+    }
+
+    const timer = window.setTimeout(() => {
+      if (lastTrackedSearchRef.current === query) return;
+      lastTrackedSearchRef.current = query;
+      trackSearch(query);
+    }, 600);
+
+    return () => window.clearTimeout(timer);
+  }, [isSearchOpen, searchTerm]);
 
   React.useEffect(() => {
     function closeMenus(event) {
@@ -330,6 +348,11 @@ function Header({
   }
 
   function viewSearchedProduct(product) {
+    const query = searchTerm.trim();
+    if (query && lastTrackedSearchRef.current !== query) {
+      lastTrackedSearchRef.current = query;
+      trackSearch(query);
+    }
     closeAllMenus();
     setSearchTerm("");
     if (product?.slug) {

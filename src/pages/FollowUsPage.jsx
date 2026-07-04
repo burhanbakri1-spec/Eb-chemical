@@ -1,4 +1,5 @@
 import React from "react";
+import { trackContact, trackSocialClick } from "../utils/metaPixel.js";
 
 const socialLinks = [
   {
@@ -44,6 +45,13 @@ const socialLinks = [
 ];
 
 function FollowUsPage() {
+  function handleSocialClick(social) {
+    trackSocialClick({ platform: social.key, url: social.url });
+    if (social.key === "whatsapp" || social.key === "email") {
+      trackContact({ method: social.key, url: social.url });
+    }
+  }
+
   return (
     <section className="page-shell social-page follow-us-page">
       <div className="page-heading">
@@ -58,6 +66,7 @@ function FollowUsPage() {
           const cardProps = social.url
             ? {
                 href: social.url,
+                onClick: () => handleSocialClick(social),
                 rel: "noopener noreferrer",
                 target: "_blank",
               }
