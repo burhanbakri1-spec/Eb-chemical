@@ -22,6 +22,40 @@ const emptyForm = {
 };
 
 const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const currentEbStorefrontDomains = ["ebchemi.com", "www.ebchemi.com"];
+
+function normalizeDisplayDomain(value) {
+  const input = String(value || "").trim().toLowerCase();
+  if (!input) return "";
+  try {
+    return new URL(input.includes("://") ? input : `https://${input}`).hostname.replace(/\.$/, "");
+  } catch {
+    return input
+      .replace(/^[a-z][a-z0-9+.-]*:\/\//i, "")
+      .split(/[/?#]/, 1)[0]
+      .replace(/:\d+$/, "")
+      .replace(/\.$/, "");
+  }
+}
+
+function domainDisplayPriority(domain) {
+  if (domain === "ebchemi.com") return 0;
+  if (domain === "www.ebchemi.com") return 1;
+  if (domain.startsWith("www.")) return 20;
+  if (domain.startsWith("api.")) return 80;
+  if (domain.endsWith(".vercel.app")) return 100;
+  return 10;
+}
+
+function preferredCompanyDomain(company) {
+  const candidates = [
+    ...(Array.isArray(company?.domains) ? company.domains : []),
+    company?.domain,
+    ...(company?.id === "eb-chemical" || company?.isDefault ? currentEbStorefrontDomains : []),
+  ];
+  const domains = [...new Set(candidates.map(normalizeDisplayDomain).filter(Boolean))];
+  return domains.sort((a, b) => domainDisplayPriority(a) - domainDisplayPriority(b))[0] || "";
+}
 
 function cloneForm(company = emptyForm) {
   return {
@@ -395,7 +429,7 @@ function AdminCompaniesPage({
                           {company.status}
                         </span>
                       </td>
-                      <td>{company.domain || "Not assigned"}</td>
+                      <td>{preferredCompanyDomain(company) || "Not assigned"}</td>
                       <td>
                         {company.isDefault ? (
                           <span className="admin-status-pill active">Default</span>

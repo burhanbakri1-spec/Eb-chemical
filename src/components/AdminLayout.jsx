@@ -118,9 +118,12 @@ function AdminLayout({
 }) {
   const activeKey = normalizedActive(activePage);
   const visibleNavSections = React.useMemo(
-    () => navSections.filter(
-      (section) => !section.roles || section.roles.includes(currentUser?.role)
-    ),
+    () => navSections.filter((section) => {
+      if (currentUser?.role === "super_admin") {
+        return section.roles?.includes("super_admin") === true;
+      }
+      return !section.roles || section.roles.includes(currentUser?.role);
+    }),
     [currentUser?.role]
   );
   const [mobileOpen, setMobileOpen] = React.useState(false);

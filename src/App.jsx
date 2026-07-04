@@ -254,6 +254,15 @@ function App() {
       return;
     }
 
+    if (
+      portalPages.includes(activePage) &&
+      currentUser?.role === "super_admin" &&
+      activePage !== "admin-platform-companies"
+    ) {
+      navigate("admin-platform-companies");
+      return;
+    }
+
     if (portalPages.includes(activePage) && currentUser?.role === "customer") {
       setAdminLoginMessage(t("adminLogin.staffOnly"));
       navigate("admin-login", { preserveAdminLoginMessage: true });
