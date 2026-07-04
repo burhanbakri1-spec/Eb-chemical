@@ -24989,3 +24989,61 @@ html[dir="ltr"] .header-mega-panel.open,
   }
 }
 
+/* Product details: touch-first horizontal media gallery on mobile. */
+@media (max-width: 767px) {
+  .product-detail-redesign .detail-kinfill-media {
+    display: flex !important;
+    width: 100% !important;
+    max-width: none !important;
+    gap: 8px !important;
+    padding: 0 5vw 4px !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    scroll-behavior: smooth;
+    scroll-padding-inline: 5vw;
+    overscroll-behavior-inline: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .product-detail-redesign .detail-kinfill-main-column,
+  .product-detail-redesign .detail-kinfill-gallery-picture {
+    flex: 0 0 90vw !important;
+    width: 90vw !important;
+    max-width: none !important;
+    height: min(550px, 135vw) !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+    border-radius: 18px !important;
+    background: #f3f5ef;
+  }
+
+  .product-detail-redesign .detail-kinfill-main-sticky {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    border-radius: inherit !important;
+  }
+
+  .product-detail-redesign .detail-kinfill-gallery-column {
+    display: flex !important;
+    flex: none !important;
+    flex-direction: row !important;
+    gap: 8px !important;
+  }
+
+  .product-detail-redesign .detail-kinfill-media .current-product-image,
+  .product-detail-redesign .detail-kinfill-gallery-image {
+    display: block !important;
+    width: 100% !important;
+    max-width: none !important;
+    height: 100% !important;
+    object-fit: contain !important;
+    object-position: center !important;
+  }
+
+  .product-detail-redesign .detail-purchase-panel {
+    padding-top: 32px !important;
+  }
+}
+

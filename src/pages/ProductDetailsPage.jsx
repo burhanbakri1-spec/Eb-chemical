@@ -369,7 +369,13 @@ function ProductDetailsPage({
     localized(product.shortDescription, language, "")
   );
   const features = localized(product.features, language, []);
-  const uniqueGallery = [...new Set([selectedImage, ...normalizeProductGallery(product, selectedImage)])].filter(Boolean);
+  const uniqueGallery = [
+    selectedImage,
+    selectedVariant?.image,
+    selectedColorImage,
+    product.image,
+    ...normalizeProductGallery(product, selectedImage),
+  ].filter((image, index, images) => image && images.indexOf(image) === index);
   const staticGalleryImage = uniqueGallery[0] || selectedImage || product.image || placeholderImage;
   const reviews = product.reviews || getFallbackReviews();
   const steps = product.usageSteps || getFallbackSteps();
