@@ -11,6 +11,9 @@ import AdminDashboardPage from "./pages/AdminDashboardPage.jsx";
 import AdminEmployeesPage from "./pages/AdminEmployeesPage.jsx";
 import AdminCustomModulesPage from "./pages/AdminCustomModulesPage.jsx";
 import AdminCustomModuleEntriesPage from "./pages/AdminCustomModuleEntriesPage.jsx";
+import AdminInvoicesPage from "./pages/AdminInvoicesPage.jsx";
+import AdminInvoiceFormPage from "./pages/AdminInvoiceFormPage.jsx";
+import AdminInvoiceViewPage from "./pages/AdminInvoiceViewPage.jsx";
 import CartPage from "./pages/CartPage.jsx";
 import CheckoutPage from "./pages/CheckoutPage.jsx";
 import CleanupsPage from "./pages/CleanupsPage.jsx";
@@ -143,6 +146,8 @@ const pagePaths = {
   "admin-settings": "/admin/settings",
   "admin-custom-modules": "/admin/custom-modules",
   "admin-custom-modules-new": "/admin/custom-modules/new",
+  "admin-invoices": "/admin/invoices",
+  "admin-invoices-new": "/admin/invoices/new",
   employee: "/employee",
 };
 
@@ -173,6 +178,10 @@ const adminPageKeys = [
   "admin-custom-modules",
   "admin-custom-modules-new",
   "admin-custom-modules-edit",
+  "admin-invoices",
+  "admin-invoices-new",
+  "admin-invoices-view",
+  "admin-invoices-edit",
   "admin-custom-entry-list",
   "admin-custom-entry-new",
   "admin-custom-entry-edit",
@@ -214,6 +223,10 @@ function getRouteFromPath() {
   if (match) return { page: "admin-custom-entry-edit", params: { customModuleKey: decodePathPart(match[1]), entryId: decodePathPart(match[2]) } };
   match = pathname.match(/^\/admin\/custom\/([^/]+)\/?$/);
   if (match) return { page: "admin-custom-entry-list", params: { customModuleKey: decodePathPart(match[1]) } };
+  match = pathname.match(/^\/admin\/invoices\/([^/]+)\/edit\/?$/);
+  if (match) return { page: "admin-invoices-edit", params: { invoiceId: decodePathPart(match[1]) } };
+  match = pathname.match(/^\/admin\/invoices\/([^/]+)\/?$/);
+  if (match) return { page: "admin-invoices-view", params: { invoiceId: decodePathPart(match[1]) } };
   const entry = Object.entries(pagePaths).find(([, path]) => path === pathname);
   return { page: entry?.[0] || "home", params: {} };
 }
@@ -673,6 +686,7 @@ function App() {
       customModuleKey: options.customModuleKey || "",
       moduleId: options.moduleId || "",
       entryId: options.entryId || "",
+      invoiceId: options.invoiceId || "",
     };
     setRouteParams(nextParams);
     setActivePage(page);
@@ -684,7 +698,11 @@ function App() {
           ? `/admin/custom/${encodeURIComponent(nextParams.customModuleKey)}/new`
           : page === "admin-custom-entry-edit"
             ? `/admin/custom/${encodeURIComponent(nextParams.customModuleKey)}/${encodeURIComponent(nextParams.entryId)}`
-            : pagePaths[page];
+            : page === "admin-invoices-view"
+              ? `/admin/invoices/${encodeURIComponent(nextParams.invoiceId)}`
+              : page === "admin-invoices-edit"
+                ? `/admin/invoices/${encodeURIComponent(nextParams.invoiceId)}/edit`
+                : pagePaths[page];
     if (nextPath && window.location.pathname !== nextPath) {
       window.history.pushState({}, "", nextPath);
     }
@@ -1389,7 +1407,7 @@ function App() {
           />
         )}
 
-        {adminPageKeys.includes(activePage) && ![...platformAdminPageKeys, ...customAdminPageKeys, "admin-staff", "admin-staff-new", "admin-employees"].includes(activePage) && (
+        {adminPageKeys.includes(activePage) && ![...platformAdminPageKeys, ...customAdminPageKeys, "admin-staff", "admin-staff-new", "admin-employees", "admin-invoices", "admin-invoices-new", "admin-invoices-view", "admin-invoices-edit"].includes(activePage) && (
           <AdminDashboardPage
             activePage={activePage}
             currentUser={currentUser}
@@ -1508,6 +1526,59 @@ function App() {
             onLogout={handleAdminLogout}
             onNavigate={navigate}
             onToggleDarkMode={() => setIsAdminDarkMode((current) => !current)}
+          />
+        )}
+
+        {activePage === "admin-invoices" && (
+          <AdminInvoicesPage
+            activePage={activePage}
+            currentUser={currentUser}
+            isDarkMode={isAdminDarkMode}
+            language={language}
+            onLanguageChange={() =>
+              setLanguage((currentLanguage) =>
+                currentLanguage === "en" ? "ar" : "en"
+              )
+            }
+            onLogout={handleAdminLogout}
+            onNavigate={navigate}
+            onToggleDarkMode={() => setIsAdminDarkMode((current) => !current)}
+          />
+        )}
+
+        {["admin-invoices-new", "admin-invoices-edit"].includes(activePage) && (
+          <AdminInvoiceFormPage
+            activePage={activePage}
+            currentUser={currentUser}
+            isDarkMode={isAdminDarkMode}
+            language={language}
+            onLanguageChange={() =>
+              setLanguage((currentLanguage) =>
+                currentLanguage === "en" ? "ar" : "en"
+              )
+            }
+            onLogout={handleAdminLogout}
+            onNavigate={navigate}
+            onToggleDarkMode={() => setIsAdminDarkMode((current) => !current)}
+            routeParams={routeParams}
+          />
+        )}
+
+        {activePage === "admin-invoices-view" && (
+          <AdminInvoiceViewPage
+            activePage={activePage}
+            currentUser={currentUser}
+            isDarkMode={isAdminDarkMode}
+            language={language}
+            onLanguageChange={() =>
+              setLanguage((currentLanguage) =>
+                currentLanguage === "en" ? "ar" : "en"
+              )
+            }
+            onLogout={handleAdminLogout}
+            onNavigate={navigate}
+            onToggleDarkMode={() => setIsAdminDarkMode((current) => !current)}
+            routeParams={routeParams}
           />
         )}
 

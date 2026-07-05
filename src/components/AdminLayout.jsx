@@ -6,6 +6,7 @@ import {
   ChevronDown,
   ClipboardList,
   Cuboid,
+  FileText,
   Film,
   FolderTree,
   Grid3X3,
@@ -70,6 +71,7 @@ const navSections = [
     label: { en: "Operations", ar: "العمليات" },
     items: [
       { key: "admin-orders", icon: ShoppingCart, label: { en: "Orders", ar: "الطلبات" } },
+      { key: "admin-invoices", icon: FileText, label: { en: "Invoices", ar: "الفواتير" } },
       { key: "admin-reviews", icon: Star, label: { en: "Reviews", ar: "التقييمات" } },
       { key: "admin-inventory", icon: Boxes, label: { en: "Inventory", ar: "المخزون" } },
     ],
@@ -103,6 +105,9 @@ const childAliases = {
   "admin-staff-new": "admin-staff",
   "admin-custom-modules-new": "admin-custom-modules",
   "admin-custom-modules-edit": "admin-custom-modules",
+  "admin-invoices-new": "admin-invoices",
+  "admin-invoices-view": "admin-invoices",
+  "admin-invoices-edit": "admin-invoices",
 };
 
 function localize(value, language) {

@@ -104,6 +104,14 @@ export const adminModuleRegistry = Object.freeze([
     requiredPermission: "activity_log.view",
     defaultEnabled: false,
   },
+  {
+    key: "invoices",
+    label: { en: "Invoices", ar: "الفواتير" },
+    description: "Company invoice management with number generation, line items, and print view.",
+    pageKeys: ["admin-invoices", "admin-invoices-new", "admin-invoices-view", "admin-invoices-edit"],
+    requiredPermission: "invoices.view",
+    defaultEnabled: false,
+  },
 ]);
 
 const moduleByPageKey = new Map(
