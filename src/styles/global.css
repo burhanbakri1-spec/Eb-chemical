@@ -6834,6 +6834,106 @@ html[dir="rtl"] .admin-nav-button.active::before {
   line-height: 1.35;
 }
 
+.custom-modules-list,
+.custom-fields-list {
+  display: grid;
+  gap: 12px;
+}
+
+.custom-module-card,
+.custom-field-card {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  border: 1px solid var(--admin-border);
+  border-radius: 12px;
+  padding: 14px;
+  background: var(--admin-surface);
+}
+
+.custom-module-card > div:first-child {
+  display: grid;
+  gap: 4px;
+}
+
+.custom-module-card span,
+.custom-module-card small {
+  color: var(--admin-muted);
+}
+
+.custom-module-actions,
+.custom-field-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.custom-module-actions button,
+.custom-field-actions button,
+.custom-module-builder .admin-section-head > button {
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+  padding: 7px 10px;
+  background: var(--admin-surface);
+  color: var(--admin-text);
+}
+
+.custom-module-builder,
+.custom-entry-form {
+  display: grid;
+  gap: 18px;
+}
+
+.custom-field-card {
+  display: grid;
+}
+
+.custom-field-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.custom-field-grid label,
+.custom-entry-form label {
+  display: grid;
+  gap: 6px;
+  color: var(--admin-text);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.custom-field-grid input,
+.custom-field-grid select,
+.custom-field-grid textarea,
+.custom-entry-form input,
+.custom-entry-form select,
+.custom-entry-form textarea {
+  width: 100%;
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+  padding: 9px 10px;
+  background: var(--admin-surface);
+  color: var(--admin-text);
+}
+
+.custom-entry-form select[multiple] {
+  min-height: 120px;
+}
+
+.custom-checkbox {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center;
+}
+
+.custom-checkbox input,
+.custom-field-actions input,
+.custom-entry-form input[type="checkbox"] {
+  width: auto;
+}
+
 .company-access-denied {
   display: flex;
   align-items: flex-start;
@@ -6865,6 +6965,14 @@ html[dir="rtl"] .admin-nav-button.active::before {
   }
 
   .company-modules-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .custom-module-card {
+    display: grid;
+  }
+
+  .custom-field-grid {
     grid-template-columns: 1fr;
   }
 }

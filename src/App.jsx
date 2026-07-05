@@ -9,6 +9,8 @@ import AdminPlatformMembershipsPage from "./pages/AdminPlatformMembershipsPage.j
 import AdminPlatformUsersPage from "./pages/AdminPlatformUsersPage.jsx";
 import AdminDashboardPage from "./pages/AdminDashboardPage.jsx";
 import AdminEmployeesPage from "./pages/AdminEmployeesPage.jsx";
+import AdminCustomModulesPage from "./pages/AdminCustomModulesPage.jsx";
+import AdminCustomModuleEntriesPage from "./pages/AdminCustomModuleEntriesPage.jsx";
 import CartPage from "./pages/CartPage.jsx";
 import CheckoutPage from "./pages/CheckoutPage.jsx";
 import CleanupsPage from "./pages/CleanupsPage.jsx";
@@ -87,6 +89,7 @@ import {
 } from "./utils/websiteMediaApi.js";
 import { isVariantVisible } from "./utils/productVariants.js";
 import { fetchCompanyContext } from "./utils/companyContextApi.js";
+import { fetchCustomModules } from "./utils/customModulesApi.js";
 import {
   trackAddToCart,
   trackInitiateCheckout,
@@ -138,6 +141,8 @@ const pagePaths = {
   "admin-staff-new": "/admin/staff/new",
   "admin-employees": "/admin/staff",
   "admin-settings": "/admin/settings",
+  "admin-custom-modules": "/admin/custom-modules",
+  "admin-custom-modules-new": "/admin/custom-modules/new",
   employee: "/employee",
 };
 
@@ -165,6 +170,12 @@ const adminPageKeys = [
   "admin-staff-new",
   "admin-employees",
   "admin-settings",
+  "admin-custom-modules",
+  "admin-custom-modules-new",
+  "admin-custom-modules-edit",
+  "admin-custom-entry-list",
+  "admin-custom-entry-new",
+  "admin-custom-entry-edit",
 ];
 
 const platformAdminPageKeys = [
@@ -173,13 +184,42 @@ const platformAdminPageKeys = [
   "admin-platform-memberships",
 ];
 
-function getInitialPageFromPath() {
+const customAdminPageKeys = [
+  "admin-custom-modules",
+  "admin-custom-modules-new",
+  "admin-custom-modules-edit",
+  "admin-custom-entry-list",
+  "admin-custom-entry-new",
+  "admin-custom-entry-edit",
+];
+
+function decodePathPart(value = "") {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return "";
+  }
+}
+
+function getRouteFromPath() {
   const pathname = window.location.pathname;
-  if (pathname === "/admin") return "admin";
-  if (pathname === "/admin/dashboard") return "admin";
-  if (pathname === "/staff") return "employee";
+  if (pathname === "/admin") return { page: "admin", params: {} };
+  if (pathname === "/admin/dashboard") return { page: "admin", params: {} };
+  if (pathname === "/staff") return { page: "employee", params: {} };
+  let match = pathname.match(/^\/admin\/custom-modules\/([^/]+)\/edit\/?$/);
+  if (match) return { page: "admin-custom-modules-edit", params: { moduleId: decodePathPart(match[1]) } };
+  match = pathname.match(/^\/admin\/custom\/([^/]+)\/new\/?$/);
+  if (match) return { page: "admin-custom-entry-new", params: { customModuleKey: decodePathPart(match[1]) } };
+  match = pathname.match(/^\/admin\/custom\/([^/]+)\/([^/]+)\/?$/);
+  if (match) return { page: "admin-custom-entry-edit", params: { customModuleKey: decodePathPart(match[1]), entryId: decodePathPart(match[2]) } };
+  match = pathname.match(/^\/admin\/custom\/([^/]+)\/?$/);
+  if (match) return { page: "admin-custom-entry-list", params: { customModuleKey: decodePathPart(match[1]) } };
   const entry = Object.entries(pagePaths).find(([, path]) => path === pathname);
-  return entry?.[0] || "home";
+  return { page: entry?.[0] || "home", params: {} };
+}
+
+function getInitialPageFromPath() {
+  return getRouteFromPath().page;
 }
 
 function isStaffRole(role) {
@@ -216,6 +256,7 @@ function getCartTrackingId(item) {
 
 function App() {
   const [activePage, setActivePage] = React.useState(getInitialPageFromPath);
+  const [routeParams, setRouteParams] = React.useState(() => getRouteFromPath().params);
   const [activeCategory, setActiveCategory] = React.useState("All");
   const [activeProductSlug, setActiveProductSlug] = React.useState("");
   const [cartItems, setCartItems] = React.useState(getStoredCart);
@@ -236,6 +277,8 @@ function App() {
   const [websiteMediaError, setWebsiteMediaError] = React.useState("");
   const [companyContext, setCompanyContext] = React.useState(null);
   const [companyContextLoaded, setCompanyContextLoaded] = React.useState(false);
+  const [customModules, setCustomModules] = React.useState([]);
+  const [customModulesLoaded, setCustomModulesLoaded] = React.useState(false);
   const [currentUser, setUser] = React.useState(getCurrentUser);
   const [loginMessage, setLoginMessage] = React.useState("");
   const [adminLoginMessage, setAdminLoginMessage] = React.useState("");
@@ -257,8 +300,13 @@ function App() {
     [companyContext?.settings],
   );
   const adminModulesContextValue = React.useMemo(
-    () => ({ company: companyContext, enabledModules: enabledAdminModules }),
-    [companyContext, enabledAdminModules],
+    () => ({
+      company: companyContext,
+      enabledModules: enabledAdminModules,
+      customModules,
+      activeCustomModuleKey: routeParams.customModuleKey || "",
+    }),
+    [companyContext, enabledAdminModules, customModules, routeParams.customModuleKey],
   );
 
   React.useEffect(() => {
@@ -326,7 +374,9 @@ function App() {
 
   React.useEffect(() => {
     function handlePopState() {
-      setActivePage(getInitialPageFromPath());
+      const route = getRouteFromPath();
+      setActivePage(route.page);
+      setRouteParams(route.params);
     }
 
     window.addEventListener("popstate", handlePopState);
@@ -342,6 +392,10 @@ function App() {
     loadWorkSession(currentUser);
     loadWebsiteMedia(currentUser);
   }, [currentUser]);
+
+  React.useEffect(() => {
+    void loadCustomModules(currentUser);
+  }, [currentUser, enabledAdminModules.custom_modules]);
 
   React.useEffect(() => {
     const portalPages = [...adminPageKeys, "employee"];
@@ -390,6 +444,17 @@ function App() {
   }, [activePage, companyContextLoaded, currentUser, enabledAdminModules]);
 
   React.useEffect(() => {
+    if (!customModulesLoaded || !currentUser || currentUser.role === "super_admin") return;
+    if (!["admin-custom-entry-list", "admin-custom-entry-new", "admin-custom-entry-edit"].includes(activePage)) return;
+    const module = customModules.find((item) => item.key === routeParams.customModuleKey && item.enabled !== false);
+    if (!module) {
+      const fallbackModule = customModules.find((item) => item.enabled !== false);
+      if (fallbackModule) navigate("admin-custom-entry-list", { customModuleKey: fallbackModule.key });
+      else navigate(firstAccessibleAdminPage(currentUser, enabledAdminModules));
+    }
+  }, [activePage, currentUser, customModules, customModulesLoaded, enabledAdminModules, routeParams.customModuleKey]);
+
+  React.useEffect(() => {
     localStorage.setItem(languageStorageKey, language);
     document.documentElement.lang = language;
     document.documentElement.dir = language === "ar" ? "rtl" : "ltr";
@@ -412,6 +477,30 @@ function App() {
       setCompanyContext(null);
     } finally {
       setCompanyContextLoaded(true);
+    }
+  }
+
+  async function loadCustomModules(user = currentUser) {
+    if (!user) {
+      setCustomModules([]);
+      setCustomModulesLoaded(false);
+      return [];
+    }
+    if (user.role === "customer" || user.role === "super_admin" || enabledAdminModules.custom_modules !== true) {
+      setCustomModules([]);
+      setCustomModulesLoaded(true);
+      return [];
+    }
+    setCustomModulesLoaded(false);
+    try {
+      const modules = await fetchCustomModules();
+      setCustomModules(modules);
+      return modules;
+    } catch {
+      setCustomModules([]);
+      return [];
+    } finally {
+      setCustomModulesLoaded(true);
     }
   }
 
@@ -580,8 +669,22 @@ function App() {
     if (options.slug) {
       setActiveProductSlug(options.slug);
     }
+    const nextParams = {
+      customModuleKey: options.customModuleKey || "",
+      moduleId: options.moduleId || "",
+      entryId: options.entryId || "",
+    };
+    setRouteParams(nextParams);
     setActivePage(page);
-    const nextPath = pagePaths[page];
+    const nextPath = page === "admin-custom-modules-edit"
+      ? `/admin/custom-modules/${encodeURIComponent(nextParams.moduleId)}/edit`
+      : page === "admin-custom-entry-list"
+        ? `/admin/custom/${encodeURIComponent(nextParams.customModuleKey)}`
+        : page === "admin-custom-entry-new"
+          ? `/admin/custom/${encodeURIComponent(nextParams.customModuleKey)}/new`
+          : page === "admin-custom-entry-edit"
+            ? `/admin/custom/${encodeURIComponent(nextParams.customModuleKey)}/${encodeURIComponent(nextParams.entryId)}`
+            : pagePaths[page];
     if (nextPath && window.location.pathname !== nextPath) {
       window.history.pushState({}, "", nextPath);
     }
@@ -1286,7 +1389,7 @@ function App() {
           />
         )}
 
-        {adminPageKeys.includes(activePage) && ![...platformAdminPageKeys, "admin-staff", "admin-staff-new", "admin-employees"].includes(activePage) && (
+        {adminPageKeys.includes(activePage) && ![...platformAdminPageKeys, ...customAdminPageKeys, "admin-staff", "admin-staff-new", "admin-employees"].includes(activePage) && (
           <AdminDashboardPage
             activePage={activePage}
             currentUser={currentUser}
@@ -1323,6 +1426,40 @@ function App() {
             websiteMedia={websiteMedia}
             onSaveWebsiteMedia={handleSaveWebsiteMedia}
             onDeleteWebsiteMedia={handleDeleteWebsiteMedia}
+          />
+        )}
+
+        {["admin-custom-modules", "admin-custom-modules-new", "admin-custom-modules-edit"].includes(activePage) && (
+          <AdminCustomModulesPage
+            activePage={activePage}
+            currentUser={currentUser}
+            customModules={customModules}
+            customModulesLoaded={customModulesLoaded}
+            editingModuleId={routeParams.moduleId}
+            isDarkMode={isAdminDarkMode}
+            language={language}
+            onLanguageChange={() => setLanguage((currentLanguage) => currentLanguage === "en" ? "ar" : "en")}
+            onLogout={handleAdminLogout}
+            onModulesChanged={() => loadCustomModules(currentUser)}
+            onNavigate={navigate}
+            onToggleDarkMode={() => setIsAdminDarkMode((current) => !current)}
+          />
+        )}
+
+        {["admin-custom-entry-list", "admin-custom-entry-new", "admin-custom-entry-edit"].includes(activePage) && (
+          <AdminCustomModuleEntriesPage
+            activePage={activePage}
+            currentUser={currentUser}
+            customModuleKey={routeParams.customModuleKey}
+            customModules={customModules}
+            customModulesLoaded={customModulesLoaded}
+            editingEntryId={routeParams.entryId}
+            isDarkMode={isAdminDarkMode}
+            language={language}
+            onLanguageChange={() => setLanguage((currentLanguage) => currentLanguage === "en" ? "ar" : "en")}
+            onLogout={handleAdminLogout}
+            onNavigate={navigate}
+            onToggleDarkMode={() => setIsAdminDarkMode((current) => !current)}
           />
         )}
 

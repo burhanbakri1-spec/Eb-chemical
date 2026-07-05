@@ -74,6 +74,21 @@ export const adminModuleRegistry = Object.freeze([
     defaultEnabled: true,
   },
   {
+    key: "custom_modules",
+    label: { en: "Custom Modules", ar: "الوحدات المخصصة" },
+    description: "Build safe company-specific admin sections and records.",
+    pageKeys: [
+      "admin-custom-modules",
+      "admin-custom-modules-new",
+      "admin-custom-modules-edit",
+      "admin-custom-entry-list",
+      "admin-custom-entry-new",
+      "admin-custom-entry-edit",
+    ],
+    requiredPermission: "custom_modules.manage",
+    defaultEnabled: true,
+  },
+  {
     key: "reports",
     label: { en: "Reports", ar: "التقارير" },
     description: "Reserved foundation for company reporting.",
@@ -121,6 +136,9 @@ export function canAccessAdminPage(pageKey, user, enabledModules) {
   if (!module) return true;
   if (enabledModules?.[module.key] !== true) return false;
   if (["admin", "company_admin"].includes(user?.role)) return true;
+  if (module.key === "custom_modules") {
+    return pageKey.startsWith("admin-custom-entry-");
+  }
   if (module.requiredRoles && !module.requiredRoles.includes(user?.role)) return false;
   return !module.requiredPermission || user?.permissions?.includes(module.requiredPermission);
 }
@@ -134,7 +152,9 @@ export function firstAccessibleAdminPage(user, enabledModules) {
 }
 
 export const AdminModulesContext = React.createContext({
+  activeCustomModuleKey: "",
   company: null,
+  customModules: [],
   enabledModules: defaultAdminModules(),
 });
 

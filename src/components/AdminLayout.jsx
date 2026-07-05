@@ -87,7 +87,10 @@ const navSections = [
     id: "configuration",
     icon: Settings,
     label: { en: "Configuration", ar: "الإعدادات" },
-    items: [{ key: "admin-settings", icon: Settings, label: { en: "Settings", ar: "الإعدادات" } }],
+    items: [
+      { key: "admin-settings", icon: Settings, label: { en: "Settings", ar: "الإعدادات" } },
+      { key: "admin-custom-modules", icon: Cuboid, label: { en: "Module Builder", ar: "منشئ الوحدات" } },
+    ],
   },
 ];
 
@@ -98,6 +101,8 @@ const childAliases = {
   "admin-vlogs-new": "admin-vlogs",
   "admin-store-locator-new": "admin-store-locator",
   "admin-staff-new": "admin-staff",
+  "admin-custom-modules-new": "admin-custom-modules",
+  "admin-custom-modules-edit": "admin-custom-modules",
 };
 
 function localize(value, language) {
@@ -121,19 +126,39 @@ function AdminLayout({
   isDarkMode = false,
   onToggleDarkMode,
 }) {
-  const activeKey = normalizedActive(activePage);
   const isPlatformAdmin = currentUser?.role === "super_admin";
-  const { company, enabledModules } = useAdminModules();
+  const { activeCustomModuleKey, company, customModules, enabledModules } = useAdminModules();
+  const activeKey = activePage.startsWith("admin-custom-entry-")
+    ? `admin-custom:${activeCustomModuleKey}`
+    : normalizedActive(activePage);
   const visibleNavSections = React.useMemo(
-    () => navSections.flatMap((section) => {
-      if (isPlatformAdmin) {
-        return section.roles?.includes("super_admin") === true ? [section] : [];
-      }
-      if (section.roles && !section.roles.includes(currentUser?.role)) return [];
-      const items = section.items.filter((item) => canAccessAdminPage(item.key, currentUser, enabledModules));
-      return items.length ? [{ ...section, items }] : [];
-    }),
-    [currentUser, enabledModules, isPlatformAdmin]
+    () => {
+      const customSection = customModules?.some((module) => module.enabled !== false)
+        ? [{
+            id: "custom-modules",
+            icon: Cuboid,
+            label: { en: "Custom Modules", ar: "الوحدات المخصصة" },
+            items: customModules
+              .filter((module) => module.enabled !== false)
+              .map((module) => ({
+                key: `admin-custom:${module.key}`,
+                page: "admin-custom-entry-list",
+                options: { customModuleKey: module.key },
+                icon: FolderTree,
+                label: { en: module.label, ar: module.label },
+              })),
+          }]
+        : [];
+      return [...navSections, ...customSection].flatMap((section) => {
+        if (isPlatformAdmin) {
+          return section.roles?.includes("super_admin") === true ? [section] : [];
+        }
+        if (section.roles && !section.roles.includes(currentUser?.role)) return [];
+        const items = section.items.filter((item) => canAccessAdminPage(item.key, currentUser, enabledModules));
+        return items.length ? [{ ...section, items }] : [];
+      });
+    },
+    [currentUser, customModules, enabledModules, isPlatformAdmin]
   );
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [openSections, setOpenSections] = React.useState(() => {
@@ -194,7 +219,7 @@ function AdminLayout({
                   <button
                     className={`admin-nav-button ${sectionActive ? "active" : ""}`}
                     onClick={() => {
-                      onNavigate(section.items[0].key);
+                      onNavigate(section.items[0].page || section.items[0].key, section.items[0].options);
                       setMobileOpen(false);
                     }}
                     type="button"
@@ -229,7 +254,7 @@ function AdminLayout({
                               className={`admin-nav-button ${activeKey === item.key ? "active" : ""}`}
                               key={item.key}
                               onClick={() => {
-                                onNavigate(item.key);
+                                onNavigate(item.page || item.key, item.options);
                                 setMobileOpen(false);
                               }}
                               type="button"
