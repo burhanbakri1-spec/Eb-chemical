@@ -2,6 +2,11 @@ import React from "react";
 import { Building2, Pencil, Plus, ShieldAlert } from "lucide-react";
 import AdminLayout from "../components/AdminLayout.jsx";
 import {
+  adminModuleRegistry,
+  defaultAdminModules,
+  resolveAdminModules,
+} from "../data/adminModules.js";
+import {
   createPlatformCompany,
   disablePlatformCompany,
   fetchPlatformCompanies,
@@ -18,6 +23,7 @@ const emptyForm = {
     language: "",
     supportEmail: "",
     supportPhone: "",
+    adminModules: defaultAdminModules(),
   },
 };
 
@@ -64,10 +70,12 @@ function cloneForm(company = emptyForm) {
     domain: company.domain || "",
     status: company.status || "draft",
     settings: {
+      ...(company.settings || {}),
       currency: company.settings?.currency || "",
       language: company.settings?.language || "",
       supportEmail: company.settings?.supportEmail || "",
       supportPhone: company.settings?.supportPhone || "",
+      adminModules: resolveAdminModules(company.settings),
     },
   };
 }
@@ -174,6 +182,26 @@ function CompanyForm({ company, form, isSaving, onCancel, onChange, onSubmit }) 
             value={form.settings.supportPhone}
           />
         </label>
+        <fieldset className="full-field company-modules-fieldset">
+          <legend>Admin modules</legend>
+          <p>Choose which sections are available in this company&apos;s admin panel.</p>
+          <div className="company-modules-grid">
+            {adminModuleRegistry.map((module) => (
+              <label className="company-module-option" key={module.key}>
+                <input
+                  checked={form.settings.adminModules[module.key] === true}
+                  name={`settings.adminModules.${module.key}`}
+                  onChange={onChange}
+                  type="checkbox"
+                />
+                <span>
+                  <strong>{module.label.en}</strong>
+                  <small>{module.description}</small>
+                </span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
         <div className="form-actions full-field">
           <button className="secondary-action" disabled={isSaving} onClick={onCancel} type="button">
             Cancel
@@ -274,7 +302,21 @@ function AdminCompaniesPage({
   }
 
   function changeForm(event) {
-    const { name, value } = event.target;
+    const { checked, name, type, value } = event.target;
+    if (name.startsWith("settings.adminModules.")) {
+      const moduleKey = name.slice("settings.adminModules.".length);
+      setForm((current) => ({
+        ...current,
+        settings: {
+          ...current.settings,
+          adminModules: {
+            ...current.settings.adminModules,
+            [moduleKey]: type === "checkbox" ? checked : value,
+          },
+        },
+      }));
+      return;
+    }
     if (name.startsWith("settings.")) {
       const settingName = name.slice("settings.".length);
       setForm((current) => ({

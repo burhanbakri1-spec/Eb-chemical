@@ -24,6 +24,7 @@ import {
   UserCircle,
   Users,
 } from "lucide-react";
+import { canAccessAdminPage, useAdminModules } from "../data/adminModules.js";
 
 const navSections = [
   {
@@ -122,14 +123,17 @@ function AdminLayout({
 }) {
   const activeKey = normalizedActive(activePage);
   const isPlatformAdmin = currentUser?.role === "super_admin";
+  const { company, enabledModules } = useAdminModules();
   const visibleNavSections = React.useMemo(
-    () => navSections.filter((section) => {
-      if (currentUser?.role === "super_admin") {
-        return section.roles?.includes("super_admin") === true;
+    () => navSections.flatMap((section) => {
+      if (isPlatformAdmin) {
+        return section.roles?.includes("super_admin") === true ? [section] : [];
       }
-      return !section.roles || section.roles.includes(currentUser?.role);
+      if (section.roles && !section.roles.includes(currentUser?.role)) return [];
+      const items = section.items.filter((item) => canAccessAdminPage(item.key, currentUser, enabledModules));
+      return items.length ? [{ ...section, items }] : [];
     }),
-    [currentUser?.role]
+    [currentUser, enabledModules, isPlatformAdmin]
   );
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [openSections, setOpenSections] = React.useState(() => {
@@ -172,7 +176,7 @@ function AdminLayout({
         <div className="admin-sidebar-brand">
           <span className="admin-logo-mark">EB</span>
           <div>
-            <strong>{isPlatformAdmin ? "iGroup" : "EB Chemical"}</strong>
+            <strong>{isPlatformAdmin ? "iGroup" : company?.name || "EB Chemical"}</strong>
             <small>{isPlatformAdmin ? "Platform Administration" : labels.admin}</small>
           </div>
         </div>

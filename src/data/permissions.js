@@ -38,7 +38,7 @@ export const permissionGroups = [
 ];
 
 export function hasPermission(user, permission) {
-  if (user?.role === "admin") {
+  if (["admin", "company_admin"].includes(user?.role)) {
     return true;
   }
 

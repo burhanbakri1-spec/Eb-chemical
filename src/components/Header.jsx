@@ -121,7 +121,7 @@ function Header({
   websiteMedia = [],
   workSession,
 }) {
-  const isAdmin = currentUser?.role === "admin";
+  const isAdmin = ["admin", "company_admin"].includes(currentUser?.role);
   const isEmployee = ["employee", "staff"].includes(currentUser?.role);
   const isCustomer = currentUser?.role === "customer";
   const [isMegaOpen, setIsMegaOpen] = React.useState(false);

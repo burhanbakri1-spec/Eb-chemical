@@ -6779,6 +6779,61 @@ html[dir="rtl"] .admin-nav-button.active::before {
   margin: 0;
 }
 
+.company-modules-fieldset {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  border: 1px solid var(--admin-border);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.company-modules-fieldset > legend {
+  padding-inline: 6px;
+  color: var(--admin-text);
+  font-weight: 700;
+}
+
+.company-modules-fieldset > p {
+  margin: 0;
+  color: var(--admin-muted);
+  font-size: 13px;
+}
+
+.company-modules-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.admin-layout .company-module-option {
+  display: flex;
+  min-width: 0;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 10px;
+  border: 1px solid var(--admin-border);
+  border-radius: 10px;
+  padding: 11px;
+  background: var(--admin-surface);
+}
+
+.admin-layout .company-module-option input {
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+}
+
+.company-module-option span {
+  display: grid;
+  gap: 3px;
+}
+
+.company-module-option small {
+  color: var(--admin-muted);
+  line-height: 1.35;
+}
+
 .company-access-denied {
   display: flex;
   align-items: flex-start;
@@ -6806,6 +6861,10 @@ html[dir="rtl"] .admin-nav-button.active::before {
 
 @media (max-width: 720px) {
   .admin-layout .company-form {
+    grid-template-columns: 1fr;
+  }
+
+  .company-modules-grid {
     grid-template-columns: 1fr;
   }
 }

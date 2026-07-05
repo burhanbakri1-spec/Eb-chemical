@@ -24,6 +24,13 @@ import ProductsPage from "./pages/ProductsPage.jsx";
 import RegisterPage from "./pages/RegisterPage.jsx";
 
 import { hasPermission } from "./data/permissions.js";
+import {
+  AdminModulesContext,
+  canAccessAdminPage,
+  firstAccessibleAdminPage,
+  getAdminModuleForPage,
+  resolveAdminModules,
+} from "./data/adminModules.js";
 import { createTranslator } from "./data/translations.js";
 import {
   fetchCurrentUser,
@@ -79,6 +86,7 @@ import {
   saveWebsiteMedia as saveWebsiteMediaApi,
 } from "./utils/websiteMediaApi.js";
 import { isVariantVisible } from "./utils/productVariants.js";
+import { fetchCompanyContext } from "./utils/companyContextApi.js";
 import {
   trackAddToCart,
   trackInitiateCheckout,
@@ -178,6 +186,10 @@ function isStaffRole(role) {
   return role === "employee" || role === "staff" || role === "manager";
 }
 
+function isCompanyAdminRole(role) {
+  return role === "admin" || role === "company_admin";
+}
+
 function getStoredCart() {
   try {
     const storedCart = localStorage.getItem(cartStorageKey);
@@ -222,6 +234,8 @@ function App() {
   const [homeContentError, setHomeContentError] = React.useState("");
   const [websiteMediaLoading, setWebsiteMediaLoading] = React.useState(true);
   const [websiteMediaError, setWebsiteMediaError] = React.useState("");
+  const [companyContext, setCompanyContext] = React.useState(null);
+  const [companyContextLoaded, setCompanyContextLoaded] = React.useState(false);
   const [currentUser, setUser] = React.useState(getCurrentUser);
   const [loginMessage, setLoginMessage] = React.useState("");
   const [adminLoginMessage, setAdminLoginMessage] = React.useState("");
@@ -238,6 +252,14 @@ function App() {
   const lastViewedProductRef = React.useRef("");
   const checkoutTrackedRef = React.useRef(false);
   const t = React.useMemo(() => createTranslator(language), [language]);
+  const enabledAdminModules = React.useMemo(
+    () => resolveAdminModules(companyContext?.settings),
+    [companyContext?.settings],
+  );
+  const adminModulesContextValue = React.useMemo(
+    () => ({ company: companyContext, enabledModules: enabledAdminModules }),
+    [companyContext, enabledAdminModules],
+  );
 
   React.useEffect(() => {
     localStorage.setItem(cartStorageKey, JSON.stringify(cartItems));
@@ -299,6 +321,7 @@ function App() {
     loadHomeContent();
     loadWebsiteMedia();
     hydrateUser();
+    loadCompanyContext();
   }, []);
 
   React.useEffect(() => {
@@ -313,7 +336,7 @@ function App() {
   React.useEffect(() => {
     loadOrders(currentUser);
     loadEmployees(currentUser);
-    if (currentUser?.role === "admin") {
+    if (isCompanyAdminRole(currentUser?.role)) {
       loadReviews(currentUser);
     }
     loadWorkSession(currentUser);
@@ -326,7 +349,7 @@ function App() {
     if (activePage === "admin-login" && currentUser) {
       if (currentUser.role === "super_admin") {
         navigate("admin-platform-companies");
-      } else if (currentUser.role === "admin" || currentUser.role === "manager") {
+      } else if (["admin", "company_admin", "manager"].includes(currentUser.role)) {
         navigate("admin");
       } else if (isStaffRole(currentUser.role)) {
         navigate("employee");
@@ -358,6 +381,15 @@ function App() {
   }, [activePage, currentUser, t]);
 
   React.useEffect(() => {
+    if (!companyContextLoaded || !currentUser || currentUser.role === "super_admin") return;
+    if (!getAdminModuleForPage(activePage)) return;
+    if (canAccessAdminPage(activePage, currentUser, enabledAdminModules)) return;
+
+    const fallbackPage = firstAccessibleAdminPage(currentUser, enabledAdminModules);
+    if (fallbackPage !== activePage) navigate(fallbackPage);
+  }, [activePage, companyContextLoaded, currentUser, enabledAdminModules]);
+
+  React.useEffect(() => {
     localStorage.setItem(languageStorageKey, language);
     document.documentElement.lang = language;
     document.documentElement.dir = language === "ar" ? "rtl" : "ltr";
@@ -372,6 +404,16 @@ function App() {
     (sum, item) => sum + item.price * item.quantity,
     0
   );
+
+  async function loadCompanyContext() {
+    try {
+      setCompanyContext(await fetchCompanyContext());
+    } catch {
+      setCompanyContext(null);
+    } finally {
+      setCompanyContextLoaded(true);
+    }
+  }
 
   async function loadProducts() {
     setProductsLoading(true);
@@ -437,7 +479,7 @@ function App() {
   }
 
   async function loadEmployees(user) {
-    if (user?.role !== "admin") {
+    if (!isCompanyAdminRole(user?.role)) {
       setEmployees([]);
       return;
     }
@@ -472,14 +514,14 @@ function App() {
         setWorkSession(await fetchMyTodayWorkSession());
       }
 
-      if (user.role === "admin") {
+      if (isCompanyAdminRole(user.role)) {
         setEmployeeSessions(await fetchEmployeeWorkSessions());
       }
     } catch (error) {
       if (isStaffRole(user.role)) {
         setWorkSession(null);
       }
-      if (user.role === "admin") {
+      if (isCompanyAdminRole(user.role)) {
         setEmployeeSessions([]);
       }
     }
@@ -521,7 +563,7 @@ function App() {
   async function loadReviews(user) {
     if (!user) return;
     setReviews(await fetchAllReviews());
-    if (user.role === "admin" || isStaffRole(user.role)) {
+    if (isCompanyAdminRole(user.role) || isStaffRole(user.role)) {
       setHomepageOffers(await fetchAllHomepageOffers());
       setHomepageCategoryCards(await fetchAllHomepageCategoryCards());
     }
@@ -670,7 +712,7 @@ function App() {
       navigate(
         session.user.role === "super_admin"
           ? "admin-platform-companies"
-          : session.user.role === "admin"
+          : isCompanyAdminRole(session.user.role)
           ? "admin"
           : isStaffRole(session.user.role)
             ? "employee"
@@ -693,7 +735,7 @@ function App() {
         return;
       }
 
-      if (role === "admin") {
+      if (isCompanyAdminRole(role)) {
         setUser(session.user);
         setWorkSession(session.workSession || null);
         navigate("admin");
@@ -1019,7 +1061,7 @@ function App() {
   }
 
   async function handleCreateEmployeeOrder(orderPayload) {
-    const isPortalOperator = currentUser?.role === "admin" || isStaffRole(currentUser?.role);
+    const isPortalOperator = isCompanyAdminRole(currentUser?.role) || isStaffRole(currentUser?.role);
     try {
       const order = await createOrder({
         ...orderPayload,
@@ -1039,7 +1081,8 @@ function App() {
   const isAdminShellPage = isPortalLoginPage || isAdminPanelPage;
 
   return (
-    <div className={isPortalLoginPage ? "app-shell admin-login-shell" : "app-shell"}>
+    <AdminModulesContext.Provider value={adminModulesContextValue}>
+      <div className={isPortalLoginPage ? "app-shell admin-login-shell" : "app-shell"}>
       {!isAdminShellPage && (
         <Header
         activePage={activePage}
@@ -1356,8 +1399,9 @@ function App() {
         )}
       </main>
 
-      {!isAdminShellPage && <Footer onNavigate={navigate} t={t} />}
-    </div>
+        {!isAdminShellPage && <Footer onNavigate={navigate} t={t} />}
+      </div>
+    </AdminModulesContext.Provider>
   );
 }
 
