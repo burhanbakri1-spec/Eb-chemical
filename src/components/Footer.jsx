@@ -80,7 +80,9 @@ function Footer({ onNavigate, t }) {
           <nav>
             <button type="button">Frequently asked questions</button>
             <button type="button">Shipping Information</button>
-            <button type="button">{t("footer.contact")}</button>
+            <button onClick={() => trackContact({ method: "contact" })} type="button">
+              {t("footer.contact")}
+            </button>
             <a
               href={`https://wa.me/${brand.whatsappLinkNumber}`}
               onClick={() => trackContact({ method: "whatsapp", url: `https://wa.me/${brand.whatsappLinkNumber}` })}
