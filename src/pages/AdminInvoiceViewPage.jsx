@@ -11,11 +11,11 @@ const statusLabels = {
 };
 
 const statusColors = {
-  draft: "#6b7280",
-  issued: "#2563eb",
-  paid: "#16a34a",
-  cancelled: "#dc2626",
-  void: "#6b7280",
+  draft: { bg: "#eef1f4", text: "#5f6b77" },
+  issued: { bg: "#e8f7fb", text: "#0b2e4e" },
+  paid: { bg: "#effaf2", text: "#21633b" },
+  cancelled: { bg: "#ffe8e8", text: "#a52222" },
+  void: { bg: "#eef1f4", text: "#5f6b77" },
 };
 
 const currencySymbols = {
@@ -31,16 +31,11 @@ function formatDate(dateStr) {
   return d.toLocaleDateString("en-CA");
 }
 
-function localize(value, language) {
-  return value?.[language] || value?.en || "";
-}
-
 function PrintStyles() {
   return (
     <style>{`
       @media print {
         body * { visibility: hidden; }
-        .admin-layout, .admin-layout * { visibility: hidden; }
         .invoice-print-area, .invoice-print-area * { visibility: visible; }
         .invoice-print-area { position: absolute; left: 0; top: 0; width: 100%; }
         .invoice-no-print { display: none !important; }
@@ -109,166 +104,91 @@ function AdminInvoiceViewPage({
 
   const lineItems = invoice.line_items || [];
   const subtotal = lineItems.reduce((sum, item) => sum + Number(item.total || 0), 0);
+  const sc = statusColors[invoice.status] || statusColors.draft;
 
   return (
     <AdminLayout {...layoutProps} title={`Invoice ${invoice.invoice_number}`} subtitle="Invoice details and print view">
       <PrintStyles />
 
-      <div className="invoice-no-print" style={{ marginBottom: "16px" }}>
+      <div className="invoice-no-print invoice-view-toolbar">
         {message && (
-          <div className={`admin-message admin-message-${message.type}`}>
+          <div className={`message-panel ${message.type === "error" ? "error" : "success"}`}>
             {message.text}
-            <button type="button" onClick={() => setMessage(null)}>&times;</button>
+            <button className="message-dismiss" type="button" onClick={() => setMessage(null)}>&times;</button>
           </div>
         )}
-        <div style={{ display: "flex", gap: "8px" }}>
-          <button
-            className="admin-button admin-button-primary"
-            onClick={handlePrint}
-            type="button"
-          >
-            Print
-          </button>
+        <div className="toolbar-actions">
+          <button className="primary-action" onClick={handlePrint} type="button">Print</button>
           {invoice.status !== "void" && invoice.status !== "cancelled" && (
-            <button
-              className="admin-button"
-              onClick={() => onNavigate("admin-invoices-edit", { invoiceId: invoice.id })}
-              type="button"
-            >
-              Edit
-            </button>
+            <button className="secondary-action" onClick={() => onNavigate("admin-invoices-edit", { invoiceId: invoice.id })} type="button">Edit</button>
           )}
-          <button
-            className="admin-button"
-            onClick={() => onNavigate("admin-invoices")}
-            type="button"
-          >
-            Back to Invoices
-          </button>
+          <button className="secondary-action" onClick={() => onNavigate("admin-invoices")} type="button">Back to Invoices</button>
         </div>
       </div>
 
-      <div className="invoice-print-area" style={{
-        background: "#fff",
-        color: "#111",
-        padding: "32px",
-        borderRadius: "8px",
-        maxWidth: "800px",
-        margin: "0 auto",
-        fontFamily: "system-ui, sans-serif",
-      }}>
-        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "32px" }}>
+      <div className="invoice-print-area admin-panel-card" style={{ maxWidth: "800px", margin: "0 auto" }}>
+        <div className="invoice-header">
           <div>
-            <h2 style={{ margin: 0, fontSize: "24px", fontWeight: 700 }}>{currentUser?.name || "Company"}</h2>
-            <p style={{ margin: "4px 0 0", color: "#6b7280", fontSize: "14px" }}>Invoice</p>
+            <h2 className="invoice-company-name">{currentUser?.name || "Company"}</h2>
+            <p className="invoice-doc-label">Invoice</p>
           </div>
-          <div style={{ textAlign: "right" }}>
-            <h1 style={{ margin: 0, fontSize: "20px", fontWeight: 600 }}>{invoice.invoice_number}</h1>
-            <span
-              className="admin-status-badge"
-              style={{
-                display: "inline-block",
-                marginTop: "4px",
-                backgroundColor: (statusColors[invoice.status] || "#6b7280") + "20",
-                color: statusColors[invoice.status] || "#6b7280",
-                border: `1px solid ${(statusColors[invoice.status] || "#6b7280") + "40"}`,
-                padding: "2px 8px",
-                borderRadius: "4px",
-                fontSize: "12px",
-              }}
-            >
+          <div className="invoice-header-right">
+            <h1 className="invoice-number">{invoice.invoice_number}</h1>
+            <span className="admin-tag" style={{ backgroundColor: sc.bg, color: sc.text }}>
               {statusLabels[invoice.status] || invoice.status}
             </span>
           </div>
         </div>
 
-        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "32px", fontSize: "14px" }}>
+        <div className="invoice-bill-area">
           <div>
             <strong>Bill To</strong>
-            <p style={{ margin: "4px 0" }}>{invoice.customer_name}</p>
-            {invoice.customer_email && <p style={{ margin: "2px 0", color: "#6b7280" }}>{invoice.customer_email}</p>}
-            {invoice.customer_phone && <p style={{ margin: "2px 0", color: "#6b7280" }}>{invoice.customer_phone}</p>}
+            <p className="invoice-customer-name">{invoice.customer_name}</p>
+            {invoice.customer_email && <p className="invoice-muted">{invoice.customer_email}</p>}
+            {invoice.customer_phone && <p className="invoice-muted">{invoice.customer_phone}</p>}
           </div>
-          <div style={{ textAlign: "right" }}>
-            <p style={{ margin: "0 0 4px" }}><strong>Issue Date:</strong> {formatDate(invoice.issue_date)}</p>
-            {invoice.due_date && <p style={{ margin: "0" }}><strong>Due Date:</strong> {formatDate(invoice.due_date)}</p>}
+          <div className="invoice-dates">
+            <p><strong>Issue Date:</strong> {formatDate(invoice.issue_date)}</p>
+            {invoice.due_date && <p><strong>Due Date:</strong> {formatDate(invoice.due_date)}</p>}
           </div>
         </div>
 
-        <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "24px", fontSize: "14px" }}>
+        <table className="invoice-line-table">
           <thead>
-            <tr style={{ borderBottom: "2px solid #e5e7eb" }}>
-              <th style={{ textAlign: "left", padding: "8px 4px" }}>Description</th>
-              <th style={{ textAlign: "center", padding: "8px 4px" }}>Qty</th>
-              <th style={{ textAlign: "right", padding: "8px 4px" }}>Unit Price</th>
-              <th style={{ textAlign: "right", padding: "8px 4px" }}>Total</th>
+            <tr>
+              <th className="text-left">Description</th>
+              <th className="text-center">Qty</th>
+              <th className="text-right">Unit Price</th>
+              <th className="text-right">Total</th>
             </tr>
           </thead>
           <tbody>
             {lineItems.map((item, index) => (
-              <tr key={index} style={{ borderBottom: "1px solid #e5e7eb" }}>
-                <td style={{ padding: "8px 4px" }}>{item.description}</td>
-                <td style={{ textAlign: "center", padding: "8px 4px" }}>{item.quantity}</td>
-                <td style={{ textAlign: "right", padding: "8px 4px" }}>
-                  {currencySymbols[invoice.currency] || invoice.currency}{Number(item.unit_price || 0).toFixed(2)}
-                </td>
-                <td style={{ textAlign: "right", padding: "8px 4px" }}>
-                  {currencySymbols[invoice.currency] || invoice.currency}{Number(item.total || 0).toFixed(2)}
-                </td>
+              <tr key={index}>
+                <td>{item.description}</td>
+                <td className="text-center">{item.quantity}</td>
+                <td className="text-right">{currencySymbols[invoice.currency] || invoice.currency}{Number(item.unit_price || 0).toFixed(2)}</td>
+                <td className="text-right">{currencySymbols[invoice.currency] || invoice.currency}{Number(item.total || 0).toFixed(2)}</td>
               </tr>
             ))}
           </tbody>
         </table>
 
-        <div style={{
-          marginLeft: "auto",
-          width: "300px",
-          fontSize: "14px",
-        }}>
-          <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}>
-            <span>Subtotal</span>
-            <span>{currencySymbols[invoice.currency] || invoice.currency}{Number(invoice.subtotal || subtotal).toFixed(2)}</span>
-          </div>
-          {Number(invoice.discount_total) > 0 && (
-            <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}>
-              <span>Discount</span>
-              <span>-{currencySymbols[invoice.currency] || invoice.currency}{Number(invoice.discount_total).toFixed(2)}</span>
-            </div>
-          )}
-          {Number(invoice.tax_total) > 0 && (
-            <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}>
-              <span>Tax</span>
-              <span>{currencySymbols[invoice.currency] || invoice.currency}{Number(invoice.tax_total).toFixed(2)}</span>
-            </div>
-          )}
-          <div style={{
-            display: "flex",
-            justifyContent: "space-between",
-            padding: "8px 0",
-            borderTop: "2px solid #111",
-            fontWeight: 700,
-            fontSize: "16px",
-          }}>
-            <span>Total</span>
-            <span>{currencySymbols[invoice.currency] || invoice.currency}{Number(invoice.total).toFixed(2)}</span>
-          </div>
+        <div className="invoice-summary">
+          <div className="summary-row"><span>Subtotal</span><span>{currencySymbols[invoice.currency] || invoice.currency}{Number(invoice.subtotal || subtotal).toFixed(2)}</span></div>
+          {Number(invoice.discount_total) > 0 && <div className="summary-row"><span>Discount</span><span>-{currencySymbols[invoice.currency] || invoice.currency}{Number(invoice.discount_total).toFixed(2)}</span></div>}
+          {Number(invoice.tax_total) > 0 && <div className="summary-row"><span>Tax</span><span>{currencySymbols[invoice.currency] || invoice.currency}{Number(invoice.tax_total).toFixed(2)}</span></div>}
+          <div className="summary-row summary-total"><span>Total</span><span>{currencySymbols[invoice.currency] || invoice.currency}{Number(invoice.total).toFixed(2)}</span></div>
         </div>
 
         {invoice.notes && (
-          <div style={{ marginTop: "24px", padding: "12px", background: "#f9fafb", borderRadius: "4px", fontSize: "13px" }}>
+          <div className="invoice-notes">
             <strong>Notes:</strong>
-            <p style={{ margin: "4px 0 0", color: "#4b5563" }}>{invoice.notes}</p>
+            <p>{invoice.notes}</p>
           </div>
         )}
 
-        <div style={{
-          marginTop: "32px",
-          textAlign: "center",
-          fontSize: "11px",
-          color: "#9ca3af",
-          borderTop: "1px solid #e5e7eb",
-          paddingTop: "16px",
-        }}>
+        <div className="invoice-footer">
           Thank you for your business
         </div>
       </div>

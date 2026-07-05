@@ -175,57 +175,49 @@ function AdminInvoiceFormPage({
     );
   }
 
-  function inputId(name) {
-    return `invoice-${name}`;
-  }
-
   return (
     <AdminLayout {...layoutProps} title={title} subtitle={subtitle}>
       <div className="admin-invoice-form-page">
         {message && (
-          <div className={`admin-message admin-message-${message.type}`}>
+          <div className={`message-panel ${message.type === "error" ? "error" : "success"}`}>
             {message.text}
-            <button type="button" onClick={() => setMessage(null)}>&times;</button>
+            <button className="message-dismiss" type="button" onClick={() => setMessage(null)}>&times;</button>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="admin-form">
-          <div className="admin-form-grid">
-            <div className="admin-form-group">
-              <label htmlFor={inputId("customer_name")}>Customer Name *</label>
+        <form className="admin-panel-card" onSubmit={handleSubmit}>
+          <div className="invoice-form-grid">
+            <label className="full-field">
+              <span>Customer Name *</span>
               <input
-                id={inputId("customer_name")}
                 type="text"
                 value={form.customer_name}
                 onChange={(e) => setField("customer_name", e.target.value)}
                 required
               />
-            </div>
+            </label>
 
-            <div className="admin-form-group">
-              <label htmlFor={inputId("customer_email")}>Customer Email</label>
+            <label>
+              <span>Customer Email</span>
               <input
-                id={inputId("customer_email")}
                 type="email"
                 value={form.customer_email}
                 onChange={(e) => setField("customer_email", e.target.value)}
               />
-            </div>
+            </label>
 
-            <div className="admin-form-group">
-              <label htmlFor={inputId("customer_phone")}>Customer Phone</label>
+            <label>
+              <span>Customer Phone</span>
               <input
-                id={inputId("customer_phone")}
                 type="text"
                 value={form.customer_phone}
                 onChange={(e) => setField("customer_phone", e.target.value)}
               />
-            </div>
+            </label>
 
-            <div className="admin-form-group">
-              <label htmlFor={inputId("status")}>Status</label>
+            <label>
+              <span>Status</span>
               <select
-                id={inputId("status")}
                 value={form.status}
                 onChange={(e) => setField("status", e.target.value)}
               >
@@ -234,12 +226,11 @@ function AdminInvoiceFormPage({
                 <option value="paid">Paid</option>
                 <option value="cancelled">Cancelled</option>
               </select>
-            </div>
+            </label>
 
-            <div className="admin-form-group">
-              <label htmlFor={inputId("currency")}>Currency</label>
+            <label>
+              <span>Currency</span>
               <select
-                id={inputId("currency")}
                 value={form.currency}
                 onChange={(e) => setField("currency", e.target.value)}
               >
@@ -247,60 +238,57 @@ function AdminInvoiceFormPage({
                 <option value="USD">USD $</option>
                 <option value="EUR">EUR &#x20AC;</option>
               </select>
-            </div>
+            </label>
 
-            <div className="admin-form-group">
-              <label htmlFor={inputId("issue_date")}>Issue Date</label>
+            <label>
+              <span>Issue Date</span>
               <input
-                id={inputId("issue_date")}
                 type="date"
                 value={form.issue_date}
                 onChange={(e) => setField("issue_date", e.target.value)}
               />
-            </div>
+            </label>
 
-            <div className="admin-form-group">
-              <label htmlFor={inputId("due_date")}>Due Date</label>
+            <label>
+              <span>Due Date</span>
               <input
-                id={inputId("due_date")}
                 type="date"
                 value={form.due_date}
                 onChange={(e) => setField("due_date", e.target.value)}
               />
-            </div>
+            </label>
+
+            <label className="full-field">
+              <span>Notes</span>
+              <textarea
+                value={form.notes}
+                onChange={(e) => setField("notes", e.target.value)}
+                rows={3}
+                maxLength={2000}
+              />
+            </label>
           </div>
 
-          <div className="admin-form-group">
-            <label htmlFor={inputId("notes")}>Notes</label>
-            <textarea
-              id={inputId("notes")}
-              value={form.notes}
-              onChange={(e) => setField("notes", e.target.value)}
-              rows={3}
-              maxLength={2000}
-            />
-          </div>
-
-          <div className="admin-section-header" style={{ marginTop: "24px" }}>
-            <h3>Line Items</h3>
+          <div className="admin-section-head" style={{ marginTop: "24px" }}>
+            <h2>Line Items</h2>
             <button
               type="button"
-              className="admin-button admin-button-secondary"
+              className="secondary-action"
               onClick={addLineItem}
             >
               + Add Line Item
             </button>
           </div>
 
-          <div className="admin-table-wrapper" style={{ marginTop: "12px" }}>
-            <table className="admin-table">
+          <div className="admin-table-wrap" style={{ marginTop: "12px" }}>
+            <table className="admin-table admin-invoice-line-items-table">
               <thead>
                 <tr>
-                  <th style={{ width: "40%" }}>Description *</th>
-                  <th style={{ width: "15%" }}>Qty</th>
-                  <th style={{ width: "20%" }}>Unit Price</th>
+                  <th style={{ width: "38%" }}>Description *</th>
+                  <th style={{ width: "14%" }}>Qty</th>
+                  <th style={{ width: "18%" }}>Unit Price</th>
                   <th style={{ width: "15%" }}>Total</th>
-                  <th style={{ width: "10%" }}></th>
+                  <th style={{ width: "15%" }}></th>
                 </tr>
               </thead>
               <tbody>
@@ -333,14 +321,15 @@ function AdminInvoiceFormPage({
                         onChange={(e) => updateLineItem(index, "unit_price", e.target.value)}
                       />
                     </td>
-                    <td>
-                      <span style={{ fontWeight: 600 }}>{form.currency === "ILS" ? "\u20AA" : "$"}{item.total.toFixed(2)}</span>
+                    <td className="line-total-cell">
+                      {form.currency === "ILS" ? "\u20AA" : "$"}{item.total.toFixed(2)}
                     </td>
                     <td>
                       <button
                         type="button"
-                        className="admin-button admin-button-small admin-button-danger"
+                        className="secondary-action"
                         onClick={() => removeLineItem(index)}
+                        style={{ color: "#a52222" }}
                       >
                         Remove
                       </button>
@@ -351,29 +340,25 @@ function AdminInvoiceFormPage({
             </table>
           </div>
 
-          <div className="admin-invoice-totals-preview" style={{
-            marginTop: "16px",
-            textAlign: "right",
-            fontSize: "16px",
-            fontWeight: 600,
-          }}>
-            <span>Total: {form.currency === "ILS" ? "\u20AA" : "$"}{subtotal.toFixed(2)}</span>
-            <p style={{ fontSize: "12px", color: "#6b7280", marginTop: "4px", fontWeight: 400 }}>
-              Frontend preview only. Final totals calculated on backend.
-            </p>
+          <div className="admin-invoice-totals-preview">
+            <div className="total-row">
+              <span className="total-label">Total</span>
+              <span className="total-amount">{form.currency === "ILS" ? "\u20AA" : "$"}{subtotal.toFixed(2)}</span>
+            </div>
+            <p className="total-note">Frontend preview only. Final totals calculated on backend.</p>
           </div>
 
-          <div className="admin-form-actions" style={{ marginTop: "24px" }}>
+          <div className="invoice-form-actions">
             <button
               type="button"
-              className="admin-button"
+              className="secondary-action"
               onClick={() => onNavigate("admin-invoices")}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="admin-button admin-button-primary"
+              className="primary-action"
               disabled={saving}
             >
               {saving ? "Saving..." : isEditing ? "Update Invoice" : "Create Invoice"}

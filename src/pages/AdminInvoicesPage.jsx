@@ -11,11 +11,11 @@ const statusLabels = {
 };
 
 const statusColors = {
-  draft: "#6b7280",
-  issued: "#2563eb",
-  paid: "#16a34a",
-  cancelled: "#dc2626",
-  void: "#6b7280",
+  draft: { bg: "#eef1f4", text: "#5f6b77" },
+  issued: { bg: "#e8f7fb", text: "#0b2e4e" },
+  paid: { bg: "#effaf2", text: "#21633b" },
+  cancelled: { bg: "#ffe8e8", text: "#a52222" },
+  void: { bg: "#eef1f4", text: "#5f6b77" },
 };
 
 const currencySymbols = {
@@ -33,10 +33,6 @@ function formatDate(dateStr) {
   const d = new Date(dateStr);
   if (Number.isNaN(d.getTime())) return dateStr;
   return d.toLocaleDateString("en-CA");
-}
-
-function localize(value, language) {
-  return value?.[language] || value?.en || "";
 }
 
 function AdminInvoicesPage({
@@ -83,19 +79,27 @@ function AdminInvoicesPage({
 
   const layoutProps = { activePage, currentUser, isDarkMode, language, onLanguageChange, onLogout, onNavigate, onToggleDarkMode };
 
+  function statusStyle(status) {
+    const c = statusColors[status] || statusColors.draft;
+    return { backgroundColor: c.bg, color: c.text };
+  }
+
   return (
     <AdminLayout {...layoutProps} title="Invoices" subtitle="Manage company invoices">
       <div className="admin-invoices-page">
         {message && (
-          <div className={`admin-message admin-message-${message.type}`}>
+          <div className={`message-panel ${message.type === "error" ? "error" : "success"}`}>
             {message.text}
-            <button type="button" onClick={() => setMessage(null)}>&times;</button>
+            <button className="message-dismiss" type="button" onClick={() => setMessage(null)}>&times;</button>
           </div>
         )}
 
-        <div className="admin-section-header">
+        <div className="admin-section-head">
+          <div>
+            <h2>All Invoices</h2>
+          </div>
           <button
-            className="admin-button admin-button-primary"
+            className="admin-primary-button"
             onClick={() => onNavigate("admin-invoices-new")}
             type="button"
           >
@@ -107,13 +111,14 @@ function AdminInvoicesPage({
           <div className="admin-empty-state">Loading invoices...</div>
         ) : invoices.length === 0 ? (
           <div className="admin-empty-state">
-            <p>No invoices yet.</p>
-            <button className="admin-button admin-button-primary" onClick={() => onNavigate("admin-invoices-new")} type="button">
+            <strong>No invoices yet</strong>
+            <p>Create your first invoice to get started.</p>
+            <button className="admin-primary-button" onClick={() => onNavigate("admin-invoices-new")} type="button">
               Create your first invoice
             </button>
           </div>
         ) : (
-          <div className="admin-table-wrapper">
+          <div className="admin-table-wrap">
             <table className="admin-table">
               <thead>
                 <tr>
@@ -131,33 +136,23 @@ function AdminInvoicesPage({
                     <td><strong>{inv.invoice_number}</strong></td>
                     <td>{inv.customer_name}</td>
                     <td>
-                      <span
-                        className="admin-status-badge"
-                        style={{
-                          backgroundColor: (statusColors[inv.status] || "#6b7280") + "20",
-                          color: statusColors[inv.status] || "#6b7280",
-                          border: `1px solid ${(statusColors[inv.status] || "#6b7280") + "40"}`,
-                          padding: "2px 8px",
-                          borderRadius: "4px",
-                          fontSize: "12px",
-                        }}
-                      >
+                      <span className="admin-tag" style={statusStyle(inv.status)}>
                         {statusLabels[inv.status] || inv.status}
                       </span>
                     </td>
                     <td>{formatDate(inv.issue_date)}</td>
                     <td>{currencySymbol(inv.currency)}{Number(inv.total).toFixed(2)}</td>
                     <td>
-                      <div className="admin-action-buttons">
+                      <div className="action-group">
                         <button
-                          className="admin-button admin-button-small"
+                          className="secondary-action"
                           onClick={() => onNavigate("admin-invoices-view", { invoiceId: inv.id })}
                           type="button"
                         >
                           View
                         </button>
                         <button
-                          className="admin-button admin-button-small"
+                          className="secondary-action"
                           onClick={() => onNavigate("admin-invoices-edit", { invoiceId: inv.id })}
                           type="button"
                           disabled={inv.status === "void" || inv.status === "cancelled"}
@@ -166,9 +161,10 @@ function AdminInvoicesPage({
                         </button>
                         {inv.status !== "void" && inv.status !== "cancelled" && (
                           <button
-                            className="admin-button admin-button-small admin-button-danger"
+                            className="secondary-action"
                             onClick={() => handleVoid(inv.id)}
                             type="button"
+                            style={{ color: "#a52222" }}
                           >
                             Void
                           </button>
