@@ -99,8 +99,8 @@ export const adminModuleRegistry = Object.freeze([
   {
     key: "activity_log",
     label: { en: "Activity Log", ar: "سجل النشاط" },
-    description: "Reserved foundation for administrative activity history.",
-    pageKeys: [],
+    description: "Administrative activity history.",
+    pageKeys: ["admin-activity-log"],
     requiredPermission: "activity_log.view",
     defaultEnabled: false,
   },

@@ -15,6 +15,7 @@ import AdminInvoicesPage from "./pages/AdminInvoicesPage.jsx";
 import AdminInvoiceFormPage from "./pages/AdminInvoiceFormPage.jsx";
 import AdminInvoiceViewPage from "./pages/AdminInvoiceViewPage.jsx";
 import AdminDeliveryZonesPage from "./pages/AdminDeliveryZonesPage.jsx";
+import AdminActivityLogPage from "./pages/AdminActivityLogPage.jsx";
 import CartPage from "./pages/CartPage.jsx";
 import CheckoutPage from "./pages/CheckoutPage.jsx";
 import CleanupsPage from "./pages/CleanupsPage.jsx";
@@ -150,6 +151,7 @@ const pagePaths = {
   "admin-invoices": "/admin/invoices",
   "admin-invoices-new": "/admin/invoices/new",
   "admin-delivery": "/admin/delivery",
+  "admin-activity-log": "/admin/activity-log",
   employee: "/employee",
 };
 
@@ -185,6 +187,7 @@ const adminPageKeys = [
   "admin-invoices-view",
   "admin-invoices-edit",
   "admin-delivery",
+  "admin-activity-log",
   "admin-custom-entry-list",
   "admin-custom-entry-new",
   "admin-custom-entry-edit",
@@ -1411,7 +1414,7 @@ function App() {
           />
         )}
 
-        {adminPageKeys.includes(activePage) && ![...platformAdminPageKeys, ...customAdminPageKeys, "admin-staff", "admin-staff-new", "admin-employees", "admin-invoices", "admin-invoices-new", "admin-invoices-view", "admin-invoices-edit", "admin-delivery"].includes(activePage) && (
+        {adminPageKeys.includes(activePage) && ![...platformAdminPageKeys, ...customAdminPageKeys, "admin-staff", "admin-staff-new", "admin-employees", "admin-invoices", "admin-invoices-new", "admin-invoices-view", "admin-invoices-edit", "admin-delivery", "admin-activity-log"].includes(activePage) && (
           <AdminDashboardPage
             activePage={activePage}
             currentUser={currentUser}
@@ -1588,6 +1591,23 @@ function App() {
 
         {activePage === "admin-delivery" && (
           <AdminDeliveryZonesPage
+            activePage={activePage}
+            currentUser={currentUser}
+            isDarkMode={isAdminDarkMode}
+            language={language}
+            onLanguageChange={() =>
+              setLanguage((currentLanguage) =>
+                currentLanguage === "en" ? "ar" : "en"
+              )
+            }
+            onLogout={handleAdminLogout}
+            onNavigate={navigate}
+            onToggleDarkMode={() => setIsAdminDarkMode((current) => !current)}
+          />
+        )}
+
+        {activePage === "admin-activity-log" && (
+          <AdminActivityLogPage
             activePage={activePage}
             currentUser={currentUser}
             isDarkMode={isAdminDarkMode}
