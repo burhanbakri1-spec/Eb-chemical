@@ -18,6 +18,7 @@ export async function createOrder({
   total,
   createdByEmployeeId,
   createdByEmployeeName,
+  delivery_zone_id,
 }) {
   const orderItems = (items || cartItems).map((item) => ({
     productId: item.productId,
@@ -43,6 +44,7 @@ export async function createOrder({
       subtotal: total,
       total,
       paymentMethod: "Cash on delivery",
+      delivery_zone_id,
       createdByEmployeeId,
       createdByEmployeeName,
     }),

@@ -72,6 +72,7 @@ const navSections = [
     items: [
       { key: "admin-orders", icon: ShoppingCart, label: { en: "Orders", ar: "الطلبات" } },
       { key: "admin-invoices", icon: FileText, label: { en: "Invoices", ar: "الفواتير" } },
+      { key: "admin-delivery", icon: MapPin, label: { en: "Delivery", ar: "التوصيل" } },
       { key: "admin-reviews", icon: Star, label: { en: "Reviews", ar: "التقييمات" } },
       { key: "admin-inventory", icon: Boxes, label: { en: "Inventory", ar: "المخزون" } },
     ],

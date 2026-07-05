@@ -19,12 +19,21 @@ function formatOrderItem(item, index) {
   return [`${index + 1}. ${title}`, `   Qty: ${quantity}`, `   Price: ${price} ILS`].join("\n");
 }
 
-export function buildWhatsAppOrderMessage({ customer = {}, items = [], total = 0 } = {}) {
+export function buildWhatsAppOrderMessage({
+  customer = {},
+  items = [],
+  total = 0,
+  subtotal,
+  delivery_price,
+  delivery_city_name,
+} = {}) {
   const productLines = items.length
     ? items.map((item, index) => formatOrderItem(item, index)).join("\n\n")
     : "No products listed";
-
-  return [
+  const deliveryCity = delivery_city_name || customer.delivery_city_name || "";
+  const deliveryPrice = delivery_price ?? customer.delivery_price ?? 0;
+  const sub = subtotal ?? (total - Number(deliveryPrice));
+  const parts = [
     "New EB Chemical Order",
     "",
     "Customer:",
@@ -36,10 +45,18 @@ export function buildWhatsAppOrderMessage({ customer = {}, items = [], total = 0
     "",
     productLines,
     "",
-    `Total: ${total} ILS`,
-    "",
-    `Notes: ${formatValue(customer.notes, "None")}`,
-  ].join("\n");
+  ];
+  if (deliveryCity) {
+    parts.push(`City: ${deliveryCity}`);
+  }
+  parts.push(`Subtotal: ${Number(sub).toFixed(2)} ILS`);
+  if (Number(deliveryPrice) > 0) {
+    parts.push(`Delivery: ${Number(deliveryPrice).toFixed(2)} ILS`);
+  }
+  parts.push(`Total: ${Number(total).toFixed(2)} ILS`);
+  parts.push("");
+  parts.push(`Notes: ${formatValue(customer.notes, "None")}`);
+  return parts.join("\n");
 }
 
 export function buildWhatsAppOrderUrl(order) {

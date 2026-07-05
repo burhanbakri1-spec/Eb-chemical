@@ -1,6 +1,7 @@
 import React from "react";
 import { trackContact } from "../utils/metaPixel.js";
 import { buildWhatsAppOrderUrl } from "../utils/whatsapp.js";
+import { fetchDeliveryZones } from "../utils/deliveryZonesApi.js";
 
 const initialCheckoutForm = {
   name: "",
@@ -46,6 +47,17 @@ function CheckoutPage({
   const [orderPlaced, setOrderPlaced] = React.useState(false);
   const [orderError, setOrderError] = React.useState("");
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [deliveryZones, setDeliveryZones] = React.useState([]);
+  const [selectedZone, setSelectedZone] = React.useState(null);
+
+  React.useEffect(() => {
+    fetchDeliveryZones()
+      .then(setDeliveryZones)
+      .catch(() => setDeliveryZones([]));
+  }, []);
+
+  const deliveryPrice = selectedZone ? Number(selectedZone.delivery_price) : 0;
+  const orderTotal = Number(total || 0) + deliveryPrice;
 
   React.useEffect(() => {
     if (currentUser?.role === "customer") {
@@ -67,6 +79,17 @@ function CheckoutPage({
     }));
   }
 
+  function handleCityChange(event) {
+    const zoneId = event.target.value;
+    const zone = zoneId ? deliveryZones.find((z) => z.id === zoneId) : null;
+    setSelectedZone(zone);
+    setForm((currentForm) => ({
+      ...currentForm,
+      city: zone ? zone.city_name : "",
+      delivery_zone_id: zone ? zone.id : "",
+    }));
+  }
+
   async function handleSubmit(event) {
     event.preventDefault();
     setOrderError("");
@@ -76,7 +99,7 @@ function CheckoutPage({
       const submittedForm = { ...form };
       const submittedItems = getMessageItems(cartItems, products, language);
       const submittedTotal = total;
-      const order = await onCreateOrder(submittedForm);
+      const order = await onCreateOrder({ ...submittedForm, delivery_zone_id: selectedZone ? selectedZone.id : "" });
       const whatsappUrl = buildWhatsAppOrderUrl({
         customer: { ...submittedForm, ...(order?.customer || {}) },
         items: order?.items?.length ? order.items : submittedItems,
@@ -95,12 +118,16 @@ function CheckoutPage({
     }
   }
 
-  const messageItems = orderPlaced && lastOrder ? lastOrder.items : cartItems;
-  const messageTotal = orderPlaced && lastOrder ? lastOrder.total : total;
-  const whatsappUrl = buildWhatsAppOrderUrl({
-    customer: orderPlaced && lastOrder ? lastOrder.customer : form,
+  const isPlaced = orderPlaced && lastOrder;
+  const messageItems = isPlaced ? lastOrder.items : cartItems;
+  const messageTotal = isPlaced ? lastOrder.total : orderTotal;
+  const whatsappUrl = buildWhatsAppOrderUrl(isPlaced ? lastOrder : {
+    customer: form,
     items: getMessageItems(messageItems, products, language),
-    total: messageTotal,
+    total: orderTotal,
+    subtotal: total,
+    delivery_price: deliveryPrice,
+    delivery_city_name: selectedZone ? selectedZone.city_name : "",
   });
 
   if (cartItems.length === 0 && !orderPlaced) {
@@ -158,14 +185,30 @@ function CheckoutPage({
           </label>
           <label>
             {t("checkout.city")}
-            <input
-              name="city"
-              onChange={handleInputChange}
-              placeholder={t("checkout.cityPlaceholder")}
-              required
-              type="text"
-              value={form.city}
-            />
+            {deliveryZones.length > 0 ? (
+              <select
+                name="delivery_zone_id"
+                onChange={handleCityChange}
+                required
+                value={selectedZone ? selectedZone.id : ""}
+              >
+                <option value="">{t("checkout.cityPlaceholder")}</option>
+                {deliveryZones.map((zone) => (
+                  <option key={zone.id} value={zone.id}>
+                    {zone.city_name}{zone.region ? ` (${zone.region})` : ""} &mdash; {Number(zone.delivery_price).toFixed(2)} &#x20AA;
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <input
+                name="city"
+                onChange={handleInputChange}
+                placeholder={t("checkout.cityPlaceholder")}
+                required
+                type="text"
+                value={form.city}
+              />
+            )}
           </label>
           <label>
             {t("checkout.address")}
@@ -210,10 +253,16 @@ function CheckoutPage({
               </div>
             );
           })}
+          {deliveryPrice > 0 && (
+            <div className="summary-row">
+              <span>{language === "ar" ? "التوصيل" : "Delivery"}{selectedZone ? ` (${selectedZone.city_name})` : ""}</span>
+              <strong>{deliveryPrice.toFixed(2)} {t("common.ils")}</strong>
+            </div>
+          )}
           <div className="summary-row total-row">
             <span>{t("common.total")}</span>
             <strong>
-              {messageTotal} {t("common.ils")}
+              {deliveryPrice > 0 ? orderTotal.toFixed(2) : messageTotal} {t("common.ils")}
             </strong>
           </div>
           <a

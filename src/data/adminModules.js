@@ -112,6 +112,14 @@ export const adminModuleRegistry = Object.freeze([
     requiredPermission: "invoices.view",
     defaultEnabled: false,
   },
+  {
+    key: "delivery",
+    label: { en: "Delivery", ar: "التوصيل" },
+    description: "City-based delivery zone pricing for checkout.",
+    pageKeys: ["admin-delivery"],
+    requiredPermission: "delivery.view",
+    defaultEnabled: false,
+  },
 ]);
 
 const moduleByPageKey = new Map(
