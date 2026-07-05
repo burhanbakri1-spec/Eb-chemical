@@ -91,8 +91,8 @@ export const adminModuleRegistry = Object.freeze([
   {
     key: "reports",
     label: { en: "Reports", ar: "التقارير" },
-    description: "Reserved foundation for company reporting.",
-    pageKeys: [],
+    description: "Company performance and activity summary.",
+    pageKeys: ["admin-reports"],
     requiredPermission: "reports.view",
     defaultEnabled: false,
   },

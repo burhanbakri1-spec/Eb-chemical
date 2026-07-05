@@ -92,6 +92,7 @@ const navSections = [
     label: { en: "Configuration", ar: "الإعدادات" },
     items: [
       { key: "admin-settings", icon: Settings, label: { en: "Settings", ar: "الإعدادات" } },
+      { key: "admin-reports", icon: ClipboardList, label: { en: "Reports", ar: "التقارير" } },
       { key: "admin-activity-log", icon: ClipboardList, label: { en: "Activity Log", ar: "سجل النشاط" } },
       { key: "admin-custom-modules", icon: Cuboid, label: { en: "Module Builder", ar: "منشئ الوحدات" } },
     ],
