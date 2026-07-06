@@ -18,6 +18,7 @@ import AdminDeliveryZonesPage from "./pages/AdminDeliveryZonesPage.jsx";
 import AdminActivityLogPage from "./pages/AdminActivityLogPage.jsx";
 import AdminReportsPage from "./pages/AdminReportsPage.jsx";
 import AdminProductSettingsPage from "./pages/AdminProductSettingsPage.jsx";
+import AdminWebsiteTextsPage from "./pages/AdminWebsiteTextsPage.jsx";
 import CartPage from "./pages/CartPage.jsx";
 import CheckoutPage from "./pages/CheckoutPage.jsx";
 import CleanupsPage from "./pages/CleanupsPage.jsx";
@@ -99,6 +100,7 @@ import { fetchCompanyContext } from "./utils/companyContextApi.js";
 import { fetchCustomModules } from "./utils/customModulesApi.js";
 import { createDefaultProductSchema } from "./data/productSchema.js";
 import { fetchProductSchema } from "./utils/productSchemaApi.js";
+import { fetchWebsiteTexts } from "./utils/websiteTextsApi.js";
 import {
   trackAddToCart,
   trackInitiateCheckout,
@@ -142,6 +144,7 @@ const pagePaths = {
   "admin-store-locator": "/admin/store-locator",
   "admin-store-locator-new": "/admin/store-locator/new",
   "admin-website-media": "/admin/website-media",
+  "admin-website-texts": "/admin/website-texts",
   "admin-orders": "/admin/orders",
   "admin-reviews": "/admin/reviews",
   "admin-inventory": "/admin/inventory",
@@ -177,6 +180,7 @@ const adminPageKeys = [
   "admin-store-locator",
   "admin-store-locator-new",
   "admin-website-media",
+  "admin-website-texts",
   "admin-orders",
   "admin-reviews",
   "admin-inventory",
@@ -209,6 +213,7 @@ const platformAdminPageKeys = [
 
 const customAdminPageKeys = [
   "admin-product-settings",
+  "admin-website-texts",
   "admin-custom-modules",
   "admin-custom-modules-new",
   "admin-custom-modules-edit",
@@ -301,6 +306,8 @@ function App() {
   const [homepageCategoryCards, setHomepageCategoryCards] = React.useState([]);
   const [reviews, setReviews] = React.useState([]);
   const [websiteMedia, setWebsiteMedia] = React.useState([]);
+  const [websiteMediaHiddenKeys, setWebsiteMediaHiddenKeys] = React.useState([]);
+  const [websiteTexts, setWebsiteTexts] = React.useState([]);
   const [homeContentLoading, setHomeContentLoading] = React.useState(true);
   const [homeContentError, setHomeContentError] = React.useState("");
   const [websiteMediaLoading, setWebsiteMediaLoading] = React.useState(true);
@@ -402,6 +409,7 @@ function App() {
     loadProducts();
     loadHomeContent();
     loadWebsiteMedia();
+    loadWebsiteTexts();
     hydrateUser();
     loadCompanyContext();
     loadProductSchema();
@@ -679,7 +687,17 @@ function App() {
     try {
       clearWebsiteMediaCache();
       const canManage = user && hasPermission(user, "website_media.manage");
-      setWebsiteMedia(canManage ? await fetchAllWebsiteMedia() : await fetchWebsiteMedia());
+      if (canManage) {
+        const response = await fetchAllWebsiteMedia();
+        setWebsiteMedia([
+          ...response.items,
+          ...response.hiddenSectionKeys.map((sectionKey) => ({ sectionKey, isHidden: true })),
+        ]);
+        setWebsiteMediaHiddenKeys(response.hiddenSectionKeys);
+      } else {
+        setWebsiteMedia(await fetchWebsiteMedia());
+        setWebsiteMediaHiddenKeys([]);
+      }
     } catch (error) {
       setWebsiteMedia([]);
       setWebsiteMediaError(error.message || "Website media could not be loaded.");
@@ -739,6 +757,14 @@ function App() {
     trackViewCategory(categoryName);
     setActiveCategory(categoryName);
     navigate("products");
+  }
+
+  async function loadWebsiteTexts() {
+    try {
+      setWebsiteTexts(await fetchWebsiteTexts());
+    } catch {
+      setWebsiteTexts([]);
+    }
   }
 
   function handleProductCategoryChange(categoryName) {
@@ -1155,6 +1181,7 @@ function App() {
 
   async function handleSaveWebsiteMedia(item) {
     const saved = await saveWebsiteMediaApi(item);
+    setWebsiteMediaHiddenKeys((current) => current.filter((key) => key !== saved.sectionKey));
     setWebsiteMedia((currentItems) => {
       const index = currentItems.findIndex(
         (entry) => entry.id === saved.id || entry.sectionKey === saved.sectionKey,
@@ -1167,9 +1194,18 @@ function App() {
     return saved;
   }
 
-  async function handleDeleteWebsiteMedia(id) {
-    await deleteWebsiteMediaApi(id);
-    setWebsiteMedia((currentItems) => currentItems.filter((entry) => entry.id !== id));
+  async function handleDeleteWebsiteMedia(item) {
+    const result = await deleteWebsiteMediaApi(item);
+    const sectionKey = result?.sectionKey || item.sectionKey;
+    setWebsiteMedia((currentItems) => {
+      const remaining = currentItems.filter(
+        (entry) => entry.id !== item.id && entry.sectionKey !== sectionKey,
+      );
+      return sectionKey ? [...remaining, { sectionKey, isHidden: true }] : remaining;
+    });
+    if (sectionKey) {
+      setWebsiteMediaHiddenKeys((current) => current.includes(sectionKey) ? current : [...current, sectionKey]);
+    }
   }
 
   async function handleCreateOrder(customerInfo) {
@@ -1262,6 +1298,7 @@ function App() {
             t={t}
             websiteMedia={websiteMedia}
             websiteMediaError={websiteMediaError}
+            websiteTexts={websiteTexts}
           />
         )}
 
@@ -1278,6 +1315,7 @@ function App() {
             t={t}
             websiteMedia={websiteMedia}
             websiteMediaError={websiteMediaError}
+            websiteTexts={websiteTexts}
           />
         )}
 
@@ -1330,11 +1368,11 @@ function App() {
         )}
 
         {activePage === "about" && (
-          <AboutPage language={language} onNavigate={navigate} t={t} websiteMedia={websiteMedia} />
+          <AboutPage language={language} onNavigate={navigate} t={t} websiteMedia={websiteMedia} websiteTexts={websiteTexts} />
         )}
 
         {activePage === "sustainability" && (
-          <SustainabilityPage language={language} onNavigate={navigate} t={t} websiteMedia={websiteMedia} products={demoProducts} onViewProduct={handleViewProduct} />
+          <SustainabilityPage language={language} onNavigate={navigate} t={t} websiteMedia={websiteMedia} websiteTexts={websiteTexts} products={demoProducts} onViewProduct={handleViewProduct} />
         )}
 
         {activePage === "how" && (
@@ -1344,11 +1382,12 @@ function App() {
             onViewProduct={handleViewProduct}
             products={demoProducts}
             websiteMedia={websiteMedia}
+            websiteTexts={websiteTexts}
           />
         )}
 
         {activePage === "cleanups" && (
-          <CleanupsPage language={language} onNavigate={navigate} websiteMedia={websiteMedia} />
+          <CleanupsPage language={language} onNavigate={navigate} websiteMedia={websiteMedia} websiteTexts={websiteTexts} />
         )}
 
         {activePage === "eb-points" && (
@@ -1422,6 +1461,7 @@ function App() {
             t={t}
             workSession={workSession}
             websiteMedia={websiteMedia}
+            websiteMediaHiddenKeys={websiteMediaHiddenKeys}
             onSaveWebsiteMedia={handleSaveWebsiteMedia}
             onDeleteWebsiteMedia={handleDeleteWebsiteMedia}
           />
@@ -1459,6 +1499,7 @@ function App() {
             statusMessage={adminMessage}
             t={t}
             websiteMedia={websiteMedia}
+            websiteMediaHiddenKeys={websiteMediaHiddenKeys}
             onSaveWebsiteMedia={handleSaveWebsiteMedia}
             onDeleteWebsiteMedia={handleDeleteWebsiteMedia}
           />
@@ -1475,6 +1516,19 @@ function App() {
             onSchemaChanged={setProductSchema}
             onToggleDarkMode={() => setIsAdminDarkMode((current) => !current)}
             productSchema={productSchema}
+          />
+        )}
+
+        {activePage === "admin-website-texts" && (
+          <AdminWebsiteTextsPage
+            currentUser={currentUser}
+            isDarkMode={isAdminDarkMode}
+            language={language}
+            onLanguageChange={handleLanguageChange}
+            onLogout={handleAdminLogout}
+            onNavigate={navigate}
+            onTextsChanged={setWebsiteTexts}
+            onToggleDarkMode={() => setIsAdminDarkMode((current) => !current)}
           />
         )}
 

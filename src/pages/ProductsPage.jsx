@@ -1,6 +1,7 @@
 ﻿import React from "react";
 import { categories } from "../data/categories.js";
 import { getWebsiteMediaImage } from "../data/websiteMedia.js";
+import { resolveWebsiteText } from "../data/websiteTexts.js";
 import { StorefrontEmptyState, StorefrontLoadingState } from "../components/StorefrontLoadingState.jsx";
 import { neutralImage, resolveImageUrl, showNeutralImage } from "../utils/images.js";
 import { getVisibleVariants } from "../utils/productVariants.js";
@@ -359,6 +360,7 @@ function ProductsPage({
   t,
   websiteMedia = [],
   websiteMediaError = "",
+  websiteTexts = [],
 }) {
   function localized(en, ar, he) {
     if (language === "ar") return ar;
@@ -379,8 +381,14 @@ function ProductsPage({
   const activeCategoryKey = normalizeShopCategoryKey(activeCategory);
   const heroEntry = shopCategoryConfig[activeCategoryKey] || shopCategoryConfig["All"];
   const heroImage = heroEntry.image;
-  const heroTitle = heroEntry.title[language] || heroEntry.title.en;
-  const heroSubtitle = heroEntry.subtitle[language] || heroEntry.subtitle.en;
+  const defaultHeroTitle = heroEntry.title[language] || heroEntry.title.en;
+  const defaultHeroSubtitle = heroEntry.subtitle[language] || heroEntry.subtitle.en;
+  const heroTitle = activeCategoryKey === "All"
+    ? resolveWebsiteText(websiteTexts, "products.hero.title", language, defaultHeroTitle)
+    : defaultHeroTitle;
+  const heroSubtitle = activeCategoryKey === "All"
+    ? resolveWebsiteText(websiteTexts, "products.hero.subtitle", language, defaultHeroSubtitle)
+    : defaultHeroSubtitle;
   const visibleProducts = products.filter((product) =>
     matchesShopCategory(product, heroEntry)
   );
@@ -417,7 +425,7 @@ function ProductsPage({
       {activeCategoryKey === "home-cleaning" && heroEntry.heroLayout === "home-care" ? (
         <section className="collection-hero--home-care">
           <div className="collection-hero--home-care__bg">
-            <img className="collection-hero--home-care__image" src={heroImage} alt="" loading="lazy" />
+            <img className="collection-hero--home-care__image" src={heroImage} alt="" decoding="async" fetchPriority="high" loading="eager" />
           </div>
           <div className="collection-hero--home-care__overlay" />
           <div className="collection-hero--home-care__content">
@@ -434,7 +442,9 @@ function ProductsPage({
           <img
             alt=""
             aria-hidden="true"
-            loading="lazy"
+            decoding="async"
+            fetchPriority="high"
+            loading="eager"
             onError={(event) => {
               showNeutralImage(event);
             }}

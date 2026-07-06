@@ -3,6 +3,7 @@ import { StorefrontEmptyState, StorefrontLoadingState } from "../components/Stor
 import { brand } from "../data/brand.js";
 import { categories } from "../data/categories.js";
 import { getWebsiteMediaImage } from "../data/websiteMedia.js";
+import { resolveWebsiteText } from "../data/websiteTexts.js";
 import { neutralImage, resolveImageUrl, showNeutralImage } from "../utils/images.js";
 import { isVariantVisible } from "../utils/productVariants.js";
 
@@ -757,12 +758,14 @@ function HomePage({
   t,
   websiteMedia = [],
   websiteMediaError = "",
+  websiteTexts = [],
 }) {
   function localized(en, ar, he) {
     if (language === "ar") return ar;
     if (language === "he") return he;
     return en;
   }
+  const text = (key, fallback) => resolveWebsiteText(websiteTexts, key, language, fallback);
 
   if (isLoading) {
     return <StorefrontLoadingState label="Loading homepage content" />;
@@ -848,18 +851,18 @@ function HomePage({
       )}
       <section className="hero-section hero-editorial" data-header-theme="light">
         <div className="hero-bg">
-          <img src={heroLeftImage} alt={brand.name} className="hero-bg-image" />
+          <img src={heroLeftImage} alt={brand.name} className="hero-bg-image" decoding="async" fetchPriority="high" loading="eager" />
         </div>
         <div className="hero-content">
-          <p className="eyebrow">{brand.name}</p>
-          <h1>{t("home.heroHeadline")}</h1>
-          <p>{t("home.heroSubheadline")}</p>
+          <p className="eyebrow">{text("home.hero.eyebrow", brand.name)}</p>
+          <h1>{text("home.hero.title", t("home.heroHeadline"))}</h1>
+          <p>{text("home.hero.subtitle", t("home.heroSubheadline"))}</p>
           <div className="hero-actions">
             <button className="primary-action large" onClick={() => onNavigate("products")} type="button">
-              {t("home.shopProducts")}
+              {text("home.hero.primaryButton", t("home.shopProducts"))}
             </button>
             <button className="secondary-action large" onClick={() => onNavigate("products")} type="button">
-              {t("home.exploreCategories")}
+              {text("home.hero.secondaryButton", t("home.exploreCategories"))}
             </button>
           </div>
         </div>

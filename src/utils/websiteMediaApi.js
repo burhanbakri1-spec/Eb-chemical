@@ -22,9 +22,15 @@ export async function fetchWebsiteMedia() {
   return apiRequest("/website-media", { cache: "no-store" });
 }
 
-export function fetchAllWebsiteMedia() {
+export async function fetchAllWebsiteMedia() {
   clearWebsiteMediaCache();
-  return apiRequest("/website-media/all", { cache: "no-store" });
+  const response = await apiRequest("/website-media/all", { cache: "no-store" });
+  return Array.isArray(response)
+    ? { items: response, hiddenSectionKeys: [] }
+    : {
+        items: Array.isArray(response?.items) ? response.items : [],
+        hiddenSectionKeys: Array.isArray(response?.hiddenSectionKeys) ? response.hiddenSectionKeys : [],
+      };
 }
 
 export function fetchWebsiteMediaSection(sectionKey) {
@@ -41,8 +47,11 @@ export async function saveWebsiteMedia(item) {
   return saved;
 }
 
-export async function deleteWebsiteMedia(id) {
-  const result = await apiRequest(`/website-media/${id}`, { method: "DELETE" });
+export async function deleteWebsiteMedia(item) {
+  const path = item?.id
+    ? `/website-media/${encodeURIComponent(item.id)}`
+    : `/website-media/by-section/${encodeURIComponent(item?.sectionKey || "")}`;
+  const result = await apiRequest(path, { method: "DELETE" });
   clearWebsiteMediaCache();
   return result;
 }

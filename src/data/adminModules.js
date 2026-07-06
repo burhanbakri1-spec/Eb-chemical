@@ -62,7 +62,7 @@ export const adminModuleRegistry = Object.freeze([
     key: "website_media",
     label: { en: "Website Media", ar: "وسائط الموقع", he: "מדיה אתר" },
     description: { en: "Storefront images and managed media.", he: "תמונות חנות ומדיה מנוהלת." },
-    pageKeys: ["admin-website-media"],
+    pageKeys: ["admin-website-media", "admin-website-texts"],
     requiredPermission: "website_media.manage",
     defaultEnabled: true,
   },

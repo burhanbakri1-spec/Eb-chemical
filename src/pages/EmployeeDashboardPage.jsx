@@ -62,6 +62,7 @@ function EmployeeDashboardPage({
   t,
   workSession,
   websiteMedia = [],
+  websiteMediaHiddenKeys = [],
 }) {
   const [activeTab, setActiveTab] = React.useState("overview");
   const [editingProduct, setEditingProduct] = React.useState(null);
@@ -634,6 +635,7 @@ function EmployeeDashboardPage({
 
       {activeTab === "website-media" && canManageWebsiteMedia && (
         <WebsiteMediaManager
+          hiddenSectionKeys={websiteMediaHiddenKeys}
           items={websiteMedia}
           language={language}
           onDelete={onDeleteWebsiteMedia}

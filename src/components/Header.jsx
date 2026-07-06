@@ -487,6 +487,8 @@ function Header({
           <img
             alt={`${brand.logoText} logo`}
             className="brand-logo-image"
+            decoding="async"
+            loading="eager"
             src={getWebsiteMediaImage(websiteMedia, "header_logo", "/images/brand/ep-chemical-logo.png")}
           />
         </button>
@@ -690,6 +692,8 @@ function Header({
                 <span>
                   <img
                     alt={localized(card.titleEn, card.titleAr, card.titleHe)}
+                    decoding="async"
+                    loading="lazy"
                     src={card.image}
                   />
                 </span>
@@ -729,7 +733,7 @@ function Header({
                 type="button"
               >
                 <span>
-                  <img alt={localized(card.titleEn, card.titleAr, card.titleHe)} src={getWebsiteMediaImage(websiteMedia, `header_about_card_${card.key}`, card.image)} />
+                  <img alt={localized(card.titleEn, card.titleAr, card.titleHe)} decoding="async" loading="lazy" src={getWebsiteMediaImage(websiteMedia, `header_about_card_${card.key}`, card.image)} />
                 </span>
                 <strong>{localized(card.titleEn, card.titleAr, card.titleHe)}</strong>
               </button>
@@ -812,7 +816,7 @@ function Header({
               {megaFeatureCards.map((card) => (
                 <button key={card.titleEn} className="mobile-menu-promo-card" onClick={() => handleFeatureCard(card)} type="button">
                   <span className="mobile-menu-promo-image">
-                    <img src={card.image} alt={localized(card.titleEn, card.titleAr, card.titleHe)} />
+                    <img src={card.image} alt={localized(card.titleEn, card.titleAr, card.titleHe)} decoding="async" loading="lazy" />
                   </span>
                   <span className="mobile-menu-promo-label">{localized(card.titleEn, card.titleAr, card.titleHe)}</span>
                 </button>
@@ -837,6 +841,8 @@ function Header({
                     <img
                       src={getWebsiteMediaImage(websiteMedia, `header_about_card_${card.key}`, card.image)}
                       alt={localized(card.titleEn, card.titleAr, card.titleHe)}
+                      decoding="async"
+                      loading="lazy"
                     />
                   </span>
                   <span className="mobile-menu-promo-label">{localized(card.titleEn, card.titleAr, card.titleHe)}</span>

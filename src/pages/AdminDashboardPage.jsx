@@ -1439,6 +1439,7 @@ function AdminDashboardPage({
   statusMessage,
   t,
   websiteMedia = [],
+  websiteMediaHiddenKeys = [],
 }) {
   const [editingProduct, setEditingProduct] = React.useState(null);
   const [filters, setFilters] = React.useState({ brand: "all", category: "all", search: "", status: "all" });
@@ -1620,7 +1621,7 @@ function AdminDashboardPage({
       case "admin-store-locator-new":
         return renderEntityForm("store");
       case "admin-website-media":
-        return <WebsiteMediaManager items={websiteMedia} language={language} onDelete={onDeleteWebsiteMedia} onSave={onSaveWebsiteMedia} />;
+        return <WebsiteMediaManager hiddenSectionKeys={websiteMediaHiddenKeys} items={websiteMedia} language={language} onDelete={onDeleteWebsiteMedia} onSave={onSaveWebsiteMedia} />;
       case "admin-orders":
         return <section className="admin-panel-card"><Toolbar><SearchField placeholder={localized("Search order #, customer...", "بحث برقم الطلب، العميل...", "חפש לפי מספר הזמנה, לקוח...", language)} value="" onChange={() => {}} /><select><option>{localized("Status", "الحالة", "סטטוס", language)}</option></select><select><option>{localized("Payment", "الدفع", "תשלום", language)}</option></select></Toolbar>{orders.length ? <AdminOrdersTable employees={employees} canDelete={canManageSensitive} language={language} onAssignEmployee={onAssignEmployee} onDeleteOrder={onDeleteOrder} onStatusChange={onStatusChange} orders={orders} products={products} t={t} /> : <EmptyState title={localized("No orders found", "لا توجد طلبات", "לא נמצאו הזמנות", language)} description={localized("No orders have been placed yet. Orders will appear here once customers complete their purchases.", "لم يتم تقديم أي طلبات بعد. ستظهر الطلبات هنا بمجرد أن يكمل العملاء مشترياتهم.", "לא בוצעו הזמנות עדיין. הזמנות יופיעו כאן ברגע שהלקוחות ישלימו את רכישותיהם.", language)} />}</section>;
       case "admin-reviews":

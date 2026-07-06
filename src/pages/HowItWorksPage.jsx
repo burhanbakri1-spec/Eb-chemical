@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { getWebsiteMediaImage } from "../data/websiteMedia.js";
+import { resolveWebsiteText } from "../data/websiteTexts.js";
 import { neutralImage as placeholderImage, resolveImageUrl, showNeutralImage } from "../utils/images.js";
 
 const fallbackImages = {
@@ -366,7 +367,7 @@ function HowProductCarousel({ language, onViewProduct, products, t }) {
   );
 }
 
-function HowItWorksPage({ language = "en", onNavigate, onViewProduct, products = [], websiteMedia = [] }) {
+function HowItWorksPage({ language = "en", onNavigate, onViewProduct, products = [], websiteMedia = [], websiteTexts = [] }) {
   const isArabic = language === "ar";
   const t = copy[language] || copy.en;
   const scheduleTabs = t.scheduleTabs;
@@ -386,10 +387,10 @@ function HowItWorksPage({ language = "en", onNavigate, onViewProduct, products =
   return (
     <main className="how-page" dir={language === "ar" || language === "he" ? "rtl" : "ltr"}>
       <section className="how-hero" data-header-theme="light">
-        <img className="how-hero-bg" src={image("hero")} alt="" aria-hidden="true" />
+        <img className="how-hero-bg" src={image("hero")} alt="" aria-hidden="true" decoding="async" fetchPriority="high" loading="eager" />
         <div className="how-hero-content">
-          <h1 className="how-hero-title">{t.heroTitle}</h1>
-          <p className="how-hero-subtitle">{t.heroSubtitle}</p>
+          <h1 className="how-hero-title">{resolveWebsiteText(websiteTexts, "how.title", language, t.heroTitle)}</h1>
+          <p className="how-hero-subtitle">{resolveWebsiteText(websiteTexts, "how.subtitle", language, t.heroSubtitle)}</p>
           <div className="hero-rating-badge">
             <span className="hero-rating-text">{t.badge}</span>
             <span className="hero-rating-pill">

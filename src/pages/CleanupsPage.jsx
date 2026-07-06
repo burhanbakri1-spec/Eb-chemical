@@ -1,5 +1,6 @@
 import React from "react";
 import { getWebsiteMediaImage } from "../data/websiteMedia.js";
+import { resolveWebsiteText } from "../data/websiteTexts.js";
 
 const cleanupImages = {
   hero: "/homepage-categories/home-care.jpg",
@@ -240,7 +241,7 @@ const content = {
   },
 };
 
-function CleanupsPage({ language = "en", onNavigate, websiteMedia = [] }) {
+function CleanupsPage({ language = "en", onNavigate, websiteMedia = [], websiteTexts = [] }) {
   const isArabic = language === "ar";
   const text = content[language] || content.en;
   const gallery = text.gallery.map((item, index) => ({
@@ -282,10 +283,10 @@ function CleanupsPage({ language = "en", onNavigate, websiteMedia = [] }) {
     <section className="cleanups-page">
       <section className="cleanups-hero-section" data-header-theme="light">
         <div className="cleanups-hero-inner">
-          <img className="cleanups-hero-image" alt="" aria-hidden="true" src={heroImage} />
+          <img className="cleanups-hero-image" alt="" aria-hidden="true" decoding="async" fetchPriority="high" loading="eager" src={heroImage} />
           <div className="cleanups-hero-content">
-            <h1 className="cleanups-hero-title">{text.heroTitle}</h1>
-            <p className="cleanups-hero-description">{text.heroText}</p>
+            <h1 className="cleanups-hero-title">{resolveWebsiteText(websiteTexts, "cleanups.hero.title", language, text.heroTitle)}</h1>
+            <p className="cleanups-hero-description">{resolveWebsiteText(websiteTexts, "cleanups.hero.subtitle", language, text.heroText)}</p>
           </div>
         </div>
       </section>

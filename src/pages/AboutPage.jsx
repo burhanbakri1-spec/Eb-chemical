@@ -1,5 +1,6 @@
 import React from "react";
 import { getWebsiteMediaImage } from "../data/websiteMedia.js";
+import { resolveWebsiteText } from "../data/websiteTexts.js";
 
 const fallbackImages = {
   hero: "/products/limescale-remover-hover.jpg",
@@ -245,7 +246,7 @@ const mobileIntroCards = {
   ],
 };
 
-function AboutPage({ language = "en", onNavigate, websiteMedia = [] }) {
+function AboutPage({ language = "en", onNavigate, websiteMedia = [], websiteTexts = [] }) {
   const isArabic = language === "ar";
   const t = content[language] || content.en;
   const items = pillars[language] || pillars.en;
@@ -262,8 +263,8 @@ function AboutPage({ language = "en", onNavigate, websiteMedia = [] }) {
     <main className="mission-page" dir={language === "ar" || language === "he" ? "rtl" : "ltr"}>
       <section className="mission-hero" data-header-theme="light">
         <div className="mission-hero-content">
-          <h1 className="mission-hero-title">{t.heroTitle}</h1>
-          <p className="mission-hero-subtitle">{t.heroSubtitle}</p>
+          <h1 className="mission-hero-title">{resolveWebsiteText(websiteTexts, "about.hero.title", language, t.heroTitle)}</h1>
+          <p className="mission-hero-subtitle">{resolveWebsiteText(websiteTexts, "about.hero.subtitle", language, t.heroSubtitle)}</p>
           <div className="mission-review-row">
             <span>{t.review}</span>
             <div className="rating-box">
@@ -276,7 +277,7 @@ function AboutPage({ language = "en", onNavigate, websiteMedia = [] }) {
         </div>
         <picture>
           <source srcSet={image("hero")} type="image/webp" />
-          <img className="mission-media" src={image("hero")} alt="" aria-hidden="true" loading="eager" fetchpriority="high" />
+          <img className="mission-media" src={image("hero")} alt="" aria-hidden="true" decoding="async" loading="eager" fetchPriority="high" />
         </picture>
       </section>
 

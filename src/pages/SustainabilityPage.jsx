@@ -1,5 +1,6 @@
 import React, { useRef } from "react";
 import { getWebsiteMediaImage } from "../data/websiteMedia.js";
+import { resolveWebsiteText } from "../data/websiteTexts.js";
 import { categories } from "../data/categories.js";
 import { resolveImageUrl, showNeutralImage } from "../utils/images.js";
 
@@ -402,7 +403,7 @@ function ProductShowcaseSlider({ language, onViewProduct, products, title, varia
   );
 }
 
-function SustainabilityPage({ language = "en", onNavigate, onViewProduct, products = [], websiteMedia = [] }) {
+function SustainabilityPage({ language = "en", onNavigate, onViewProduct, products = [], websiteMedia = [], websiteTexts = [] }) {
   function localized(en, ar, he) {
     if (language === "ar") return ar;
     if (language === "he") return he;
@@ -465,11 +466,11 @@ function SustainabilityPage({ language = "en", onNavigate, onViewProduct, produc
       <main className="sustainability-page" dir={language === "ar" || language === "he" ? "rtl" : "ltr"}>
         <section className="sustainability-hero" data-header-theme="light">
           <picture>
-            <img className="sustainability-media" src={image("hero")} alt="" aria-hidden="true" />
+            <img className="sustainability-media" src={image("hero")} alt="" aria-hidden="true" decoding="async" fetchPriority="high" loading="eager" />
           </picture>
           <div className="sustainability-hero-content">
-            <h1 className="sustainability-hero-title">{t.heroTitle}</h1>
-            <p className="sustainability-hero-subtitle">{t.heroSubtitle}</p>
+            <h1 className="sustainability-hero-title">{resolveWebsiteText(websiteTexts, "sustainability.hero.title", language, t.heroTitle)}</h1>
+            <p className="sustainability-hero-subtitle">{resolveWebsiteText(websiteTexts, "sustainability.hero.subtitle", language, t.heroSubtitle)}</p>
             <div className="hero-rating-badge">
               <span className="hero-rating-text">{t.review}</span>
               <span className="hero-rating-pill">

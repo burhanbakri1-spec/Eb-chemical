@@ -63,6 +63,7 @@ const navSections = [
       { key: "admin-vlogs", icon: Film, label: { en: "Vlogs", ar: "الفيديوهات", he: "בלוגים" } },
       { key: "admin-store-locator", icon: MapPin, label: { en: "Store Locator", ar: "مواقع المتاجر", he: "מיקומי חנויות" } },
       { key: "admin-website-media", icon: Images, label: { en: "Website Media", ar: "صور الموقع", he: "מדיה אתר" } },
+      { key: "admin-website-texts", icon: FileText, label: { en: "Website Texts", ar: "نصوص الموقع", he: "טקסטים באתר" } },
     ],
   },
   {

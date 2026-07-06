@@ -173,6 +173,7 @@ function ProductImage({ alt, className = "", src, ...imageProps }) {
     <img
       alt={alt}
       className={className}
+      decoding="async"
       loading="lazy"
       onError={(event) => {
         showNeutralImage(event);
@@ -587,9 +588,10 @@ function ProductDetailsPage({
               <img
                 className="current-product-image"
                 alt={productName}
-                src={safeImage(selectedImage)}
-                loading="eager"
                 decoding="async"
+                fetchPriority="high"
+                loading="eager"
+                src={safeImage(selectedImage)}
                 onError={showNeutralImage}
               />
             </div>
@@ -601,9 +603,9 @@ function ProductDetailsPage({
                 <img
                   className="detail-kinfill-gallery-image"
                   alt={`${productName} ${index + 2}`}
-                  src={safeImage(image)}
-                  loading="lazy"
                   decoding="async"
+                  loading="lazy"
+                  src={safeImage(image)}
                   onError={showNeutralImage}
                 />
               </picture>

@@ -27,7 +27,7 @@ const groupLabels = {
   cleanups: { en: "Static Sections - Cleanups", ar: "الأقسام الثابتة - حملات التنظيف", he: "קטעים סטטיים - ניקיונות" },
   cleanups_gallery: { en: "Cleanups Gallery", ar: "معرض حملات التنظيف", he: "גלריית ניקיונות" },
   cleanups_tabs: { en: "Cleanups Tabs", ar: "تبويبات حملات التنظيف", he: "לשוניות ניקיונות" },
-  eb_points: { en: "Static Sections - EB Points", ar: "الأقسام الثابتة - نقاط EB", he: "קטעים סטטיים - נקודות EB" },
+  eb_points: { en: "EB Points", ar: "نقاط EB", he: "נקודות EB" },
   sustainability: { en: "Static Sections - Sustainability", ar: "الأقسام الثابتة - الاستدامة", he: "קטעים סטטיים - קיימות" },
   how_it_works: { en: "Static Sections - How It Works", ar: "الأقسام الثابتة - كيف يعمل", he: "קטעים סטטיים - איך זה עובד" },
   ads: { en: "Ads / Banners", ar: "الإعلانات والبنرات", he: "מודעות / באנרים" },
@@ -35,15 +35,34 @@ const groupLabels = {
   sections: { en: "Other Static Website Images", ar: "صور الموقع الثابتة الأخرى", he: "תמונות סטטיות אחרות לאתר" },
 };
 
+const groupOrder = [
+  "homepage",
+  "homepage_categories",
+  "products",
+  "about",
+  "sustainability",
+  "how_it_works",
+  "cleanups_gallery",
+  "cleanups_tabs",
+  "eb_points",
+  "ads",
+  "header_dropdown",
+  "sections",
+];
+
+function mediaGroupKey(item) {
+  const sectionKey = item.sectionKey || "";
+  if (sectionKey.startsWith("homepage_category_") || item.groupKey === "homepage_community") {
+    return "homepage_categories";
+  }
+  if (/promo|banner|homepage_split/.test(sectionKey)) return "ads";
+  if (item.groupKey === "cleanups") return "cleanups_gallery";
+  return groupOrder.includes(item.groupKey) ? item.groupKey : "sections";
+}
+
 function groupItems(items) {
   return items.reduce((groups, item) => {
-    const sectionKey = item.sectionKey || "";
-    const key =
-      sectionKey.startsWith("homepage_category_")
-        ? "homepage_categories"
-        : /promo|banner|homepage_split/.test(sectionKey)
-          ? "ads"
-          : item.groupKey || "sections";
+    const key = mediaGroupKey(item);
     groups[key] = [...(groups[key] || []), item];
     return groups;
   }, {});
@@ -59,13 +78,14 @@ function defaultManagerItem(item) {
   };
 }
 
-function mergeDefaultMediaItems(items) {
+function mergeDefaultMediaItems(items, hiddenSectionKeys = []) {
+  const hiddenKeys = new Set(hiddenSectionKeys);
   const seenSectionKeys = new Set((items || []).map((item) => item.sectionKey).filter(Boolean));
   const missingDefaults = defaultWebsiteMedia
-    .filter((item) => item.sectionKey && !seenSectionKeys.has(item.sectionKey))
+    .filter((item) => item.sectionKey && !hiddenKeys.has(item.sectionKey) && !seenSectionKeys.has(item.sectionKey))
     .map(defaultManagerItem);
 
-  return [...(items || []), ...missingDefaults];
+  return [...(items || []).filter((item) => !hiddenKeys.has(item.sectionKey)), ...missingDefaults];
 }
 
 function ConfirmDialog({ message, onConfirm, onCancel, deleting, localized }) {
@@ -218,15 +238,13 @@ function MediaEditor({ item, language, onDelete, onSave }) {
     setDeleting(true);
     setMessage("");
     try {
-      await onDelete(draft.id);
+      await onDelete(draft);
     } catch (error) {
       setMessage(error.message);
       setConfirmDelete(false);
       setDeleting(false);
     }
   }
-
-  const isProtected = !draft.id;
 
   return (
     <article className="website-media-card">
@@ -243,6 +261,8 @@ function MediaEditor({ item, language, onDelete, onSave }) {
         {draft.imageUrl ? (
           <img
             alt={draft.sectionLabel || draft.sectionKey}
+            decoding="async"
+            loading="lazy"
             src={withWebsiteMediaVersion(draft.imageUrl, draft.updatedAt || draft.id)}
           />
         ) : (
@@ -313,23 +333,17 @@ function MediaEditor({ item, language, onDelete, onSave }) {
           <Save size={15} />
           {localized("Save", "حفظ", "שמור")}
         </button>
-        {isProtected ? (
-          <span className="website-media-protected-badge" title={localized("This media card is protected", "بطاقة الوسائط هذه محمية", "כרטיס מדיה זה מוגן")}>
-            {localized("Protected", "محمي", "מוגן")}
-          </span>
-        ) : (
-          <button className="website-media-delete" onClick={() => setConfirmDelete(true)} type="button">
-            <Trash2 size={15} />
-            {localized("Delete card", "حذف البطاقة", "מחק כרטיס")}
-          </button>
-        )}
+        <button className="website-media-delete" onClick={() => setConfirmDelete(true)} type="button">
+          <Trash2 size={15} />
+          {localized("Delete card", "حذف البطاقة", "מחק כרטיס")}
+        </button>
       </div>
       {message && <p className="website-media-message">{message}</p>}
     </article>
   );
 }
 
-function WebsiteMediaManager({ language = "en", items = [], onDelete, onSave }) {
+function WebsiteMediaManager({ hiddenSectionKeys = [], language = "en", items = [], onDelete, onSave }) {
   function localized(en, ar, he) {
     if (language === "ar") return ar;
     if (language === "he") return he;
@@ -337,15 +351,42 @@ function WebsiteMediaManager({ language = "en", items = [], onDelete, onSave }) 
   }
 
   const [drafts, setDrafts] = React.useState([]);
-  const registeredItems = React.useMemo(() => mergeDefaultMediaItems(items), [items]);
+  const [search, setSearch] = React.useState("");
+  const registeredItems = React.useMemo(
+    () => mergeDefaultMediaItems(items, hiddenSectionKeys),
+    [hiddenSectionKeys, items],
+  );
   const grouped = groupItems([...registeredItems, ...drafts].sort(
     (a, b) => Number(a.sortOrder || 0) - Number(b.sortOrder || 0),
   ));
+  const availableGroups = groupOrder.filter((group) => grouped[group]?.length);
+  const [selectedGroup, setSelectedGroup] = React.useState("homepage");
+  const normalizedSearch = search.trim().toLowerCase();
+  const matchingGroups = normalizedSearch
+    ? availableGroups.filter((group) => grouped[group].some((item) =>
+        `${item.sectionKey || ""} ${item.sectionLabel || ""}`.toLowerCase().includes(normalizedSearch),
+      ))
+    : availableGroups;
+
+  React.useEffect(() => {
+    if (matchingGroups.includes(selectedGroup)) return;
+    setSelectedGroup(matchingGroups[0] || availableGroups[0] || "homepage");
+  }, [availableGroups, matchingGroups, selectedGroup]);
+
+  const visibleEntries = (grouped[selectedGroup] || []).filter((item) =>
+    !normalizedSearch
+    || `${item.sectionKey || ""} ${item.sectionLabel || ""}`.toLowerCase().includes(normalizedSearch),
+  );
 
   function addDraft() {
     setDrafts((current) => [
       ...current,
-      { ...emptyItem, _draftKey: `draft-${Date.now()}`, sortOrder: items.length + current.length + 1 },
+      {
+        ...emptyItem,
+        groupKey: selectedGroup,
+        _draftKey: `draft-${Date.now()}`,
+        sortOrder: items.length + current.length + 1,
+      },
     ]);
   }
 
@@ -356,6 +397,14 @@ function WebsiteMediaManager({ language = "en", items = [], onDelete, onSave }) 
       setDrafts((current) => current.filter((draft) => draft._draftKey !== item._draftKey));
     }
     return saved;
+  }
+
+  async function deleteItem(item) {
+    if (item._draftKey?.startsWith("draft-")) {
+      setDrafts((current) => current.filter((draft) => draft._draftKey !== item._draftKey));
+      return;
+    }
+    return onDelete(item);
   }
 
   return (
@@ -377,22 +426,45 @@ function WebsiteMediaManager({ language = "en", items = [], onDelete, onSave }) 
         </button>
       </header>
 
-      {Object.entries(grouped).map(([group, groupEntries]) => (
-        <section className="website-media-group" key={group}>
-          <h3>{groupLabels[group]?.[language] || group.replaceAll("_", " ")}</h3>
-          <div className="website-media-grid">
-            {groupEntries.map((entry) => (
-              <MediaEditor
-                item={entry}
-                key={entry.id || entry._draftKey}
-                language={language}
-                onDelete={onDelete}
-                onSave={saveItem}
-              />
-            ))}
-          </div>
-        </section>
-      ))}
+      <div className="website-media-toolbar">
+        <div className="website-media-tabs" role="tablist">
+          {availableGroups.map((group) => (
+            <button
+              aria-selected={selectedGroup === group}
+              className={selectedGroup === group ? "active" : ""}
+              key={group}
+              onClick={() => setSelectedGroup(group)}
+              role="tab"
+              type="button"
+            >
+              {groupLabels[group]?.[language] || group.replaceAll("_", " ")}
+              <span>{grouped[group].length}</span>
+            </button>
+          ))}
+        </div>
+        <input
+          aria-label={localized("Search media", "بحث الوسائط", "חיפוש מדיה")}
+          onChange={(event) => setSearch(event.target.value)}
+          placeholder={localized("Search media", "بحث الوسائط", "חיפוש מדיה")}
+          type="search"
+          value={search}
+        />
+      </div>
+
+      <section className="website-media-group">
+        <h3>{groupLabels[selectedGroup]?.[language] || selectedGroup.replaceAll("_", " ")}</h3>
+        <div className="website-media-grid">
+          {visibleEntries.map((entry) => (
+            <MediaEditor
+              item={entry}
+              key={entry.id || entry._draftKey}
+              language={language}
+              onDelete={deleteItem}
+              onSave={saveItem}
+            />
+          ))}
+        </div>
+      </section>
     </section>
   );
 }

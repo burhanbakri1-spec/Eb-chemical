@@ -721,6 +721,10 @@ export function withWebsiteMediaVersion(imageUrl, version) {
 }
 
 export function getWebsiteMediaImage(items, sectionKey, fallback = "") {
+  if ((items || []).some((entry) => entry.sectionKey === sectionKey && entry.isHidden === true)) {
+    return neutralImage;
+  }
+
   const uploadedItem = (items || [])
     .filter((entry) => entry.sectionKey === sectionKey && entry.isActive !== false)
     .filter((entry) => safeImageUrl(entry.imageUrl))
