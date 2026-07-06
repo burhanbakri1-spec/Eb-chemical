@@ -293,7 +293,8 @@ function CleanupsPage({ language = "en", onNavigate, websiteMedia = [], websiteT
 
       <section className="cleanups-events-section" aria-label={text.galleryTitle}>
         <div className="cleanups-events-header">
-          <h2 className="cleanups-events-title">{text.galleryTitle}</h2>
+          <h2 className="cleanups-events-title">{resolveWebsiteText(websiteTexts, "cleanups.gallery.title", language, text.galleryTitle)}</h2>
+          <p>{resolveWebsiteText(websiteTexts, "cleanups.gallery.subtitle", language, "")}</p>
         </div>
         <div className="cleanups-events-track">
           {gallery.map((item) => (
@@ -314,10 +315,10 @@ function CleanupsPage({ language = "en", onNavigate, websiteMedia = [], websiteT
       <section className="cleanups-signup-banner">
         <img alt="" aria-hidden="true" src={ctaImage} />
         <div className="cleanups-signup-copy">
-          <h2>{text.ctaTitle}</h2>
-          <p>{text.ctaText}</p>
+          <h2>{resolveWebsiteText(websiteTexts, "cleanups.cta.title", language, text.ctaTitle)}</h2>
+          <p>{resolveWebsiteText(websiteTexts, "cleanups.cta.subtitle", language, text.ctaText)}</p>
           <button className="cleanup-yellow-button" onClick={scrollToSignup} type="button">
-            {text.signUp}
+            {resolveWebsiteText(websiteTexts, "general.contactUs", language, text.signUp)}
           </button>
         </div>
       </section>

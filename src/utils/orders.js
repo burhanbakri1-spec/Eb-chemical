@@ -19,6 +19,7 @@ export async function createOrder({
   createdByEmployeeId,
   createdByEmployeeName,
   delivery_zone_id,
+  pointsRedeemed = 0,
 }) {
   const orderItems = (items || cartItems).map((item) => ({
     productId: item.productId,
@@ -45,6 +46,7 @@ export async function createOrder({
       total,
       paymentMethod: "Cash on delivery",
       delivery_zone_id,
+      pointsRedeemed,
       createdByEmployeeId,
       createdByEmployeeName,
     }),

@@ -63,7 +63,12 @@ function AdminOrdersTable({
               <td>{order.customer.phone}</td>
               <td>{order.customer.city}</td>
               <td>{order.total} {t("common.ils")}</td>
-              <td>{Math.max(0, Number(order.pointsEarned || 0))}</td>
+              <td>
+                +{Math.max(0, Number(order.pointsEarned || 0))}
+                {Number(order.pointsRedeemed || 0) > 0 && (
+                  <span className="table-muted">-{Number(order.pointsRedeemed)} / {Number(order.discountFromPoints || 0).toFixed(2)} {t("common.ils")}</span>
+                )}
+              </td>
               <td>
                 <StatusBadge status={order.status} t={t} />
                 {canUpdateStatus && (

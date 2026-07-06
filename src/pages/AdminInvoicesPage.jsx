@@ -64,9 +64,33 @@ function AdminInvoicesPage({
     setMessage(null);
     try {
       const result = await fetchInvoices();
-      setInvoices(result);
+      const rows = Array.isArray(result)
+        ? result
+        : Array.isArray(result?.items)
+          ? result.items
+          : Array.isArray(result?.invoices)
+            ? result.invoices
+            : null;
+
+      if (!rows) {
+        throw new Error(localized(
+          "Invoices could not be loaded because the server returned an unexpected response.",
+          "تعذر تحميل الفواتير لأن الخادم أعاد استجابة غير متوقعة.",
+          "לא ניתן לטעון חשבוניות מכיוון שהשרת החזיר תגובה לא צפויה.",
+        ));
+      }
+
+      setInvoices(rows);
     } catch (error) {
-      setMessage({ type: "error", text: error.message });
+      setInvoices([]);
+      setMessage({
+        type: "error",
+        text: error?.message || localized(
+          "Failed to load invoices. Please try again.",
+          "فشل تحميل الفواتير. يرجى المحاولة مرة أخرى.",
+          "טעינת החשבוניות נכשלה. נסה שוב.",
+        ),
+      });
     } finally {
       setLoading(false);
     }

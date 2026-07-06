@@ -25,12 +25,6 @@ function getMessageItems(items, products, language) {
   });
 }
 
-function localized(en, ar, he) {
-  if (language === "ar") return ar;
-  if (language === "he") return he;
-  return en;
-}
-
 function CheckoutPage({
   cartItems,
   checkoutMessage,
@@ -43,6 +37,12 @@ function CheckoutPage({
   t,
   total,
 }) {
+  function localized(en, ar, he) {
+    if (language === "ar") return ar;
+    if (language === "he") return he;
+    return en;
+  }
+
   const [form, setForm] = React.useState(() => ({
     ...initialCheckoutForm,
     name: currentUser?.role === "customer" ? currentUser.name : "",
@@ -55,6 +55,7 @@ function CheckoutPage({
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [deliveryZones, setDeliveryZones] = React.useState([]);
   const [selectedZone, setSelectedZone] = React.useState(null);
+  const [pointsToRedeem, setPointsToRedeem] = React.useState(0);
 
   React.useEffect(() => {
     fetchDeliveryZones()
@@ -63,7 +64,21 @@ function CheckoutPage({
   }, []);
 
   const deliveryPrice = selectedZone ? Number(selectedZone.delivery_price) : 0;
-  const orderTotal = Number(total || 0) + deliveryPrice;
+  const availablePoints = currentUser?.role === "customer" ? Math.max(0, Math.floor(Number(currentUser.ebPoints || 0))) : 0;
+  const maxRedeemablePoints = Math.min(
+    Math.floor(availablePoints / 100) * 100,
+    Math.floor(Math.max(0, Number(total || 0)) / 5) * 100,
+  );
+  const redemptionOptions = Array.from(
+    { length: Math.floor(maxRedeemablePoints / 100) + 1 },
+    (_, index) => index * 100,
+  );
+  const pointsDiscount = pointsToRedeem / 20;
+  const orderTotal = Math.max(0, Number(total || 0) - pointsDiscount) + deliveryPrice;
+
+  React.useEffect(() => {
+    if (pointsToRedeem > maxRedeemablePoints) setPointsToRedeem(maxRedeemablePoints);
+  }, [maxRedeemablePoints, pointsToRedeem]);
 
   React.useEffect(() => {
     if (currentUser?.role === "customer") {
@@ -105,7 +120,11 @@ function CheckoutPage({
       const submittedForm = { ...form };
       const submittedItems = getMessageItems(cartItems, products, language);
       const submittedTotal = total;
-      const order = await onCreateOrder({ ...submittedForm, delivery_zone_id: selectedZone ? selectedZone.id : "" });
+      const order = await onCreateOrder({
+        ...submittedForm,
+        delivery_zone_id: selectedZone ? selectedZone.id : "",
+        pointsRedeemed: pointsToRedeem,
+      });
       const whatsappUrl = buildWhatsAppOrderUrl({
         customer: { ...submittedForm, ...(order?.customer || {}) },
         items: order?.items?.length ? order.items : submittedItems,
@@ -161,6 +180,11 @@ function CheckoutPage({
       {(orderPlaced || checkoutMessage) && (
         <div className="success-panel">
           {checkoutMessage || t("checkout.success")}
+          {lastOrder && <div>
+            <span>{localized("Points earned", "النقاط المكتسبة", "נקודות שנצברו")}: {Number(lastOrder.pointsEarned || 0)}</span>
+            {lastOrder.pointsRedeemed > 0 && <span> · {localized("Points redeemed", "النقاط المستخدمة", "נקודות שנפדו")}: {Number(lastOrder.pointsRedeemed)}</span>}
+            {lastOrder.discountFromPoints > 0 && <span> · {localized("Discount", "الخصم", "הנחה")}: {Number(lastOrder.discountFromPoints).toFixed(2)} {t("common.ils")}</span>}
+          </div>}
         </div>
       )}
       {orderError && <div className="message-panel error">{orderError}</div>}
@@ -237,6 +261,20 @@ function CheckoutPage({
               value={form.notes}
             />
           </label>
+          {currentUser?.role === "customer" && (
+            <label className="full-field">
+              {localized("Redeem EB Points", "استخدام نقاط EB", "מימוש נקודות EB")}
+              <select value={pointsToRedeem} onChange={(event) => setPointsToRedeem(Number(event.target.value))}>
+                {redemptionOptions.map((points) => (
+                  <option key={points} value={points}>
+                    {points === 0
+                      ? localized(`Available: ${availablePoints} points — no discount`, `المتاح: ${availablePoints} نقطة — بدون خصم`, `זמין: ${availablePoints} נקודות — ללא הנחה`)
+                      : `${points} ${localized("points", "نقطة", "נקודות")} = ${(points / 20).toFixed(2)} ${t("common.ils")}`}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
           <button className="primary-action large" disabled={isSubmitting || orderPlaced} type="submit">
             {isSubmitting ? t("common.temporaryContent") : t("checkout.placeOrder")}
           </button>
@@ -263,6 +301,12 @@ function CheckoutPage({
             <div className="summary-row">
               <span>{localized("Delivery", "التوصيل", "משלוח")}{selectedZone ? ` (${selectedZone.city_name})` : ""}</span>
               <strong>{deliveryPrice.toFixed(2)} {t("common.ils")}</strong>
+            </div>
+          )}
+          {pointsDiscount > 0 && (
+            <div className="summary-row">
+              <span>{localized("EB Points discount", "خصم نقاط EB", "הנחת נקודות EB")}</span>
+              <strong>-{pointsDiscount.toFixed(2)} {t("common.ils")}</strong>
             </div>
           )}
           <div className="summary-row total-row">

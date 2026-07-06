@@ -298,8 +298,8 @@ function AboutPage({ language = "en", onNavigate, websiteMedia = [], websiteText
       <div className="mission-sections-3-4">
         <section className="mission-rethinking">
           <div className="mission-rethinking-content">
-            <h2 className="mission-rethinking-title">{t.rethinkTitle}</h2>
-            <p className="mission-rethinking-text">{t.rethinkText}</p>
+            <h2 className="mission-rethinking-title">{resolveWebsiteText(websiteTexts, "about.main.title", language, t.rethinkTitle)}</h2>
+            <p className="mission-rethinking-text">{resolveWebsiteText(websiteTexts, "about.main.subtitle", language, t.rethinkText)}</p>
           </div>
           <picture>
             <source srcSet={image("rethinking_clean")} type="image/webp" />
@@ -311,8 +311,8 @@ function AboutPage({ language = "en", onNavigate, websiteMedia = [], websiteText
         <section className="mission-forward">
           <div className="mission-forward-inner">
             <div className="mission-forward-header">
-              <h2 className="mission-forward-title">{t.pillarsTitle}</h2>
-              <p className="mission-forward-subtitle">{t.pillarsSubtitle}</p>
+              <h2 className="mission-forward-title">{resolveWebsiteText(websiteTexts, "about.pillars.title", language, t.pillarsTitle)}</h2>
+              <p className="mission-forward-subtitle">{resolveWebsiteText(websiteTexts, "about.pillars.subtitle", language, t.pillarsSubtitle)}</p>
             </div>
             <div className="mission-forward-grid">
               {items.map((item) => {
@@ -355,12 +355,12 @@ function AboutPage({ language = "en", onNavigate, websiteMedia = [], websiteText
             </picture>
           </div>
           <div className="mission-join-content">
-            <h2 className="mission-join-title">{t.ctaTitle}</h2>
+            <h2 className="mission-join-title">{resolveWebsiteText(websiteTexts, "about.cta.title", language, t.ctaTitle)}</h2>
             <div className="mission-join-text">
-              <p>{t.ctaText}</p>
+              <p>{resolveWebsiteText(websiteTexts, "about.cta.subtitle", language, t.ctaText)}</p>
             </div>
             <button className="mission-join-button" type="button" onClick={() => onNavigate?.("sustainability")}>
-              {t.ctaButton}
+              {resolveWebsiteText(websiteTexts, "about.cta.button", language, t.ctaButton)}
             </button>
           </div>
         </div>

@@ -1215,6 +1215,7 @@ function App() {
         customer: customerInfo,
         total: cartTotal,
         delivery_zone_id: customerInfo.delivery_zone_id || "",
+        pointsRedeemed: customerInfo.pointsRedeemed || 0,
       });
 
       const purchasedItems = order?.items?.length ? order.items : cartItems;

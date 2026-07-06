@@ -423,8 +423,8 @@ function HowItWorksPage({ language = "en", onNavigate, onViewProduct, products =
                 <div className="how-process-step" key={stepTitle}>
                   <span className="how-process-step-number">{index + 1}</span>
                   <div className="how-process-step-body">
-                    <h3 className="how-process-step-title">{stepTitle}</h3>
-                    <p className="how-process-step-text">{stepText}</p>
+                    <h3 className="how-process-step-title">{resolveWebsiteText(websiteTexts, `how.step${index + 1}.title`, language, stepTitle)}</h3>
+                    <p className="how-process-step-text">{resolveWebsiteText(websiteTexts, `how.step${index + 1}.text`, language, stepText)}</p>
                   </div>
                 </div>
               ))}
@@ -459,8 +459,8 @@ function HowItWorksPage({ language = "en", onNavigate, onViewProduct, products =
       <div className="how-split-sections">
         <section className="how-split-row">
           <div className="how-split-card how-split-card-dark">
-            <h2 className="how-split-title">{t.ctaTitle}</h2>
-            <p className="how-split-text">{t.ctaText}</p>
+            <h2 className="how-split-title">{resolveWebsiteText(websiteTexts, "how.cta.title", language, t.ctaTitle)}</h2>
+            <p className="how-split-text">{resolveWebsiteText(websiteTexts, "how.cta.subtitle", language, t.ctaText)}</p>
             <button className="how-split-button" type="button" onClick={() => onNavigate?.("products")}>
               {t.ctaButton}
             </button>

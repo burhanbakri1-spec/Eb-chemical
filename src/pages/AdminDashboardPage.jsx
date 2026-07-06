@@ -802,11 +802,20 @@ function ProductWizard({ categories, editingProduct, language, onCancel, onSave,
   }
 
   function updateVariant(index, field, value) {
+    const directFields = new Set([
+      "color_name",
+      "color_value",
+      "size",
+      "price",
+      "stock",
+      "image_url",
+      "isVisible",
+    ]);
     setForm((current) => ({
       ...current,
       variants: (current.variants || []).map((variant, variantIndex) =>
         variantIndex === index
-          ? ["color_name", "color_value", "size"].includes(field)
+          ? directFields.has(field)
             ? { ...variant, [field]: value }
             : { ...variant, attributes: { ...(variant.attributes || {}), [field]: value } }
           : variant,

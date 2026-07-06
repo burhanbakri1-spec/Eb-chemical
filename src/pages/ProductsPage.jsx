@@ -239,7 +239,7 @@ function createShopCategoryConfig(allHeroImage, websiteMedia = []) {
   };
 }
 
-function ShopProductCard({ language, onAddToCart, onViewProduct, product, t }) {
+function ShopProductCard({ language, onAddToCart, onViewProduct, product, t, websiteTexts = [] }) {
   function localized(en, ar, he) {
     if (language === "ar") return ar;
     if (language === "he") return he;
@@ -340,7 +340,7 @@ function ShopProductCard({ language, onAddToCart, onViewProduct, product, t }) {
         </div>
         <div className="shop-product-actions">
           <button className="secondary-action" onClick={() => onViewProduct(product.slug)} type="button">
-            {localized("Learn more", "تفاصيل أكثر", "למידע נוסף")}
+            {resolveWebsiteText(websiteTexts, "general.learnMore", language, localized("Learn more", "تفاصيل أكثر", "למידע נוסף"))}
           </button>
         </div>
       </div>
@@ -549,7 +549,12 @@ function ProductsPage({
         ))}
       </div>
 
-      <div className="shop-product-grid">
+      <div className="section-heading">
+        <h2>{resolveWebsiteText(websiteTexts, "products.section.title", language, localized("Explore our products", "استكشف منتجاتنا", "גלה את המוצרים שלנו"))}</h2>
+        <p>{resolveWebsiteText(websiteTexts, "products.section.subtitle", language, localized("Practical cleaning and care for everyday spaces.", "تنظيف وعناية عملية للمساحات اليومية.", "ניקוי וטיפוח מעשיים לחללים יומיומיים."))}</p>
+      </div>
+
+      {visibleProducts.length ? <div className="shop-product-grid">
         {visibleProducts.map((product) => (
           <ShopProductCard
             key={product.id}
@@ -558,9 +563,13 @@ function ProductsPage({
             onViewProduct={onViewProduct}
             product={product}
             t={t}
+            websiteTexts={websiteTexts}
           />
         ))}
-      </div>
+      </div> : <StorefrontEmptyState
+        title={resolveWebsiteText(websiteTexts, "products.empty.title", language, localized("No products found", "لم يتم العثور على منتجات", "לא נמצאו מוצרים"))}
+        message={resolveWebsiteText(websiteTexts, "products.empty.subtitle", language, localized("Try another category or check back soon.", "جرّب قسمًا آخر أو عد قريبًا.", "נסה קטגוריה אחרת או חזור בקרוב."))}
+      />}
     </section>
   );
 }

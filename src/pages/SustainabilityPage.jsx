@@ -503,8 +503,8 @@ function SustainabilityPage({ language = "en", onNavigate, onViewProduct, produc
         </section>
 
         <section className="sustainability-design">
-          <h2 className="sustainability-design-title">{t.designTitle}</h2>
-          <p className="sustainability-design-text">{t.designText}</p>
+          <h2 className="sustainability-design-title">{resolveWebsiteText(websiteTexts, "sustainability.practical.title", language, t.designTitle)}</h2>
+          <p className="sustainability-design-text">{resolveWebsiteText(websiteTexts, "sustainability.practical.subtitle", language, t.designText)}</p>
         </section>
       </main>
 
@@ -543,9 +543,9 @@ function SustainabilityPage({ language = "en", onNavigate, onViewProduct, produc
           <div className="sustainability-mission-section">
           <section className="mission-section-9-inner">
             <div className="mission-9-header">
-              <h2 className="mission-9-title">{t.impactTitle}</h2>
+              <h2 className="mission-9-title">{resolveWebsiteText(websiteTexts, "sustainability.impact.title", language, t.impactTitle)}</h2>
               <div className="mission-9-copy">
-                <p>{t.impactText}</p>
+                <p>{resolveWebsiteText(websiteTexts, "sustainability.impact.subtitle", language, t.impactText)}</p>
               </div>
             </div>
             <div className="mission-9-meta">

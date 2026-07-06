@@ -240,7 +240,11 @@ function MediaEditor({ item, language, onDelete, onSave }) {
     try {
       await onDelete(draft);
     } catch (error) {
-      setMessage(error.message);
+      setMessage(localized(
+        `Failed to delete card. ${error.message || "Please try again."}`,
+        `فشل حذف البطاقة. ${error.message || "يرجى المحاولة مرة أخرى."}`,
+        `מחיקת הכרטיס נכשלה. ${error.message || "נסה שוב."}`,
+      ));
       setConfirmDelete(false);
       setDeleting(false);
     }
