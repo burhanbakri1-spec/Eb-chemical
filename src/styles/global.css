@@ -37,6 +37,169 @@
   padding-inline: 10px;
 }
 
+/* Language selector dropdowns */
+.header-lang-selector,
+.admin-lang-selector {
+  position: relative;
+}
+
+.header-lang-dropdown,
+.admin-lang-dropdown {
+  position: absolute;
+  z-index: 100;
+  inset-block-start: calc(100% + 6px);
+  inset-inline-end: 0;
+  min-width: 120px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px;
+  border: 1px solid var(--color-border, #dfe7ed);
+  border-radius: 12px;
+  background: var(--color-card, #fff);
+  box-shadow: var(--shadow, 0 8px 28px rgba(11, 46, 78, 0.1));
+  animation: scaleIn 0.15s ease both;
+}
+
+.admin-lang-dropdown {
+  background: var(--admin-card, #fff);
+  border-color: var(--admin-border, #dfe7ed);
+}
+
+.header-lang-dropdown button,
+.admin-lang-dropdown button {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--color-text, #0b2e4e);
+  font-size: 14px;
+  font-weight: 500;
+  text-align: start;
+  cursor: pointer;
+}
+
+.admin-lang-dropdown button {
+  color: var(--admin-text, #111827);
+}
+
+.header-lang-dropdown button:hover,
+.admin-lang-dropdown button:hover {
+  background: var(--admin-primary-soft, #e8f7fb);
+}
+
+.header-lang-dropdown button.active,
+.admin-lang-dropdown button.active {
+  background: var(--color-accent, #dff5fa);
+  font-weight: 600;
+}
+
+.admin-lang-dropdown button.active {
+  background: var(--admin-primary-soft, #e8f7fb);
+}
+
+/* Website media card updates */
+.website-media-protected-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: rgba(128, 128, 128, 0.12);
+  color: var(--admin-muted, #667785);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: default;
+}
+
+.website-media-confirm-overlay {
+  position: fixed;
+  z-index: 200;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.35);
+  animation: fadeIn 0.15s ease both;
+}
+
+.website-media-confirm-dialog {
+  max-width: 380px;
+  width: 90vw;
+  display: grid;
+  gap: 18px;
+  padding: 24px;
+  border-radius: 16px;
+  background: var(--admin-card, #fff);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.2);
+}
+
+.website-media-confirm-dialog p {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--admin-text, #111827);
+  line-height: 1.4;
+}
+
+.website-media-confirm-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.website-media-confirm-yes {
+  min-height: 36px;
+  padding: 8px 16px;
+  border: 0;
+  border-radius: 8px;
+  background: #dc2626;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.website-media-confirm-yes:hover {
+  background: #b91c1c;
+}
+
+.website-media-confirm-yes:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.website-media-confirm-no {
+  min-height: 36px;
+  padding: 8px 16px;
+  border: 1px solid var(--admin-border, #dfe7ed);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--admin-text, #111827);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.website-media-confirm-no:hover {
+  background: var(--admin-primary-soft, #e8f7fb);
+}
+
+.website-media-confirm-no:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.website-media-delete {
+  background: rgba(220, 38, 38, 0.1);
+  color: #dc2626;
+  border: 1px solid rgba(220, 38, 38, 0.2);
+}
+
+.website-media-delete:hover {
+  background: rgba(220, 38, 38, 0.18);
+}
+
 .homepage-card-editor {
   display: grid;
   gap: 18px;

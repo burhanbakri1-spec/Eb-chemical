@@ -180,6 +180,16 @@ function AdminLayout({
   });
 
   React.useEffect(() => {
+    function closeLang(event) {
+      if (adminLangRef.current && !adminLangRef.current.contains(event.target)) {
+        setIsLangOpen(false);
+      }
+    }
+    document.addEventListener("pointerdown", closeLang);
+    return () => document.removeEventListener("pointerdown", closeLang);
+  }, []);
+
+  React.useEffect(() => {
     setOpenSections((current) => {
       const next = { ...current };
       visibleNavSections.forEach((section) => {
@@ -191,14 +201,21 @@ function AdminLayout({
     });
   }, [activeKey, visibleNavSections]);
 
+  const [isLangOpen, setIsLangOpen] = React.useState(false);
+  const adminLangRef = React.useRef(null);
   const labels = {
     admin: language === "ar" ? "الإدارة" : language === "he" ? "ניהול" : "Admin",
     menu: language === "ar" ? "القائمة" : language === "he" ? "תפריט" : "Menu",
     signOut: language === "ar" ? "تسجيل الخروج" : language === "he" ? "התנתק" : "Sign Out",
-    language: language === "ar" ? "English" : language === "he" ? "English" : "العربية",
     darkMode: language === "ar" ? "الوضع الليلي" : language === "he" ? "מצב כהה" : "Dark mode",
     lightMode: language === "ar" ? "الوضع الفاتح" : language === "he" ? "מצב בהיר" : "Light mode",
   };
+  const langOptions = [
+    { code: "ar", label: "العربية" },
+    { code: "en", label: "English" },
+    { code: "he", label: "עברית" },
+  ];
+  const currentLangLabel = langOptions.find((o) => o.code === language)?.label || "EN";
 
   return (
     <section className={`admin-layout ${isDarkMode ? "admin-dark" : ""}`} dir={language === "ar" || language === "he" ? "rtl" : "ltr"}>
@@ -293,10 +310,26 @@ function AdminLayout({
             {subtitle && <p>{subtitle}</p>}
           </div>
           <div className="admin-userbar">
-            <button className="admin-icon-button admin-language-button" aria-label={labels.language} onClick={onLanguageChange} type="button">
-              <Languages size={15} />
-              <span>{language === "ar" ? "EN" : language === "he" ? "AR" : "HE"}</span>
-            </button>
+            <div className="admin-lang-selector" ref={adminLangRef}>
+              <button className="admin-icon-button admin-language-button" onClick={() => setIsLangOpen((open) => !open)} type="button">
+                <Languages size={15} />
+                <span>{currentLangLabel}</span>
+              </button>
+              {isLangOpen && (
+                <div className="admin-lang-dropdown">
+                  {langOptions.map((opt) => (
+                    <button
+                      className={language === opt.code ? "active" : ""}
+                      key={opt.code}
+                      onClick={() => { onLanguageChange(opt.code); setIsLangOpen(false); }}
+                      type="button"
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
             <button className="admin-icon-button" aria-label={isDarkMode ? labels.lightMode : labels.darkMode} onClick={onToggleDarkMode} type="button">
               {isDarkMode ? <Sun size={15} /> : <Moon size={15} />}
             </button>

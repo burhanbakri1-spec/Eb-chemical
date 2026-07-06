@@ -3,6 +3,9 @@ import { ImageOff, ImagePlus, Save, Trash2, Upload } from "lucide-react";
 import { defaultWebsiteMedia, withWebsiteMediaVersion } from "../data/websiteMedia.js";
 import { uploadImage } from "../utils/api.js";
 
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
+const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+
 const emptyItem = {
   id: "",
   sectionKey: "",
@@ -65,6 +68,62 @@ function mergeDefaultMediaItems(items) {
   return [...(items || []), ...missingDefaults];
 }
 
+function ConfirmDialog({ message, onConfirm, onCancel, deleting, localized }) {
+  return (
+    <div className="website-media-confirm-overlay">
+      <div className="website-media-confirm-dialog">
+        <p>{message}</p>
+        <div className="website-media-confirm-actions">
+          <button className="website-media-confirm-yes" disabled={deleting} onClick={onConfirm} type="button">
+            {deleting ? localized("Deleting...", "جار الحذف...", "מוחק...") : localized("Yes, delete", "نعم، احذف", "כן, מחק")}
+          </button>
+          <button className="website-media-confirm-no" disabled={deleting} onClick={onCancel} type="button">
+            {localized("Cancel", "إلغاء", "ביטול")}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+async function compressImage(file) {
+  if (!file.type.startsWith("image/")) return file;
+  if (file.size < MAX_FILE_SIZE && !file.type.includes("png")) return file;
+
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      let { width, height } = img;
+      const maxDim = 1920;
+      if (width > maxDim || height > maxDim) {
+        if (width > height) {
+          height = Math.round((height * maxDim) / width);
+          width = maxDim;
+        } else {
+          width = Math.round((width * maxDim) / height);
+          height = maxDim;
+        }
+      }
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, width, height);
+      const mimeType = file.type === "image/png" ? "image/png" : "image/jpeg";
+      const quality = file.type === "image/png" ? 1 : 0.85;
+      canvas.toBlob((blob) => {
+        if (blob && blob.size < file.size) {
+          resolve(new File([blob], file.name.replace(/\.[^.]+$/, mimeType === "image/png" ? ".png" : ".jpg"), { type: mimeType }));
+        } else {
+          resolve(file);
+        }
+      }, mimeType, quality);
+    };
+    img.onerror = () => resolve(file);
+    img.src = URL.createObjectURL(file);
+  });
+}
+
 function MediaEditor({ item, language, onDelete, onSave }) {
   function localized(en, ar, he) {
     if (language === "ar") return ar;
@@ -75,6 +134,9 @@ function MediaEditor({ item, language, onDelete, onSave }) {
   const [draft, setDraft] = React.useState(item);
   const [message, setMessage] = React.useState("");
   const [uploading, setUploading] = React.useState(false);
+  const [confirmDelete, setConfirmDelete] = React.useState(false);
+  const [deleting, setDeleting] = React.useState(false);
+  const uploadDisabledRef = React.useRef(false);
 
   React.useEffect(() => setDraft(item), [item]);
 
@@ -87,15 +149,30 @@ function MediaEditor({ item, language, onDelete, onSave }) {
     event.target.value = "";
     if (!file) return;
 
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      setMessage(localized("Unsupported file type.", "نوع الملف غير مدعوم.", "סוג קובץ לא נתמך."));
+      return;
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
+      setMessage(localized("File is too large. Maximum size is 5MB.", "الملف كبير جدًا. الحد الأقصى 5 ميجابايت.", "הקובץ גדול מדי. הגודל המרבי הוא 5MB."));
+      return;
+    }
+
+    if (uploadDisabledRef.current) return;
+    uploadDisabledRef.current = true;
+
     try {
       setUploading(true);
       setMessage("");
-      const result = await uploadImage(file);
+      const compressed = await compressImage(file);
+      const result = await uploadImage(compressed);
       update("imageUrl", result.url || result.path || "");
     } catch (error) {
       setMessage(error.message);
     } finally {
       setUploading(false);
+      uploadDisabledRef.current = false;
     }
   }
 
@@ -137,8 +214,31 @@ function MediaEditor({ item, language, onDelete, onSave }) {
     }
   }
 
+  async function handleConfirmDelete() {
+    setDeleting(true);
+    setMessage("");
+    try {
+      await onDelete(draft.id);
+    } catch (error) {
+      setMessage(error.message);
+      setConfirmDelete(false);
+      setDeleting(false);
+    }
+  }
+
+  const isProtected = !draft.id;
+
   return (
     <article className="website-media-card">
+      {confirmDelete && (
+        <ConfirmDialog
+          deleting={deleting}
+          localized={localized}
+          message={localized("Delete this media card?", "حذف بطاقة الوسائط هذه?", "למחוק כרטיס מדיה זה?")}
+          onCancel={() => setConfirmDelete(false)}
+          onConfirm={handleConfirmDelete}
+        />
+      )}
       <div className="website-media-preview">
         {draft.imageUrl ? (
           <img
@@ -197,7 +297,7 @@ function MediaEditor({ item, language, onDelete, onSave }) {
       <div className="website-media-actions">
         <label className="admin-upload-button">
           <Upload size={15} />
-          {uploading ? localized("Uploading...", "جاري الرفع...", "מעלה...") : localized("Upload image", "رفع صورة", "העלה תמונה")}
+          {uploading ? localized("Uploading...", "جار الرفع...", "מעלה...") : localized("Upload image", "رفع صورة", "העלה תמונה")}
           <input accept="image/*" disabled={uploading} hidden onChange={handleUpload} type="file" />
         </label>
         <button
@@ -213,10 +313,14 @@ function MediaEditor({ item, language, onDelete, onSave }) {
           <Save size={15} />
           {localized("Save", "حفظ", "שמור")}
         </button>
-        {draft.id && (
-          <button className="website-media-delete" onClick={() => onDelete(draft.id)} type="button">
+        {isProtected ? (
+          <span className="website-media-protected-badge" title={localized("This media card is protected", "بطاقة الوسائط هذه محمية", "כרטיס מדיה זה מוגן")}>
+            {localized("Protected", "محمي", "מוגן")}
+          </span>
+        ) : (
+          <button className="website-media-delete" onClick={() => setConfirmDelete(true)} type="button">
             <Trash2 size={15} />
-            {localized("Delete", "حذف", "מחק")}
+            {localized("Delete card", "حذف البطاقة", "מחק כרטיס")}
           </button>
         )}
       </div>

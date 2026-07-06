@@ -282,7 +282,7 @@ function getCartTrackingId(item) {
   return item?.productId || item?.slug || item?.cartId;
 }
 
-const languageCycle = { ar: "he", he: "en", en: "ar" };
+
 
 function App() {
   const [activePage, setActivePage] = React.useState(getInitialPageFromPath);
@@ -320,6 +320,9 @@ function App() {
   const [language, setLanguage] = React.useState(
     () => localStorage.getItem(languageStorageKey) || "ar"
   );
+  function handleLanguageChange(lang) {
+    setLanguage(lang);
+  }
   const [isAdminDarkMode, setIsAdminDarkMode] = React.useState(
     () => localStorage.getItem("epChemicalAdminDarkMode") === "true"
   );
@@ -1161,16 +1164,12 @@ function App() {
       }
       return currentItems.map((entry, entryIndex) => (entryIndex === index ? saved : entry));
     });
-    await loadWebsiteMedia(currentUser);
-    setAdminMessage(t("admin.productSaved"));
     return saved;
   }
 
   async function handleDeleteWebsiteMedia(id) {
     await deleteWebsiteMediaApi(id);
     setWebsiteMedia((currentItems) => currentItems.filter((entry) => entry.id !== id));
-    await loadWebsiteMedia(currentUser);
-    setAdminMessage(t("admin.productDeleted"));
   }
 
   async function handleCreateOrder(customerInfo) {
@@ -1235,9 +1234,7 @@ function App() {
         language={language}
         products={demoProducts}
         websiteMedia={websiteMedia}
-        onLanguageChange={() =>
-          setLanguage((currentLanguage) => languageCycle[currentLanguage])
-        }
+        onLanguageChange={handleLanguageChange}
         onCategorySelect={handleCategorySelect}
         onNavigate={navigate}
         currentUser={currentUser}
@@ -1456,9 +1453,7 @@ function App() {
             homepageCategoryCards={homepageCategoryCards}
             isDarkMode={isAdminDarkMode}
             reviews={reviews}
-            onLanguageChange={() =>
-              setLanguage((currentLanguage) => languageCycle[currentLanguage])
-            }
+            onLanguageChange={handleLanguageChange}
             onToggleDarkMode={() => setIsAdminDarkMode((current) => !current)}
             onSaveCategoryCard={handleSaveCategoryCard}
             statusMessage={adminMessage}
@@ -1474,7 +1469,7 @@ function App() {
             currentUser={currentUser}
             isDarkMode={isAdminDarkMode}
             language={language}
-            onLanguageChange={() => setLanguage((currentLanguage) => currentLanguage === "en" ? "ar" : "en")}
+            onLanguageChange={handleLanguageChange}
             onLogout={handleAdminLogout}
             onNavigate={navigate}
             onSchemaChanged={setProductSchema}
@@ -1492,7 +1487,7 @@ function App() {
             editingModuleId={routeParams.moduleId}
             isDarkMode={isAdminDarkMode}
             language={language}
-            onLanguageChange={() => setLanguage((currentLanguage) => currentLanguage === "en" ? "ar" : "en")}
+            onLanguageChange={handleLanguageChange}
             onLogout={handleAdminLogout}
             onModulesChanged={() => loadCustomModules(currentUser)}
             onNavigate={navigate}
@@ -1510,7 +1505,7 @@ function App() {
             editingEntryId={routeParams.entryId}
             isDarkMode={isAdminDarkMode}
             language={language}
-            onLanguageChange={() => setLanguage((currentLanguage) => currentLanguage === "en" ? "ar" : "en")}
+            onLanguageChange={handleLanguageChange}
             onLogout={handleAdminLogout}
             onNavigate={navigate}
             onToggleDarkMode={() => setIsAdminDarkMode((current) => !current)}
@@ -1522,11 +1517,7 @@ function App() {
             currentUser={currentUser}
             isDarkMode={isAdminDarkMode}
             language={language}
-            onLanguageChange={() =>
-              setLanguage((currentLanguage) =>
-                currentLanguage === "en" ? "ar" : "en"
-              )
-            }
+            onLanguageChange={handleLanguageChange}
             onLogout={handleAdminLogout}
             onNavigate={navigate}
             onToggleDarkMode={() => setIsAdminDarkMode((current) => !current)}
@@ -1538,11 +1529,7 @@ function App() {
             currentUser={currentUser}
             isDarkMode={isAdminDarkMode}
             language={language}
-            onLanguageChange={() =>
-              setLanguage((currentLanguage) =>
-                currentLanguage === "en" ? "ar" : "en"
-              )
-            }
+            onLanguageChange={handleLanguageChange}
             onLogout={handleAdminLogout}
             onNavigate={navigate}
             onToggleDarkMode={() => setIsAdminDarkMode((current) => !current)}
@@ -1554,11 +1541,7 @@ function App() {
             currentUser={currentUser}
             isDarkMode={isAdminDarkMode}
             language={language}
-            onLanguageChange={() =>
-              setLanguage((currentLanguage) =>
-                currentLanguage === "en" ? "ar" : "en"
-              )
-            }
+            onLanguageChange={handleLanguageChange}
             onLogout={handleAdminLogout}
             onNavigate={navigate}
             onToggleDarkMode={() => setIsAdminDarkMode((current) => !current)}
@@ -1571,11 +1554,7 @@ function App() {
             currentUser={currentUser}
             isDarkMode={isAdminDarkMode}
             language={language}
-            onLanguageChange={() =>
-              setLanguage((currentLanguage) =>
-                currentLanguage === "en" ? "ar" : "en"
-              )
-            }
+            onLanguageChange={handleLanguageChange}
             onLogout={handleAdminLogout}
             onNavigate={navigate}
             onToggleDarkMode={() => setIsAdminDarkMode((current) => !current)}
@@ -1588,11 +1567,7 @@ function App() {
             currentUser={currentUser}
             isDarkMode={isAdminDarkMode}
             language={language}
-            onLanguageChange={() =>
-              setLanguage((currentLanguage) =>
-                currentLanguage === "en" ? "ar" : "en"
-              )
-            }
+            onLanguageChange={handleLanguageChange}
             onLogout={handleAdminLogout}
             onNavigate={navigate}
             onToggleDarkMode={() => setIsAdminDarkMode((current) => !current)}
@@ -1606,11 +1581,7 @@ function App() {
             currentUser={currentUser}
             isDarkMode={isAdminDarkMode}
             language={language}
-            onLanguageChange={() =>
-              setLanguage((currentLanguage) =>
-                currentLanguage === "en" ? "ar" : "en"
-              )
-            }
+            onLanguageChange={handleLanguageChange}
             onLogout={handleAdminLogout}
             onNavigate={navigate}
             onToggleDarkMode={() => setIsAdminDarkMode((current) => !current)}
@@ -1624,11 +1595,7 @@ function App() {
             currentUser={currentUser}
             isDarkMode={isAdminDarkMode}
             language={language}
-            onLanguageChange={() =>
-              setLanguage((currentLanguage) =>
-                currentLanguage === "en" ? "ar" : "en"
-              )
-            }
+            onLanguageChange={handleLanguageChange}
             onLogout={handleAdminLogout}
             onNavigate={navigate}
             onToggleDarkMode={() => setIsAdminDarkMode((current) => !current)}
@@ -1641,11 +1608,7 @@ function App() {
             currentUser={currentUser}
             isDarkMode={isAdminDarkMode}
             language={language}
-            onLanguageChange={() =>
-              setLanguage((currentLanguage) =>
-                currentLanguage === "en" ? "ar" : "en"
-              )
-            }
+            onLanguageChange={handleLanguageChange}
             onLogout={handleAdminLogout}
             onNavigate={navigate}
             onToggleDarkMode={() => setIsAdminDarkMode((current) => !current)}
@@ -1658,11 +1621,7 @@ function App() {
             currentUser={currentUser}
             isDarkMode={isAdminDarkMode}
             language={language}
-            onLanguageChange={() =>
-              setLanguage((currentLanguage) =>
-                currentLanguage === "en" ? "ar" : "en"
-              )
-            }
+            onLanguageChange={handleLanguageChange}
             onLogout={handleAdminLogout}
             onNavigate={navigate}
             onToggleDarkMode={() => setIsAdminDarkMode((current) => !current)}
@@ -1676,11 +1635,7 @@ function App() {
             employees={employees}
             language={language}
             isDarkMode={isAdminDarkMode}
-            onLanguageChange={() =>
-              setLanguage((currentLanguage) =>
-                currentLanguage === "en" ? "ar" : "en"
-              )
-            }
+            onLanguageChange={handleLanguageChange}
             onDeleteEmployee={handleDeleteEmployee}
             onLogout={handleAdminLogout}
             onNavigate={navigate}

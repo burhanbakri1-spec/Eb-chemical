@@ -142,8 +142,10 @@ function Header({
   const [isHeaderOnDark, setIsHeaderOnDark] = React.useState(() =>
     ["home", "about", "how", "sustainability", "cleanups"].includes(activePage)
   );
+  const [isLangOpen, setIsLangOpen] = React.useState(false);
   const [dropdownStyles, setDropdownStyles] = React.useState({ shop: {}, about: {} });
   const headerRef = React.useRef(null);
+  const headerLangRef = React.useRef(null);
   const shopMenuRef = React.useRef(null);
   const aboutMenuRef = React.useRef(null);
   const aboutCloseTimer = React.useRef(null);
@@ -224,8 +226,12 @@ function Header({
         setIsMegaOpen(false);
         setIsAboutOpen(false);
         setIsAccountOpen(false);
+        setIsLangOpen(false);
         setMobileSubmenu(null);
         setIsSearchOpen(false);
+      }
+      if (headerLangRef.current && !headerLangRef.current.contains(event.target)) {
+        setIsLangOpen(false);
       }
     }
 
@@ -538,14 +544,34 @@ function Header({
       </div>
 
       <div className="header-right-block">
-        <button
-          aria-label={t("common.changeLanguage")}
-          className="language-toggle"
-          onClick={onLanguageChange}
-          type="button"
-        >
-          {language === "ar" ? "EN" : language === "he" ? "AR" : "HE"}
-        </button>
+        <div className="header-lang-selector" ref={headerLangRef}>
+          <button
+            aria-label={t("common.changeLanguage")}
+            className="language-toggle"
+            onClick={() => setIsLangOpen((open) => !open)}
+            type="button"
+          >
+            {language === "ar" ? "AR" : language === "he" ? "HE" : "EN"}
+          </button>
+          {isLangOpen && (
+            <div className="header-lang-dropdown">
+              {[
+                { code: "ar", label: "العربية" },
+                { code: "en", label: "English" },
+                { code: "he", label: "עברית" },
+              ].map((opt) => (
+                <button
+                  className={language === opt.code ? "active" : ""}
+                  key={opt.code}
+                  onClick={() => { onLanguageChange(opt.code); setIsLangOpen(false); }}
+                  type="button"
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
         <button
           aria-label={localized("Search", "البحث", "חיפוש")}
           className="utility-icon-button"
