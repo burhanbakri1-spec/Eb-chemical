@@ -224,6 +224,12 @@ function productToForm(product) {
 }
 
 function AdminProductForm({ categoryOptions, editingProduct, language, onCancel, onSave, t }) {
+  function localized(en, ar, he) {
+    if (language === "ar") return ar;
+    if (language === "he") return he;
+    return en;
+  }
+
   const [form, setForm] = React.useState(() => productToForm(editingProduct));
   const [isSaving, setIsSaving] = React.useState(false);
   const [uploadingField, setUploadingField] = React.useState("");
@@ -411,7 +417,7 @@ function AdminProductForm({ categoryOptions, editingProduct, language, onCancel,
     const sizes = parseGeneratorSizes(variantGenerator.sizesText);
 
     if (!colors.length || !sizes.length) {
-      setUploadError(language === "ar" ? "أضف لونًا وحجمًا واحدًا على الأقل." : "Add at least one color and one size.");
+      setUploadError(localized("Add at least one color and one size.", "أضف لونًا وحجمًا واحدًا على الأقل.", "הוסף לפחות צבע אחד וגודל אחד."));
       return;
     }
 
@@ -634,7 +640,7 @@ function AdminProductForm({ categoryOptions, editingProduct, language, onCancel,
         return (
           <>
             <label>
-              {language === "ar" ? "صورة صفحة المنتجات" : "Products Page Image Path"}
+              {localized("Products Page Image Path", "صورة صفحة المنتجات", "נתיב תמונת דף המוצרים")}
               <span className="image-upload-row">
                 <input name="productsPageImage" onChange={handleChange} value={form.productsPageImage || ""} />
                 <span className="upload-button-shell">
@@ -648,7 +654,7 @@ function AdminProductForm({ categoryOptions, editingProduct, language, onCancel,
               )}
             </label>
             <label>
-              {language === "ar" ? "صورة التمرير لصفحة المنتجات" : "Products Page Hover Image Path"}
+              {localized("Products Page Hover Image Path", "صورة التمرير لصفحة المنتجات", "נתיב תמונת ריחוף דף המוצרים")}
               <span className="image-upload-row">
                 <input name="productsPageHoverImage" onChange={handleChange} value={form.productsPageHoverImage || ""} />
                 <span className="upload-button-shell">
@@ -665,19 +671,19 @@ function AdminProductForm({ categoryOptions, editingProduct, language, onCancel,
         );
       })()}
       <div className="full-field">
-        <strong>{language === "ar" ? "صور أقسام تفاصيل المنتج" : "Product Details Section Images"}</strong>
+        <strong>{localized("Product Details Section Images", "صور أقسام تفاصيل المنتج", "תמונות סקציות פרטי מוצר")}</strong>
         <div className="admin-dsi-grid">
           {[
-            { key: "dsiMainImage", label: language === "ar" ? "الصورة الرئيسية لتفاصيل المنتج" : "Product Details Main Image" },
-            { key: "dsiHowItWorks1", label: language === "ar" ? "صورة طريقة الاستخدام 1" : "How it Works image 1" },
-            { key: "dsiHowItWorks2", label: language === "ar" ? "صورة طريقة الاستخدام 2" : "How it Works image 2" },
-            { key: "dsiHowItWorks3", label: language === "ar" ? "صورة طريقة الاستخدام 3" : "How it Works image 3" },
-            { key: "dsiImpact1", label: language === "ar" ? "صورة التأثير 1" : "Impact section image 1" },
-            { key: "dsiImpact2", label: language === "ar" ? "صورة التأثير 2" : "Impact section image 2" },
-            { key: "dsiSafeToUse", label: language === "ar" ? "صورة قسم الأمان" : "Safe to use image" },
-            { key: "dsiPracticalBanner", label: language === "ar" ? "صورة البانر" : "Practical banner image" },
-            { key: "dsiIngredients", label: language === "ar" ? "صورة قسم المكونات" : "Ingredients section image" },
-            { key: "dsiFaq", label: language === "ar" ? "صورة قسم الأسئلة" : "FAQ side image" },
+            { key: "dsiMainImage", label: localized("Product Details Main Image", "الصورة الرئيسية لتفاصيل المنتج", "תמונה ראשית פרטי מוצר") },
+            { key: "dsiHowItWorks1", label: localized("How it Works image 1", "صورة طريقة الاستخدام 1", "תמונת איך זה עובד 1") },
+            { key: "dsiHowItWorks2", label: localized("How it Works image 2", "صورة طريقة الاستخدام 2", "תמונת איך זה עובד 2") },
+            { key: "dsiHowItWorks3", label: localized("How it Works image 3", "صورة طريقة الاستخدام 3", "תמונת איך זה עובד 3") },
+            { key: "dsiImpact1", label: localized("Impact section image 1", "صورة التأثير 1", "תמונת השפעה 1") },
+            { key: "dsiImpact2", label: localized("Impact section image 2", "صورة التأثير 2", "תמונת השפעה 2") },
+            { key: "dsiSafeToUse", label: localized("Safe to use image", "صورة قسم الأمان", "תמונת בטיחות") },
+            { key: "dsiPracticalBanner", label: localized("Practical banner image", "صورة البانر", "תמונת באנר") },
+            { key: "dsiIngredients", label: localized("Ingredients section image", "صورة قسم المكونات", "תמונת רכיבים") },
+            { key: "dsiFaq", label: localized("FAQ side image", "صورة قسم الأسئلة", "תמונת שאלות נפוצות") },
           ].map(({ key, label }) => {
             const isUploading = uploadingField === key;
             return (
@@ -709,12 +715,12 @@ function AdminProductForm({ categoryOptions, editingProduct, language, onCancel,
         </div>
       </div>
       <div className="full-field">
-        <strong>{language === "ar" ? "عبارات بانر تفاصيل المنتج" : "Product Details Banner Statements"}</strong>
+        <strong>{localized("Product Details Banner Statements", "عبارات بانر تفاصيل المنتج", "הצהרות באנר פרטי מוצר")}</strong>
         <div className="admin-dsi-grid">
           {(form.detailStatements || []).map((statement, index) => (
             <div className="admin-media-field" key={index}>
               <label>
-                {language === "ar" ? `البيان ${index + 1} - الإنجليزية` : `Statement ${index + 1} - English`}
+                {localized(`Statement ${index + 1} - English`, `البيان ${index + 1} - الإنجليزية`, `הצהרה ${index + 1} - אנגלית`)}
                 <input
                   value={statement.en || ""}
                   onChange={(event) => {
@@ -725,7 +731,7 @@ function AdminProductForm({ categoryOptions, editingProduct, language, onCancel,
                 />
               </label>
               <label>
-                {language === "ar" ? `البيان ${index + 1} - العربية` : `Statement ${index + 1} - Arabic`}
+                {localized(`Statement ${index + 1} - Arabic`, `البيان ${index + 1} - العربية`, `הצהרה ${index + 1} - ערבית`)}
                 <input
                   value={statement.ar || ""}
                   onChange={(event) => {
@@ -743,7 +749,7 @@ function AdminProductForm({ categoryOptions, editingProduct, language, onCancel,
                 }}
                 type="button"
               >
-                {language === "ar" ? "إزالة" : "Remove"}
+                {localized("Remove", "إزالة", "הסר")}
               </button>
             </div>
           ))}
@@ -757,17 +763,17 @@ function AdminProductForm({ categoryOptions, editingProduct, language, onCancel,
             }
             type="button"
           >
-            {language === "ar" ? "+ إضافة بيان" : "+ Add statement"}
+            {localized("+ Add statement", "+ إضافة بيان", "+ הוסף הצהרה")}
           </button>
         </div>
       </div>
       <div className="full-field admin-gallery-editor">
         <div className="admin-inline-heading">
-          <strong>{language === "ar" ? "صور المعرض العمودي" : "Vertical Gallery Images"}</strong>
+          <strong>{localized("Vertical Gallery Images", "صور المعرض العمودي", "תמונות גלריה אנכיות")}</strong>
           <label className="upload-button-shell">
             <input
               accept="image/*"
-              aria-label={language === "ar" ? "رفع صور المعرض" : "Upload gallery images"}
+              aria-label={localized("Upload Gallery Images", "رفع صور المعرض", "העלה תמונות גלריה")}
               multiple
               onChange={handleGalleryUpload}
               type="file"
@@ -775,20 +781,18 @@ function AdminProductForm({ categoryOptions, editingProduct, language, onCancel,
             <span>
               {uploadingField === "galleryImages"
                 ? t("admin.uploading")
-                : language === "ar"
-                  ? "رفع صور المعرض"
-                  : "Upload Gallery Images"}
+                : localized("Upload Gallery Images", "رفع صور المعرض", "העלה תמונות גלריה")}
             </span>
           </label>
           <button className="secondary-action compact-action" onClick={addGalleryImageField} type="button">
-            {language === "ar" ? "+ إضافة خانة صورة" : "+ Add image field"}
+            {localized("+ Add image field", "+ إضافة خانة صورة", "+ הוסף שדה תמונה")}
           </button>
         </div>
         <div className="admin-gallery-preview-grid">
           {(form.galleryImages || []).map((image, index) => (
             <figure className="admin-gallery-preview" key={`${image.image_url}-${index}`}>
               <label>
-                {language === "ar" ? "رابط الصورة" : "Image URL"}
+                {localized("Image URL", "رابط الصورة", "כתובת תמונה")}
                 <span className="image-upload-row">
                   <input
                     value={image.image_url}
@@ -797,16 +801,14 @@ function AdminProductForm({ categoryOptions, editingProduct, language, onCancel,
                   <span className="upload-button-shell">
                     <input
                       accept="image/*"
-                      aria-label={language === "ar" ? "رفع صورة معرض" : "Upload gallery image"}
+                      aria-label={localized("Upload gallery image", "رفع صورة معرض", "העלה תמונת גלריה")}
                       onChange={(event) => handleGalleryItemUpload(index, event)}
                       type="file"
                     />
                     <span>
                       {uploadingGalleryIndex === index
                         ? t("admin.uploading")
-                        : language === "ar"
-                          ? "رفع"
-                          : "Upload"}
+                        : localized("Upload", "رفع", "העלה")}
                     </span>
                   </span>
                 </span>
@@ -821,7 +823,7 @@ function AdminProductForm({ categoryOptions, editingProduct, language, onCancel,
                 />
               )}
               <button onClick={() => removeGalleryImage(index)} type="button">
-                {language === "ar" ? "حذف" : "Remove"}
+                {localized("Remove", "حذف", "מחק")}
               </button>
             </figure>
           ))}
@@ -838,36 +840,34 @@ function AdminProductForm({ categoryOptions, editingProduct, language, onCancel,
       </label>
       <div className="full-field admin-variants-editor">
         <div className="admin-inline-heading">
-          <strong>{language === "ar" ? "ألوان وأحجام المنتج" : "Product Variants"}</strong>
+          <strong>{localized("Product Variants", "ألوان وأحجام المنتج", "וריאציות מוצר")}</strong>
           <button className="secondary-action compact-action" onClick={addVariant} type="button">
-            {language === "ar" ? "إضافة خيار" : "Add Variant"}
+            {localized("Add Variant", "إضافة خيار", "הוסף וריאציה")}
           </button>
         </div>
         <div className="variant-generator-panel">
           <div>
-            <strong>{language === "ar" ? "مولّد الفيرنتس" : "Variant Generator"}</strong>
+            <strong>{localized("Variant Generator", "مولّد الفيرنتس", "מחולל וריאציות")}</strong>
             <p>
-              {language === "ar"
-                ? "اكتب كل لون بسطر: الاسم|كود اللون|رابط صورة اختياري. الأحجام افصلها بفواصل."
-                : "Enter each color on a new line: name|hex|optional image URL. Separate sizes with commas."}
+              {localized("Enter each color on a new line: name|hex|optional image URL. Separate sizes with commas.", "اكتب كل لون بسطر: الاسم|كود اللون|رابط صورة اختياري. الأحجام افصلها بفواصل.", "הזן כל צבע בשורה חדשה: שם|הקסג|כתובת תמונה אופציונלית. הפרד גדלים בפסיקים.")}
             </p>
           </div>
           <label>
-            {language === "ar" ? "الألوان" : "Colors"}
+            {localized("Colors", "الألوان", "צבעים")}
             <textarea
               value={variantGenerator.colorsText}
               onChange={(event) => updateVariantGenerator("colorsText", event.target.value)}
             />
           </label>
           <label>
-            {language === "ar" ? "الأحجام" : "Sizes"}
+            {localized("Sizes", "الأحجام", "גדלים")}
             <input
               value={variantGenerator.sizesText}
               onChange={(event) => updateVariantGenerator("sizesText", event.target.value)}
             />
           </label>
           <label>
-            {language === "ar" ? "السعر الافتراضي" : "Default price"}
+            {localized("Default price", "السعر الافتراضي", "מחיר ברירת מחדל")}
             <input
               min="0"
               type="number"
@@ -876,7 +876,7 @@ function AdminProductForm({ categoryOptions, editingProduct, language, onCancel,
             />
           </label>
           <label>
-            {language === "ar" ? "المخزون الافتراضي" : "Default stock"}
+            {localized("Default stock", "المخزون الافتراضي", "מלאי ברירת מחדל")}
             <input
               min="0"
               type="number"
@@ -885,14 +885,14 @@ function AdminProductForm({ categoryOptions, editingProduct, language, onCancel,
             />
           </label>
           <button className="primary-action compact-action" onClick={generateVariants} type="button">
-            {language === "ar" ? "توليد الفيرنتس" : "Generate Variants"}
+            {localized("Generate Variants", "توليد الفيرنتس", "צור וריאציות")}
           </button>
         </div>
         <div className="admin-variant-grid">
           {(form.variants || []).map((variant, index) => (
             <div className="admin-variant-row" key={variant.id || index}>
               <label>
-                {language === "ar" ? "اسم اللون" : "Color name"}
+                {localized("Color name", "اسم اللون", "שם צבע")}
                 <input
                   required
                   value={variant.color_name}
@@ -900,14 +900,14 @@ function AdminProductForm({ categoryOptions, editingProduct, language, onCancel,
                 />
               </label>
               <label>
-                {language === "ar" ? "قيمة اللون" : "Color value"}
+                {localized("Color value", "قيمة اللون", "ערך צבע")}
                 <input
                   value={variant.color_value}
                   onChange={(event) => updateVariant(index, "color_value", event.target.value)}
                 />
               </label>
               <label>
-                {language === "ar" ? "الحجم" : "Size"}
+                {localized("Size", "الحجم", "גודל")}
                 <input
                   required
                   value={variant.size}
@@ -915,7 +915,7 @@ function AdminProductForm({ categoryOptions, editingProduct, language, onCancel,
                 />
               </label>
               <label>
-                {language === "ar" ? "السعر" : "Price"}
+                {localized("Price", "السعر", "מחיר")}
                 <input
                   min="0"
                   required
@@ -925,7 +925,7 @@ function AdminProductForm({ categoryOptions, editingProduct, language, onCancel,
                 />
               </label>
               <label>
-                {language === "ar" ? "المخزون" : "Stock"}
+                {localized("Stock", "المخزون", "מלאי")}
                 <input
                   min="0"
                   required
@@ -935,7 +935,7 @@ function AdminProductForm({ categoryOptions, editingProduct, language, onCancel,
                 />
               </label>
               <label>
-                {language === "ar" ? "صورة الخيار" : "Variant image"}
+                {localized("Variant image", "صورة الخيار", "תמונת וריאציה")}
                 <span className="image-upload-row">
                   <input
                     value={variant.image_url}
@@ -944,16 +944,14 @@ function AdminProductForm({ categoryOptions, editingProduct, language, onCancel,
                   <span className="upload-button-shell">
                     <input
                       accept="image/*"
-                      aria-label={language === "ar" ? "رفع صورة الخيار" : "Upload variant image"}
+                      aria-label={localized("Upload variant image", "رفع صورة الخيار", "העלה תמונת וריאציה")}
                       onChange={(event) => handleVariantImageUpload(index, event)}
                       type="file"
                     />
                     <span>
                       {uploadingVariantIndex === index
                         ? t("admin.uploading")
-                        : language === "ar"
-                          ? "رفع"
-                          : "Upload"}
+                        : localized("Upload", "رفع", "העלה")}
                     </span>
                   </span>
                 </span>
@@ -978,7 +976,7 @@ function AdminProductForm({ categoryOptions, editingProduct, language, onCancel,
                 <span>{variant.isVisible !== false ? "Visible" : "Hidden"}</span>
               </label>
               <button className="text-action danger" onClick={() => removeVariant(index)} type="button">
-                {language === "ar" ? "حذف" : "Remove"}
+                {localized("Remove", "حذف", "מחק")}
               </button>
             </div>
           ))}

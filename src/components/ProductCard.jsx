@@ -4,6 +4,12 @@ import { resolveImageUrl, showNeutralImage } from "../utils/images.js";
 import { getVisibleVariants } from "../utils/productVariants.js";
 
 function ProductCard({ language, product, onAddToCart, onViewProduct, t }) {
+  function localized(en, ar, he) {
+    if (language === "ar") return ar;
+    if (language === "he") return he;
+    return en;
+  }
+
   const visibleVariants = getVisibleVariants(product);
   const hasVariantModel = Array.isArray(product.variants) && product.variants.length > 0;
   const firstVariant = visibleVariants.find((variant) => Number(variant.stock ?? variant.stockQty ?? 1) > 0) || visibleVariants[0];
@@ -16,9 +22,11 @@ function ProductCard({ language, product, onAddToCart, onViewProduct, t }) {
   const category = categories.find((item) => item.id === product.categoryId);
   const description =
     product.shortDescription?.[language] ||
-    (language === "ar"
-      ? "منتج عملي مصمم لتجربة تنظيف أسهل ونتيجة أفضل."
-      : "A practical product designed for easier cleaning and a better result.");
+    localized(
+      "A practical product designed for easier cleaning and a better result.",
+      "منتج عملي مصمم لتجربة تنظيف أسهل ونتيجة أفضل.",
+      "מוצר פרקטי המיועד לניקוי קל יותר ולתוצאה טובה יותר.",
+    );
 
   const mainImage = resolveImageUrl(product.image, product.fallbackImage);
   const hoverImage =
@@ -62,7 +70,7 @@ function ProductCard({ language, product, onAddToCart, onViewProduct, t }) {
       <div className="product-card-body">
         <div className="product-meta-row">
           <span>{category?.name[language]}</span>
-          <strong>{firstSize?.size || "Unavailable"}</strong>
+          <strong>{firstSize?.size || localized("Unavailable", "غير متوفر", "לא זמין")}</strong>
         </div>
         <h3>{product.name[language]}</h3>
         <p>{description}</p>
@@ -88,7 +96,7 @@ function ProductCard({ language, product, onAddToCart, onViewProduct, t }) {
           onClick={() => onAddToCart(product, firstSize.size, firstVariant)}
           type="button"
         >
-          {isAvailable ? t("common.add") : "Unavailable"}
+          {isAvailable ? t("common.add") : localized("Unavailable", "غير متوفر", "לא זמין")}
         </button>
       </div>
     </article>

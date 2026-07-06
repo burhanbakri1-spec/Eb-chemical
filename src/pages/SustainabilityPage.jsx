@@ -152,6 +152,71 @@ const copy = {
       "اكتشف منتجات EB Chemical العملية المصممة لجعل التنظيف اليومي أسهل وأنظف وأكثر موثوقية.",
     joinButton: "اكتشف المزيد",
   },
+  he: {
+    heroTitle: "מילוי שמשנה הכל",
+    heroSubtitle: "ניקוי חכם מתחיל כאן",
+    review: "יותר מ-500 הזמנות מלקוחות מרוצים",
+    intro:
+      "קיימות מתחילה בבחירות מעשיות. אנו יוצרים מוצרי ניקוי אמינים שעוזרים ללקוחות להשתמש בפתרון הנכון, להפחית פסולת ולשמור על חללים רעננים בפחות מאמץ.",
+    featureCards: {
+      heading: "קיימות עשה זאת מעשי",
+      cards: [
+        { title: "בחירות חכמות יותר", text: "מוצרי ניקוי מעשיים המיועדים לשימוש יומיומי." },
+        { title: "פחות פסולת", text: "אפשרויות מילוי שעוזרות להפחית אריזות מיותרות." },
+        { title: "חללים רעננים", text: "שגרות פשוטות שעוזרות לשמור על בתים, רכב וחללים יומיומיים נקיים." },
+      ],
+    },
+    whyLabel: "למה לבחור ב-EB Chemical?",
+    designTitle: "מוצרים מעשיים שנועדו להחזיק מעמד",
+    designText:
+      "מוצרי הניקוי והטיפול שלנו מיועדים לשימוש יומיומי. הם מספקים תוצאות אמינות תוך הפחתת פסולת ושמירה על שגרות פשוטות.",
+    refillableTitle: "עיצוב בר-מילוי שמחזיק לכל החיים",
+    refillableText:
+      "מערכת המילוי שלנו בנויה להפחית פסולת תוך שמירה על ביצועים אמינים. כל בקבוק מיועד לשימוש חוזר, מה שמקל על שמירה על שגרה נקייה בבית וברכב.",
+    fullscreenTitle: "טיפול אמין לחללים יומיומיים",
+    fullscreenText:
+      "אנו מתמקדים בפתרונות מעשיים ששומרים על בתים, רכב וחללים יומיומיים רעננים, נקיים וקלים לתחזוקה.",
+    bCorpTitle: "מחויבים לאיכות וטיפול",
+    bCorpText:
+      "אנו לוקחים אחריות ברצינות. כל מוצר מנוסח בקפידה, תוך שימוש במרכיבים יעילים אך מודעים לחללים שבהם אתה חי ועובד.",
+    safeTitle: "פתרונות בטוחים לשימוש יומיומי",
+    safeText:
+      "אנו מתמקדים במוצרי ניקוי מעשיים שקל לשימוש ומתאימים לטיפול יומיומי.",
+    performanceTitle: "ביצועים שאתה יכול לסמוך עליהם",
+    performanceText:
+      "הנוסחאות שלנו מספקות תוצאות ניקוי אמינות לבתים, לרכב ולחללים יומיומיים. שגרות נשארות פשוטות ומעשיות.",
+    impactTitle: "ההשפעה",
+    impactText: "ניקוי טוב יותר צריך להיות מעשי, אמין וקל לתחזוקה. מספרים אלה משקפים את המחויבות שלנו לשיפור שגרות יומיומיות.",
+    impactMeta1: "הופכים שגרות יומיומיות למשמעותיות",
+    impactMeta2: "מאז שהתחלנו",
+    stat1Value: "243 אלף",
+    stat1Label: "שגרות ניקוי שנתמכו",
+    stat2Value: "123 ק\"ג",
+    stat2Label: "פסולת מוצרים שהופחתה",
+    stat3Value: "123 ק\"ג",
+    stat3Label: "טיפול יומיומי ששופר",
+    accordionTitle: "המוצרים שלנו",
+    accordionText:
+      "EB Chemical יוצרת מוצרי ניקוי מעשיים המספקים תוצאות אמינות לבתים, לרכב ולשגרות יומיומיות.",
+    accordion1Title: "מנוסח במטרה",
+    accordion1Text:
+      "הנוסחאות שלנו תומכות בניקוי יומיומי יעיל. פתרונות מעשיים שומרים על חללים רעננים, נקיים וקלים לתחזוקה.",
+    accordion2Title: "מעשי בעיצובו",
+    accordion2Text:
+      "המוצרים שלנו פשוטים לשימוש, קלים לאחסון ובנויים לניקוי וטיפול יומיומיים.",
+    accordion3Title: "בנוי לשימוש יומיומי",
+    accordion3Text:
+      "ממשטחי בית ועד טיפול ברכב, מוצרי EB Chemical פועלים באמינות בכל החללים היומיומיים.",
+    ctaTitle: "מוכן לעשות את המעבר?",
+    ctaText: "גלה מוצרים המיועדים לחיים מעשיים וברי קיימא.",
+    ctaButton: "גלה מוצרים",
+    goodbyeTitle: "ביי לפסולת. שלום למילוי.",
+    goodbyeText: "גלה מוצרים עם מטרה.",
+    joinTitle: "הצטרף אלינו בלהפוך את הניקוי לפשוט יותר",
+    joinText:
+      "גלה מוצרי EB Chemical מעשיים המיועדים להפוך את הניקוי היומיומי לקל, נקי ואמין יותר.",
+    joinButton: "גלה עוד",
+  },
 };
 
 function SustainabilityAccordion({ items }) {
@@ -206,12 +271,20 @@ function getLocalized(value, language) {
 }
 
 function ProductShowcaseSlider({ language, onViewProduct, products, title, variant = "primary" }) {
+  function localized(en, ar, he) {
+    if (language === "ar") return ar;
+    if (language === "he") return he;
+    return en;
+  }
+
   const trackRef = useRef(null);
   const isArabic = language === "ar";
   const [progress, setProgress] = React.useState(0);
-  const badgeLabels = isArabic
-    ? ["إصدار محدود", "عرض خاص", "الأكثر مبيعًا", "جديد"]
-    : ["Limited Edition", "Subscribe & Save 50%", "Best seller", "New arrival"];
+  const badgeLabels = localized(
+    ["Limited Edition", "Subscribe & Save 50%", "Best seller", "New arrival"],
+    ["إصدار محدود", "عرض خاص", "الأكثر مبيعًا", "جديد"],
+    ["מהדורה מוגבלת", "הירשם וחסוך 50%", "רב מכר", "חדש"],
+  );
 
   function updateProgress() {
     const track = trackRef.current;
@@ -240,16 +313,16 @@ function ProductShowcaseSlider({ language, onViewProduct, products, title, varia
     <section className={`home-product-showcase home-product-showcase-${variant} storefront-wide-section`}>
       <div className="home-product-showcase-head">
         <h2>{title}</h2>
-        <div className="home-product-slider-controls" aria-label={isArabic ? "التحكم بالمنتجات" : "Product slider controls"}>
+        <div className="home-product-slider-controls" aria-label={localized("Product slider controls", "التحكم بالمنتجات", "בקרות גלריית מוצרים")}>
           <button
-            aria-label={isArabic ? "السابق" : "Previous"}
+            aria-label={localized("Previous", "السابق", "הקודם")}
             onClick={() => scrollSlider(-1)}
             type="button"
           >
             <span aria-hidden="true">‹</span>
           </button>
           <button
-            aria-label={isArabic ? "التالي" : "Next"}
+            aria-label={localized("Next", "التالي", "הבא")}
             onClick={() => scrollSlider(1)}
             type="button"
           >
@@ -274,7 +347,7 @@ function ProductShowcaseSlider({ language, onViewProduct, products, title, varia
           const details =
             getLocalized(product.shortDescription, language) ||
             getLocalized(category?.name, language) ||
-            (isArabic ? "حل عملي للعناية اليومية." : "A practical daily-care solution.");
+            localized("A practical daily-care solution.", "حل عملي للعناية اليومية.", "פתרון מעשי לטיפול יומיומי.");
 
           return (
             <article
@@ -314,7 +387,7 @@ function ProductShowcaseSlider({ language, onViewProduct, products, title, varia
                 <strong>{getLocalized(product.name, language)}</strong>
                 <span>{details}</span>
                 <b>
-                  {isArabic ? "من" : "From"} {firstSize.price} {isArabic ? "شيكل" : "ILS"}
+                  {localized("From", "من", "מ")} {firstSize.price} {localized("ILS", "شيكل", "ש\"ח")}
                 </b>
               </button>
             </article>
@@ -330,8 +403,14 @@ function ProductShowcaseSlider({ language, onViewProduct, products, title, varia
 }
 
 function SustainabilityPage({ language = "en", onNavigate, onViewProduct, products = [], websiteMedia = [] }) {
+  function localized(en, ar, he) {
+    if (language === "ar") return ar;
+    if (language === "he") return he;
+    return en;
+  }
+
   const isArabic = language === "ar";
-  const t = copy[isArabic ? "ar" : "en"];
+  const t = copy[language] || copy.en;
 
   function getPromotedProducts(products) {
     const promoted = products.filter((product) => {
@@ -383,7 +462,7 @@ function SustainabilityPage({ language = "en", onNavigate, onViewProduct, produc
 
   return (
     <>
-      <main className="sustainability-page" dir={isArabic ? "rtl" : "ltr"}>
+      <main className="sustainability-page" dir={language === "ar" || language === "he" ? "rtl" : "ltr"}>
         <section className="sustainability-hero" data-header-theme="light">
           <picture>
             <img className="sustainability-media" src={image("hero")} alt="" aria-hidden="true" />
@@ -428,7 +507,7 @@ function SustainabilityPage({ language = "en", onNavigate, onViewProduct, produc
         </section>
       </main>
 
-      <section className="sustainability-fullscreen" dir={isArabic ? "rtl" : "ltr"}>
+      <section className="sustainability-fullscreen" dir={language === "ar" || language === "he" ? "rtl" : "ltr"}>
         <img className="sustainability-fullscreen-image" src={image("feature")} alt="" aria-hidden="true" />
         <div className="sustainability-fullscreen-content">
           <h2 className="sustainability-fullscreen-title">{t.fullscreenTitle}</h2>
@@ -436,7 +515,7 @@ function SustainabilityPage({ language = "en", onNavigate, onViewProduct, produc
         </div>
       </section>
 
-      <main className="sustainability-page" dir={isArabic ? "rtl" : "ltr"}>
+      <main className="sustainability-page" dir={language === "ar" || language === "he" ? "rtl" : "ltr"}>
         <div className="sustainability-connected-sections">
 
           <section className="sustainability-safe">
@@ -496,7 +575,7 @@ function SustainabilityPage({ language = "en", onNavigate, onViewProduct, produc
             language={language}
             onViewProduct={onViewProduct}
             products={starterProducts}
-            title={isArabic ? "مجموعات التنظيف الأساسية" : "Cleaning starter kits"}
+            title={localized("Cleaning starter kits", "مجموعات التنظيف الأساسية", "ערכות התחלה לניקוי")}
             variant="starter"
           />
 
@@ -525,7 +604,7 @@ function SustainabilityPage({ language = "en", onNavigate, onViewProduct, produc
                   type="button"
                   onClick={() => onNavigate("products")}
                 >
-                  {isArabic ? "اكتشف المنتجات" : "Discover products"}
+                  {localized("Discover products", "اكتشف المنتجات", "גלה מוצרים")}
                 </button>
               </div>
               <img
@@ -579,10 +658,10 @@ function SustainabilityPage({ language = "en", onNavigate, onViewProduct, produc
                     />
                     <div className="sustainability-split-product-cta-callout-info">
                       <span className="sustainability-split-product-cta-callout-name">
-                        {getLocalized(featuredProduct?.name, language) || (isArabic ? "منظف متعدد الأسطح" : "Multi Surface Cleaner")}
+                        {getLocalized(featuredProduct?.name, language) || localized("Multi Surface Cleaner", "منظف متعدد الأسطح", "חומר ניקוי רב משטחים")}
                       </span>
                       <span className="sustainability-split-product-cta-callout-price">
-                        {featuredProduct?.sizes?.[0]?.price ? `${featuredProduct.sizes[0].price} ${isArabic ? "شيكل" : "ILS"}` : ""}
+                        {featuredProduct?.sizes?.[0]?.price ? `${featuredProduct.sizes[0].price} ${localized("ILS", "شيكل", "ש\"ח")}` : ""}
                       </span>
                     </div>
                   </div>
@@ -592,17 +671,17 @@ function SustainabilityPage({ language = "en", onNavigate, onViewProduct, produc
               <div className="sustainability-split-product-cta-left">
                 <div className="sustainability-split-product-cta-left-content">
                   <h2 className="sustainability-split-product-cta-heading">
-                    {isArabic ? "وداعًا للهدر. أهلاً بمنتجات عناية مصممة بهدف." : "Goodbye, waste. Hello, care products made with purpose."}
+                    {localized("Goodbye, waste. Hello, care products made with purpose.", "وداعًا للهدر. أهلاً بمنتجات عناية مصممة بهدف.", "ביי לפסולת. שלום למוצרי טיפול מעוצבים במטרה.")}
                   </h2>
                   <p className="sustainability-split-product-cta-subtitle">
-                    {isArabic ? "اكتشف منتجات EB Chemical العملية للتنظيف والعناية اليومية." : "Explore practical EB Chemical products for everyday cleaning and care."}
+                    {localized("Explore practical EB Chemical products for everyday cleaning and care.", "اكتشف منتجات EB Chemical العملية للتنظيف والعناية اليومية.", "גלה מוצרי EB Chemical מעשיים לניקוי וטיפול יומיומיים.")}
                   </p>
                   <button
                     className="sustainability-split-product-cta-btn"
                     type="button"
                     onClick={() => onNavigate("products")}
                   >
-                    {isArabic ? "المنظفات" : "Cleaners"}
+                    {localized("Cleaners", "المنظفات", "חומרי ניקוי")}
                   </button>
                 </div>
               </div>

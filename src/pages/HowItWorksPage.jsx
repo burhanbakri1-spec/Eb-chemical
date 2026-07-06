@@ -164,9 +164,88 @@ const copy = {
     subscribeButton: "اشترك الآن",
     badges: ["عرض خاص", "الأكثر مبيعًا", "رائحة موسمية", "وفّر أكثر"],
   },
+  he: {
+    label: "איך זה עובד",
+    heroTitle: "איך זה עובד",
+    heroSubtitle: "בחר את המוצר המתאים, נקה בביטחון בכל יום.",
+    badge: "יותר מ-500 הזמנות מלקוחות מרוצים",
+    rating: "4.85",
+    intro: "ניקוי פשוט. בחר את המוצר המתאים, השתמש בו בביטחון, ושמור על הבית, הרכב והחללים היומיומיים שלך רעננים בפחות מאמץ.",
+    featureCards: {
+      heading: "ניקוי נעשה פשוט",
+      cards: [
+        { title: "בחר את המוצר המתאים", text: "בחר את חומר הניקוי התואם לחלל ולצורך הניקוי שלך." },
+        { title: "השתמש בביטחון", text: "עקוב אחר צעדים פשוטים והשתמש בכל מוצר עם פחות בלבול." },
+        { title: "שמור על חללים רעננים", text: "הפוך את הטיפול בבית, ברכב וביומיום לקל יותר בפחות מאמץ." },
+      ],
+    },
+    concentrateTitle: "בחר את המוצר המתאים",
+    refillTitle: "מלא מחדש והשתמש שוב",
+    ctaTitle: "ביי לעומס. שלום לניקוי קל יותר.",
+    ctaText: "גלה מוצרי EB Chemical מעשיים המיועדים לבתים, לרכב ולחללים יומיומיים.",
+    ctaButton: "קנה עכשיו",
+    scheduleTitle: "קבע את השגרה שלך",
+    scheduleButton: "גלה מוצרים",
+    scheduleLabels: ["בחר את המוצר שלך", "קבע את השגרה שלך", "תהנה מחללים נקיים יותר"],
+    scheduleTabs: [
+      {
+        label: "בחר את המוצרים שלך",
+        title: "בחר את המוצרים שלך",
+        text: "בחר את מוצרי EB Chemical המתאימים לצרכי הניקוי היומיומיים שלך.",
+        button: "גלה מוצרים",
+      },
+      {
+        label: "קבע את הלו\"ז שלך",
+        title: "קבע את הלו\"ז שלך",
+        text: "בנה שגרת ניקוי פשוטה לבית, לרכב ולחללים היומיומיים שלך.",
+        button: "התחל עכשיו",
+      },
+      {
+        label: "תהנה מחללים נקיים יותר",
+        title: "תהנה מחללים נקיים יותר",
+        text: "השתמש במוצרים שלך בביטחון ושמור על החללים שלך רעננים בפחות מאמץ.",
+        button: "קנה עכשיו",
+      },
+    ],
+    productsTitle: "מוצרים פופולריים",
+    previous: "הקודם",
+    next: "הבא",
+    currency: "ש\"ח",
+    steps: [
+      ["בחר", "בחר את המוצר המתאים לצורך הניקוי שלך."],
+      ["החל", "השתמש במוצר לפי המשטח או האזור."],
+      ["נקה", "נגב, שטוף או סיים את העבודה בשגרה פשוטה."],
+    ],
+    refillSteps: [
+      ["מלא", "הוסף את המוצר או המילוי לבקבוק."],
+      ["התחל", "השתמש בו שוב בכל פעם שאתה צריך ניקוי רענן."],
+    ],
+    tabs: [
+      {
+        title: "בחר את המוצרים שלך",
+        text: "בחר את המוצרים שאתה צריך, הוסף אותם לעגלה ובצע את ההזמנה בקלות.",
+      },
+      {
+        title: "קבע את הלו\"ז שלך",
+        text: "הגדר משלוחים אוטומטיים כדי שלעולם לא ייגמרו לך המוצרים האהובים.",
+      },
+      {
+        title: "תהנה מחיים נקיים יותר",
+        text: "הירגע ותהנה מבית נקי באופן עקבי עם פחות מאמץ ופחות פסולת.",
+      },
+    ],
+    subscribeButton: "הירשם עכשיו",
+    badges: ["מהדורה מוגבלת", "50% הנחה למנויים", "רב מכר", "מבצע"],
+  },
 };
 
 function HowProductCarousel({ language, onViewProduct, products, t }) {
+  function localized(en, ar, he) {
+    if (language === "ar") return ar;
+    if (language === "he") return he;
+    return en;
+  }
+
   const isArabic = language === "ar";
   const trackRef = React.useRef(null);
   const [progress, setProgress] = React.useState(0);
@@ -199,16 +278,16 @@ function HowProductCarousel({ language, onViewProduct, products, t }) {
     <section className="how-product-showcase">
       <div className="how-product-showcase-head">
         <h2>{t.productsTitle}</h2>
-        <div className="how-product-slider-controls" aria-label={isArabic ? "التحكم بالمنتجات" : "Product slider controls"}>
+        <div className="how-product-slider-controls" aria-label={localized("Product slider controls", "التحكم بالمنتجات", "בקרות גלריית מוצרים")}>
           <button
-            aria-label={isArabic ? "السابق" : "Previous"}
+            aria-label={localized("Previous", "السابق", "הקודם")}
             onClick={() => scrollSlider(-1)}
             type="button"
           >
             <span aria-hidden="true">‹</span>
           </button>
           <button
-            aria-label={isArabic ? "التالي" : "Next"}
+            aria-label={localized("Next", "التالي", "הבא")}
             onClick={() => scrollSlider(1)}
             type="button"
           >
@@ -231,7 +310,7 @@ function HowProductCarousel({ language, onViewProduct, products, t }) {
           const label = localize(product.badge, language) || t.badges[index % t.badges.length];
           const details =
             localize(product.shortDescription, language) ||
-            (isArabic ? "حل عملي للعناية اليومية." : "A practical daily-care solution.");
+            localized("A practical daily-care solution.", "حل عملي للعناية اليومية.", "פתרון מעשי לטיפול יומיומי.");
           const productName = localize(product.name, language);
 
           return (
@@ -272,7 +351,7 @@ function HowProductCarousel({ language, onViewProduct, products, t }) {
                 <strong>{productName}</strong>
                 <span>{details}</span>
                 <b>
-                  {isArabic ? "من" : "From"} {firstSize.price} {t.currency}
+                  {localized("From", "من", "מ")} {firstSize.price} {t.currency}
                 </b>
               </button>
             </article>
@@ -289,7 +368,7 @@ function HowProductCarousel({ language, onViewProduct, products, t }) {
 
 function HowItWorksPage({ language = "en", onNavigate, onViewProduct, products = [], websiteMedia = [] }) {
   const isArabic = language === "ar";
-  const t = copy[isArabic ? "ar" : "en"];
+  const t = copy[language] || copy.en;
   const scheduleTabs = t.scheduleTabs;
   const [activeScheduleTab, setActiveScheduleTab] = useState(0);
 
@@ -305,7 +384,7 @@ function HowItWorksPage({ language = "en", onNavigate, onViewProduct, products =
   );
 
   return (
-    <main className="how-page" dir={isArabic ? "rtl" : "ltr"}>
+    <main className="how-page" dir={language === "ar" || language === "he" ? "rtl" : "ltr"}>
       <section className="how-hero" data-header-theme="light">
         <img className="how-hero-bg" src={image("hero")} alt="" aria-hidden="true" />
         <div className="how-hero-content">

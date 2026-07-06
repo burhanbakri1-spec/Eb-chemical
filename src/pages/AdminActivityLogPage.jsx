@@ -29,6 +29,16 @@ function AdminActivityLogPage({
   onNavigate,
   onToggleDarkMode,
 }) {
+  function localized(en, ar, he) {
+    if (language === "ar") return ar;
+    if (language === "he") return he;
+    return en;
+  }
+  function loc(value) {
+    if (!value || typeof value === "string") return value || "";
+    return value[language] || value.ar || value.en || "";
+  }
+
   const [logs, setLogs] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
   const [message, setMessage] = React.useState(null);
@@ -82,7 +92,7 @@ function AdminActivityLogPage({
   const layoutProps = { activePage, currentUser, isDarkMode, language, onLanguageChange, onLogout, onNavigate, onToggleDarkMode };
 
   return (
-    <AdminLayout {...layoutProps} title="Activity Log" subtitle="Administrative activity history">
+    <AdminLayout {...layoutProps} title={loc({ en: "Activity Log", ar: "سجل النشاط", he: "יומן פעילות" })} subtitle={loc({ en: "Administrative activity history", ar: "سجل النشاط الإداري", he: "היסטוריית פעילות ניהולית" })}>
       <div className="admin-invoices-page">
         {message && (
           <div className={`message-panel ${message.type === "error" ? "error" : "success"}`}>
@@ -93,8 +103,8 @@ function AdminActivityLogPage({
 
         <div className="admin-section-head" style={{ flexWrap: "wrap", gap: "8px" }}>
           <div>
-            <h2>Activity Logs</h2>
-            <span style={{ fontSize: "13px", color: "#888" }}>{total} entries</span>
+            <h2>{localized("Activity Logs", "سجلات النشاط", "יומני פעילות")}</h2>
+            <span style={{ fontSize: "13px", color: "#888" }}>{total} {localized("entries", "إدخال", "רשומות")}</span>
           </div>
           <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", alignItems: "center" }}>
             <select
@@ -102,7 +112,7 @@ function AdminActivityLogPage({
               onChange={(e) => handleFilterChange("action", e.target.value)}
               style={{ minHeight: "32px", fontSize: "13px" }}
             >
-              <option value="">All actions</option>
+              <option value="">{localized("All actions", "جميع الإجراءات", "כל הפעולות")}</option>
               <option value="invoice.created">invoice.created</option>
               <option value="invoice.updated">invoice.updated</option>
               <option value="invoice.voided">invoice.voided</option>
@@ -128,7 +138,7 @@ function AdminActivityLogPage({
               onChange={(e) => handleFilterChange("entity_type", e.target.value)}
               style={{ minHeight: "32px", fontSize: "13px" }}
             >
-              <option value="">All entity types</option>
+              <option value="">{localized("All entity types", "جميع أنواع الكيانات", "כל סוגי הישויות")}</option>
               <option value="invoice">invoice</option>
               <option value="delivery_zone">delivery_zone</option>
               <option value="custom_module">custom_module</option>
@@ -140,31 +150,31 @@ function AdminActivityLogPage({
               type="text"
               value={filters.actor_email}
               onChange={(e) => handleFilterChange("actor_email", e.target.value)}
-              placeholder="Filter by email"
+              placeholder={localized("Filter by email", "تصفية حسب البريد الإلكتروني", "סנן לפי אימייל")}
               style={{ minHeight: "32px", fontSize: "13px", width: "160px" }}
             />
-            <button className="admin-primary-button" onClick={applyFilters} type="button">Filter</button>
+            <button className="admin-primary-button" onClick={applyFilters} type="button">{localized("Filter", "تصفية", "סנן")}</button>
           </div>
         </div>
 
         {loading ? (
-          <div className="admin-empty-state">Loading activity logs...</div>
+          <div className="admin-empty-state">{localized("Loading activity logs...", "جار تحميل سجلات النشاط...", "טוען יומני פעילות...")}</div>
         ) : logs.length === 0 ? (
           <div className="admin-empty-state">
-            <strong>No activity logs found</strong>
-            <p>Activity will appear here as admin actions are performed.</p>
+            <strong>{localized("No activity logs found", "لم يتم العثور على سجلات نشاط", "לא נמצאו יומני פעילות")}</strong>
+            <p>{localized("Activity will appear here as admin actions are performed.", "سيظهر النشاط هنا عند تنفيذ الإجراءات الإدارية.", "פעילות תופיע כאן כאשר מבוצעות פעולות ניהול.")}</p>
           </div>
         ) : (
           <div className="admin-table-wrap">
             <table className="admin-table">
               <thead>
                 <tr>
-                  <th>Date/Time</th>
-                  <th>Actor</th>
-                  <th>Action</th>
-                  <th>Entity Type</th>
-                  <th>Entity Label</th>
-                  <th>Summary</th>
+                  <th>{localized("Date/Time", "التاريخ/الوقت", "תאריך/שעה")}</th>
+                  <th>{localized("Actor", "الفاعل", "מבצע")}</th>
+                  <th>{localized("Action", "الإجراء", "פעולה")}</th>
+                  <th>{localized("Entity Type", "نوع الكيان", "סוג ישות")}</th>
+                  <th>{localized("Entity Label", "تسمية الكيان", "תווית ישות")}</th>
+                  <th>{localized("Summary", "الملخص", "סיכום")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -195,10 +205,10 @@ function AdminActivityLogPage({
               onClick={() => load(page - 1)}
               type="button"
             >
-              Previous
+              {localized("Previous", "السابق", "הקודם")}
             </button>
             <span style={{ padding: "4px 8px", fontSize: "13px" }}>
-              Page {page} of {totalPages}
+              {localized("Page", "صفحة", "עמוד")} {page} {localized("of", "من", "מתוך")} {totalPages}
             </span>
             <button
               className="secondary-action"
@@ -206,7 +216,7 @@ function AdminActivityLogPage({
               onClick={() => load(page + 1)}
               type="button"
             >
-              Next
+              {localized("Next", "التالي", "הבא")}
             </button>
           </div>
         )}
@@ -215,22 +225,22 @@ function AdminActivityLogPage({
           <div className="admin-modal-backdrop" onClick={closeDetails}>
             <div className="admin-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: "700px" }}>
               <div className="admin-modal-header">
-                <h3>Activity Log Detail</h3>
+                <h3>{localized("Activity Log Detail", "تفاصيل سجل النشاط", "פרטי יומן פעילות")}</h3>
                 <button className="admin-modal-close" onClick={closeDetails} type="button">&times;</button>
               </div>
               <div className="admin-modal-body" style={{ fontSize: "14px", lineHeight: "1.6" }}>
-                <div><strong>Date/Time:</strong> {formatTime(selectedLog.created_at)}</div>
-                <div><strong>Actor:</strong> {selectedLog.actor_name} ({selectedLog.actor_email}) [{selectedLog.actor_role}]</div>
-                <div><strong>Action:</strong> <code>{selectedLog.action}</code></div>
-                <div><strong>Entity Type:</strong> {selectedLog.entity_type}</div>
-                <div><strong>Entity ID:</strong> {selectedLog.entity_id}</div>
-                <div><strong>Entity Label:</strong> {selectedLog.entity_label}</div>
-                <div><strong>Summary:</strong> {selectedLog.summary}</div>
-                {selectedLog.ip_address && <div><strong>IP:</strong> {selectedLog.ip_address}</div>}
+                <div><strong>{localized("Date/Time:", "التاريخ/الوقت:", "תאריך/שעה:")}</strong> {formatTime(selectedLog.created_at)}</div>
+                <div><strong>{localized("Actor:", "الفاعل:", "מבצע:")}</strong> {selectedLog.actor_name} ({selectedLog.actor_email}) [{selectedLog.actor_role}]</div>
+                <div><strong>{localized("Action:", "الإجراء:", "פעולה:")}</strong> <code>{selectedLog.action}</code></div>
+                <div><strong>{localized("Entity Type:", "نوع الكيان:", "סוג ישות:")}</strong> {selectedLog.entity_type}</div>
+                <div><strong>{localized("Entity ID:", "معرف الكيان:", "מזהה ישות:")}</strong> {selectedLog.entity_id}</div>
+                <div><strong>{localized("Entity Label:", "تسمية الكيان:", "תווית ישות:")}</strong> {selectedLog.entity_label}</div>
+                <div><strong>{localized("Summary:", "الملخص:", "סיכום:")}</strong> {selectedLog.summary}</div>
+                {selectedLog.ip_address && <div><strong>{localized("IP:", "IP:", "IP:")}</strong> {selectedLog.ip_address}</div>}
 
                 {selectedLog.before_data && (
                   <div style={{ marginTop: "12px" }}>
-                    <strong>Before Data:</strong>
+                    <strong>{localized("Before Data:", "البيانات السابقة:", "נתונים לפני:")}</strong>
                     <pre style={{ background: "#f4f4f4", padding: "8px", borderRadius: "4px", fontSize: "12px", maxHeight: "200px", overflow: "auto", whiteSpace: "pre-wrap" }}>
                       {JSON.stringify(selectedLog.before_data, null, 2)}
                     </pre>
@@ -239,7 +249,7 @@ function AdminActivityLogPage({
 
                 {selectedLog.after_data && (
                   <div style={{ marginTop: "12px" }}>
-                    <strong>After Data:</strong>
+                    <strong>{localized("After Data:", "البيانات اللاحقة:", "נתונים אחרי:")}</strong>
                     <pre style={{ background: "#f4f4f4", padding: "8px", borderRadius: "4px", fontSize: "12px", maxHeight: "200px", overflow: "auto", whiteSpace: "pre-wrap" }}>
                       {JSON.stringify(selectedLog.after_data, null, 2)}
                     </pre>
@@ -248,7 +258,7 @@ function AdminActivityLogPage({
 
                 {selectedLog.metadata && (
                   <div style={{ marginTop: "12px" }}>
-                    <strong>Metadata:</strong>
+                    <strong>{localized("Metadata:", "البيانات الوصفية:", "מטא-דאטה:")}</strong>
                     <pre style={{ background: "#f4f4f4", padding: "8px", borderRadius: "4px", fontSize: "12px", maxHeight: "200px", overflow: "auto", whiteSpace: "pre-wrap" }}>
                       {JSON.stringify(selectedLog.metadata, null, 2)}
                     </pre>

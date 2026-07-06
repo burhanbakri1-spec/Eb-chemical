@@ -28,7 +28,7 @@ function summaryCard(label, value, accent) {
   );
 }
 
-function statusBadge(status) {
+function statusBadge(status, language) {
   const colors = {
     draft: { bg: "#eef1f4", text: "#5f6b77" },
     issued: { bg: "#e8f7fb", text: "#0b2e4e" },
@@ -41,7 +41,20 @@ function statusBadge(status) {
     shipped: { bg: "#cce5ff", text: "#004085" },
   };
   const c = colors[status?.toLowerCase()] || { bg: "#f0f0f0", text: "#333" };
-  return <span style={{ background: c.bg, color: c.text, padding: "2px 8px", borderRadius: "4px", fontSize: "12px", fontWeight: 600 }}>{status}</span>;
+  const labels = {
+    draft: { en: "Draft", ar: "مسودة", he: "טיוטה" },
+    issued: { en: "Issued", ar: "صادر", he: "הונפק" },
+    paid: { en: "Paid", ar: "مدفوع", he: "שולם" },
+    cancelled: { en: "Cancelled", ar: "ملغي", he: "בוטל" },
+    void: { en: "Void", ar: "ملغى", he: "מבוטל" },
+    pending: { en: "Pending", ar: "معلق", he: "ממתין" },
+    completed: { en: "Completed", ar: "مكتمل", he: "הושלם" },
+    delivered: { en: "Delivered", ar: "تم التوصيل", he: "נמסר" },
+    shipped: { en: "Shipped", ar: "تم الشحن", he: "נשלח" },
+  };
+  const label = labels[status?.toLowerCase()];
+  const display = label ? (label[language] || label.en) : status;
+  return <span style={{ background: c.bg, color: c.text, padding: "2px 8px", borderRadius: "4px", fontSize: "12px", fontWeight: 600 }}>{display}</span>;
 }
 
 function AdminReportsPage({
@@ -54,6 +67,12 @@ function AdminReportsPage({
   onNavigate,
   onToggleDarkMode,
 }) {
+  function localized(en, ar, he) {
+    if (language === "ar") return ar;
+    if (language === "he") return he;
+    return en;
+  }
+
   const [data, setData] = React.useState(null);
   const [loading, setLoading] = React.useState(true);
   const [message, setMessage] = React.useState(null);
@@ -120,7 +139,7 @@ function AdminReportsPage({
   const layoutProps = { activePage, currentUser, isDarkMode, language, onLanguageChange, onLogout, onNavigate, onToggleDarkMode };
 
   return (
-    <AdminLayout {...layoutProps} title="Reports" subtitle="Company performance and activity summary">
+    <AdminLayout {...layoutProps} title={localized("Reports", "التقارير", "דוחות")} subtitle={localized("Company performance and activity summary", "ملخص أداء الشركة ونشاطها", "סיכום ביצועי חברה ופעילות")}>
       <div className="admin-invoices-page">
         {message && (
           <div className={`message-panel ${message.type === "error" ? "error" : "success"}`}>
@@ -130,53 +149,53 @@ function AdminReportsPage({
         )}
 
         <div className="admin-section-head" style={{ flexWrap: "wrap", gap: "8px" }}>
-          <div><h2>Dashboard Reports</h2></div>
+          <div><h2>{localized("Dashboard Reports", "تقارير لوحة التحكم", "דוחות לוח בקרה")}</h2></div>
           <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", alignItems: "center" }}>
             <select value={preset} onChange={(e) => handlePresetChange(e.target.value)} style={{ minHeight: "32px", fontSize: "13px" }}>
-              <option value="today">Today</option>
-              <option value="last7">Last 7 days</option>
-              <option value="last30">Last 30 days</option>
-              <option value="custom">Custom</option>
+              <option value="today">{localized("Today", "اليوم", "היום")}</option>
+              <option value="last7">{localized("Last 7 days", "آخر 7 أيام", "7 הימים האחרונים")}</option>
+              <option value="last30">{localized("Last 30 days", "آخر 30 يومًا", "30 הימים האחרונים")}</option>
+              <option value="custom">{localized("Custom", "مخصص", "מותאם אישית")}</option>
             </select>
             {preset === "custom" && (
               <>
                 <input type="date" value={dateRange.date_from ? dateRange.date_from.slice(0, 10) : ""} onChange={(e) => setDateRange((prev) => ({ ...prev, date_from: new Date(e.target.value).toISOString() }))} style={{ minHeight: "32px", fontSize: "13px" }} />
                 <input type="date" value={dateRange.date_to ? dateRange.date_to.slice(0, 10) : ""} onChange={(e) => setDateRange((prev) => ({ ...prev, date_to: new Date(e.target.value).toISOString() }))} style={{ minHeight: "32px", fontSize: "13px" }} />
-                <button className="admin-primary-button" onClick={handleCustomDate} type="button">Apply</button>
+                <button className="admin-primary-button" onClick={handleCustomDate} type="button">{localized("Apply", "تطبيق", "החל")}</button>
               </>
             )}
           </div>
         </div>
 
         {loading ? (
-          <div className="admin-empty-state">Loading reports...</div>
+          <div className="admin-empty-state">{localized("Loading reports...", "جار تحميل التقارير...", "טוען דוחות...")}</div>
         ) : !data ? (
-          <div className="admin-empty-state"><strong>No data available</strong></div>
+          <div className="admin-empty-state"><strong>{localized("No data available", "لا توجد بيانات متاحة", "אין נתונים זמינים")}</strong></div>
         ) : (
           <>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", marginBottom: "24px" }}>
-              {summaryCard("Total Orders", data.summary.orders_count)}
-              {summaryCard("Revenue", `${data.summary.revenue_total.toFixed(2)} \u20AA`, "#16a34a")}
-              {summaryCard("Pending", data.summary.pending_orders, "#856404")}
-              {summaryCard("Completed", data.summary.completed_orders, "#155724")}
-              {summaryCard("Invoices", data.summary.invoices_count)}
-              {summaryCard("Paid", data.summary.paid_invoices, "#21633b")}
-              {summaryCard("Void", data.summary.void_invoices, "#a52222")}
-              {summaryCard("Products", data.summary.products_count)}
-              {summaryCard("Customers", data.summary.customers_count)}
-              {summaryCard("Cities", data.summary.delivery_zones_count)}
+              {summaryCard(localized("Total Orders", "إجمالي الطلبات", "סה\"כ הזמנות"), data.summary.orders_count)}
+              {summaryCard(localized("Revenue", "الإيرادات", "הכנסות"), `${data.summary.revenue_total.toFixed(2)} \u20AA`, "#16a34a")}
+              {summaryCard(localized("Pending", "معلق", "ממתין"), data.summary.pending_orders, "#856404")}
+              {summaryCard(localized("Completed", "مكتمل", "הושלם"), data.summary.completed_orders, "#155724")}
+              {summaryCard(localized("Invoices", "الفواتير", "חשבוניות"), data.summary.invoices_count)}
+              {summaryCard(localized("Paid", "مدفوع", "שולם"), data.summary.paid_invoices, "#21633b")}
+              {summaryCard(localized("Void", "ملغى", "מבוטל"), data.summary.void_invoices, "#a52222")}
+              {summaryCard(localized("Products", "المنتجات", "מוצרים"), data.summary.products_count)}
+              {summaryCard(localized("Customers", "العملاء", "לקוחות"), data.summary.customers_count)}
+              {summaryCard(localized("Cities", "المدن", "ערים"), data.summary.delivery_zones_count)}
             </div>
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginBottom: "24px" }}>
               <div className="admin-panel-card">
-                <h3 style={{ margin: "0 0 12px", fontSize: "16px" }}>Orders by Status</h3>
-                {data.orders.by_status.length === 0 ? <p style={{ color: "#888", fontSize: "13px" }}>No orders in this period.</p> : (
+                <h3 style={{ margin: "0 0 12px", fontSize: "16px" }}>{localized("Orders by Status", "الطلبات حسب الحالة", "הזמנות לפי סטטוס")}</h3>
+                {data.orders.by_status.length === 0 ? <p style={{ color: "#888", fontSize: "13px" }}>{localized("No orders in this period.", "لا توجد طلبات في هذه الفترة.", "אין הזמנות בתקופה זו.")}</p> : (
                   <div className="admin-table-wrap">
                     <table className="admin-table">
-                      <thead><tr><th>Status</th><th>Count</th></tr></thead>
+                      <thead><tr><th>{localized("Status", "الحالة", "סטטוס")}</th><th>{localized("Count", "العدد", "כמות")}</th></tr></thead>
                       <tbody>
                         {data.orders.by_status.map((s) => (
-                          <tr key={s.status}><td>{statusBadge(s.status)}</td><td style={{ fontWeight: 600 }}>{s.count}</td></tr>
+                          <tr key={s.status}><td>{statusBadge(s.status, language)}</td><td style={{ fontWeight: 600 }}>{s.count}</td></tr>
                         ))}
                       </tbody>
                     </table>
@@ -185,14 +204,14 @@ function AdminReportsPage({
               </div>
 
               <div className="admin-panel-card">
-                <h3 style={{ margin: "0 0 12px", fontSize: "16px" }}>Invoices by Status</h3>
-                {data.invoices.by_status.length === 0 ? <p style={{ color: "#888", fontSize: "13px" }}>No invoices in this period.</p> : (
+                <h3 style={{ margin: "0 0 12px", fontSize: "16px" }}>{localized("Invoices by Status", "الفواتير حسب الحالة", "חשבוניות לפי סטטוס")}</h3>
+                {data.invoices.by_status.length === 0 ? <p style={{ color: "#888", fontSize: "13px" }}>{localized("No invoices in this period.", "لا توجد فواتير في هذه الفترة.", "אין חשבוניות בתקופה זו.")}</p> : (
                   <div className="admin-table-wrap">
                     <table className="admin-table">
-                      <thead><tr><th>Status</th><th>Count</th></tr></thead>
+                      <thead><tr><th>{localized("Status", "الحالة", "סטטוס")}</th><th>{localized("Count", "العدد", "כמות")}</th></tr></thead>
                       <tbody>
                         {data.invoices.by_status.map((s) => (
-                          <tr key={s.status}><td>{statusBadge(s.status)}</td><td style={{ fontWeight: 600 }}>{s.count}</td></tr>
+                          <tr key={s.status}><td>{statusBadge(s.status, language)}</td><td style={{ fontWeight: 600 }}>{s.count}</td></tr>
                         ))}
                       </tbody>
                     </table>
@@ -201,67 +220,67 @@ function AdminReportsPage({
               </div>
             </div>
 
-            <div className="admin-section-head"><h2>Latest Orders</h2></div>
+            <div className="admin-section-head"><h2>{localized("Latest Orders", "أحدث الطلبات", "ההזמנות האחרונות")}</h2></div>
             {data.orders.latest.length === 0 ? (
-              <div className="admin-empty-state">No orders in this period.</div>
+              <div className="admin-empty-state">{localized("No orders in this period.", "لا توجد طلبات في هذه الفترة.", "אין הזמנות בתקופה זו.")}</div>
             ) : (
               <div className="admin-table-wrap" style={{ marginBottom: "24px" }}>
                 <table className="admin-table">
-                  <thead><tr><th>Order</th><th>Customer</th><th>Total</th><th>Status</th><th>Date</th></tr></thead>
+                  <thead><tr><th>{localized("Order", "الطلب", "הזמנה")}</th><th>{localized("Customer", "العميل", "לקוח")}</th><th>{localized("Total", "الإجمالي", "סה\"כ")}</th><th>{localized("Status", "الحالة", "סטטוס")}</th><th>{localized("Date", "التاريخ", "תאריך")}</th></tr></thead>
                   <tbody>
                     {data.orders.latest.map((o) => (
-                      <tr key={o.id}><td style={{ fontSize: "13px" }}>{o.id}</td><td>{o.customer_name}</td><td>{o.total.toFixed(2)} &#x20AA;</td><td>{statusBadge(o.status)}</td><td style={{ fontSize: "13px", whiteSpace: "nowrap" }}>{formatTime(o.created_at)}</td></tr>
+                      <tr key={o.id}><td style={{ fontSize: "13px" }}>{o.id}</td><td>{o.customer_name}</td><td>{o.total.toFixed(2)} &#x20AA;</td><td>{statusBadge(o.status, language)}</td><td style={{ fontSize: "13px", whiteSpace: "nowrap" }}>{formatTime(o.created_at)}</td></tr>
                     ))}
                   </tbody>
                 </table>
               </div>
             )}
 
-            <div className="admin-section-head"><h2>Latest Invoices</h2></div>
+            <div className="admin-section-head"><h2>{localized("Latest Invoices", "أحدث الفواتير", "החשבוניות האחרונות")}</h2></div>
             {data.invoices.latest.length === 0 ? (
-              <div className="admin-empty-state">No invoices in this period.</div>
+              <div className="admin-empty-state">{localized("No invoices in this period.", "لا توجد فواتير في هذه الفترة.", "אין חשבוניות בתקופה זו.")}</div>
             ) : (
               <div className="admin-table-wrap" style={{ marginBottom: "24px" }}>
                 <table className="admin-table">
-                  <thead><tr><th>Invoice</th><th>Customer</th><th>Total</th><th>Status</th><th>Date</th></tr></thead>
+                  <thead><tr><th>{localized("Invoice", "الفاتورة", "חשבונית")}</th><th>{localized("Customer", "العميل", "לקוח")}</th><th>{localized("Total", "الإجمالי", "סה\"כ")}</th><th>{localized("Status", "الحالة", "סטטוס")}</th><th>{localized("Date", "التاريخ", "תאריך")}</th></tr></thead>
                   <tbody>
                     {data.invoices.latest.map((inv) => (
-                      <tr key={inv.id}><td>{inv.invoice_number || inv.id}</td><td>{inv.customer_name}</td><td>{inv.total.toFixed(2)} &#x20AA;</td><td>{statusBadge(inv.status)}</td><td style={{ fontSize: "13px", whiteSpace: "nowrap" }}>{formatTime(inv.created_at)}</td></tr>
+                      <tr key={inv.id}><td>{inv.invoice_number || inv.id}</td><td>{inv.customer_name}</td><td>{inv.total.toFixed(2)} &#x20AA;</td><td>{statusBadge(inv.status, language)}</td><td style={{ fontSize: "13px", whiteSpace: "nowrap" }}>{formatTime(inv.created_at)}</td></tr>
                     ))}
                   </tbody>
                 </table>
               </div>
             )}
 
-            <div className="admin-section-head"><h2>Products</h2></div>
+            <div className="admin-section-head"><h2>{localized("Products", "المنتجات", "מוצרים")}</h2></div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", marginBottom: "16px" }}>
-              {summaryCard("Total Products", data.summary.products_count)}
-              {summaryCard("Visible", data.products.visible, "#16a34a")}
-              {summaryCard("Hidden", data.products.hidden, "#a52222")}
+              {summaryCard(localized("Total Products", "إجمالي المنتجات", "סה\"כ מוצרים"), data.summary.products_count)}
+              {summaryCard(localized("Visible", "مرئي", "גלוי"), data.products.visible, "#16a34a")}
+              {summaryCard(localized("Hidden", "مخفي", "מוסתר"), data.products.hidden, "#a52222")}
             </div>
             {data.products.latest.length > 0 && (
               <div className="admin-table-wrap" style={{ marginBottom: "24px" }}>
                 <table className="admin-table">
-                  <thead><tr><th>Product</th><th>Status</th></tr></thead>
+                  <thead><tr><th>{localized("Product", "المنتج", "מוצר")}</th><th>{localized("Status", "الحالة", "סטטוס")}</th></tr></thead>
                   <tbody>
                     {data.products.latest.map((p) => (
-                      <tr key={p.id}><td>{p.name || p.slug}</td><td>{p.visible ? <span style={{ color: "#16a34a", fontWeight: 600 }}>Visible</span> : <span style={{ color: "#a52222", fontWeight: 600 }}>Hidden</span>}</td></tr>
+                      <tr key={p.id}><td>{p.name || p.slug}</td><td>{p.visible ? <span style={{ color: "#16a34a", fontWeight: 600 }}>{localized("Visible", "مرئي", "גלוי")}</span> : <span style={{ color: "#a52222", fontWeight: 600 }}>{localized("Hidden", "مخفي", "מוסתר")}</span>}</td></tr>
                     ))}
                   </tbody>
                 </table>
               </div>
             )}
 
-            <div className="admin-section-head"><h2>Delivery</h2></div>
+            <div className="admin-section-head"><h2>{localized("Delivery", "التوصيل", "משלוח")}</h2></div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", marginBottom: "16px" }}>
-              {summaryCard("Total Cities", data.summary.delivery_zones_count)}
-              {summaryCard("Enabled", data.delivery.enabled, "#16a34a")}
-              {summaryCard("Disabled", data.delivery.disabled, "#a52222")}
+              {summaryCard(localized("Total Cities", "إجمالي المدن", "סה\"כ ערים"), data.summary.delivery_zones_count)}
+              {summaryCard(localized("Enabled", "مفعل", "מופעל"), data.delivery.enabled, "#16a34a")}
+              {summaryCard(localized("Disabled", "معطل", "מושבת"), data.delivery.disabled, "#a52222")}
             </div>
             {data.delivery.top_cities.length > 0 && (
               <div className="admin-table-wrap" style={{ marginBottom: "24px" }}>
                 <table className="admin-table">
-                  <thead><tr><th>City</th><th>Orders</th></tr></thead>
+                  <thead><tr><th>{localized("City", "المدينة", "עיר")}</th><th>{localized("Orders", "الطلبات", "הזמנות")}</th></tr></thead>
                   <tbody>
                     {data.delivery.top_cities.map((c) => (
                       <tr key={c.city}><td>{c.city}</td><td style={{ fontWeight: 600 }}>{c.count}</td></tr>
@@ -273,14 +292,14 @@ function AdminReportsPage({
 
             {data.activity.latest.length > 0 && (
               <>
-                <div className="admin-section-head"><h2>Activity Summary</h2></div>
+                <div className="admin-section-head"><h2>{localized("Activity Summary", "ملخص النشاط", "סיכום פעילות")}</h2></div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginBottom: "16px" }}>
                   <div className="admin-panel-card">
-                    <h3 style={{ margin: "0 0 12px", fontSize: "16px" }}>Actions by Type</h3>
-                    {data.activity.by_action.length === 0 ? <p style={{ color: "#888", fontSize: "13px" }}>No activity.</p> : (
+                    <h3 style={{ margin: "0 0 12px", fontSize: "16px" }}>{localized("Actions by Type", "الإجراءات حسب النوع", "פעולות לפי סוג")}</h3>
+                    {data.activity.by_action.length === 0 ? <p style={{ color: "#888", fontSize: "13px" }}>{localized("No activity.", "لا يوجد نشاط.", "אין פעילות.")}</p> : (
                       <div className="admin-table-wrap">
                         <table className="admin-table">
-                          <thead><tr><th>Action</th><th>Count</th></tr></thead>
+                          <thead><tr><th>{localized("Action", "الإجراء", "פעולה")}</th><th>{localized("Count", "العدد", "כמות")}</th></tr></thead>
                           <tbody>
                             {data.activity.by_action.map((a) => (
                               <tr key={a.action}><td><code style={{ fontSize: "12px" }}>{a.action}</code></td><td style={{ fontWeight: 600 }}>{a.count}</td></tr>
@@ -291,11 +310,11 @@ function AdminReportsPage({
                     )}
                   </div>
                   <div className="admin-panel-card">
-                    <h3 style={{ margin: "0 0 12px", fontSize: "16px" }}>Most Active Admins</h3>
-                    {data.activity.by_actor.length === 0 ? <p style={{ color: "#888", fontSize: "13px" }}>No activity.</p> : (
+                    <h3 style={{ margin: "0 0 12px", fontSize: "16px" }}>{localized("Most Active Admins", "المشرفون الأكثر نشاطًا", "המנהלים הפעילים ביותר")}</h3>
+                    {data.activity.by_actor.length === 0 ? <p style={{ color: "#888", fontSize: "13px" }}>{localized("No activity.", "لا يوجد نشاط.", "אין פעילות.")}</p> : (
                       <div className="admin-table-wrap">
                         <table className="admin-table">
-                          <thead><tr><th>Actor</th><th>Actions</th></tr></thead>
+                          <thead><tr><th>{localized("Actor", "الفاعل", "מבצע")}</th><th>{localized("Actions", "الإجراءات", "פעולות")}</th></tr></thead>
                           <tbody>
                             {data.activity.by_actor.map((a) => (
                               <tr key={a.actor}><td>{a.actor}</td><td style={{ fontWeight: 600 }}>{a.count}</td></tr>
@@ -307,10 +326,10 @@ function AdminReportsPage({
                   </div>
                 </div>
 
-                <div className="admin-section-head"><h2>Latest Activity</h2></div>
+                <div className="admin-section-head"><h2>{localized("Latest Activity", "آخر النشاطات", "הפעילות האחרונה")}</h2></div>
                 <div className="admin-table-wrap" style={{ marginBottom: "24px" }}>
                   <table className="admin-table">
-                    <thead><tr><th>Date</th><th>Actor</th><th>Action</th><th>Summary</th></tr></thead>
+                    <thead><tr><th>{localized("Date", "التاريخ", "תאריך")}</th><th>{localized("Actor", "الفاعل", "מבצע")}</th><th>{localized("Action", "الإجراء", "פעולה")}</th><th>{localized("Summary", "الملخص", "סיכום")}</th></tr></thead>
                     <tbody>
                       {data.activity.latest.map((log) => (
                         <tr key={log.id}>

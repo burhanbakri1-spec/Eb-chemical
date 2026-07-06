@@ -23,13 +23,18 @@ function formatDate(value) {
   return Number.isNaN(date.getTime()) ? "-" : date.toLocaleString();
 }
 
-function AccessDenied() {
+function AccessDenied({ language = "en" }) {
+  function localized(en, ar, he) {
+    if (language === "ar") return ar;
+    if (language === "he") return he;
+    return en;
+  }
   return (
     <section className="admin-panel-card company-access-denied" role="alert">
       <ShieldAlert size={28} />
       <div>
-        <h2>Access denied</h2>
-        <p>Only an explicitly provisioned iGroup Super Admin can manage platform users.</p>
+        <h2>{localized("Access denied", "الوصول مرفوض", "גישה נדחתה")}</h2>
+        <p>{localized("Only an explicitly provisioned iGroup Super Admin can manage platform users.", "فقط مسؤول iGroup المخول يمكنه إدارة مستخدمي المنصة.", "רק מנהל על של iGroup שהוקצה במפורש יכול לנהל משתמשי פלטפורמה.")}</p>
       </div>
     </section>
   );
@@ -54,6 +59,16 @@ function AdminPlatformUsersPage({
   onNavigate,
   onToggleDarkMode,
 }) {
+  function localized(en, ar, he) {
+    if (language === "ar") return ar;
+    if (language === "he") return he;
+    return en;
+  }
+  function loc(value) {
+    if (!value || typeof value === "string") return value || "";
+    return value[language] || value.ar || value.en || "";
+  }
+
   const [users, setUsers] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(currentUser?.role === "super_admin");
   const [savingId, setSavingId] = React.useState("");
@@ -80,7 +95,7 @@ function AdminPlatformUsersPage({
         if (!active) return;
         if (requestError.status === 401) void onLogout();
         else if (requestError.status === 403) setAccessDenied(true);
-        else setError(requestError.message || "Unable to load platform users.");
+        else setError(requestError.message || localized("Unable to load platform users.", "غير قادر على تحميل مستخدمي المنصة.", "לא ניתן לטעון משתמשי פלטפורמה."));
       } finally {
         if (active) setIsLoading(false);
       }
@@ -128,8 +143,8 @@ function AdminPlatformUsersPage({
   async function handleSave() {
     setError("");
     setSuccess("");
-    if (!form.name.trim()) { setError("Name is required."); return; }
-    if (!form.email.trim()) { setError("Email is required."); return; }
+    if (!form.name.trim()) { setError(localized("Name is required.", "الاسم مطلوب.", "שם נדרש.")); return; }
+    if (!form.email.trim()) { setError(localized("Email is required.", "البريد الإلكتروني مطلوب.", "אימייל נדרש.")); return; }
 
     setSavingId(editingUser?.id || "_new");
 
@@ -142,10 +157,10 @@ function AdminPlatformUsersPage({
         if (form.phone !== (editingUser.phone || "")) changes.phone = form.phone.trim();
         if (form.department !== (editingUser.department || "")) changes.department = form.department.trim();
         if (form.isActive !== (editingUser.isActive !== false)) changes.isActive = form.isActive;
-        if (!Object.keys(changes).length) { setError("No changes to save."); setSavingId(""); return; }
+        if (!Object.keys(changes).length) { setError(localized("No changes to save.", "لا توجد تغييرات للحفظ.", "אין שינויים לשמירה.")); setSavingId(""); return; }
         const saved = await updatePlatformUser(editingUser.id, changes);
         setUsers((current) => current.map((u) => (u.id === saved.id ? saved : u)));
-        setSuccess(`${saved.email} updated.`);
+        setSuccess(localized(`${saved.email} updated.`, `${saved.email} تم التحديث.`, `${saved.email} עודכן.`));
         resetForm();
       } else {
         const saved = await createPlatformUser({
@@ -158,13 +173,13 @@ function AdminPlatformUsersPage({
           isActive: form.isActive,
         });
         setUsers((current) => [saved, ...current]);
-        setSuccess(`${saved.email} created.`);
+        setSuccess(localized(`${saved.email} created.`, `${saved.email} تم الإنشاء.`, `${saved.email} נוצר.`));
         resetForm();
       }
     } catch (requestError) {
       if (requestError.status === 401) void onLogout();
-      else if (requestError.status === 403) setError(requestError.message || "Access denied.");
-      else setError(requestError.message || "Unable to save user.");
+      else if (requestError.status === 403) setError(requestError.message || localized("Access denied.", "الوصول مرفوض.", "גישה נדחתה."));
+      else setError(requestError.message || localized("Unable to save user.", "غير قادر على حفظ المستخدم.", "לא ניתן לשמור משתמש."));
     } finally {
       setSavingId("");
     }
@@ -173,7 +188,7 @@ function AdminPlatformUsersPage({
   async function toggleUser(user) {
     if (user.role === "super_admin") return;
     const nextActive = !user.isActive;
-    if (!nextActive && !window.confirm(`Disable ${user.email}?`)) return;
+    if (!nextActive && !window.confirm(localized(`Disable ${user.email}?`, `تعطيل ${user.email}؟`, `להשבית ${user.email}?`))) return;
 
     setSavingId(user.id);
     setError("");
@@ -181,11 +196,11 @@ function AdminPlatformUsersPage({
     try {
       const saved = await updatePlatformUserStatus(user.id, nextActive);
       setUsers((current) => current.map((entry) => (entry.id === saved.id ? saved : entry)));
-      setSuccess(`${saved.email} ${saved.isActive ? "enabled" : "disabled"}.`);
+      setSuccess(localized(`${saved.email} ${saved.isActive ? "enabled" : "disabled"}.`, `${saved.email} ${saved.isActive ? "تم التفعيل" : "تم التعطيل"}.`, `${saved.email} ${saved.isActive ? "הופעל" : "הושבת"}.`));
     } catch (requestError) {
       if (requestError.status === 401) void onLogout();
-      else if (requestError.status === 403) setError(requestError.message || "Access denied.");
-      else setError(requestError.message || "Unable to update user status.");
+      else if (requestError.status === 403) setError(requestError.message || localized("Access denied.", "الوصول مرفوض.", "גישה נדחתה."));
+      else setError(requestError.message || localized("Unable to update user status.", "غير قادر على تحديث حالة المستخدم.", "לא ניתן לעדכן סטטוס משתמש."));
     } finally {
       setSavingId("");
     }
@@ -201,20 +216,20 @@ function AdminPlatformUsersPage({
       onLogout={onLogout}
       onNavigate={onNavigate}
       onToggleDarkMode={onToggleDarkMode}
-      subtitle="Create, edit, enable, or disable platform users."
-      title="Platform Users"
+      subtitle={loc({ en: "Create, edit, enable, or disable platform users.", ar: "إنشاء أو تعديل أو تفعيل أو تعطيل مستخدمي المنصة.", he: "צור, ערוך, הפעל או השבת משתמשי פלטפורמה." })}
+      title={loc({ en: "Platform Users", ar: "مستخدمو المنصة", he: "משתמשי פלטפורמה" })}
     >
       {accessDenied ? (
-        <AccessDenied />
+        <AccessDenied language={language} />
       ) : (
         <div className="company-management-page">
           <div className="admin-toolbar company-toolbar">
             <div>
-              <strong>Users across managed tenants</strong>
-              <span>{users.length} total</span>
+              <strong>{localized("Users across managed tenants", "المستخدمون عبر المستأجرين المُدارين", "משתמשים בכל הדיירים המנוהלים")}</strong>
+              <span>{users.length} {localized("total", "الإجمالي", "סה\"כ")}</span>
             </div>
             <button className="admin-btn admin-btn-primary" onClick={openNewUser} type="button">
-              <Plus size={16} /> New User
+              <Plus size={16} /> {localized("New User", "مستخدم جديد", "משתמש חדש")}
             </button>
           </div>
 
@@ -224,70 +239,70 @@ function AdminPlatformUsersPage({
           {showForm && (
             <div className="admin-panel-card" style={{ marginBottom: "1rem" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.75rem" }}>
-                <strong>{editingUser ? "Edit User" : "New User"}</strong>
+                <strong>{editingUser ? localized("Edit User", "تعديل المستخدم", "ערוך משתמש") : localized("New User", "مستخدم جديد", "משתמש חדש")}</strong>
                 <button className="text-action" onClick={resetForm} type="button"><X size={16} /></button>
               </div>
               <div className="admin-form-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
                 <label className="admin-field">
-                  <span>Name</span>
+                  <span>{localized("Name", "الاسم", "שם")}</span>
                   <input type="text" value={form.name} onChange={(e) => handleFormChange("name", e.target.value)} />
                 </label>
                 <label className="admin-field">
-                  <span>Email</span>
+                  <span>{localized("Email", "البريد الإلكتروني", "אימייל")}</span>
                   <input type="email" value={form.email} onChange={(e) => handleFormChange("email", e.target.value)} />
                 </label>
                 <label className="admin-field">
-                  <span>Role</span>
+                  <span>{localized("Role", "الدور", "תפקיד")}</span>
                   <select value={form.role} onChange={(e) => handleFormChange("role", e.target.value)}>
                     {availableRoles.map((r) => <option key={r} value={r}>{r}</option>)}
                   </select>
                 </label>
                 <label className="admin-field">
-                  <span>Phone</span>
+                  <span>{localized("Phone", "الهاتف", "טלפון")}</span>
                   <input type="text" value={form.phone} onChange={(e) => handleFormChange("phone", e.target.value)} />
                 </label>
                 <label className="admin-field">
-                  <span>Department</span>
+                  <span>{localized("Department", "القسم", "מחלקה")}</span>
                   <input type="text" value={form.department} onChange={(e) => handleFormChange("department", e.target.value)} />
                 </label>
                 <label className="admin-field">
-                  <span>Active</span>
+                  <span>{localized("Active", "نشط", "פעיל")}</span>
                   <select value={form.isActive ? "active" : "inactive"} onChange={(e) => handleFormChange("isActive", e.target.value === "active")}>
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
+                    <option value="active">{localized("Active", "نشط", "פעיל")}</option>
+                    <option value="inactive">{localized("Inactive", "غير نشط", "לא פעיל")}</option>
                   </select>
                 </label>
                 {!editingUser && (
                   <label className="admin-field" style={{ gridColumn: "1 / -1" }}>
-                    <span>Temporary Password</span>
-                    <input type="password" value={form.password} onChange={(e) => handleFormChange("password", e.target.value)} placeholder="Required for new users" />
+                    <span>{localized("Temporary Password", "كلمة مرور مؤقتة", "סיסמה זמנית")}</span>
+                    <input type="password" value={form.password} onChange={(e) => handleFormChange("password", e.target.value)} placeholder={localized("Required for new users", "مطلوب للمستخدمين الجدد", "נדרש למשתמשים חדשים")} />
                   </label>
                 )}
               </div>
               <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.75rem" }}>
                 <button className="admin-btn admin-btn-primary" disabled={savingId === (editingUser?.id || "_new")} onClick={handleSave} type="button">
-                  {savingId === (editingUser?.id || "_new") ? "Saving..." : editingUser ? "Update User" : "Create User"}
+                  {savingId === (editingUser?.id || "_new") ? localized("Saving...", "جار الحفظ...", "שומר...") : editingUser ? localized("Update User", "تحديث المستخدم", "עדכן משתמש") : localized("Create User", "إنشاء مستخدم", "צור משתמש")}
                 </button>
-                <button className="admin-btn" onClick={resetForm} type="button">Cancel</button>
+                <button className="admin-btn" onClick={resetForm} type="button">{localized("Cancel", "إلغاء", "ביטול")}</button>
               </div>
             </div>
           )}
 
           {isLoading ? (
-            <section className="admin-panel-card company-loading" aria-busy="true">Loading users...</section>
+            <section className="admin-panel-card company-loading" aria-busy="true">{localized("Loading users...", "جار تحميل المستخدمين...", "טוען משתמשים...")}</section>
           ) : users.length ? (
             <div className="admin-table-wrap">
               <table className="admin-table company-table">
                 <thead>
                   <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Role</th>
-                    <th>Phone</th>
-                    <th>Department</th>
-                    <th>Status</th>
-                    <th>Created</th>
-                    <th>Actions</th>
+                    <th>{localized("Name", "الاسم", "שם")}</th>
+                    <th>{localized("Email", "البريد الإلكتروني", "אימייל")}</th>
+                    <th>{localized("Role", "الدور", "תפקיד")}</th>
+                    <th>{localized("Phone", "الهاتف", "טלפון")}</th>
+                    <th>{localized("Department", "القسم", "מחלקה")}</th>
+                    <th>{localized("Status", "الحالة", "סטטוס")}</th>
+                    <th>{localized("Created", "تاريخ الإنشاء", "נוצר")}</th>
+                    <th>{localized("Actions", "الإجراءات", "פעולות")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -302,7 +317,7 @@ function AdminPlatformUsersPage({
                         <td>{user.department || "-"}</td>
                         <td>
                           <span className={`admin-status-pill ${user.isActive ? "active" : "neutral"}`}>
-                            {user.isActive ? "Active" : "Inactive"}
+                            {user.isActive ? localized("Active", "نشط", "פעיל") : localized("Inactive", "غير نشط", "לא פעיל")}
                           </span>
                         </td>
                         <td>{formatDate(user.createdAt)}</td>
@@ -313,7 +328,7 @@ function AdminPlatformUsersPage({
                               disabled={savingId === user.id}
                               onClick={() => openEditUser(user)}
                               type="button"
-                              title="Edit user"
+                              title={localized("Edit user", "تعديل المستخدم", "ערוך משתמש")}
                             >
                               <Pencil size={14} />
                             </button>
@@ -323,7 +338,7 @@ function AdminPlatformUsersPage({
                               onClick={() => toggleUser(user)}
                               type="button"
                             >
-                              {isProtected ? "CLI" : user.isActive ? "Disable" : "Enable"}
+                              {isProtected ? "CLI" : user.isActive ? localized("Disable", "تعطيل", "השבת") : localized("Enable", "تفعيل", "הפעל")}
                             </button>
                           </div>
                         </td>
@@ -336,7 +351,7 @@ function AdminPlatformUsersPage({
           ) : (
             <div className="admin-empty-state">
               <Users size={24} />
-              <strong>No platform users found</strong>
+              <strong>{localized("No platform users found", "لم يتم العثور على مستخدمي منصة", "לא נמצאו משתמשי פלטפורמה")}</strong>
             </div>
           )}
         </div>

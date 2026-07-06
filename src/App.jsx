@@ -282,6 +282,8 @@ function getCartTrackingId(item) {
   return item?.productId || item?.slug || item?.cartId;
 }
 
+const languageCycle = { ar: "he", he: "en", en: "ar" };
+
 function App() {
   const [activePage, setActivePage] = React.useState(getInitialPageFromPath);
   const [routeParams, setRouteParams] = React.useState(() => getRouteFromPath().params);
@@ -316,7 +318,7 @@ function App() {
   const [checkoutMessage, setCheckoutMessage] = React.useState("");
   const [lastOrder, setLastOrder] = React.useState(null);
   const [language, setLanguage] = React.useState(
-    () => localStorage.getItem(languageStorageKey) || "en"
+    () => localStorage.getItem(languageStorageKey) || "ar"
   );
   const [isAdminDarkMode, setIsAdminDarkMode] = React.useState(
     () => localStorage.getItem("epChemicalAdminDarkMode") === "true"
@@ -487,7 +489,7 @@ function App() {
   React.useEffect(() => {
     localStorage.setItem(languageStorageKey, language);
     document.documentElement.lang = language;
-    document.documentElement.dir = language === "ar" ? "rtl" : "ltr";
+    document.documentElement.dir = language === "ar" || language === "he" ? "rtl" : "ltr";
   }, [language]);
 
   React.useEffect(() => {
@@ -1234,9 +1236,7 @@ function App() {
         products={demoProducts}
         websiteMedia={websiteMedia}
         onLanguageChange={() =>
-          setLanguage((currentLanguage) =>
-            currentLanguage === "en" ? "ar" : "en"
-          )
+          setLanguage((currentLanguage) => languageCycle[currentLanguage])
         }
         onCategorySelect={handleCategorySelect}
         onNavigate={navigate}
@@ -1457,9 +1457,7 @@ function App() {
             isDarkMode={isAdminDarkMode}
             reviews={reviews}
             onLanguageChange={() =>
-              setLanguage((currentLanguage) =>
-                currentLanguage === "en" ? "ar" : "en"
-              )
+              setLanguage((currentLanguage) => languageCycle[currentLanguage])
             }
             onToggleDarkMode={() => setIsAdminDarkMode((current) => !current)}
             onSaveCategoryCard={handleSaveCategoryCard}
@@ -1696,7 +1694,7 @@ function App() {
         )}
       </main>
 
-        {!isAdminShellPage && <Footer onNavigate={navigate} t={t} />}
+        {!isAdminShellPage && <Footer language={language} onNavigate={navigate} t={t} />}
       </div>
     </AdminModulesContext.Provider>
   );

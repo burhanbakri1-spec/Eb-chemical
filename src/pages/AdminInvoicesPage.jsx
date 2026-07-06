@@ -2,14 +2,6 @@ import React from "react";
 import AdminLayout from "../components/AdminLayout.jsx";
 import { fetchInvoices, voidInvoice } from "../utils/invoicesApi.js";
 
-const statusLabels = {
-  draft: "Draft",
-  issued: "Issued",
-  paid: "Paid",
-  cancelled: "Cancelled",
-  void: "Void",
-};
-
 const statusColors = {
   draft: { bg: "#eef1f4", text: "#5f6b77" },
   issued: { bg: "#e8f7fb", text: "#0b2e4e" },
@@ -45,6 +37,24 @@ function AdminInvoicesPage({
   onNavigate,
   onToggleDarkMode,
 }) {
+  function localized(en, ar, he) {
+    if (language === "ar") return ar;
+    if (language === "he") return he;
+    return en;
+  }
+  function loc(value) {
+    if (!value || typeof value === "string") return value || "";
+    return value[language] || value.ar || value.en || "";
+  }
+
+  const statusLabels = {
+    draft: loc({ en: "Draft", ar: "مسودة", he: "טיוטה" }),
+    issued: loc({ en: "Issued", ar: "صادر", he: "הונפק" }),
+    paid: loc({ en: "Paid", ar: "مدفوع", he: "שולם" }),
+    cancelled: loc({ en: "Cancelled", ar: "ملغي", he: "בוטל" }),
+    void: loc({ en: "Void", ar: "ملغى", he: "מבוטל" }),
+  };
+
   const [invoices, setInvoices] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
   const [message, setMessage] = React.useState(null);
@@ -67,10 +77,10 @@ function AdminInvoicesPage({
   }, []);
 
   async function handleVoid(invoiceId) {
-    if (!window.confirm("Void this invoice?")) return;
+    if (!window.confirm(localized("Void this invoice?", "إلغاء هذه الفاتورة؟", "לבטל חשבונית זו?"))) return;
     try {
       await voidInvoice(invoiceId);
-      setMessage({ type: "success", text: "Invoice voided." });
+      setMessage({ type: "success", text: localized("Invoice voided.", "تم إلغاء الفاتورة.", "החשבונית בוטלה.") });
       await load();
     } catch (error) {
       setMessage({ type: "error", text: error.message });
@@ -85,7 +95,7 @@ function AdminInvoicesPage({
   }
 
   return (
-    <AdminLayout {...layoutProps} title="Invoices" subtitle="Manage company invoices">
+    <AdminLayout {...layoutProps} title={loc({ en: "Invoices", ar: "الفواتير", he: "חשבוניות" })} subtitle={loc({ en: "Manage company invoices", ar: "إدارة فواتير الشركة", he: "ניהול חשבוניות חברה" })}>
       <div className="admin-invoices-page">
         {message && (
           <div className={`message-panel ${message.type === "error" ? "error" : "success"}`}>
@@ -96,25 +106,25 @@ function AdminInvoicesPage({
 
         <div className="admin-section-head">
           <div>
-            <h2>All Invoices</h2>
+            <h2>{localized("All Invoices", "جميع الفواتير", "כל החשבוניות")}</h2>
           </div>
           <button
             className="admin-primary-button"
             onClick={() => onNavigate("admin-invoices-new")}
             type="button"
           >
-            + New Invoice
+            + {localized("New Invoice", "فاتورة جديدة", "חשבונית חדשה")}
           </button>
         </div>
 
         {loading ? (
-          <div className="admin-empty-state">Loading invoices...</div>
+          <div className="admin-empty-state">{localized("Loading invoices...", "جار تحميل الفواتير...", "טוען חשבוניות...")}</div>
         ) : invoices.length === 0 ? (
           <div className="admin-empty-state">
-            <strong>No invoices yet</strong>
-            <p>Create your first invoice to get started.</p>
+            <strong>{localized("No invoices yet", "لا توجد فواتير بعد", "אין חשבוניות עדיין")}</strong>
+            <p>{localized("Create your first invoice to get started.", "أنشئ فاتورتك الأولى للبدء.", "צור את החשבונית הראשונה שלך כדי להתחיל.")}</p>
             <button className="admin-primary-button" onClick={() => onNavigate("admin-invoices-new")} type="button">
-              Create your first invoice
+              {localized("Create your first invoice", "إنشاء أول فاتورة", "צור חשבונית ראשונה")}
             </button>
           </div>
         ) : (
@@ -122,12 +132,12 @@ function AdminInvoicesPage({
             <table className="admin-table">
               <thead>
                 <tr>
-                  <th>Invoice #</th>
-                  <th>Customer</th>
-                  <th>Status</th>
-                  <th>Issue Date</th>
-                  <th>Total</th>
-                  <th>Actions</th>
+                  <th>{localized("Invoice #", "رقم الفاتورة", "מספר חשבונית")}</th>
+                  <th>{localized("Customer", "العميل", "לקוח")}</th>
+                  <th>{localized("Status", "الحالة", "סטטוס")}</th>
+                  <th>{localized("Issue Date", "تاريخ الإصدار", "תאריך הנפקה")}</th>
+                  <th>{localized("Total", "الإجمالي", "סה\"כ")}</th>
+                  <th>{localized("Actions", "الإجراءات", "פעולות")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -149,7 +159,7 @@ function AdminInvoicesPage({
                           onClick={() => onNavigate("admin-invoices-view", { invoiceId: inv.id })}
                           type="button"
                         >
-                          View
+                          {localized("View", "عرض", "צפה")}
                         </button>
                         <button
                           className="secondary-action"
@@ -157,7 +167,7 @@ function AdminInvoicesPage({
                           type="button"
                           disabled={inv.status === "void" || inv.status === "cancelled"}
                         >
-                          Edit
+                          {localized("Edit", "تعديل", "ערוך")}
                         </button>
                         {inv.status !== "void" && inv.status !== "cancelled" && (
                           <button
@@ -166,7 +176,7 @@ function AdminInvoicesPage({
                             type="button"
                             style={{ color: "#a52222" }}
                           >
-                            Void
+                            {localized("Void", "إلغاء", "בטל")}
                           </button>
                         )}
                       </div>

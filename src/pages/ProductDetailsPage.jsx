@@ -73,6 +73,35 @@ const productText = {
     productInfo: "معلومات المنتج",
     from: "ابتداءً من",
   },
+  he: {
+    back: "חזרה למוצרים",
+    type: "סוג מוצר",
+    size: "מידה",
+    use: "בחר שימוש",
+    purchase: "רכישה",
+    oneTime: "רכישה חד פעמית",
+    refillPlan: "חסוך עם תוכנית מילוי",
+    visualOnly: "אפשרות ויזואלית בלבד. התשלום נשאר סטנדרטי.",
+    addToCart: "הוסף לסל",
+    whatYouGet: "מה אתה מקבל",
+    usageNote: "הערת שימוש",
+    reviews: "ביקורות",
+    ratingLine: "4.94 ★ | 66 ביקורות",
+    reviewed: "ביקורת מאומתת של EB Chemical",
+    how: "איך זה עובד",
+    impact: "עוזר להפחית אריזות חד פעמיות עם כל מילוי",
+    safe: "בטוח לשימוש על",
+    surfaceNote: "בדוק תמיד על אזור נסתר קטן תחילה ופעל לפי הוראות המוצר.",
+    formulaTitle: "מרכיבים מוכווני מטרה",
+    formulaText:
+      "כל מרכיב נבחר בקפידה. הנוסחה שלנו נועדה להסיר אבנית ביעילות תוך שמירה על חוויית ניקוי פשוטה, מעשית ומודעת למשטחים.",
+    ingredients: "כל המרכיבים",
+    related: "אולי תאהב גם",
+    faqTitle: "שאלות נפוצות",
+    faqText: "יש לך שאלות על מוצר זה? כאן תמצא את השאלות הנפוצות ביותר.",
+    productInfo: "מידע על המוצר",
+    from: "החל מ",
+  },
 };
 
 function localized(value, language, fallback = "") {
@@ -166,7 +195,7 @@ function SliderButton({ direction, onClick }) {
 function FloatingAddToCart({ disabled, language, onAdd, product, selectedLabel, txt }) {
   const isArabic = language === "ar";
   return (
-    <aside className="product-detail-floating-cart" dir={isArabic ? "rtl" : "ltr"} aria-label={txt.addToCart}>
+    <aside className="product-detail-floating-cart" dir={language === "ar" || language === "he" ? "rtl" : "ltr"} aria-label={txt.addToCart}>
       <ProductImage alt={localized(product.name, language)} src={product.image} />
       <div>
         <strong>{localized(product.name, language)}</strong>
@@ -287,8 +316,8 @@ function ProductDetailsPage({
   if (loadError && !product) {
     return (
       <StorefrontEmptyState
-        message={language === "ar" ? "يرجى تحديث الصفحة والمحاولة مرة أخرى." : "Please refresh the page and try again."}
-        title={language === "ar" ? "تعذر تحميل المنتج" : "We couldn't load this product"}
+        message={language === "ar" ? "يرجى تحديث الصفحة والمحاولة مرة أخرى." : language === "he" ? "אנא רענן את הדף ונסה שוב." : "Please refresh the page and try again."}
+        title={language === "ar" ? "تعذر تحميل المنتج" : language === "he" ? "לא הצלחנו לטעון מוצר זה" : "We couldn't load this product"}
       />
     );
   }
@@ -450,7 +479,9 @@ function ProductDetailsPage({
     return localized(product?.statements, language, [
       language === "ar"
         ? "منتج عملي مصمم لتنظيف فعّال وسهولة استخدام يومية."
-        : "A practical product designed for effective cleaning and everyday ease of use.",
+        : language === "he"
+          ? "מוצר מעשי המיועד לניקוי יעיל וקלות שימוש יומיומית."
+          : "A practical product designed for effective cleaning and everyday ease of use.",
     ]);
   }
 
@@ -530,7 +561,7 @@ function ProductDetailsPage({
     const track = ref.current;
     if (!track) return;
     const amount = track.clientWidth * 0.82;
-    track.scrollBy({ left: direction * amount * (language === "ar" ? -1 : 1), behavior: "smooth" });
+    track.scrollBy({ left: direction * amount * (language === "ar" || language === "he" ? -1 : 1), behavior: "smooth" });
   }
 
   function handleStatementDragEnd(clientX) {
@@ -633,11 +664,11 @@ function ProductDetailsPage({
 
           {hasVariantAttribute("color_name") && colorOptions.length > 1 && (
             <div className="pi-color-field">
-              <p className="pi-label">{language === "ar" ? "اللون" : "Color"}</p>
+              <p className="pi-label">{language === "ar" ? "اللون" : language === "he" ? "צבע" : "Color"}</p>
               <div className="pi-color-card">
                 <ProductImage alt="" src={selectedImage} />
                 <div>
-                  <p>{language === "ar" ? "اختر اللون" : "Choose your Color"}</p>
+                  <p>{language === "ar" ? "اختر اللون" : language === "he" ? "בחר את הצבע שלך" : "Choose your Color"}</p>
                   <div className="pi-color-swatches">
                     {colorOptions.map((option) => (
                       <button
@@ -669,7 +700,7 @@ function ProductDetailsPage({
                     type="button"
                   >
                     {option.size}
-                    {option.stock <= 0 ? ` ${language === "ar" ? "(غير متوفر)" : "(Out)"}` : ""}
+                    {option.stock <= 0 ? ` ${language === "ar" ? "(غير متوفر)" : language === "he" ? "(אזל)" : "(Out)"}` : ""}
                   </button>
                 ))}
               </div>
@@ -796,7 +827,7 @@ function ProductDetailsPage({
             <strong>{localized(steps[activeStep]?.title, language)}</strong>
           </div>
           <button className="detail-next-step" onClick={() => setActiveStep((activeStep + 1) % steps.length)} type="button">
-            {language === "ar" ? <ChevronLeft size={34} /> : <ChevronRight size={34} />}
+            {language === "ar" ? <ChevronLeft size={34} /> : language === "he" ? <ChevronLeft size={34} /> : <ChevronRight size={34} />}
           </button>
           <div className="detail-step-thumbs">
             {steps.map((step, index) => (
@@ -861,7 +892,7 @@ function ProductDetailsPage({
         onTouchStart={(event) => setDragStart(event.touches[0]?.clientX || 0)}
       >
         <ProductImage alt={productName} src={practicalBannerImage || product.hoverImage || product.image || placeholderImage} />
-        <div className="detail-statement-track" style={{ transform: `translateX(${language === "ar" ? activeStatement * 100 : activeStatement * -100}%)` }}>
+        <div className="detail-statement-track" style={{ transform: `translateX(${language === "ar" || language === "he" ? activeStatement * 100 : activeStatement * -100}%)` }}>
           {statements.map((statement, index) => (
             <h2 key={`${statement}-${index}`}>{statement}</h2>
           ))}

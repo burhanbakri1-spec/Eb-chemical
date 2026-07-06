@@ -39,8 +39,13 @@ function PointsIcon({ type }) {
   );
 }
 
+function localized(en, ar, he) {
+  if (language === "ar") return ar;
+  if (language === "he") return he;
+  return en;
+}
+
 function EBPointsPage({ currentUser, language, onNavigate, websiteMedia = [] }) {
-  const isArabic = language === "ar";
   const resolvedLifestyleImage = getWebsiteMediaImage(
     websiteMedia,
     "eb_points_lifestyle",
@@ -54,27 +59,33 @@ function EBPointsPage({ currentUser, language, onNavigate, websiteMedia = [] }) 
   const cards = [
     {
       icon: "order",
-      badge: isArabic ? "نقطة EB لكل 1 شيكل" : "1 EB POINT FOR EVERY ₪1 SPENT",
-      title: isArabic ? "اطلب من الموقع" : "Place an order",
-      description: isArabic
-        ? "اكسب نقطة EB مقابل كل 1 شيكل تنفقه على منتجات EB Chemical."
-        : "Earn 1 EB Point for every ₪1 you spend on EB Chemical products.",
+      badge: localized("1 EB POINT FOR EVERY ₪1 SPENT", "نقطة EB لكل 1 شيكل", "נקודת EB אחת על כל ₪1"),
+      title: localized("Place an order", "اطلب من الموقع", "בצע הזמנה"),
+      description: localized(
+        "Earn 1 EB Point for every ₪1 you spend on EB Chemical products.",
+        "اكسب نقطة EB مقابل كل 1 شيكل تنفقه على منتجات EB Chemical.",
+        "הרוויח נקודת EB אחת על כל ₪1 שאתה מוציא על מוצרי EB Chemical.",
+      ),
     },
     {
       icon: "social",
-      badge: isArabic ? "50 نقطة EB" : "50 EB POINTS",
-      title: isArabic ? "تابعنا على إنستغرام" : "Follow us on Instagram",
-      description: isArabic
-        ? "تابع EB Chemical على إنستغرام واحصل على نقاط إضافية ضمن برنامج الولاء."
-        : "Follow EB Chemical on Instagram and earn extra points as part of our loyalty program.",
+      badge: localized("50 EB POINTS", "50 نقطة EB", "50 נקודות EB"),
+      title: localized("Follow us on Instagram", "تابعنا على إنستغرام", "עקבו אחרינו באינסטגרם"),
+      description: localized(
+        "Follow EB Chemical on Instagram and earn extra points as part of our loyalty program.",
+        "تابع EB Chemical على إنستغرام واحصل على نقاط إضافية ضمن برنامج الولاء.",
+        "עקבו אחרי EB Chemical באינסטגרם והרוויחו נקודות נוספות במסגרת תוכנית הנאמנות.",
+      ),
     },
     {
       icon: "gift",
-      badge: isArabic ? "50 نقطة EB" : "50 EB POINTS",
-      title: isArabic ? "احتفل بعيد ميلادك" : "Celebrate your birthday",
-      description: isArabic
-        ? "احصل على نقاط EB إضافية في عيد ميلادك كهدية من EB Chemical."
-        : "Get bonus EB Points on your birthday as a thank-you from EB Chemical.",
+      badge: localized("50 EB POINTS", "50 نقطة EB", "50 נקודות EB"),
+      title: localized("Celebrate your birthday", "احتفل بعيد ميلادك", "חגוג את יום ההולדת שלך"),
+      description: localized(
+        "Get bonus EB Points on your birthday as a thank-you from EB Chemical.",
+        "احصل على نقاط EB إضافية في عيد ميلادك كهدية من EB Chemical.",
+        "קבל נקודות EB נוספות ביום ההולדת שלך כמתנה מ-EB Chemical.",
+      ),
     },
   ];
 
@@ -82,17 +93,21 @@ function EBPointsPage({ currentUser, language, onNavigate, websiteMedia = [] }) 
     <section className="eb-points-page">
       <section className="eb-points-hero">
         <div>
-          <h1>{isArabic ? "برنامج نقاط EB" : "EB Points Loyalty Program"}</h1>
+          <h1>{localized("EB Points Loyalty Program", "برنامج نقاط EB", "תוכנית הנאמנות EB Points")}</h1>
           <p>
-            {isArabic
-              ? "اكسب نقاط مكافآت مع كل عملية شراء. استخدمها للحصول على خصومات في مشترياتك القادمة. كل 100 نقطة EB = 5 شيكل"
-              : "Earn reward points on every purchase. Redeem for discounts on future purchases. 100 EB Points = ₪5"}
+            {localized(
+              "Earn reward points on every purchase. Redeem for discounts on future purchases. 100 EB Points = ₪5",
+              "اكسب نقاط مكافآت مع كل عملية شراء. استخدمها للحصول على خصومات في مشترياتك القادمة. كل 100 نقطة EB = 5 شيكل",
+              "הרוויח נקודות תגמול על כל רכישה. השתמש בהן להנחות ברכישות הבאות. 100 EB Points = ₪5",
+            )}
           </p>
           <div className="eb-points-hero-rating">
             <span className="eb-points-hero-rating-text">
-              {isArabic
-                ? "أكثر من 500+ طلب من عملاء سعداء"
-                : "Over 500+ orders from happy customers"}
+              {localized(
+                "Over 500+ orders from happy customers",
+                "أكثر من 500+ طلب من عملاء سعداء",
+                "יותר מ-500+ הזמנות מלקוחות מרוצים",
+              )}
             </span>
             <span className="eb-points-hero-stars">
               <strong>4.85</strong>
@@ -104,12 +119,12 @@ function EBPointsPage({ currentUser, language, onNavigate, websiteMedia = [] }) 
         </div>
       </section>
 
-      <section className="eb-points-lifestyle" aria-label={isArabic ? "نقاط EB" : "EB Points lifestyle"}>
+      <section className="eb-points-lifestyle" aria-label={localized("EB Points lifestyle", "نقاط EB", "אורח חיים EB Points")}>
         <img alt="" src={resolvedLifestyleImage} />
       </section>
 
       <section className="eb-points-how">
-        <h2>{isArabic ? "كيف يعمل البرنامج" : "How it works"}</h2>
+        <h2>{localized("How it works", "كيف يعمل البرنامج", "איך זה עובד")}</h2>
         <div className="eb-points-card-grid">
           {cards.map((card) => (
             <article className="eb-points-step-card" key={card.icon}>
@@ -129,18 +144,20 @@ function EBPointsPage({ currentUser, language, onNavigate, websiteMedia = [] }) 
       <section className="eb-points-cta">
         <img alt="" src={resolvedSaveBannerImage} />
         <div className="eb-points-cta-copy">
-          <h2>{isArabic ? "وفّر مع كل طلب" : "Save with every order"}</h2>
+          <h2>{localized("Save with every order", "وفّر مع كل طلب", "חסוך בכל הזמנה")}</h2>
           <p>
-            {isArabic
-              ? "اكتشف عدد نقاط EB التي جمعتها بالفعل من خلال صفحة حسابك."
-              : "Find out how many EB Points you've already saved in your account page."}
+            {localized(
+              "Find out how many EB Points you've already saved in your account page.",
+              "اكتشف عدد نقاط EB التي جمعتها بالفعل من خلال صفحة حسابك.",
+              "גלה כמה נקודות EB כבר צברת בדף החשבון שלך.",
+            )}
           </p>
           <button
             className="eb-points-yellow-button"
             onClick={() => onNavigate(currentUser ? "account" : "register")}
             type="button"
           >
-            {isArabic ? "سجّل الآن" : "Sign up"}
+            {localized("Sign up", "سجّل الآن", "הירשם")}
           </button>
         </div>
       </section>

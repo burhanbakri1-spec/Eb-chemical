@@ -92,20 +92,21 @@ function createShopCategoryConfig(allHeroImage, websiteMedia = []) {
   return {
     All: {
       key: "All",
-      label: { en: "All products", ar: "كل المنتجات" },
-      title: { en: "A better system for everyday essentials", ar: "نظام أفضل لاحتياجاتك اليومية" },
-      subtitle: { en: null, ar: null },
+      label: { en: "All products", ar: "كل المنتجات", he: "כל המוצרים" },
+      title: { en: "A better system for everyday essentials", ar: "نظام أفضل لاحتياجاتك اليومية", he: "מערכת טובה יותר לצרכים יומיומיים" },
+      subtitle: { en: null, ar: null, he: null },
       image: allHeroImage,
       productCategoryKeys: ["all"],
       heroLayout: "shop-all",
     },
     "home-cleaning": {
       key: "home-cleaning",
-      label: { en: "Home Cleaners", ar: "منظفات المنزل" },
-      title: { en: "Home Cleaners", ar: "منظفات المنزل" },
+      label: { en: "Home Cleaners", ar: "منظفات المنزل", he: "חומרי ניקוי לבית" },
+      title: { en: "Home Cleaners", ar: "منظفات المنزل", he: "חומרי ניקוי לבית" },
       subtitle: {
         en: "Practical cleaning products for everyday home care.",
         ar: "منتجات تنظيف عملية للعناية اليومية بالمنزل.",
+        he: "מוצרי ניקוי מעשיים לטיפול יומיומי בבית.",
       },
       image: heroImage("home_cleaning", neutralImage),
       productCategoryKeys: ["home-cleaning", "home-cleaners", "cleaning-products"],
@@ -113,11 +114,12 @@ function createShopCategoryConfig(allHeroImage, websiteMedia = []) {
     },
     "bathroom-cleaning": {
       key: "bathroom-cleaning",
-      label: { en: "Bathroom Cleaners", ar: "منظفات الحمام" },
-      title: { en: "Bathroom Cleaners", ar: "منظفات الحمام" },
+      label: { en: "Bathroom Cleaners", ar: "منظفات الحمام", he: "חומרי ניקוי לאמבטיה" },
+      title: { en: "Bathroom Cleaners", ar: "منظفات الحمام", he: "חומרי ניקוי לאמבטיה" },
       subtitle: {
         en: "Care for sinks, showers, tiles, and limescale-prone surfaces.",
         ar: "عناية بالمغاسل والدش والبلاط والأسطح المعرضة للتكلسات.",
+        he: "טיפול בכיורים, מקלחות, אריחים ומשטחים המועדים לאבנית.",
       },
       image: heroImage("bathroom_cleaning", neutralImage),
       productCategoryKeys: ["bathroom-cleaning", "bathroom-cleaners"],
@@ -125,11 +127,12 @@ function createShopCategoryConfig(allHeroImage, websiteMedia = []) {
     },
     "car-care": {
       key: "car-care",
-      label: { en: "Car Care", ar: "العناية بالسيارة" },
-      title: { en: "Car Care", ar: "العناية بالسيارة" },
+      label: { en: "Car Care", ar: "العناية بالسيارة", he: "טיפוח רכב" },
+      title: { en: "Car Care", ar: "العناية بالسيارة", he: "טיפוח רכב" },
       subtitle: {
         en: "Clean, polish, and refresh your car inside and out.",
         ar: "نظّف ولمّع وأنعش سيارتك من الداخل والخارج.",
+        he: "נקה, ליטש ורענן את רכבך מבפנים ומבחוץ.",
       },
       image: heroImage("car_care", neutralImage),
       productCategoryKeys: ["car-care"],
@@ -137,11 +140,12 @@ function createShopCategoryConfig(allHeroImage, websiteMedia = []) {
     },
     accessories: {
       key: "accessories",
-      label: { en: "Accessories", ar: "الإكسسوارات" },
-      title: { en: "Accessories", ar: "الإكسسوارات" },
+      label: { en: "Accessories", ar: "الإكسسوارات", he: "אביזרים" },
+      title: { en: "Accessories", ar: "الإكسسوارات", he: "אביזרים" },
       subtitle: {
         en: "Useful add-ons for simpler cleaning routines.",
         ar: "إضافات عملية تجعل روتين التنظيف أسهل.",
+        he: "תוספות שימושיות לשגרות ניקוי פשוטות יותר.",
       },
       image: heroImage("accessories", neutralImage),
       productCategoryKeys: ["accessories", "accessory"],
@@ -149,11 +153,12 @@ function createShopCategoryConfig(allHeroImage, websiteMedia = []) {
     },
     "hand-body": {
       key: "hand-body",
-      label: { en: "Hand & Body", ar: "العناية بالجسم واليدين" },
-      title: { en: "Hand & Body", ar: "العناية بالجسم واليدين" },
+      label: { en: "Hand & Body", ar: "العناية بالجسم واليدين", he: "ידיים וגוף" },
+      title: { en: "Hand & Body", ar: "العناية بالجسم واليدين", he: "ידיים וגוף" },
       subtitle: {
         en: "Care essentials for hands, body, and daily routines.",
         ar: "أساسيات عناية لليدين والجسم والروتين اليومي.",
+        he: "מוצרי טיפול חיוניים לידיים, לגוף ולשגרה יומיומית.",
       },
       image: heroImage("hand_body", neutralImage),
       productCategoryKeys: ["hand-body", "hand-and-body", "body-care", "hand-care"],
@@ -161,11 +166,12 @@ function createShopCategoryConfig(allHeroImage, websiteMedia = []) {
     },
     refills: {
       key: "refills",
-      label: { en: "Refills", ar: "إعادة التعبئة" },
-      title: { en: "Refills", ar: "إعادة التعبئة" },
+      label: { en: "Refills", ar: "إعادة التعبئة", he: "מילוי" },
+      title: { en: "Refills", ar: "إعادة التعبئة", he: "מילוי" },
       subtitle: {
         en: "Larger practical sizes for products you use often.",
         ar: "أحجام عملية أكبر للمنتجات التي تستخدمها باستمرار.",
+        he: "מידות גדולות יותר למוצרים שבהם אתה משתמש לעתים קרובות.",
       },
       image: heroImage("refills", neutralImage),
       productCategoryKeys: ["refills", "refill"],
@@ -174,11 +180,12 @@ function createShopCategoryConfig(allHeroImage, websiteMedia = []) {
     },
     "bundles-sets": {
       key: "bundles-sets",
-      label: { en: "Bundles/Sets", ar: "المجموعات" },
-      title: { en: "Bundles/Sets", ar: "المجموعات" },
+      label: { en: "Bundles/Sets", ar: "المجموعات", he: "חבילות/ערכות" },
+      title: { en: "Bundles/Sets", ar: "المجموعات", he: "חבילות/ערכות" },
       subtitle: {
         en: "Grouped essentials for home, car, and everyday care.",
         ar: "أساسيات مجمعة للمنزل والسيارة والعناية اليومية.",
+        he: "מוצרים חיוניים מקובצים לבית, לרכב ולטיפול יומיומי.",
       },
       image: heroImage("bundles_sets", neutralImage),
       productCategoryKeys: ["bundles-sets", "bundles", "sets", "set"],
@@ -187,11 +194,12 @@ function createShopCategoryConfig(allHeroImage, websiteMedia = []) {
     },
     "starter-kits": {
       key: "starter-kits",
-      label: { en: "Starter Kits", ar: "مجموعات البداية" },
-      title: { en: "Starter Kits", ar: "مجموعات البداية" },
+      label: { en: "Starter Kits", ar: "مجموعات البداية", he: "ערכות התחלה" },
+      title: { en: "Starter Kits", ar: "مجموعات البداية", he: "ערכות התחלה" },
       subtitle: {
         en: "Everything you need to start a cleaner routine.",
         ar: "كل ما تحتاجه لبدء روتين تنظيف أسهل.",
+        he: "כל מה שאתה צריך כדי להתחיל שגרת ניקוי נקייה יותר.",
       },
       image: heroImage("starter_kits", neutralImage),
       productCategoryKeys: ["starter-kits", "starter-kit", "kit"],
@@ -203,11 +211,12 @@ function createShopCategoryConfig(allHeroImage, websiteMedia = []) {
     },
     fragrances: {
       key: "fragrances",
-      label: { en: "Fragrances", ar: "المعطرات" },
-      title: { en: "Fragrances", ar: "المعطرات" },
+      label: { en: "Fragrances", ar: "المعطرات", he: "ניחוחות" },
+      title: { en: "Fragrances", ar: "المعطرات", he: "ניחוחות" },
       subtitle: {
         en: "Fresh scents made for everyday spaces.",
         ar: "روائح منعشة مصممة للمساحات اليومية.",
+        he: "ניחוחות רעננים המיועדים לחללים יומיומיים.",
       },
       image: heroImage("fragrances", neutralImage),
       productCategoryKeys: ["fragrances", "air-fresheners", "scents"],
@@ -215,11 +224,12 @@ function createShopCategoryConfig(allHeroImage, websiteMedia = []) {
     },
     "radiator-water": {
       key: "radiator-water",
-      label: { en: "Radiator Water", ar: "ماء الرديتر" },
-      title: { en: "Radiator Water", ar: "ماء الرديتر" },
+      label: { en: "Radiator Water", ar: "ماء الرديتر", he: "מי רדיאטור" },
+      title: { en: "Radiator Water", ar: "ماء الرديتر", he: "מי רדיאטור" },
       subtitle: {
         en: "Practical radiator water products for daily vehicle care.",
         ar: "منتجات ماء رديتر عملية للعناية اليومية بالسيارة.",
+        he: "מוצרי מי רדיאטור מעשיים לטיפול יומיומי ברכב.",
       },
       image: heroImage("radiator_water", neutralImage),
       productCategoryKeys: ["radiator-water"],
@@ -229,7 +239,12 @@ function createShopCategoryConfig(allHeroImage, websiteMedia = []) {
 }
 
 function ShopProductCard({ language, onAddToCart, onViewProduct, product, t }) {
-  const isArabic = language === "ar";
+  function localized(en, ar, he) {
+    if (language === "ar") return ar;
+    if (language === "he") return he;
+    return en;
+  }
+
   const visibleVariants = getVisibleVariants(product);
   const hasVariantModel = Array.isArray(product.variants) && product.variants.length > 0;
   const firstVisibleVariant = visibleVariants[0] || null;
@@ -254,9 +269,7 @@ function ShopProductCard({ language, onAddToCart, onViewProduct, product, t }) {
   const name = getLocalized(product.name, language);
   const description =
     getLocalized(product.shortDescription, language) ||
-    (isArabic
-      ? "حل عملي للعناية اليومية والتنظيف."
-      : "A practical solution for daily cleaning and care.");
+    localized("A practical solution for daily cleaning and care.", "حل عملي للعناية اليومية والتنظيف.", "פתרון מעשי לניקוי וטיפול יומיומיים.");
   const badge =
     getLocalized(product.badge, language) ||
     getLocalized(product.tag, language) ||
@@ -326,7 +339,7 @@ function ShopProductCard({ language, onAddToCart, onViewProduct, product, t }) {
         </div>
         <div className="shop-product-actions">
           <button className="secondary-action" onClick={() => onViewProduct(product.slug)} type="button">
-            {isArabic ? "تفاصيل أكثر" : "Learn more"}
+            {localized("Learn more", "تفاصيل أكثر", "למידע נוסף")}
           </button>
         </div>
       </div>
@@ -347,6 +360,12 @@ function ProductsPage({
   websiteMedia = [],
   websiteMediaError = "",
 }) {
+  function localized(en, ar, he) {
+    if (language === "ar") return ar;
+    if (language === "he") return he;
+    return en;
+  }
+
   const isArabic = language === "ar";
   const heroFallbackImage =
     products.find((product) => product.categoryId === "home-cleaning")?.image ||
@@ -360,8 +379,8 @@ function ProductsPage({
   const activeCategoryKey = normalizeShopCategoryKey(activeCategory);
   const heroEntry = shopCategoryConfig[activeCategoryKey] || shopCategoryConfig["All"];
   const heroImage = heroEntry.image;
-  const heroTitle = isArabic ? heroEntry.title.ar : heroEntry.title.en;
-  const heroSubtitle = isArabic ? heroEntry.subtitle.ar : heroEntry.subtitle.en;
+  const heroTitle = heroEntry.title[language] || heroEntry.title.en;
+  const heroSubtitle = heroEntry.subtitle[language] || heroEntry.subtitle.en;
   const visibleProducts = products.filter((product) =>
     matchesShopCategory(product, heroEntry)
   );
@@ -382,8 +401,8 @@ function ProductsPage({
   if (loadError && !products.length) {
     return (
       <StorefrontEmptyState
-        message={isArabic ? "يرجى تحديث الصفحة والمحاولة مرة أخرى." : "Please refresh the page and try again."}
-        title={isArabic ? "تعذر تحميل المنتجات" : "We couldn't load the latest products"}
+        message={localized("Please refresh the page and try again.", "يرجى تحديث الصفحة والمحاولة مرة أخرى.", "אנא רענן את הדף ונסה שוב.")}
+        title={localized("We couldn't load the latest products", "تعذر تحميل المنتجات", "לא הצלחנו לטעון את המוצרים העדכניים")}
       />
     );
   }
@@ -392,7 +411,7 @@ function ProductsPage({
     <section className="page-shell products-page shop-page">
       {websiteMediaError && (
         <p className="storefront-content-notice" role="status">
-          {isArabic ? "تعذر تحميل بعض صور الصفحة." : "Some page media could not load."}
+          {localized("Some page media could not load.", "تعذر تحميل بعض صور الصفحة.", "חלק מתמונות העמוד לא נטענו.")}
         </p>
       )}
       {activeCategoryKey === "home-cleaning" && heroEntry.heroLayout === "home-care" ? (
@@ -443,17 +462,19 @@ function ProductsPage({
               </div>
               <div className="homecare-feature-card__text-col">
                 <h2 className="homecare-feature-card__title">
-                  {isArabic ? "سائل غسيل الصحون" : "The Dish Soap"}
+                  {localized("The Dish Soap", "سائل غسيل الصحون", "סבון כלים")}
                 </h2>
                 <div className="homecare-feature-card__desc">
                   <p>
-                    {isArabic
-                      ? "فعّال جدًا ضد الدهون، ولطيف على البشرة. تنظيف عملي وناعم برائحة خفيفة."
-                      : "Highly effective against grease, while gentle on your skin. It's an effective, skin-friendly clean with a subtle scent."}
+                    {localized(
+                      "Highly effective against grease, while gentle on your skin. It's an effective, skin-friendly clean with a subtle scent.",
+                      "فعّال جدًا ضد الدهون، ولطيف على البشرة. تنظيف عملي وناعم برائحة خفيفة.",
+                      "יעיל ביותר נגד שומן, ועדין לעור. ניקוי יעיל וידידותי לעור עם ריח עדין.",
+                    )}
                   </p>
                 </div>
                 <div className="homecare-feature-card__price">
-                  {isArabic ? "18 شيكل" : "₪18"}
+                  {localized("₪18", "18 شيكل", "₪18")}
                 </div>
                 <div className="homecare-feature-card__button-row">
                   <button
@@ -461,13 +482,13 @@ function ProductsPage({
                     type="button"
                     onClick={() => onViewProduct?.("fabric-cleaner")}
                   >
-                    {isArabic ? "اعرف المزيد" : "Learn more"}
+                    {localized("Learn more", "اعرف المزيد", "למידע נוסף")}
                   </button>
                 </div>
                 <div className="homecare-feature-card__colours">
                   <span className="homecare-feature-card__swatch" style={{ background: "#fffff7" }} />
                   <span className="homecare-feature-card__colours-text">
-                    {isArabic ? "5 ألوان" : "5 colours"}
+                    {localized("5 colours", "5 ألوان", "5 צבעים")}
                   </span>
                 </div>
               </div>
@@ -484,9 +505,11 @@ function ProductsPage({
                   <p
                     className="homecare-feature-side__note-text"
                     dangerouslySetInnerHTML={{
-                      __html: isArabic
-                        ? 'أعد التعبئة كل شهر ولا تنفد منتجاتك. اقرأ المزيد عن نظام إعادة التعبئة <a href="/refills">هنا</a>.'
-                        : 'Refill every month and never get out of stock. Read more about our refill system <a href="/refills">here</a>.',
+                      __html: localized(
+                        'Refill every month and never get out of stock. Read more about our refill system <a href="/refills">here</a>.',
+                        'أعد التعبئة كل شهر ولا تنفد منتجاتك. اقرأ المزيد عن نظام إعادة التعبئة <a href="/refills">هنا</a>.',
+                        'מלא מחדש כל חודש ולעולם לא ייגמר לך המלאי. קרא עוד על מערכת המילוי <a href="/refills">כאן</a>.',
+                      ),
                     }}
                   />
                 </div>

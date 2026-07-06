@@ -7,51 +7,57 @@ import { neutralImage, resolveImageUrl } from "../utils/images.js";
 import { trackSearch } from "../utils/metaPixel.js";
 
 const shopLinks = [
-  { key: "all", labelEn: "Shop All", labelAr: "كل المنتجات", action: "products" },
+  { key: "all", labelEn: "Shop All", labelAr: "كل المنتجات", labelHe: "הכל", action: "products" },
   {
     key: "cleaning",
     labelEn: "Cleaning Products",
     labelAr: "منتجات التنظيف",
+    labelHe: "מוצרי ניקוי",
     categoryId: "home-cleaning",
   },
   {
     key: "bathroom",
     labelEn: "Bathroom Cleaners",
     labelAr: "منظفات الحمام",
+    labelHe: "מנקי אמבטיה",
     categoryId: "bathroom-cleaning",
   },
   {
     key: "car",
     labelEn: "Car Care",
     labelAr: "العناية بالسيارة",
+    labelHe: "טיפוח רכב",
     categoryId: "car-care",
   },
   {
     key: "home",
     labelEn: "Home Care",
     labelAr: "العناية بالمنزل",
+    labelHe: "טיפוח בית",
     categoryId: "home-cleaning",
   },
   {
     key: "fragrances",
     labelEn: "Fragrances",
     labelAr: "المعطرات",
+    labelHe: "בשמים",
     categoryId: "fragrances",
   },
   {
     key: "radiator",
     labelEn: "Radiator Water",
     labelAr: "ماء الرديتر",
+    labelHe: "מי רדיאטור",
     categoryId: "radiator-water",
   },
 ];
 
 const aboutLinks = [
-  { key: "mission", labelEn: "Mission", labelAr: "رسالتنا", action: "about" },
-  { key: "how", labelEn: "How it Works", labelAr: "كيف يعمل", action: "how" },
-  { key: "sustainability", labelEn: "Sustainability", labelAr: "الاستدامة", action: "sustainability" },
-  { key: "cleanups", labelEn: "Cleanups", labelAr: "حملات التنظيف", action: "cleanups" },
-  { key: "points", labelEn: "EB Points", labelAr: "نقاط EB", action: "eb-points" },
+  { key: "mission", labelEn: "Mission", labelAr: "رسالتنا", labelHe: "המשימה שלנו", action: "about" },
+  { key: "how", labelEn: "How it Works", labelAr: "كيف يعمل", labelHe: "איך זה עובד", action: "how" },
+  { key: "sustainability", labelEn: "Sustainability", labelAr: "الاستدامة", labelHe: "קיימות", action: "sustainability" },
+  { key: "cleanups", labelEn: "Cleanups", labelAr: "حملات التنظيف", labelHe: "ניקיונות", action: "cleanups" },
+  { key: "points", labelEn: "EB Points", labelAr: "نقاط EB", labelHe: "נקודות EB", action: "eb-points" },
 ];
 
 const aboutFeatureCards = [
@@ -59,6 +65,7 @@ const aboutFeatureCards = [
     key: "start",
     titleEn: "Join the next CleanUp",
     titleAr: "شارك في حملة التنظيف القادمة",
+    titleHe: "הצטרף לניקיון הבא",
     image: neutralImage,
     action: "cleanups",
   },
@@ -66,17 +73,18 @@ const aboutFeatureCards = [
     key: "shop",
     titleEn: "Shop cleaning essentials",
     titleAr: "تسوق أساسيات التنظيف",
+    titleHe: "קנה מוצרי ניקיון חיוניים",
     image: neutralImage,
     categoryId: "home-cleaning",
   },
 ];
 
 const aboutMenuLinks = [
-  { key: "mission", labelEn: "Mission", labelAr: "رسالتنا", action: "about", activePage: "about" },
-  { key: "how", labelEn: "How it Works", labelAr: "كيف يعمل", action: "how", activePage: "how" },
-  { key: "sustainability", labelEn: "Sustainability", labelAr: "الاستدامة", action: "sustainability", activePage: "sustainability" },
-  { key: "cleanups", labelEn: "Cleanups", labelAr: "حملات التنظيف", action: "cleanups", activePage: "cleanups" },
-  { key: "points", labelEn: "EB Points", labelAr: "نقاط EB", action: "eb-points", activePage: "eb-points" },
+  { key: "mission", labelEn: "Mission", labelAr: "رسالتنا", labelHe: "המשימה שלנו", action: "about", activePage: "about" },
+  { key: "how", labelEn: "How it Works", labelAr: "كيف يعمل", labelHe: "איך זה עובד", action: "how", activePage: "how" },
+  { key: "sustainability", labelEn: "Sustainability", labelAr: "الاستدامة", labelHe: "קיימות", action: "sustainability", activePage: "sustainability" },
+  { key: "cleanups", labelEn: "Cleanups", labelAr: "حملات التنظيف", labelHe: "ניקיונות", action: "cleanups", activePage: "cleanups" },
+  { key: "points", labelEn: "EB Points", labelAr: "نقاط EB", labelHe: "נקודות EB", action: "eb-points", activePage: "eb-points" },
 ];
 
 function Icon({ name }) {
@@ -141,10 +149,16 @@ function Header({
   const aboutCloseTimer = React.useRef(null);
   const megaCloseTimer = React.useRef(null);
   const lastTrackedSearchRef = React.useRef("");
-  const shopLabel = language === "ar" ? "المتجر" : "Shop";
-  const aboutLabel = language === "ar" ? "عن الشركة" : "About us";
-  const howLabel = language === "ar" ? "كيف يعمل" : "How it Works";
-  const socialLabel = language === "ar" ? "السوشيال ميديا" : t("nav.social");
+  function localized(en, ar, he) {
+    if (language === "ar") return ar;
+    if (language === "he") return he;
+    return en;
+  }
+
+  const shopLabel = localized("Shop", "المتجر", "חנות");
+  const aboutLabel = localized("About us", "عن الشركة", "אודות");
+  const howLabel = localized("How it Works", "كيف يعمل", "איך זה עובד");
+  const socialLabel = localized(t("nav.social"), "السوشيال ميديا", "עקוב אחרינו");
   const megaFeatureCards = React.useMemo(() => {
     const headerDropdownMedia = websiteMedia.filter(
       (item) => item?.groupKey === "header_dropdown" && item?.isActive !== false
@@ -153,12 +167,14 @@ function Header({
       {
         titleEn: "Start here",
         titleAr: "ابدأ من هنا",
+        titleHe: "התחל כאן",
         image: getWebsiteMediaImage(headerDropdownMedia, "header_mega_card_0", neutralImage),
         action: "products",
       },
       {
         titleEn: "Shop featured products",
         titleAr: "تسوق المنتجات المميزة",
+        titleHe: "קנה מוצרים מומלצים",
         image: getWebsiteMediaImage(headerDropdownMedia, "header_mega_card_1", neutralImage),
         categoryId: "car-care",
       },
@@ -528,10 +544,10 @@ function Header({
           onClick={onLanguageChange}
           type="button"
         >
-          {language === "ar" ? "EN" : "AR"}
+          {language === "ar" ? "EN" : language === "he" ? "AR" : "HE"}
         </button>
         <button
-          aria-label={language === "ar" ? "البحث" : "Search"}
+          aria-label={localized("Search", "البحث", "חיפוש")}
           className="utility-icon-button"
           onClick={openSearchPanel}
           type="button"
@@ -633,7 +649,7 @@ function Header({
                 onClick={() => handleShopLink(link)}
                 type="button"
               >
-                {language === "ar" ? link.labelAr : link.labelEn}
+                {localized(link.labelEn, link.labelAr, link.labelHe)}
               </button>
             ))}
           </nav>
@@ -647,11 +663,11 @@ function Header({
               >
                 <span>
                   <img
-                    alt={language === "ar" ? card.titleAr : card.titleEn}
+                    alt={localized(card.titleEn, card.titleAr, card.titleHe)}
                     src={card.image}
                   />
                 </span>
-                <strong>{language === "ar" ? card.titleAr : card.titleEn}</strong>
+                <strong>{localized(card.titleEn, card.titleAr, card.titleHe)}</strong>
               </button>
             ))}
           </div>
@@ -674,7 +690,7 @@ function Header({
                 onClick={() => handleAboutLink(link)}
                 type="button"
               >
-                {language === "ar" ? link.labelAr : link.labelEn}
+                {localized(link.labelEn, link.labelAr, link.labelHe)}
               </button>
             ))}
           </nav>
@@ -687,9 +703,9 @@ function Header({
                 type="button"
               >
                 <span>
-                  <img alt={language === "ar" ? card.titleAr : card.titleEn} src={getWebsiteMediaImage(websiteMedia, `header_about_card_${card.key}`, card.image)} />
+                  <img alt={localized(card.titleEn, card.titleAr, card.titleHe)} src={getWebsiteMediaImage(websiteMedia, `header_about_card_${card.key}`, card.image)} />
                 </span>
-                <strong>{language === "ar" ? card.titleAr : card.titleEn}</strong>
+                <strong>{localized(card.titleEn, card.titleAr, card.titleHe)}</strong>
               </button>
             ))}
           </div>
@@ -699,7 +715,7 @@ function Header({
       <div className={isSearchOpen ? "search-panel open" : "search-panel"}>
         <div className="search-panel-card">
           <div className="search-panel-head">
-            <p>{language === "ar" ? "ابحث في المنتجات" : "Search products"}</p>
+            <p>{localized("Search products", "ابحث في المنتجات", "חפש מוצרים")}</p>
             <button aria-label="Close search" onClick={() => setIsSearchOpen(false)} type="button">
               <Icon name="close" />
             </button>
@@ -707,7 +723,7 @@ function Header({
           <input
             className="search-panel-input"
             onChange={(event) => setSearchTerm(event.target.value)}
-            placeholder={language === "ar" ? "اكتب اسم المنتج أو القسم..." : "Search product or category..."}
+            placeholder={localized("Search product or category...", "اكتب اسم المنتج أو القسم...", "הקלד שם מוצר או קטגוריה...")}
             value={searchTerm}
           />
           <div className="search-results-list">
@@ -722,7 +738,7 @@ function Header({
                 </button>
               ))
             ) : (
-              <p className="search-empty-state">{language === "ar" ? "لا توجد نتائج مطابقة." : "No matching products found."}</p>
+              <p className="search-empty-state">{localized("No matching products found.", "لا توجد نتائج مطابقة.", "לא נמצאו תוצאות מתאימות.")}</p>
             )}
           </div>
         </div>
@@ -733,7 +749,7 @@ function Header({
           {mobileSubmenu ? (
             <button className="mobile-menu-back" onClick={() => setMobileSubmenu(null)} type="button">
               <Icon name="chevron" />
-              {language === "ar" ? "رجوع" : "Back"}
+              {localized("Back", "رجوع", "חזרה")}
             </button>
           ) : (
             <span />
@@ -762,7 +778,7 @@ function Header({
             <div className="mobile-menu-submenu-links">
               {shopLinks.map((link) => (
                 <button key={link.key} onClick={() => handleShopLink(link)} type="button">
-                  {language === "ar" ? link.labelAr : link.labelEn}
+                  {localized(link.labelEn, link.labelAr, link.labelHe)}
                 </button>
               ))}
             </div>
@@ -770,9 +786,9 @@ function Header({
               {megaFeatureCards.map((card) => (
                 <button key={card.titleEn} className="mobile-menu-promo-card" onClick={() => handleFeatureCard(card)} type="button">
                   <span className="mobile-menu-promo-image">
-                    <img src={card.image} alt={language === "ar" ? card.titleAr : card.titleEn} />
+                    <img src={card.image} alt={localized(card.titleEn, card.titleAr, card.titleHe)} />
                   </span>
-                  <span className="mobile-menu-promo-label">{language === "ar" ? card.titleAr : card.titleEn}</span>
+                  <span className="mobile-menu-promo-label">{localized(card.titleEn, card.titleAr, card.titleHe)}</span>
                 </button>
               ))}
             </div>
@@ -784,7 +800,7 @@ function Header({
             <div className="mobile-menu-submenu-links">
               {aboutMenuLinks.map((link) => (
                 <button key={link.key} onClick={() => handleAboutLink(link)} type="button">
-                  {language === "ar" ? link.labelAr : link.labelEn}
+                  {localized(link.labelEn, link.labelAr, link.labelHe)}
                 </button>
               ))}
             </div>
@@ -794,10 +810,10 @@ function Header({
                   <span className="mobile-menu-promo-image">
                     <img
                       src={getWebsiteMediaImage(websiteMedia, `header_about_card_${card.key}`, card.image)}
-                      alt={language === "ar" ? card.titleAr : card.titleEn}
+                      alt={localized(card.titleEn, card.titleAr, card.titleHe)}
                     />
                   </span>
-                  <span className="mobile-menu-promo-label">{language === "ar" ? card.titleAr : card.titleEn}</span>
+                  <span className="mobile-menu-promo-label">{localized(card.titleEn, card.titleAr, card.titleHe)}</span>
                 </button>
               ))}
             </div>

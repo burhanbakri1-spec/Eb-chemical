@@ -12,6 +12,12 @@ function getLocalized(value, language, fallback = "") {
   return value[language] || value.en || value.ar || fallback;
 }
 
+function localized(en, ar, he) {
+  if (language === "ar") return ar;
+  if (language === "he") return he;
+  return en;
+}
+
 function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitReview, orders, products, t }) {
   const [activeTab, setActiveTab] = React.useState("orders");
   const [reviewForm, setReviewForm] = React.useState({
@@ -21,48 +27,47 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
     orderId: "",
   });
   const [reviewMessage, setReviewMessage] = React.useState("");
-  const isArabic = language === "ar";
 
   const copy = {
-    orderHistory: isArabic ? "سجل الطلبات" : "Order History",
-    personalInfo: isArabic ? "المعلومات الشخصية" : "Personal Information",
-    viewedProducts: isArabic ? "المنتجات المعروضة" : "Recently Viewed",
-    subscriptions: isArabic ? "الاشتراكات" : "Manage Subscriptions",
-    logout: isArabic ? "تسجيل الخروج" : "Logout",
-    noOrders: isArabic ? "لم تقم بإنشاء أي طلبات بعد." : "You haven't placed any orders yet.",
-    startShopping: isArabic ? "ابدأ التسوق" : "Start shopping",
-    accountTitle: isArabic ? "حسابي" : "My Account",
-    pointsTitle: isArabic ? "نقاطك" : "Your Points",
-    pointsText: isArabic ? "استخدم 100 نقطة للحصول على خصم" : "Spend 100 points for a discount",
-    availablePoints: isArabic ? "النقاط المتاحة" : "Available points",
-    totalEarned: isArabic ? "إجمالي النقاط المكتسبة" : "Total earned",
-    totalRedeemed: isArabic ? "إجمالي النقاط المستخدمة" : "Total redeemed",
-    orderPoints: isArabic ? "النقاط المكتسبة من هذا الطلب" : "Points earned from this order",
-    redeem: isArabic ? "استبدال النقاط" : "Redeem points",
-    howRedeem: isArabic ? "كيف أستخدمها" : "How to redeem",
-    addressTitle: isArabic ? "العنوان الافتراضي" : "Default Address",
-    addressFallback: isArabic ? "لم يتم إضافة عنوان بعد" : "No address added yet",
-    addAddress: isArabic ? "إضافة عنوان جديد" : "Add a new address",
-    edit: isArabic ? "تعديل" : "Edit",
-    delete: isArabic ? "حذف" : "Delete",
-    name: isArabic ? "الاسم" : "Name",
-    email: isArabic ? "البريد الإلكتروني" : "Email",
-    phone: isArabic ? "رقم الجوال" : "Phone",
-    role: isArabic ? "نوع الحساب" : "Account type",
-    currentSubscriptions: isArabic ? "الاشتراكات الحالية" : "Current Subscriptions",
-    noSubscriptions: isArabic ? "لا توجد اشتراكات نشطة حاليًا." : "No active subscriptions yet.",
-    discover: isArabic ? "اكتشف منتجات EB Chemical المختارة لك" : "Discover selected EB Chemical products",
+    orderHistory: localized("Order History", "سجل الطلبات", "היסטוריית הזמנות"),
+    personalInfo: localized("Personal Information", "المعلومات الشخصية", "מידע אישי"),
+    viewedProducts: localized("Recently Viewed", "المنتجات المعروضة", "מוצרים שנצפו לאחרונה"),
+    subscriptions: localized("Manage Subscriptions", "الاشتراكات", "נהל מינויים"),
+    logout: localized("Logout", "تسجيل الخروج", "התנתק"),
+    noOrders: localized("You haven't placed any orders yet.", "لم تقم بإنشاء أي طلبات بعد.", "עדיין לא ביצעת הזמנות."),
+    startShopping: localized("Start shopping", "ابدأ التسوق", "התחל לקנות"),
+    accountTitle: localized("My Account", "حسابي", "החשבון שלי"),
+    pointsTitle: localized("Your Points", "نقاطك", "הנקודות שלך"),
+    pointsText: localized("Spend 100 points for a discount", "استخدم 100 نقطة للحصول على خصم", "100 נקודות להנחה"),
+    availablePoints: localized("Available points", "النقاط المتاحة", "נקודות זמינות"),
+    totalEarned: localized("Total earned", "إجمالي النقاط المكتسبة", "סה\"כ נקודות שנצברו"),
+    totalRedeemed: localized("Total redeemed", "إجمالي النقاط المستخدمة", "סה\"כ נקודות שנפדו"),
+    orderPoints: localized("Points earned from this order", "النقاط المكتسبة من هذا الطلب", "נקודות שהרווחת מהזמנה זו"),
+    redeem: localized("Redeem points", "استبدال النقاط", "פדה נקודות"),
+    howRedeem: localized("How to redeem", "كيف أستخدمها", "איך לפדות"),
+    addressTitle: localized("Default Address", "العنوان الافتراضي", "כתובת ברירת מחדל"),
+    addressFallback: localized("No address added yet", "لم يتم إضافة عنوان بعد", "עדיין לא נוספה כתובת"),
+    addAddress: localized("Add a new address", "إضافة عنوان جديد", "הוסף כתובת חדשה"),
+    edit: localized("Edit", "تعديل", "ערוך"),
+    delete: localized("Delete", "حذف", "מחק"),
+    name: localized("Name", "الاسم", "שם"),
+    email: localized("Email", "البريد الإلكتروني", "אימייל"),
+    phone: localized("Phone", "رقم الجوال", "טלפון"),
+    role: localized("Account type", "نوع الحساب", "סוג חשבון"),
+    currentSubscriptions: localized("Current Subscriptions", "الاشتراكات الحالية", "מינויים נוכחיים"),
+    noSubscriptions: localized("No active subscriptions yet.", "لا توجد اشتراكات نشطة حاليًا.", "אין מינויים פעילים עדיין."),
+    discover: localized("Discover selected EB Chemical products", "اكتشف منتجات EB Chemical المختارة لك", "גלה מוצרי EB Chemical שנבחרו עבורך"),
     addToCart: t("common.add"),
-    reviews: isArabic ? "التقييمات" : "Reviews",
-    writeReview: isArabic ? "اكتب تقييماً" : "Write a review",
-    reviewType: isArabic ? "نوع التقييم" : "Review type",
-    storeReview: isArabic ? "تقييم عام" : "Store Review",
-    employeeReview: isArabic ? "تقييم الموظف" : "Employee Review",
-    rating: isArabic ? "التقييم" : "Rating",
-    reviewComment: isArabic ? "نص التقييم" : "Review text",
-    relatedOrder: isArabic ? "الطلب المرتبط" : "Related order",
-    submitReview: isArabic ? "إرسال التقييم" : "Submit review",
-    reviewSaved: isArabic ? "تم حفظ التقييم بنجاح" : "Review saved successfully",
+    reviews: localized("Reviews", "التقييمات", "ביקורות"),
+    writeReview: localized("Write a review", "اكتب تقييماً", "כתוב ביקורת"),
+    reviewType: localized("Review type", "نوع التقييم", "סוג ביקורת"),
+    storeReview: localized("Store Review", "تقييم عام", "ביקורת כללית"),
+    employeeReview: localized("Employee Review", "تقييم الموظف", "ביקורת עובד"),
+    rating: localized("Rating", "التقييم", "דירוג"),
+    reviewComment: localized("Review text", "نص التقييم", "טקסט הביקורת"),
+    relatedOrder: localized("Related order", "الطلب المرتبط", "הזמנה קשורה"),
+    submitReview: localized("Submit review", "إرسال التقييم", "שלח ביקורת"),
+    reviewSaved: localized("Review saved successfully", "تم حفظ التقييم بنجاح", "הביקורת נשמרה בהצלחה"),
   };
 
   if (!currentUser) {
@@ -238,7 +243,7 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
                 type="button"
               >
                 <span className="account-product-badge">
-                  {isArabic ? "منتج مميز" : "Featured product"}
+                  {localized("Featured product", "منتج مميز", "מוצר מובלט")}
                 </span>
                 <span className="account-product-image-wrap">
                   <img
@@ -329,8 +334,8 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
           </nav>
 
           <article className="account-promo-card">
-            <span>{isArabic ? "عروض خاصة" : "Subscribe and save"}</span>
-            <strong>{isArabic ? "خصومات مستمرة على المنتجات المختارة" : "20% off selected products"}</strong>
+            <span>{localized("Subscribe and save", "عروض خاصة", "הירשם וחסוך")}</span>
+            <strong>{localized("20% off selected products", "خصومات مستمرة على المنتجات المختارة", "20% הנחה על מוצרים נבחרים")}</strong>
             {promoProduct && (
               <img
                 alt={getLocalized(promoProduct.name, language, promoProduct.slug)}
@@ -339,7 +344,7 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
               />
             )}
             <button onClick={() => onNavigate("products")} type="button">
-              {isArabic ? "تسوق الآن" : "Shop now"}
+              {localized("Shop now", "تسوق الآن", "קנה עכשיו")}
             </button>
           </article>
         </aside>

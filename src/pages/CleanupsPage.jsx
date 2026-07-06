@@ -164,6 +164,80 @@ const content = {
       },
     ],
   },
+  he: {
+    heroTitle: "התחלנו מהבית שלך, ואנחנו עוזרים לנקות את החללים מסביבו.",
+    heroText:
+      "EB Chemical יוצרת מוצרי ניקוי מעשיים לחללים יומיומיים. אנו מתמקדים בבתים, רכב וסביבות משותפות נקיות יותר.",
+    galleryTitle: "מבצעי ניקוי",
+    ctaTitle: "הירשם למבצע הניקוי הבא",
+    ctaText:
+      "הירשם כדי להיות הראשון לדעת על אירועי הניקוי הקרובים שלנו ברמאללה וברחבי פלסטין. אנו מארגנים פעילויות קהילתיות באופן קבוע. תקבל את כל העדכונים והפרטים ישירות לתיבת הדואר שלך.",
+    signUp: "הירשם",
+    gallery: [
+      {
+        location: "עזה, פלסטין",
+        title: "מבצע ניקוי קהילתי EB Chemical",
+        image: cleanupImages.galleryOne,
+      },
+      {
+        location: "שכם, פלסטין",
+        title: "מבצע ניקוי צוות מוצרי טיפול",
+        image: cleanupImages.galleryTwo,
+      },
+      {
+        location: "רמאללה, פלסטין",
+        title: "מבצע ניקוי חללים משותפים",
+        image: cleanupImages.galleryThree,
+      },
+      {
+        location: "פלסטין",
+        title: "יום מודעות לניקיון יומיומי",
+        image: cleanupImages.galleryFour,
+      },
+      {
+        location: "חברון, פלסטין",
+        title: "יום ניקוי טיפול ביתי",
+        image: cleanupImages.galleryFive,
+      },
+      {
+        location: "בית לחם, פלסטין",
+        title: "אירוע מודעות לרחובות נקיים יותר",
+        image: cleanupImages.gallerySix,
+      },
+    ],
+    tabs: [
+      {
+        key: "community",
+        label: "קהילה",
+        title: "קהילה",
+        description:
+          "חללים נקיים יותר מתחילים באנשים. EB Chemical תומכת במאמצי ניקוי קהילתיים שמפגישים אנשים לטיפול מעשי.",
+        button: "הצטרף אלינו",
+        buttonAction: "follow-us",
+        image: cleanupImages.community,
+      },
+      {
+        key: "collaborations",
+        label: "שיתופי פעולה",
+        title: "שיתופי פעולה",
+        description:
+          "מעוניין לארח אירוע ניקוי עם EB Chemical? שלח לנו הודעה ובואו נעבוד יחד ליצירת חללים משותפים נקיים יותר.",
+        button: "הירשם",
+        buttonAction: "follow-us",
+        image: cleanupImages.collaborations,
+      },
+      {
+        key: "locations",
+        label: "מיקומים",
+        title: "מיקומים",
+        description:
+          "אנו מתמקדים בחללים יומיומיים שבהם ניקוי הוא החשוב ביותר. מבתים ומקומות עבודה ועד מכוניות, חנויות וסביבות משותפות.",
+        button: "גלה מיקומים",
+        buttonAction: "products",
+        image: cleanupImages.locations,
+      },
+    ],
+  },
 };
 
 function CleanupsPage({ language = "en", onNavigate, websiteMedia = [] }) {
@@ -224,7 +298,7 @@ function CleanupsPage({ language = "en", onNavigate, websiteMedia = [] }) {
           {gallery.map((item) => (
             <div className="cleanups-event-card" key={item.title}>
               <div className="cleanups-event-card-inner">
-                <div className="cleanups-event-card-content" dir={isArabic ? "rtl" : "ltr"}>
+                <div className="cleanups-event-card-content" dir={language === "ar" || language === "he" ? "rtl" : "ltr"}>
                   <p className="cleanups-event-card-location">{item.location}</p>
                   <h3 className="cleanups-event-card-title">{item.title}</h3>
                 </div>

@@ -64,7 +64,13 @@ function normalizeText(str) {
   return (str || "").toString().trim().toLowerCase();
 }
 
-function HomeCommunityGallery({ galleryImages = [] }) {
+function HomeCommunityGallery({ galleryImages = [], language }) {
+  function localized(en, ar, he) {
+    if (language === "ar") return ar;
+    if (language === "he") return he;
+    return en;
+  }
+
   const images = galleryImages.filter(Boolean).slice(0, 4);
 
   if (!images.length) return null;
@@ -73,8 +79,8 @@ function HomeCommunityGallery({ galleryImages = [] }) {
     <section className="home-community-section" aria-labelledby="home-community-title">
       <div className="home-community-inner">
         <div className="home-community-heading">
-          <h2 id="home-community-title">Welcome to our community</h2>
-          <p>So nice to have you here - tag us @ebchemical</p>
+          <h2 id="home-community-title">{localized("Welcome to our community", "مرحبًا بك في مجتمعنا", "ברוכים הבאים לקהילה שלנו")}</h2>
+          <p>{localized("So nice to have you here - tag us @ebchemical", "كم يسعدنا وجودك معنا - أشرنا لنا @ebchemical", "כיף שאתם כאן - תייגו אותנו @ebchemical")}</p>
         </div>
 
         <div className="home-community-gallery" aria-label="EB Chemical community gallery">
@@ -112,12 +118,20 @@ function HomeCommunityGallery({ galleryImages = [] }) {
 }
 
 function ProductShowcaseSlider({ language, onViewProduct, products, title, variant = "primary" }) {
+  function localized(en, ar, he) {
+    if (language === "ar") return ar;
+    if (language === "he") return he;
+    return en;
+  }
+
   const trackRef = useRef(null);
   const isArabic = language === "ar";
   const [progress, setProgress] = React.useState(0);
-  const badgeLabels = isArabic
-    ? ["إصدار محدود", "عرض خاص", "الأكثر مبيعًا", "جديد"]
-    : ["Limited Edition", "Subscribe & Save 50%", "Best seller", "New arrival"];
+  const badgeLabels = localized(
+    ["Limited Edition", "Subscribe & Save 50%", "Best seller", "New arrival"],
+    ["إصدار محدود", "عرض خاص", "الأكثر مبيعًا", "جديد"],
+    ["מהדורה מוגבלת", "הירשם וחסוך 50%", "רב מכר", "חדש"],
+  );
 
   function updateProgress() {
     const track = trackRef.current;
@@ -146,16 +160,16 @@ function ProductShowcaseSlider({ language, onViewProduct, products, title, varia
     <section className={`home-product-showcase home-product-showcase-${variant} storefront-wide-section`}>
       <div className="home-product-showcase-head">
         <h2>{title}</h2>
-        <div className="home-product-slider-controls" aria-label={isArabic ? "التحكم بالمنتجات" : "Product slider controls"}>
+        <div className="home-product-slider-controls" aria-label={localized("Product slider controls", "التحكم بالمنتجات", "בקרות גלריית מוצרים")}>
           <button
-            aria-label={isArabic ? "السابق" : "Previous"}
+            aria-label={localized("Previous", "السابق", "הקודם")}
             onClick={() => scrollSlider(-1)}
             type="button"
           >
             <span aria-hidden="true">‹</span>
           </button>
           <button
-            aria-label={isArabic ? "التالي" : "Next"}
+            aria-label={localized("Next", "التالي", "הבא")}
             onClick={() => scrollSlider(1)}
             type="button"
           >
@@ -180,7 +194,7 @@ function ProductShowcaseSlider({ language, onViewProduct, products, title, varia
           const details =
             getLocalized(product.shortDescription, language) ||
             getLocalized(category?.name, language) ||
-            (isArabic ? "حل عملي للعناية اليومية." : "A practical daily-care solution.");
+            localized("A practical daily-care solution.", "حل عملي للعناية اليومية.", "פתרון מעשי לטיפול יומיומי.");
 
           return (
             <article
@@ -224,7 +238,7 @@ function ProductShowcaseSlider({ language, onViewProduct, products, title, varia
                 <strong>{getLocalized(product.name, language)}</strong>
                 <span>{details}</span>
                 <b>
-                  {isArabic ? "من" : "From"} {firstSize.price} {isArabic ? "شيكل" : "ILS"}
+                  {localized("From", "من", "מ")} {firstSize.price} {localized("ILS", "شيكل", "ש\"ח")}
                 </b>
               </button>
             </article>
@@ -240,36 +254,30 @@ function ProductShowcaseSlider({ language, onViewProduct, products, title, varia
 }
 
 function HowItWorksSplit({ image, language, onNavigate }) {
+  function localized(en, ar, he) {
+    if (language === "ar") return ar;
+    if (language === "he") return he;
+    return en;
+  }
+
   const isArabic = language === "ar";
-  const steps = isArabic
-    ? [
-        {
-          title: "اختر المنتج المناسب",
-          text: "حدد المنتج حسب نوع الاستخدام: المنزل، السيارة، المعطرات، أو ماء الرديتر.",
-        },
-        {
-          title: "استخدمه بطريقة عملية",
-          text: "منتجات EB Chemical مصممة لتكون سهلة الاستخدام وتناسب الاستخدام اليومي.",
-        },
-        {
-          title: "احصل على نتيجة أفضل",
-          text: "استمتع بنظافة واضحة، رائحة منعشة، وتجربة عناية أكثر ترتيبًا.",
-        },
-      ]
-    : [
-        {
-          title: "Choose the right product",
-          text: "Select the product for your use case: home, car care, fragrances, or radiator water.",
-        },
-        {
-          title: "Use it with ease",
-          text: "EB Chemical products are designed to be practical, clear, and suitable for daily use.",
-        },
-        {
-          title: "Get a better result",
-          text: "Enjoy visible cleanliness, a fresh scent, and a more organized care routine.",
-        },
-      ];
+  const steps = localized(
+    [
+      { title: "Choose the right product", text: "Select the product for your use case: home, car care, fragrances, or radiator water." },
+      { title: "Use it with ease", text: "EB Chemical products are designed to be practical, clear, and suitable for daily use." },
+      { title: "Get a better result", text: "Enjoy visible cleanliness, a fresh scent, and a more organized care routine." },
+    ],
+    [
+      { title: "اختر المنتج المناسب", text: "حدد المنتج حسب نوع الاستخدام: المنزل، السيارة، المعطرات، أو ماء الرديتر." },
+      { title: "استخدمه بطريقة عملية", text: "منتجات EB Chemical مصممة لتكون سهلة الاستخدام وتناسب الاستخدام اليومي." },
+      { title: "احصل على نتيجة أفضل", text: "استمتع بنظافة واضحة، رائحة منعشة، وتجربة عناية أكثر ترتيبًا." },
+    ],
+    [
+      { title: "בחר את המוצר המתאים", text: "בחר את המוצר לפי סוג השימוש: בית, רכב, ניחוחות או מי רדיאטור." },
+      { title: "השתמש בקלות", text: "מוצרי EB Chemical מעוצבים להיות פרקטיים, ברורים ומתאימים לשימוש יומיומי." },
+      { title: "קבל תוצאה טובה יותר", text: "תהנה מניקיון גלוי, ריח רענן ושגרת טיפול מאורגנת יותר." },
+    ],
+  );
 
   return (
     <section className="how-it-works-section storefront-wide-section">
@@ -309,10 +317,10 @@ function HowItWorksSplit({ image, language, onNavigate }) {
 
           {/* Title + button - right side */}
           <div className="how-it-works-card">
-            <p className="eyebrow">{isArabic ? "طريقة الاستخدام" : "How it works"}</p>
-            <h2>{isArabic ? "تنظيف أسهل بخطوات بسيطة" : "Easier cleaning in simple steps"}</h2>
+            <p className="eyebrow">{localized("How it works", "طريقة الاستخدام", "איך זה עובד")}</p>
+            <h2>{localized("Easier cleaning in simple steps", "تنظيف أسهل بخطوات بسيطة", "ניקוי קל יותר בצעדים פשוטים")}</h2>
             <button className="primary-action large" onClick={() => onNavigate("products")} type="button">
-              {isArabic ? "ابدأ التسوق" : "Start shopping"}
+              {localized("Start shopping", "ابدأ التسوق", "התחל לקנות")}
             </button>
           </div>
         </div>
@@ -325,41 +333,49 @@ const fallbackSystemCards = [
   {
     key: "home",
     image: neutralImage,
-    label: { en: "Home care", ar: "العناية بالمنزل" },
-    title: { en: "Daily cleaning made easier", ar: "تنظيف يومي أسهل" },
+    label: { en: "Home care", ar: "العناية بالمنزل", he: "טיפוח בית" },
+    title: { en: "Daily cleaning made easier", ar: "تنظيف يومي أسهل", he: "ניקוי יומיומי קל יותר" },
   },
   {
     key: "car",
     image: neutralImage,
-    label: { en: "Car care", ar: "العناية بالسيارة" },
-    title: { en: "Fresh finish for every ride", ar: "لمسة نظيفة لكل رحلة" },
+    label: { en: "Car care", ar: "العناية بالسيارة", he: "טיפוח רכב" },
+    title: { en: "Fresh finish for every ride", ar: "لمسة نظيفة لكل رحلة", he: "גימור רענן לכל נסיעה" },
   },
   {
     key: "kitchen",
     image: neutralImage,
-    label: { en: "Kitchen", ar: "المطبخ" },
-    title: { en: "Cuts grease with less effort", ar: "إزالة الدهون بجهد أقل" },
+    label: { en: "Kitchen", ar: "المطبخ", he: "מטבח" },
+    title: { en: "Cuts grease with less effort", ar: "إزالة الدهون بجهد أقل", he: "מסיר שומן בפחות מאמץ" },
   },
   {
     key: "bathroom",
     image: neutralImage,
-    label: { en: "Bathroom", ar: "الحمام" },
-    title: { en: "Shine for sinks and tiles", ar: "لمعان للأحواض والبلاط" },
+    label: { en: "Bathroom", ar: "الحمام", he: "אמבטיה" },
+    title: { en: "Shine for sinks and tiles", ar: "لمعان للأحواض والبلاط", he: "ברק לכיורים ואריחים" },
   },
   {
     key: "laundry",
     image: neutralImage,
-    label: { en: "Laundry", ar: "الغسيل" },
-    title: { en: "Care for fabrics every day", ar: "عناية يومية بالأقمشة" },
+    label: { en: "Laundry", ar: "الغسيل", he: "כביסה" },
+    title: { en: "Care for fabrics every day", ar: "عناية يومية بالأقمشة", he: "טיפול יומיומי בבדים" },
   },
 ];
 
 function CleaningSystemShowcase({ categoryCards = [], language }) {
+  function localized(en, ar, he) {
+    if (language === "ar") return ar;
+    if (language === "he") return he;
+    return en;
+  }
+
   const isArabic = language === "ar";
   const trackRef = useRef(null);
-  const words = isArabic
-    ? ["العناية بالمنزل", "العناية بالسيارة", "المطبخ", "الحمام", "الغسيل"]
-    : ["home care", "car care", "kitchen", "bathroom", "laundry"];
+  const words = localized(
+    ["home care", "car care", "kitchen", "bathroom", "laundry"],
+    ["العناية بالمنزل", "العناية بالسيارة", "المطبخ", "الحمام", "الغسيل"],
+    ["טיפוח בית", "טיפוח רכב", "מטבח", "אמבטיה", "כביסה"],
+  );
   const [wordIndex, setWordIndex] = React.useState(0);
 
   React.useEffect(() => {
@@ -387,7 +403,7 @@ function CleaningSystemShowcase({ categoryCards = [], language }) {
       <div className="cleaning-system-heading-row">
         <h2 className="cleaning-system-title">
           <span className="system-title-fixed">
-            {isArabic ? "نظام تنظيف لـ" : "A cleaning system for"}
+            {localized("A cleaning system for", "نظام تنظيف لـ", "מערכת ניקוי עבור")}
           </span>
           <span className="system-word-window" aria-live="polite">
             <span className="system-word" key={words[wordIndex]}>
@@ -395,16 +411,16 @@ function CleaningSystemShowcase({ categoryCards = [], language }) {
             </span>
           </span>
         </h2>
-        <div className="cleaning-system-controls" aria-label={isArabic ? "التحكم بالبطاقات" : "Card controls"}>
+        <div className="cleaning-system-controls" aria-label={localized("Card controls", "التحكم بالبطاقات", "בקרות כרטיסים")}>
           <button
-            aria-label={isArabic ? "السابق" : "Previous"}
+            aria-label={localized("Previous", "السابق", "הקודם")}
             onClick={() => scrollCards(-1)}
             type="button"
           >
             ‹
           </button>
           <button
-            aria-label={isArabic ? "التالي" : "Next"}
+            aria-label={localized("Next", "التالي", "הבא")}
             onClick={() => scrollCards(1)}
             type="button"
           >
@@ -433,6 +449,12 @@ function CleaningSystemShowcase({ categoryCards = [], language }) {
 }
 
 function PurchaseExperienceShowcase({ language, onAddToCart, onViewProduct, product }) {
+  function localized(en, ar, he) {
+    if (language === "ar") return ar;
+    if (language === "he") return he;
+    return en;
+  }
+
   const isArabic = language === "ar";
   const fallbackSizes = [
     { size: "500ml", price: 15 },
@@ -496,15 +518,15 @@ function PurchaseExperienceShowcase({ language, onAddToCart, onViewProduct, prod
     resolveImageUrl(product?.image);
   const name =
     getLocalized(product?.name, language) ||
-    (isArabic ? "منظف متعدد الاستخدامات" : "Every Surface Cleaner");
+    localized("Every Surface Cleaner", "منظف متعدد الاستخدامات", "חומר ניקוי רב משטחים");
   const description =
     getLocalized(product?.shortDescription, language) ||
-    (isArabic
-      ? "منظف عملي للعناية اليومية بالمنزل والسيارة."
-      : "A practical cleaner for daily home and car care.");
-  const sellingPoints = isArabic
-    ? ["مناسب لعدة أسطح", "رائحة نظيفة ومنعشة", "عناية يومية سهلة"]
-    : ["Multi-surface use", "Fresh clean scent", "Easy daily care"];
+    localized("A practical cleaner for daily home and car care.", "منظف عملي للعناية اليومية بالمنزل والسيارة.", "חומר ניקוי מעשי לטיפול יומיומי בבית וברכב.");
+  const sellingPoints = localized(
+    ["Multi-surface use", "Fresh clean scent", "Easy daily care"],
+    ["مناسب لعدة أسطح", "رائحة نظيفة ومنعشة", "عناية يومية سهلة"],
+    ["שימוש רב משטחים", "ריח נקי ורענן", "טיפול יומיומי קל"],
+  );
 
   function handleAddToCart() {
     if (product && onAddToCart) {
@@ -520,14 +542,14 @@ function PurchaseExperienceShowcase({ language, onAddToCart, onViewProduct, prod
       <div className="purchase-showcase-copy">
         <div className="product-detail-info-panel home-product-info-preview">
           <div className="pi-section-header">
-            <p className="pi-eyebrow">{isArabic ? "تجربة شراء سهلة" : "Purchase experience"}</p>
+            <p className="pi-eyebrow">{localized("Purchase experience", "تجربة شراء سهلة", "חוויית קנייה")}</p>
             <h2>{name}</h2>
             <p className="pi-desc">{description}</p>
           </div>
 
           {colorOptions.length > 0 && (
             <div className="pi-color-field">
-              <p className="pi-label">{isArabic ? "\u0627\u0644\u0644\u0648\u0646" : "Color"}</p>
+              <p className="pi-label">{localized("Color", "\u0627\u0644\u0644\u0648\u0646", "\u05e6\u05d1\u05e2")}</p>
               <div className="pi-color-card">
                 <img
                   alt=""
@@ -539,8 +561,8 @@ function PurchaseExperienceShowcase({ language, onAddToCart, onViewProduct, prod
                   src={image}
                 />
                 <div>
-                  <p>{isArabic ? "\u0627\u062e\u062a\u0631 \u0627\u0644\u0644\u0648\u0646" : "Choose your Color"}</p>
-                  <div className="pi-color-swatches" role="radiogroup" aria-label={isArabic ? "\u0627\u0644\u0644\u0648\u0646" : "Color"}>
+                  <p>{localized("Choose your Color", "\u0627\u062e\u062a\u0631 \u0627\u0644\u0644\u0648\u0646", "\u05d1\u05d7\u05e8 \u05d0\u05ea \u05d4\u05e6\u05d1\u05e2 \u05e9\u05dc\u05da")}</p>
+                  <div className="pi-color-swatches" role="radiogroup" aria-label={localized("Color", "\u0627\u0644\u0644\u0648\u0646", "\u05e6\u05d1\u05e2")}>
                     {colorOptions.map((option) => (
                       <button
                         aria-checked={selectedColor === option.colorName}
@@ -562,7 +584,7 @@ function PurchaseExperienceShowcase({ language, onAddToCart, onViewProduct, prod
           )}
 
           <div className="pi-card-field">
-            <p className="pi-label">{isArabic ? "الأحجام" : "Options"}</p>
+            <p className="pi-label">{localized("Options", "الأحجام", "אפשרויות")}</p>
             <div className="pi-card-grid two-col">
               {options.map((option) => (
                 <button
@@ -573,7 +595,7 @@ function PurchaseExperienceShowcase({ language, onAddToCart, onViewProduct, prod
                 >
                   <span className="pi-card-value">{option.size}</span>
                   <span className="pi-card-sublabel">
-                    {option.price} {isArabic ? "شيكل" : "ILS"}
+                    {option.price} {localized("ILS", "شيكل", "ש\"ח")}
                   </span>
                 </button>
               ))}
@@ -586,24 +608,24 @@ function PurchaseExperienceShowcase({ language, onAddToCart, onViewProduct, prod
               onClick={() => setPurchaseType("once")}
               type="button"
             >
-              {isArabic ? "شراء مرة واحدة" : "One-time purchase"}
+              {localized("One-time purchase", "شراء مرة واحدة", "רכישה חד פעמית")}
             </button>
             <button
               className={purchaseType === "bundle" ? "pi-segment active" : "pi-segment"}
               onClick={() => setPurchaseType("bundle")}
               type="button"
             >
-              {isArabic ? "وفّر مع العرض" : "Save with bundle"}
+              {localized("Save with bundle", "وفّر مع العرض", "חסכו עם מארז")}
             </button>
           </div>
 
           <div className="pi-cta-bar">
             <span className="pi-price">
-              {selectedOption?.price || 0} {isArabic ? "شيكل" : "ILS"}
+              {selectedOption?.price || 0} {localized("ILS", "شيكل", "ש\"ח")}
             </span>
-            {hasVariantModel && !selectedVariantForCart && <span role="status">Unavailable</span>}
+            {hasVariantModel && !selectedVariantForCart && <span role="status">{localized("Unavailable", "غير متوفر", "לא זמין")}</span>}
             <button className="pi-add-btn" disabled={hasVariantModel && !selectedVariantForCart} onClick={handleAddToCart} type="button">
-              {isArabic ? "أضف إلى السلة" : "Add to cart"}
+              {localized("Add to cart", "أضف إلى السلة", "הוסף לסל")}
             </button>
           </div>
 
@@ -630,6 +652,12 @@ function PurchaseExperienceShowcase({ language, onAddToCart, onViewProduct, prod
 }
 
 function WidePromoBanner({ language, onNavigate, image }) {
+  function localized(en, ar, he) {
+    if (language === "ar") return ar;
+    if (language === "he") return he;
+    return en;
+  }
+
   const isArabic = language === "ar";
 
   return (
@@ -644,10 +672,10 @@ function WidePromoBanner({ language, onNavigate, image }) {
         src={resolveImageUrl(image)}
       />
       <div className="wide-promo-copy">
-        <h2>{isArabic ? "عناية منعشة لكل مساحة" : "Fresh care for every space"}</h2>
-        <p>{isArabic ? "حلول تنظيف فعّالة للمنزل والسيارة." : "Powerful cleaning solutions for your home and car."}</p>
+        <h2>{localized("Fresh care for every space", "عناية منعشة لكل مساحة", "טיפוח רענן לכל חלל")}</h2>
+        <p>{localized("Powerful cleaning solutions for your home and car.", "حلول تنظيف فعّالة للمنزل والسيارة.", "פתרונות ניקוי חזקים לבית ולרכב שלך.")}</p>
         <button className="primary-action large" onClick={() => onNavigate("products")} type="button">
-          {isArabic ? "تسوق الآن" : "Shop now"}
+          {localized("Shop now", "تسوق الآن", "קנה עכשיו")}
         </button>
       </div>
     </section>
@@ -655,11 +683,17 @@ function WidePromoBanner({ language, onNavigate, image }) {
 }
 
 function SplitCategoryBanner({ language, onCategorySelect, products, websiteMedia }) {
+  function localized(en, ar, he) {
+    if (language === "ar") return ar;
+    if (language === "he") return he;
+    return en;
+  }
+
   const isArabic = language === "ar";
   const panels = [
     {
       id: "home-cleaning",
-      title: isArabic ? "العناية بالمنزل" : "Home Care",
+      title: localized("Home Care", "العناية بالمنزل", "טיפוח בית"),
       image:
         getWebsiteMediaImage(
           websiteMedia,
@@ -669,7 +703,7 @@ function SplitCategoryBanner({ language, onCategorySelect, products, websiteMedi
     },
     {
       id: "car-care",
-      title: isArabic ? "العناية بالسيارة" : "Car Care",
+      title: localized("Car Care", "العناية بالسيارة", "טיפוח רכב"),
       image:
         getWebsiteMediaImage(
           websiteMedia,
@@ -699,7 +733,7 @@ function SplitCategoryBanner({ language, onCategorySelect, products, websiteMedi
           />
           <span>
             <strong>{panel.title}</strong>
-            <em>{isArabic ? "اكتشف" : "Discover"}</em>
+            <em>{localized("Discover", "اكتشف", "גלה")}</em>
           </span>
         </button>
       ))}
@@ -724,6 +758,12 @@ function HomePage({
   websiteMedia = [],
   websiteMediaError = "",
 }) {
+  function localized(en, ar, he) {
+    if (language === "ar") return ar;
+    if (language === "he") return he;
+    return en;
+  }
+
   if (isLoading) {
     return <StorefrontLoadingState label="Loading homepage content" />;
   }
@@ -731,8 +771,8 @@ function HomePage({
   if (productsError && !products.length) {
     return (
       <StorefrontEmptyState
-        message={language === "ar" ? "يرجى تحديث الصفحة والمحاولة مرة أخرى." : "Please refresh the page and try again."}
-        title={language === "ar" ? "تعذر تحميل المنتجات" : "We couldn't load the latest products"}
+        message={localized("Please refresh the page and try again.", "يرجى تحديث الصفحة والمحاولة مرة أخرى.", "אנא רענן את הדף ונסה שוב.")}
+        title={localized("We couldn't load the latest products", "تعذر تحميل المنتجات", "לא הצלחנו לטעון את המוצרים העדכניים")}
       />
     );
   }
@@ -799,9 +839,11 @@ function HomePage({
     <div className="storefront-home">
       {(homeContentError || websiteMediaError) && (
         <p className="storefront-content-notice" role="status">
-          {language === "ar"
-            ? "تعذر تحميل بعض محتوى الصفحة، لكن المنتجات المتاحة محدثة."
-            : "Some page content could not load, but available products are up to date."}
+          {localized(
+            "Some page content could not load, but available products are up to date.",
+            "تعذر تحميل بعض محتوى الصفحة، لكن المنتجات المتاحة محدثة.",
+            "תוכן מסוים לא נטען, אך המוצרים הזמינים מעודכנים.",
+          )}
         </p>
       )}
       <section className="hero-section hero-editorial" data-header-theme="light">
@@ -829,7 +871,7 @@ function HomePage({
         language={language}
         onViewProduct={onViewProduct}
         products={starterProducts}
-        title={language === "ar" ? "مجموعات التنظيف الأساسية" : "Cleaning starter kits"}
+        title={localized("Cleaning starter kits", "مجموعات التنظيف الأساسية", "ערכות התחלה לניקוי")}
         variant="starter"
       />
 
@@ -837,7 +879,7 @@ function HomePage({
         language={language}
         onViewProduct={onViewProduct}
         products={essentialsProducts.length ? essentialsProducts : products.slice(0, 10)}
-        title={language === "ar" ? "أساسيات العناية بالمنزل والسيارة" : "Home & car care essentials"}
+        title={localized("Home & car care essentials", "أساسيات العناية بالمنزل والسيارة", "מוצרי טיפוח חיוניים לבית ולרכב")}
         variant="essentials"
       />
 
@@ -849,10 +891,10 @@ function HomePage({
             <h2>{t("reviews.title")}</h2>
             <div className="reviews-summary">
               <span className="reviews-summary-number">{avgRating}</span>
-              <span className="reviews-summary-stars" aria-label={`${avgRating} ${isArabic ? "من 5 نجوم" : "out of 5 stars"}`}>
+              <span className="reviews-summary-stars" aria-label={`${avgRating} ${localized("out of 5 stars", "من 5 نجوم", "מתוך 5 כוכבים")}`}>
                 {"★★★★★"}
               </span>
-              <span className="reviews-summary-count">| {reviewCount} {isArabic ? "تقييم" : "reviews"}</span>
+              <span className="reviews-summary-count">| {reviewCount} {localized("reviews", "تقييم", "ביקורות")}</span>
             </div>
           </div>
           <div className="reviews-track">
@@ -918,7 +960,7 @@ function HomePage({
         </section>
       )}
 
-      <HomeCommunityGallery galleryImages={communityGalleryImages} />
+      <HomeCommunityGallery galleryImages={communityGalleryImages} language={language} />
 
       <section className="newsletter-band storefront-section">
         <div>

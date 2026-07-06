@@ -10,6 +10,11 @@ function AdminProductTable({
   products,
   t,
 }) {
+  function localized(en, ar, he) {
+    if (language === "ar") return ar;
+    if (language === "he") return he;
+    return en;
+  }
   if (products.length === 0) {
     return <div className="empty-panel compact-empty">{t("admin.noProducts")}</div>;
   }
@@ -50,7 +55,7 @@ function AdminProductTable({
                     .map((item) => `${item.size}: ${item.price}`)
                     .join(", ")}
                 </td>
-                <td>{product.stockStatus || "In stock"}</td>
+                <td>{product.stockStatus || localized("In stock", "في المخزون", "במלאי")}</td>
                 {(canEdit || canDelete) && (
                   <td>
                     <div className="row-actions">

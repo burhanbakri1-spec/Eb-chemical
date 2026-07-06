@@ -25,6 +25,12 @@ function getMessageItems(items, products, language) {
   });
 }
 
+function localized(en, ar, he) {
+  if (language === "ar") return ar;
+  if (language === "he") return he;
+  return en;
+}
+
 function CheckoutPage({
   cartItems,
   checkoutMessage,
@@ -255,7 +261,7 @@ function CheckoutPage({
           })}
           {deliveryPrice > 0 && (
             <div className="summary-row">
-              <span>{language === "ar" ? "التوصيل" : "Delivery"}{selectedZone ? ` (${selectedZone.city_name})` : ""}</span>
+              <span>{localized("Delivery", "التوصيل", "משלוח")}{selectedZone ? ` (${selectedZone.city_name})` : ""}</span>
               <strong>{deliveryPrice.toFixed(2)} {t("common.ils")}</strong>
             </div>
           )}

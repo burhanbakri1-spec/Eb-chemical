@@ -17,19 +17,19 @@ const emptyItem = {
 };
 
 const groupLabels = {
-  homepage: { en: "Homepage Sections", ar: "أقسام الصفحة الرئيسية" },
-  homepage_categories: { en: "Homepage Cards", ar: "بطاقات الصفحة الرئيسية" },
-  products: { en: "Products Page", ar: "صفحة المنتجات" },
-  about: { en: "Static Sections - About", ar: "الأقسام الثابتة - من نحن" },
-  cleanups: { en: "Static Sections - Cleanups", ar: "الأقسام الثابتة - حملات التنظيف" },
-  cleanups_gallery: { en: "Cleanups Gallery", ar: "معرض حملات التنظيف" },
-  cleanups_tabs: { en: "Cleanups Tabs", ar: "تبويبات حملات التنظيف" },
-  eb_points: { en: "Static Sections - EB Points", ar: "الأقسام الثابتة - نقاط EB" },
-  sustainability: { en: "Static Sections - Sustainability", ar: "الأقسام الثابتة - الاستدامة" },
-  how_it_works: { en: "Static Sections - How It Works", ar: "الأقسام الثابتة - كيف يعمل" },
-  ads: { en: "Ads / Banners", ar: "الإعلانات والبنرات" },
-  header_dropdown: { en: "Header Dropdown Images", ar: "صور القوائم المنسدلة في الرأس" },
-  sections: { en: "Other Static Website Images", ar: "صور الموقع الثابتة الأخرى" },
+  homepage: { en: "Homepage Sections", ar: "أقسام الصفحة الرئيسية", he: "קטעי דף הבית" },
+  homepage_categories: { en: "Homepage Cards", ar: "بطاقات الصفحة الرئيسية", he: "כרטיסיות דף הבית" },
+  products: { en: "Products Page", ar: "صفحة المنتجات", he: "דף המוצרים" },
+  about: { en: "Static Sections - About", ar: "الأقسام الثابتة - من نحن", he: "קטעים סטטיים - אודות" },
+  cleanups: { en: "Static Sections - Cleanups", ar: "الأقسام الثابتة - حملات التنظيف", he: "קטעים סטטיים - ניקיונות" },
+  cleanups_gallery: { en: "Cleanups Gallery", ar: "معرض حملات التنظيف", he: "גלריית ניקיונות" },
+  cleanups_tabs: { en: "Cleanups Tabs", ar: "تبويبات حملات التنظيف", he: "לשוניות ניקיונות" },
+  eb_points: { en: "Static Sections - EB Points", ar: "الأقسام الثابتة - نقاط EB", he: "קטעים סטטיים - נקודות EB" },
+  sustainability: { en: "Static Sections - Sustainability", ar: "الأقسام الثابتة - الاستدامة", he: "קטעים סטטיים - קיימות" },
+  how_it_works: { en: "Static Sections - How It Works", ar: "الأقسام الثابتة - كيف يعمل", he: "קטעים סטטיים - איך זה עובד" },
+  ads: { en: "Ads / Banners", ar: "الإعلانات والبنرات", he: "מודעות / באנרים" },
+  header_dropdown: { en: "Header Dropdown Images", ar: "صور القوائم المنسدلة في الرأس", he: "תמונות תפריט נפתח בכותר" },
+  sections: { en: "Other Static Website Images", ar: "صور الموقع الثابتة الأخرى", he: "תמונות סטטיות אחרות לאתר" },
 };
 
 function groupItems(items) {
@@ -66,10 +66,15 @@ function mergeDefaultMediaItems(items) {
 }
 
 function MediaEditor({ item, language, onDelete, onSave }) {
+  function localized(en, ar, he) {
+    if (language === "ar") return ar;
+    if (language === "he") return he;
+    return en;
+  }
+
   const [draft, setDraft] = React.useState(item);
   const [message, setMessage] = React.useState("");
   const [uploading, setUploading] = React.useState(false);
-  const isArabic = language === "ar";
 
   React.useEffect(() => setDraft(item), [item]);
 
@@ -96,7 +101,7 @@ function MediaEditor({ item, language, onDelete, onSave }) {
 
   async function handleSave() {
     if (!draft.sectionKey.trim()) {
-      setMessage(isArabic ? "أدخل مفتاح القسم." : "Section key is required.");
+      setMessage(localized("Section key is required.", "أدخل مفتاح القسم.", "הזן מפתח קטע."));
       return;
     }
 
@@ -106,7 +111,7 @@ function MediaEditor({ item, language, onDelete, onSave }) {
       if (saved) {
         setDraft(saved);
       }
-      setMessage(isArabic ? "تم حفظ الصورة." : "Image saved.");
+      setMessage(localized("Image saved.", "تم حفظ الصورة.", "התמונה נשמרה."));
     } catch (error) {
       setMessage(error.message);
     }
@@ -122,11 +127,11 @@ function MediaEditor({ item, language, onDelete, onSave }) {
       if (saved) {
         setDraft(saved);
       }
-      setMessage(
-        isArabic
-          ? "تم مسح الصورة. سيظهر البديل فقط عند العرض."
-          : "Image cleared. The fallback will display only when no uploaded image exists.",
-      );
+      setMessage(localized(
+        "Image cleared. The fallback will display only when no uploaded image exists.",
+        "تم مسح الصورة. سيظهر البديل فقط عند العرض.",
+        "התמונה נמחקה. החלופה תוצג רק כאשר אין תמונה שהועלתה.",
+      ));
     } catch (error) {
       setMessage(error.message);
     }
@@ -143,40 +148,40 @@ function MediaEditor({ item, language, onDelete, onSave }) {
         ) : (
           <ImagePlus aria-hidden="true" size={30} />
         )}
-        <span>{draft.isActive ? (isArabic ? "نشطة" : "Active") : (isArabic ? "مخفية" : "Hidden")}</span>
+        <span>{draft.isActive ? localized("Active", "نشطة", "פעיל") : localized("Hidden", "مخفية", "מוסתר")}</span>
       </div>
 
       <div className="website-media-fields">
         <label>
-          {isArabic ? "اسم القسم" : "Section label"}
+          {localized("Section label", "اسم القسم", "תווית קטע")}
           <input value={draft.sectionLabel} onChange={(event) => update("sectionLabel", event.target.value)} />
         </label>
         <label>
-          {isArabic ? "مفتاح القسم" : "Section key"}
+          {localized("Section key", "مفتاح القسم", "מפתח קטע")}
           <input value={draft.sectionKey} onChange={(event) => update("sectionKey", event.target.value)} />
         </label>
         <label className="full-field">
-          {isArabic ? "رابط الصورة" : "Image URL"}
+          {localized("Image URL", "رابط الصورة", "קישור תמונה")}
           <input value={draft.imageUrl} onChange={(event) => update("imageUrl", event.target.value)} />
         </label>
         <label>
-          {isArabic ? "المجموعة" : "Group"}
+          {localized("Group", "المجموعة", "קבוצה")}
           <input value={draft.groupKey} onChange={(event) => update("groupKey", event.target.value)} />
         </label>
         <label>
-          {isArabic ? "الترتيب" : "Sort order"}
+          {localized("Sort order", "الترتيب", "סדר מיון")}
           <input type="number" value={draft.sortOrder} onChange={(event) => update("sortOrder", event.target.value)} />
         </label>
         <label>
-          {isArabic ? "العنوان الاختياري" : "Optional title"}
+          {localized("Optional title", "العنوان الاختياري", "כותרת אופציונלית")}
           <input value={draft.title} onChange={(event) => update("title", event.target.value)} />
         </label>
         <label>
-          {isArabic ? "الوصف الاختياري" : "Optional subtitle"}
+          {localized("Optional subtitle", "الوصف الاختياري", "תיאור אופציונלי")}
           <input value={draft.subtitle} onChange={(event) => update("subtitle", event.target.value)} />
         </label>
         <label>
-          {isArabic ? "الرابط الاختياري" : "Optional link"}
+          {localized("Optional link", "الرابط الاختياري", "קישור אופציונלי")}
           <input value={draft.linkUrl} onChange={(event) => update("linkUrl", event.target.value)} />
         </label>
         <label className="website-media-toggle">
@@ -185,14 +190,14 @@ function MediaEditor({ item, language, onDelete, onSave }) {
             onChange={(event) => update("isActive", event.target.checked)}
             type="checkbox"
           />
-          {isArabic ? "إظهار الصورة في الموقع" : "Show image on website"}
+          {localized("Show image on website", "إظهار الصورة في الموقع", "הצג תמונה באתר")}
         </label>
       </div>
 
       <div className="website-media-actions">
         <label className="admin-upload-button">
           <Upload size={15} />
-          {uploading ? (isArabic ? "جاري الرفع..." : "Uploading...") : (isArabic ? "رفع صورة" : "Upload image")}
+          {uploading ? localized("Uploading...", "جاري الرفع...", "מעלה...") : localized("Upload image", "رفع صورة", "העלה תמונה")}
           <input accept="image/*" disabled={uploading} hidden onChange={handleUpload} type="file" />
         </label>
         <button
@@ -202,16 +207,16 @@ function MediaEditor({ item, language, onDelete, onSave }) {
           type="button"
         >
           <ImageOff size={15} />
-          {isArabic ? "مسح الصورة" : "Clear image"}
+          {localized("Clear image", "مسح الصورة", "נקה תמונה")}
         </button>
         <button className="admin-primary-button" onClick={handleSave} type="button">
           <Save size={15} />
-          {isArabic ? "حفظ" : "Save"}
+          {localized("Save", "حفظ", "שמור")}
         </button>
         {draft.id && (
           <button className="website-media-delete" onClick={() => onDelete(draft.id)} type="button">
             <Trash2 size={15} />
-            {isArabic ? "حذف" : "Delete"}
+            {localized("Delete", "حذف", "מחק")}
           </button>
         )}
       </div>
@@ -221,8 +226,13 @@ function MediaEditor({ item, language, onDelete, onSave }) {
 }
 
 function WebsiteMediaManager({ language = "en", items = [], onDelete, onSave }) {
+  function localized(en, ar, he) {
+    if (language === "ar") return ar;
+    if (language === "he") return he;
+    return en;
+  }
+
   const [drafts, setDrafts] = React.useState([]);
-  const isArabic = language === "ar";
   const registeredItems = React.useMemo(() => mergeDefaultMediaItems(items), [items]);
   const grouped = groupItems([...registeredItems, ...drafts].sort(
     (a, b) => Number(a.sortOrder || 0) - Number(b.sortOrder || 0),
@@ -248,16 +258,18 @@ function WebsiteMediaManager({ language = "en", items = [], onDelete, onSave }) 
     <section className="website-media-manager">
       <header className="website-media-head">
         <div>
-          <h2>{isArabic ? "صور الموقع" : "Website Media"}</h2>
+          <h2>{localized("Website Media", "صور الموقع", "מדיה לאתר")}</h2>
           <p>
-            {isArabic
-              ? "غيّر صور أقسام الموقع الثابتة بدون تعديل صور المنتجات."
-              : "Manage static section images without changing product media."}
+            {localized(
+              "Manage static section images without changing product media.",
+              "غيّر صور أقسام الموقع الثابتة بدون تعديل صور المنتجات.",
+              "נהל תמונות סטטיות של האזור מבלי לשנות מדיה של מוצרים.",
+            )}
           </p>
         </div>
         <button className="admin-primary-button" onClick={addDraft} type="button">
           <ImagePlus size={16} />
-          {isArabic ? "إضافة صورة" : "Add image"}
+          {localized("Add image", "إضافة صورة", "הוסף תמונה")}
         </button>
       </header>
 

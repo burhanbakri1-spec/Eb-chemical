@@ -60,6 +60,27 @@ const content = {
     impactText:
       "نتائج التنظيف الجيد يجب أن تكون عملية وواضحة وموثوقة. تمثل هذه الأرقام التزامنا بروتين أفضل للمنازل والسيارات والمساحات اليومية.",
   },
+  he: {
+    heroTitle: "אנחנו כאן כדי להפוך את הניקוי לפשוט יותר",
+    heroSubtitle: "מוצרי ניקוי וטיפול מעשיים לבתים, לרכב ולחללים יומיומיים.",
+    review: "יותר מ-500 הזמנות מלקוחות מרוצים",
+    intro:
+      "EB Chemical יוצרת מוצרי ניקוי וטיפול מעשיים לשימוש יומיומי. אנו הופכים את הטיפול בבית וברכב לקל, נקי ויעיל יותר. הכל מבוסס על מוצרים אמינים ושגרות פשוטות.",
+    rethinkTitle: "מחשיבים מחדש ניקיון",
+    rethinkText:
+      "EB Chemical הופכת ניקוי יומיומי לפשוט, אמין ויעיל יותר. אנו מתמקדים במוצרים מעשיים לבתים, לרכב ולחללים יומיומיים. תוצאות חזקות מתחילות בשגרות ברורות ופשוטות.",
+    pillarsTitle: "דרך נקייה יותר קדימה",
+    pillarsSubtitle: "מה אם ניקוי יומיומי יכול להיות קל, חכם ויעיל יותר?",
+    ctaTitle: "הצטרף אלינו בלהפוך את הניקוי לפשוט יותר",
+    ctaText:
+      "אנו יוצרים מוצרי טיפול מעשיים לבית ולרכב המיועדים להפוך ניקוי יומיומי לקל, נקי ואמין יותר.",
+    ctaButton: "גלה עוד",
+    impactTitle: "השפעה",
+    impactMeta1: "הופכים ניקוי יומיומי למשמעותי",
+    impactMeta2: "מאז שהתחלנו",
+    impactText:
+      "תוצאות ניקוי טובות צריכות להיות מעשיות, גלויות ואמינות. מספרים אלה מייצגים את המחויבות שלנו לשגרות טובות יותר לבתים, לרכב ולחללים יומיומיים.",
+  },
 };
 
 const pillars = {
@@ -106,6 +127,29 @@ const pillars = {
       imageKey: "pillar3",
       title: "عناية فعالة",
       text: "منتجات مناسبة للاستخدام اليومي في المنازل والسيارات والمساحات المشتركة.",
+      fallbackImage: fallbackImages.pillar3,
+    },
+  ],
+  he: [
+    {
+      key: "bottle",
+      imageKey: "pillar1",
+      title: "מוצרים יומיומיים טובים יותר",
+      text: "מוצרי ניקוי מעשיים המיועדים להפוך את הטיפול היומיומי בבית וברכב לקל, נקי ואמין יותר.",
+      fallbackImage: fallbackImages.pillar1,
+    },
+    {
+      key: "concentrates",
+      imageKey: "pillar2",
+      title: "שגרות פשוטות",
+      text: "פתרונות ניקוי ברורים שעוזרים ללקוחות להשיג תוצאות חזקות ללא צעדים מסובכים.",
+      fallbackImage: fallbackImages.pillar2,
+    },
+    {
+      key: "materials",
+      imageKey: "pillar3",
+      title: "טיפול יעיל",
+      text: "מוצרים המיועדים לשימוש יומיומי אמיתי בבתים, ברכב ובחללים משותפים.",
       fallbackImage: fallbackImages.pillar3,
     },
   ],
@@ -158,28 +202,55 @@ const stats = {
       fallbackImage: fallbackImages.stat3,
     },
   ],
+  he: [
+    {
+      key: "products",
+      imageKey: "stat1",
+      value: "243 אלף",
+      label: "שגרות ניקוי שנתמכו",
+      fallbackImage: fallbackImages.stat1,
+    },
+    {
+      key: "orders",
+      imageKey: "stat2",
+      value: "123 ק\"ג",
+      label: "פסולת מוצרים שהופחתה",
+      fallbackImage: fallbackImages.stat2,
+    },
+    {
+      key: "categories",
+      imageKey: "stat3",
+      value: "123 ק\"ג",
+      label: "טיפול יומיומי ששופר",
+      fallbackImage: fallbackImages.stat3,
+    },
+  ],
 };
 
-const mobileIntroCards = [
-  {
-    title: "Practical products",
-    text: "Cleaning and care solutions made for homes, cars, and daily spaces.",
-  },
-  {
-    title: "Simple routines",
-    text: "Easy-to-use products that make daily cleaning more practical.",
-  },
-  {
-    title: "Reliable results",
-    text: "Focused formulas designed to help spaces feel cleaner and fresher.",
-  },
-];
+const mobileIntroCards = {
+  en: [
+    { title: "Practical products", text: "Cleaning and care solutions made for homes, cars, and daily spaces." },
+    { title: "Simple routines", text: "Easy-to-use products that make daily cleaning more practical." },
+    { title: "Reliable results", text: "Focused formulas designed to help spaces feel cleaner and fresher." },
+  ],
+  ar: [
+    { title: "منتجات عملية", text: "حلول تنظيف وعناية للمنازل والسيارات والمساحات اليومية." },
+    { title: "روتين بسيط", text: "منتجات سهلة الاستخدام تجعل التنظيف اليومي أكثر عملية." },
+    { title: "نتائج موثوقة", text: "تركيبات مركزة مصممة لمساعدة المساحات على الشعور بالنظافة والانتعاش." },
+  ],
+  he: [
+    { title: "מוצרים מעשיים", text: "פתרונות ניקוי וטיפול לבתים, לרכב ולחללים יומיומיים." },
+    { title: "שגרות פשוטות", text: "מוצרים קלים לשימוש שהופכים ניקוי יומיומי למעשי יותר." },
+    { title: "תוצאות אמינות", text: "נוסחאות ממוקדות שנועדו לעזור לחללים להרגיש נקיים ורעננים יותר." },
+  ],
+};
 
 function AboutPage({ language = "en", onNavigate, websiteMedia = [] }) {
   const isArabic = language === "ar";
-  const t = content[isArabic ? "ar" : "en"];
-  const items = pillars[isArabic ? "ar" : "en"];
-  const numbers = stats[isArabic ? "ar" : "en"];
+  const t = content[language] || content.en;
+  const items = pillars[language] || pillars.en;
+  const numbers = stats[language] || stats.en;
+  const mobileCards = mobileIntroCards[language] || mobileIntroCards.en;
   const [activePillar, setActivePillar] = React.useState("");
 
   const image = React.useCallback(
@@ -188,7 +259,7 @@ function AboutPage({ language = "en", onNavigate, websiteMedia = [] }) {
   );
 
   return (
-    <main className="mission-page" dir={isArabic ? "rtl" : "ltr"}>
+    <main className="mission-page" dir={language === "ar" || language === "he" ? "rtl" : "ltr"}>
       <section className="mission-hero" data-header-theme="light">
         <div className="mission-hero-content">
           <h1 className="mission-hero-title">{t.heroTitle}</h1>
@@ -213,7 +284,7 @@ function AboutPage({ language = "en", onNavigate, websiteMedia = [] }) {
         <div className="mission-intro-cards" aria-label="Built for easier everyday cleaning" dir="ltr">
           <h2 className="mission-intro-title">Built for easier everyday cleaning</h2>
           <div className="mission-intro-card-list">
-            {mobileIntroCards.map((card) => (
+            {mobileCards.map((card) => (
               <article className="mission-intro-card" key={card.title}>
                 <h3>{card.title}</h3>
                 <p>{card.text}</p>

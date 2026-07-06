@@ -2,14 +2,6 @@ import React from "react";
 import AdminLayout from "../components/AdminLayout.jsx";
 import { fetchInvoice } from "../utils/invoicesApi.js";
 
-const statusLabels = {
-  draft: "Draft",
-  issued: "Issued",
-  paid: "Paid",
-  cancelled: "Cancelled",
-  void: "Void",
-};
-
 const statusColors = {
   draft: { bg: "#eef1f4", text: "#5f6b77" },
   issued: { bg: "#e8f7fb", text: "#0b2e4e" },
@@ -56,6 +48,24 @@ function AdminInvoiceViewPage({
   onToggleDarkMode,
   routeParams,
 }) {
+  function localized(en, ar, he) {
+    if (language === "ar") return ar;
+    if (language === "he") return he;
+    return en;
+  }
+  function loc(value) {
+    if (!value || typeof value === "string") return value || "";
+    return value[language] || value.ar || value.en || "";
+  }
+
+  const statusLabels = {
+    draft: loc({ en: "Draft", ar: "مسودة", he: "טיוטה" }),
+    issued: loc({ en: "Issued", ar: "صادر", he: "הונפק" }),
+    paid: loc({ en: "Paid", ar: "مدفوع", he: "שולם" }),
+    cancelled: loc({ en: "Cancelled", ar: "ملغي", he: "בוטל" }),
+    void: loc({ en: "Void", ar: "ملغى", he: "מבוטל" }),
+  };
+
   const invoiceId = routeParams?.invoiceId;
   const [invoice, setInvoice] = React.useState(null);
   const [loading, setLoading] = React.useState(true);
@@ -88,16 +98,16 @@ function AdminInvoiceViewPage({
 
   if (loading) {
     return (
-      <AdminLayout {...layoutProps} title="Invoice" subtitle="Loading invoice details...">
-        <div className="admin-empty-state">Loading...</div>
+      <AdminLayout {...layoutProps} title={loc({ en: "Invoice", ar: "فاتورة", he: "חשבונית" })} subtitle={localized("Loading invoice details...", "جار تحميل تفاصيل الفاتورة...", "טוען פרטי חשבונית...")}>
+        <div className="admin-empty-state">{localized("Loading...", "جار التحميل...", "טוען...")}</div>
       </AdminLayout>
     );
   }
 
   if (!invoice) {
     return (
-      <AdminLayout {...layoutProps} title="Invoice" subtitle="Invoice not found">
-        <div className="admin-empty-state">{message?.text || "Invoice not found."}</div>
+      <AdminLayout {...layoutProps} title={loc({ en: "Invoice", ar: "فاتورة", he: "חשבונית" })} subtitle={localized("Invoice not found", "الفاتورة غير موجودة", "החשבונית לא נמצאה")}>
+        <div className="admin-empty-state">{message?.text || localized("Invoice not found.", "الفاتورة غير موجودة.", "החשבונית לא נמצאה.")}</div>
       </AdminLayout>
     );
   }
@@ -107,7 +117,7 @@ function AdminInvoiceViewPage({
   const sc = statusColors[invoice.status] || statusColors.draft;
 
   return (
-    <AdminLayout {...layoutProps} title={`Invoice ${invoice.invoice_number}`} subtitle="Invoice details and print view">
+    <AdminLayout {...layoutProps} title={`${loc({ en: "Invoice", ar: "فاتورة", he: "חשבונית" })} ${invoice.invoice_number}`} subtitle={localized("Invoice details and print view", "تفاصيل الفاتورة وعرض الطباعة", "פרטי חשבונית ותצוגת הדפסה")}>
       <PrintStyles />
 
       <div className="invoice-no-print invoice-view-toolbar">
@@ -118,11 +128,11 @@ function AdminInvoiceViewPage({
           </div>
         )}
         <div className="toolbar-actions">
-          <button className="primary-action" onClick={handlePrint} type="button">Print</button>
+          <button className="primary-action" onClick={handlePrint} type="button">{localized("Print", "طباعة", "הדפס")}</button>
           {invoice.status !== "void" && invoice.status !== "cancelled" && (
-            <button className="secondary-action" onClick={() => onNavigate("admin-invoices-edit", { invoiceId: invoice.id })} type="button">Edit</button>
+            <button className="secondary-action" onClick={() => onNavigate("admin-invoices-edit", { invoiceId: invoice.id })} type="button">{localized("Edit", "تعديل", "ערוך")}</button>
           )}
-          <button className="secondary-action" onClick={() => onNavigate("admin-invoices")} type="button">Back to Invoices</button>
+          <button className="secondary-action" onClick={() => onNavigate("admin-invoices")} type="button">{localized("Back to Invoices", "العودة إلى الفواتير", "חזור לחשבוניות")}</button>
         </div>
       </div>
 
@@ -130,7 +140,7 @@ function AdminInvoiceViewPage({
         <div className="invoice-header">
           <div>
             <h2 className="invoice-company-name">{currentUser?.name || "Company"}</h2>
-            <p className="invoice-doc-label">Invoice</p>
+            <p className="invoice-doc-label">{localized("Invoice", "فاتورة", "חשבונית")}</p>
           </div>
           <div className="invoice-header-right">
             <h1 className="invoice-number">{invoice.invoice_number}</h1>
@@ -142,24 +152,24 @@ function AdminInvoiceViewPage({
 
         <div className="invoice-bill-area">
           <div>
-            <strong>Bill To</strong>
+            <strong>{localized("Bill To", "الفاتورة إلى", "חייב ל")}</strong>
             <p className="invoice-customer-name">{invoice.customer_name}</p>
             {invoice.customer_email && <p className="invoice-muted">{invoice.customer_email}</p>}
             {invoice.customer_phone && <p className="invoice-muted">{invoice.customer_phone}</p>}
           </div>
           <div className="invoice-dates">
-            <p><strong>Issue Date:</strong> {formatDate(invoice.issue_date)}</p>
-            {invoice.due_date && <p><strong>Due Date:</strong> {formatDate(invoice.due_date)}</p>}
+            <p><strong>{localized("Issue Date:", "تاريخ الإصدار:", "תאריך הנפקה:")}</strong> {formatDate(invoice.issue_date)}</p>
+            {invoice.due_date && <p><strong>{localized("Due Date:", "تاريخ الاستحقاق:", "תאריך יעד:")}</strong> {formatDate(invoice.due_date)}</p>}
           </div>
         </div>
 
         <table className="invoice-line-table">
           <thead>
             <tr>
-              <th className="text-left">Description</th>
-              <th className="text-center">Qty</th>
-              <th className="text-right">Unit Price</th>
-              <th className="text-right">Total</th>
+              <th className="text-left">{localized("Description", "الوصف", "תיאור")}</th>
+              <th className="text-center">{localized("Qty", "الكمية", "כמות")}</th>
+              <th className="text-right">{localized("Unit Price", "سعر الوحدة", "מחיר יחידה")}</th>
+              <th className="text-right">{localized("Total", "الإجمالي", "סה\"כ")}</th>
             </tr>
           </thead>
           <tbody>
@@ -175,21 +185,21 @@ function AdminInvoiceViewPage({
         </table>
 
         <div className="invoice-summary">
-          <div className="summary-row"><span>Subtotal</span><span>{currencySymbols[invoice.currency] || invoice.currency}{Number(invoice.subtotal || subtotal).toFixed(2)}</span></div>
-          {Number(invoice.discount_total) > 0 && <div className="summary-row"><span>Discount</span><span>-{currencySymbols[invoice.currency] || invoice.currency}{Number(invoice.discount_total).toFixed(2)}</span></div>}
-          {Number(invoice.tax_total) > 0 && <div className="summary-row"><span>Tax</span><span>{currencySymbols[invoice.currency] || invoice.currency}{Number(invoice.tax_total).toFixed(2)}</span></div>}
-          <div className="summary-row summary-total"><span>Total</span><span>{currencySymbols[invoice.currency] || invoice.currency}{Number(invoice.total).toFixed(2)}</span></div>
+          <div className="summary-row"><span>{localized("Subtotal", "المجموع الفرعي", "סכום ביניים")}</span><span>{currencySymbols[invoice.currency] || invoice.currency}{Number(invoice.subtotal || subtotal).toFixed(2)}</span></div>
+          {Number(invoice.discount_total) > 0 && <div className="summary-row"><span>{localized("Discount", "الخصم", "הנחה")}</span><span>-{currencySymbols[invoice.currency] || invoice.currency}{Number(invoice.discount_total).toFixed(2)}</span></div>}
+          {Number(invoice.tax_total) > 0 && <div className="summary-row"><span>{localized("Tax", "الضريبة", "מס")}</span><span>{currencySymbols[invoice.currency] || invoice.currency}{Number(invoice.tax_total).toFixed(2)}</span></div>}
+          <div className="summary-row summary-total"><span>{localized("Total", "الإجمالي", "סה\"כ")}</span><span>{currencySymbols[invoice.currency] || invoice.currency}{Number(invoice.total).toFixed(2)}</span></div>
         </div>
 
         {invoice.notes && (
           <div className="invoice-notes">
-            <strong>Notes:</strong>
+            <strong>{localized("Notes:", "ملاحظات:", "הערות:")}</strong>
             <p>{invoice.notes}</p>
           </div>
         )}
 
         <div className="invoice-footer">
-          Thank you for your business
+          {localized("Thank you for your business", "شكرًا لتعاملكم معنا", "תודה על העסק")}
         </div>
       </div>
     </AdminLayout>

@@ -20,16 +20,21 @@ function AdminEmployeesPage({
   statusMessage,
   t,
 }) {
+  function localized(en, ar, he) {
+    if (language === "ar") return ar;
+    if (language === "he") return he;
+    return en;
+  }
+
   const [editingEmployee, setEditingEmployee] = React.useState(null);
   const [localMessage, setLocalMessage] = React.useState(null);
   const [formKey, setFormKey] = React.useState(0);
-  const isArabic = language === "ar";
   const title = activePage === "admin-staff-new"
-    ? isArabic ? "موظف جديد" : "New Staff Member"
-    : isArabic ? "الموظفون" : "Staff";
+    ? localized("New Staff Member", "موظف جديد", "חבר צוות חדש")
+    : localized("Staff", "الموظفون", "צוות");
   const subtitle = activePage === "admin-staff-new"
-    ? isArabic ? "إنشاء حساب موظف جديد" : "Create a staff account"
-    : isArabic ? "إدارة حسابات الموظفين والأدوار والصلاحيات" : "Manage staff accounts, roles, and permissions";
+    ? localized("Create a staff account", "إنشاء حساب موظف جديد", "צור חשבון צוות")
+    : localized("Manage staff accounts, roles, and permissions", "إدارة حسابات الموظفين والأدوار والصلاحيات", "ניהול חשבונות צוות, תפקידים והרשאות");
 
   const layoutProps = {
     activePage,
@@ -82,12 +87,12 @@ function AdminEmployeesPage({
       {activePage === "admin-staff-new" ? (
         <section className="admin-panel-card">
           <div className="admin-role-info">
-            <strong>Admin</strong>
-            <span>Full access: manage staff, settings, all content, and all operations.</span>
-            <strong>Manager</strong>
-            <span>Manage products, orders, customers, reviews, and content. Cannot manage staff or settings.</span>
-            <strong>Employee</strong>
-            <span>View-only access for admin sections and regular employee workspace access.</span>
+            <strong>{localized("Admin", "مسؤول", "מנהל")}</strong>
+            <span>{localized("Full access: manage staff, settings, all content, and all operations.", "صلاحية كاملة: إدارة الموظفين والإعدادات وجميع المحتويات والعمليات.", "גישה מלאה: ניהול צוות, הגדרות, כל התוכן וכל הפעולות.")}</span>
+            <strong>{localized("Manager", "مدير", "מנהל מחלקה")}</strong>
+            <span>{localized("Manage products, orders, customers, reviews, and content. Cannot manage staff or settings.", "إدارة المنتجات والطلبات والعملاء والمراجعات والمحتوى. لا يمكن إدارة الموظفين أو الإعدادات.", "ניהול מוצרים, הזמנות, לקוחות, ביקורות ותוכן. לא יכול לנהל צוות או הגדרות.")}</span>
+            <strong>{localized("Employee", "موظف", "עובד")}</strong>
+            <span>{localized("View-only access for admin sections and regular employee workspace access.", "وصول للعرض فقط للأقسام الإدارية ووصول منتظم لمساحة عمل الموظف.", "גישת צפייה בלבד לאזורי ניהול וגישת עבודה רגילה לעובד.")}</span>
           </div>
           <EmployeeForm
             editingEmployee={editingEmployee}
@@ -104,11 +109,11 @@ function AdminEmployeesPage({
         <section className="admin-panel-card">
           <div className="admin-section-head">
             <div>
-              <h2>{isArabic ? "الموظفون" : "Staff"}</h2>
+              <h2>{localized("Staff", "الموظفون", "צוות")}</h2>
               <p>{subtitle}</p>
             </div>
             <button className="admin-primary-button" onClick={() => onNavigate("admin-staff-new")} type="button">
-              {isArabic ? "إضافة موظف" : "Add Staff"}
+              {localized("Add Staff", "إضافة موظف", "הוסף צוות")}
             </button>
           </div>
           <EmployeeTable

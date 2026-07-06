@@ -91,20 +91,34 @@ function validateCompany(form) {
   return "";
 }
 
-function CompanyForm({ company, form, isSaving, onCancel, onChange, onSubmit }) {
+function CompanyForm({ company, form, isSaving, language = "en", onCancel, onChange, onSubmit }) {
+  function localized(en, ar, he) {
+    if (language === "ar") return ar;
+    if (language === "he") return he;
+    return en;
+  }
+  function localDesc(desc) {
+    if (!desc) return "";
+    if (typeof desc === "string") return desc;
+    return desc[language] || desc.en || "";
+  }
+  function loc(value) {
+    if (!value || typeof value === "string") return value || "";
+    return value[language] || value.ar || value.en || "";
+  }
   const isEditing = Boolean(company);
 
   return (
     <section className="admin-panel-card company-editor-card">
       <div className="admin-section-head">
         <div>
-          <h2>{isEditing ? `Edit ${company.name}` : "Create company draft"}</h2>
-          <p>New companies are not connected to a public storefront or domain resolver.</p>
+          <h2>{isEditing ? localized(`Edit ${company.name}`, `تعديل ${company.name}`, `ערוך ${company.name}`) : localized("Create company draft", "إنشاء مسودة شركة", "צור טיוטת חברה")}</h2>
+          <p>{localized("New companies are not connected to a public storefront or domain resolver.", "الشركات الجديدة غير متصلة بواجهة متجر عامة أو محلل نطاق.", "חברות חדשות אינן מחוברות לחנות ציבורית או לפתרון שמות מתחם.")}</p>
         </div>
       </div>
       <form className="admin-form company-form" onSubmit={onSubmit}>
         <label>
-          Company name
+          {localized("Company name", "اسم الشركة", "שם החברה")}
           <input
             autoComplete="organization"
             name="name"
@@ -114,7 +128,7 @@ function CompanyForm({ company, form, isSaving, onCancel, onChange, onSubmit }) 
           />
         </label>
         <label>
-          Slug
+          {localized("Slug", "الاسم المختصر", "מזהה")}
           <input
             disabled={company?.isDefault}
             name="slug"
@@ -125,7 +139,7 @@ function CompanyForm({ company, form, isSaving, onCancel, onChange, onSubmit }) 
           />
         </label>
         <label>
-          Domain
+          {localized("Domain", "النطاق", "דומיין")}
           <input
             autoCapitalize="none"
             name="domain"
@@ -135,20 +149,20 @@ function CompanyForm({ company, form, isSaving, onCancel, onChange, onSubmit }) 
           />
         </label>
         <label>
-          Status
+          {localized("Status", "الحالة", "סטטוס")}
           <select
             disabled={company?.isDefault}
             name="status"
             onChange={onChange}
             value={form.status}
           >
-            <option value="draft">Draft</option>
-            <option value="inactive">Inactive</option>
-            <option value="active">Active</option>
+            <option value="draft">{localized("Draft", "مسودة", "טיוטה")}</option>
+            <option value="inactive">{localized("Inactive", "غير نشط", "לא פעיל")}</option>
+            <option value="active">{localized("Active", "نشط", "פעיל")}</option>
           </select>
         </label>
         <label>
-          Currency
+          {localized("Currency", "العملة", "מטבע")}
           <input
             name="settings.currency"
             onChange={onChange}
@@ -157,7 +171,7 @@ function CompanyForm({ company, form, isSaving, onCancel, onChange, onSubmit }) 
           />
         </label>
         <label>
-          Language
+          {localized("Language", "اللغة", "שפה")}
           <input
             name="settings.language"
             onChange={onChange}
@@ -166,7 +180,7 @@ function CompanyForm({ company, form, isSaving, onCancel, onChange, onSubmit }) 
           />
         </label>
         <label>
-          Support email
+          {localized("Support email", "البريد الإلكتروني للدعم", "אימייל תמיכה")}
           <input
             name="settings.supportEmail"
             onChange={onChange}
@@ -175,7 +189,7 @@ function CompanyForm({ company, form, isSaving, onCancel, onChange, onSubmit }) 
           />
         </label>
         <label>
-          Support phone
+          {localized("Support phone", "هاتف الدعم", "טלפון תמיכה")}
           <input
             name="settings.supportPhone"
             onChange={onChange}
@@ -183,8 +197,8 @@ function CompanyForm({ company, form, isSaving, onCancel, onChange, onSubmit }) 
           />
         </label>
         <fieldset className="full-field company-modules-fieldset">
-          <legend>Admin modules</legend>
-          <p>Choose which sections are available in this company&apos;s admin panel.</p>
+          <legend>{localized("Admin modules", "وحدات الإدارة", "מודולי ניהול")}</legend>
+          <p>{localized("Choose which sections are available in this company's admin panel.", "اختر الأقسام المتاحة في لوحة إدارة هذه الشركة.", "בחר אילו קטעים זמינים בלוח הניהול של חברה זו.")}</p>
           <div className="company-modules-grid">
             {adminModuleRegistry.map((module) => (
               <label className="company-module-option" key={module.key}>
@@ -196,7 +210,7 @@ function CompanyForm({ company, form, isSaving, onCancel, onChange, onSubmit }) 
                 />
                 <span>
                   <strong>{module.label.en}</strong>
-                  <small>{module.description}</small>
+                  <small>{localDesc(module.description)}</small>
                 </span>
               </label>
             ))}
@@ -204,10 +218,10 @@ function CompanyForm({ company, form, isSaving, onCancel, onChange, onSubmit }) 
         </fieldset>
         <div className="form-actions full-field">
           <button className="secondary-action" disabled={isSaving} onClick={onCancel} type="button">
-            Cancel
+            {localized("Cancel", "إلغاء", "ביטול")}
           </button>
           <button className="admin-primary-button" disabled={isSaving} type="submit">
-            {isSaving ? "Saving..." : isEditing ? "Save changes" : "Create draft"}
+            {isSaving ? localized("Saving...", "جار الحفظ...", "שומר...") : isEditing ? localized("Save changes", "حفظ التغييرات", "שמור שינויים") : localized("Create draft", "إنشاء مسودة", "צור טיוטה")}
           </button>
         </div>
       </form>
@@ -215,13 +229,18 @@ function CompanyForm({ company, form, isSaving, onCancel, onChange, onSubmit }) 
   );
 }
 
-function AccessDenied() {
+function AccessDenied({ language = "en" }) {
+  function localized(en, ar, he) {
+    if (language === "ar") return ar;
+    if (language === "he") return he;
+    return en;
+  }
   return (
     <section className="admin-panel-card company-access-denied" role="alert">
       <ShieldAlert size={28} />
       <div>
-        <h2>Access denied</h2>
-        <p>Only an explicitly provisioned Super Admin can manage platform companies.</p>
+        <h2>{localized("Access denied", "الوصول مرفوض", "גישה נדחתה")}</h2>
+        <p>{localized("Only an explicitly provisioned Super Admin can manage platform companies.", "فقط مسؤول النظام المخول يمكنه إدارة شركات المنصة.", "רק מנהל על שהוקצה במפורש יכול לנהל חברות פלטפורמה.")}</p>
       </div>
     </section>
   );
@@ -236,6 +255,16 @@ function AdminCompaniesPage({
   onNavigate,
   onToggleDarkMode,
 }) {
+  function localized(en, ar, he) {
+    if (language === "ar") return ar;
+    if (language === "he") return he;
+    return en;
+  }
+  function loc(value) {
+    if (!value || typeof value === "string") return value || "";
+    return value[language] || value.ar || value.en || "";
+  }
+
   const [companies, setCompanies] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(currentUser?.role === "super_admin");
   const [isSaving, setIsSaving] = React.useState(false);
@@ -274,7 +303,7 @@ function AdminCompaniesPage({
         } else if (requestError.status === 403) {
           setAccessDenied(true);
         } else {
-          setError(requestError.message || "Unable to load companies.");
+          setError(requestError.message || localized("Unable to load companies.", "غير قادر على تحميل الشركات.", "לא ניתן לטעון חברות."));
         }
       } finally {
         if (active) setIsLoading(false);
@@ -359,13 +388,13 @@ function AdminCompaniesPage({
           ? current.map((company) => (company.id === saved.id ? saved : company))
           : [...current, saved];
       });
-      setSuccess(editorCompany ? "Company updated." : "Company draft created.");
+      setSuccess(editorCompany ? localized("Company updated.", "تم تحديث الشركة.", "החברה עודכנה.") : localized("Company draft created.", "تم إنشاء مسودة الشركة.", "טיוטת החברה נוצרה."));
       setEditorCompany(null);
       setForm(cloneForm());
     } catch (requestError) {
       if (requestError.status === 401) void onLogout();
       else if (requestError.status === 403) setAccessDenied(true);
-      else setError(requestError.message || "Unable to save company.");
+      else setError(requestError.message || localized("Unable to save company.", "غير قادر على حفظ الشركة.", "לא ניתן לשמור חברה."));
     } finally {
       setIsSaving(false);
     }
@@ -373,7 +402,7 @@ function AdminCompaniesPage({
 
   async function disableCompany(company) {
     if (company.isDefault) return;
-    if (!window.confirm(`Disable ${company.name}? Its public resolution remains unavailable.`)) {
+    if (!window.confirm(localized(`Disable ${company.name}? Its public resolution remains unavailable.`, `تعطيل ${company.name}؟ يبقى حله العام غير متاح.`, `להשבית את ${company.name}? הפתרון הציבורי שלה יישאר לא זמין.`))) {
       return;
     }
 
@@ -383,7 +412,7 @@ function AdminCompaniesPage({
     try {
       const saved = await disablePlatformCompany(company.id);
       setCompanies((current) => current.map((item) => (item.id === saved.id ? saved : item)));
-      setSuccess(`${company.name} disabled.`);
+      setSuccess(localized(`${company.name} disabled.`, `${company.name} معطل.`, `${company.name} הושבתה.`));
       if (editorCompany?.id === company.id) {
         setEditorCompany(saved);
         setForm(cloneForm(saved));
@@ -391,7 +420,7 @@ function AdminCompaniesPage({
     } catch (requestError) {
       if (requestError.status === 401) void onLogout();
       else if (requestError.status === 403) setAccessDenied(true);
-      else setError(requestError.message || "Unable to disable company.");
+      else setError(requestError.message || localized("Unable to disable company.", "غير قادر على تعطيل الشركة.", "לא ניתן להשבית חברה."));
     } finally {
       setIsSaving(false);
     }
@@ -407,21 +436,21 @@ function AdminCompaniesPage({
       onLogout={onLogout}
       onNavigate={onNavigate}
       onToggleDarkMode={onToggleDarkMode}
-      subtitle="Manage tenant companies under iGroup without enabling public tenant switching."
-      title="Companies"
+      subtitle={loc({ en: "Manage tenant companies under iGroup without enabling public tenant switching.", ar: "إدارة شركات المستأجرين تحت iGroup دون تمكين تبديل المستأجر العام.", he: "נהל חברות דיירים תחת iGroup מבלי לאפשר החלפת דיירים ציבורית." })}
+      title={loc({ en: "Companies", ar: "الشركات", he: "חברות" })}
     >
       {accessDenied ? (
-        <AccessDenied />
+        <AccessDenied language={language} />
       ) : (
         <div className="company-management-page">
           <div className="admin-toolbar company-toolbar">
             <div>
-              <strong>Companies managed by iGroup</strong>
-              <span>{companies.length} total</span>
+              <strong>{localized("Companies managed by iGroup", "الشركات التي تديرها iGroup", "חברות המנוהלות על ידי iGroup")}</strong>
+              <span>{companies.length} {localized("total", "الإجمالي", "סה\"כ")}</span>
             </div>
             <button className="admin-primary-button" onClick={beginCreate} type="button">
               <Plus size={15} />
-              New company
+              {localized("New company", "شركة جديدة", "חברה חדשה")}
             </button>
           </div>
 
@@ -438,20 +467,20 @@ function AdminCompaniesPage({
 
           {isLoading ? (
             <section className="admin-panel-card company-loading" aria-busy="true">
-              Loading companies...
+              {localized("Loading companies...", "جار تحميل الشركات...", "טוען חברות...")}
             </section>
           ) : companies.length ? (
             <div className="admin-table-wrap">
               <table className="admin-table company-table">
                 <thead>
                   <tr>
-                    <th>Company</th>
-                    <th>ID</th>
-                    <th>Slug</th>
-                    <th>Status</th>
-                    <th>Domain</th>
-                    <th>Default</th>
-                    <th>Actions</th>
+                    <th>{localized("Company", "الشركة", "חברה")}</th>
+                    <th>{localized("ID", "المعرف", "מזהה")}</th>
+                    <th>{localized("Slug", "الاسم المختصر", "מזהה")}</th>
+                    <th>{localized("Status", "الحالة", "סטטוס")}</th>
+                    <th>{localized("Domain", "النطاق", "דומיין")}</th>
+                    <th>{localized("Default", "افتراضي", "ברירת מחדל")}</th>
+                    <th>{localized("Actions", "الإجراءات", "פעולות")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -468,13 +497,13 @@ function AdminCompaniesPage({
                         <span
                           className={`admin-status-pill ${company.status === "active" ? "active" : company.status === "draft" ? "warning" : "neutral"}`}
                         >
-                          {company.status}
+                          {company.status === "active" ? localized("Active", "نشط", "פעיל") : company.status === "draft" ? localized("Draft", "مسودة", "טיוטה") : localized("Inactive", "غير نشط", "לא פעיל")}
                         </span>
                       </td>
-                      <td>{preferredCompanyDomain(company) || "Not assigned"}</td>
+                      <td>{preferredCompanyDomain(company) || localized("Not assigned", "غير معين", "לא הוקצה")}</td>
                       <td>
                         {company.isDefault ? (
-                          <span className="admin-status-pill active">Default tenant</span>
+                          <span className="admin-status-pill active">{localized("Default tenant", "المستأجر الافتراضي", "דייר ברירת מחדל")}</span>
                         ) : (
                           "-"
                         )}
@@ -486,7 +515,7 @@ function AdminCompaniesPage({
                             onClick={() => beginEdit(company)}
                             type="button"
                           >
-                            <Pencil size={14} /> Edit
+                            <Pencil size={14} /> {localized("Edit", "تعديل", "ערוך")}
                           </button>
                           {!company.isDefault && company.status !== "inactive" && (
                             <button
@@ -495,7 +524,7 @@ function AdminCompaniesPage({
                               onClick={() => disableCompany(company)}
                               type="button"
                             >
-                              Disable
+                              {localized("Disable", "تعطيل", "השבת")}
                             </button>
                           )}
                         </div>
@@ -508,8 +537,8 @@ function AdminCompaniesPage({
           ) : (
             <div className="admin-empty-state">
               <Building2 size={24} />
-              <strong>No companies found</strong>
-              <span>Create a draft company to begin configuration.</span>
+              <strong>{localized("No companies found", "لم يتم العثور على شركات", "לא נמצאו חברות")}</strong>
+              <span>{localized("Create a draft company to begin configuration.", "أنشئ شركة مسودة لبدء التكوين.", "צור חברת טיוטה כדי להתחיל בתצורה.")}</span>
             </div>
           )}
 
@@ -517,6 +546,7 @@ function AdminCompaniesPage({
             company={editorCompany}
             form={form}
             isSaving={isSaving}
+            language={language}
             onCancel={beginCreate}
             onChange={changeForm}
             onSubmit={submitCompany}

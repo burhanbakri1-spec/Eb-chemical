@@ -8,7 +8,9 @@ const socialLinks = [
     handle: "@eb_chemical",
     url: "https://www.instagram.com/eb_chemical",
     icon: "IG",
-    description: "Follow product care tips, updates, and everyday cleaning ideas.",
+    descriptionEn: "Follow product care tips, updates, and everyday cleaning ideas.",
+    descriptionAr: "تابع نصائح العناية بالمنتجات والتحديثات وأفكار التنظيف اليومية.",
+    descriptionHe: "עקבו אחר טיפים לטיפול במוצרים, עדכונים ורעיונות לניקיון יומיומי.",
   },
   {
     key: "facebook",
@@ -16,7 +18,9 @@ const socialLinks = [
     handle: "EB Chemical",
     url: "https://www.facebook.com/profile.php?id=61586630773060",
     icon: "f",
-    description: "See announcements, offers, and EB Chemical news.",
+    descriptionEn: "See announcements, offers, and EB Chemical news.",
+    descriptionAr: "شاهد الإعلانات والعروض وأخبار EB Chemical.",
+    descriptionHe: "ראה הודעות, מבצעים וחדשות EB Chemical.",
   },
   {
     key: "whatsapp",
@@ -24,7 +28,9 @@ const socialLinks = [
     handle: "00972599130765",
     url: "https://wa.me/972599130765",
     icon: "WA",
-    description: "Direct support and product inquiries will be available soon.",
+    descriptionEn: "Direct support and product inquiries will be available soon.",
+    descriptionAr: "الدعم المباشر واستفسارات المنتجات ستكون متاحة قريبًا.",
+    descriptionHe: "תמיכה ישירה ושאלות על מוצרים יהיו זמינות בקרוב.",
   },
   {
     key: "email",
@@ -32,7 +38,9 @@ const socialLinks = [
     handle: "elyas.2006@yahoo.com",
     url: "mailto:elyas.2006@yahoo.com",
     icon: "@",
-    description: "Send us questions, product requests, or business inquiries by email.",
+    descriptionEn: "Send us questions, product requests, or business inquiries by email.",
+    descriptionAr: "أرسل لنا أسئلتك وطلبات المنتجات أو استفسارات العمل عبر البريد الإلكتروني.",
+    descriptionHe: "שלח לנו שאלות, בקשות מוצרים או פניות עסקיות במייל.",
   },
   {
     key: "tiktok",
@@ -40,11 +48,19 @@ const socialLinks = [
     handle: "Coming soon",
     url: "",
     icon: "TT",
-    description: "Short cleaning tips and product videos will be available soon.",
+    descriptionEn: "Short cleaning tips and product videos will be available soon.",
+    descriptionAr: "نصائح تنظيف قصيرة وفيديوهات منتجات ستكون متاحة قريبًا.",
+    descriptionHe: "טיפים קצרים לניקיון וסרטוני מוצרים יהיו זמינים בקרוב.",
   },
 ];
 
-function FollowUsPage() {
+function FollowUsPage({ language = "en" }) {
+  function localized(en, ar, he) {
+    if (language === "ar") return ar;
+    if (language === "he") return he;
+    return en;
+  }
+
   function handleSocialClick(social) {
     trackSocialClick({ platform: social.key, url: social.url });
     if (social.key === "whatsapp" || social.key === "email") {
@@ -55,9 +71,9 @@ function FollowUsPage() {
   return (
     <section className="page-shell social-page follow-us-page">
       <div className="page-heading">
-        <p className="eyebrow">Follow us</p>
-        <h1>Follow EB Chemical</h1>
-        <p>Stay connected with EB Chemical through our official social media channels.</p>
+        <p className="eyebrow">{localized("Follow us", "تابعنا", "עקבו אחרינו")}</p>
+        <h1>{localized("Follow EB Chemical", "تابع EB Chemical", "עקבו אחרי EB Chemical")}</h1>
+        <p>{localized("Stay connected with EB Chemical through our official social media channels.", "ابقَ على تواصل مع EB Chemical عبر قنوات التواصل الاجتماعي الرسمية.", "הישארו מחוברים ל-EB Chemical דרך ערוצי המדיה החברתית הרשמיים שלנו.")}</p>
       </div>
 
       <div className="social-grid follow-social-grid">
@@ -71,7 +87,7 @@ function FollowUsPage() {
                 target: "_blank",
               }
             : {
-                "aria-label": `${social.name} link coming soon`,
+                "aria-label": `${social.name} ${localized("link coming soon", "الرابط قريبًا", "הקישור בקרוב")}`,
               };
 
           return (
@@ -86,9 +102,9 @@ function FollowUsPage() {
               <div className="follow-social-copy">
                 <h2>{social.name}</h2>
                 <strong>{social.handle}</strong>
-                <p>{social.description}</p>
+                <p>{localized(social.descriptionEn, social.descriptionAr, social.descriptionHe)}</p>
               </div>
-              <span className="follow-social-status">{social.url ? "Open channel" : "Link coming soon"}</span>
+              <span className="follow-social-status">{social.url ? localized("Open channel", "فتح القناة", "פתח ערוץ") : localized("Link coming soon", "الرابط قريبًا", "הקישור בקרוב")}</span>
             </CardElement>
           );
         })}

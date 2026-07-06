@@ -29,6 +29,16 @@ function AdminInvoiceFormPage({
   onToggleDarkMode,
   routeParams,
 }) {
+  function localized(en, ar, he) {
+    if (language === "ar") return ar;
+    if (language === "he") return he;
+    return en;
+  }
+  function loc(value) {
+    if (!value || typeof value === "string") return value || "";
+    return value[language] || value.ar || value.en || "";
+  }
+
   const editingInvoiceId = routeParams?.invoiceId;
   const isEditing = Boolean(editingInvoiceId);
 
@@ -120,11 +130,11 @@ function AdminInvoiceFormPage({
   async function handleSubmit(event) {
     event.preventDefault();
     if (!form.customer_name.trim()) {
-      setMessage({ type: "error", text: "Customer name is required." });
+      setMessage({ type: "error", text: localized("Customer name is required.", "اسم العميل مطلوب.", "שם הלקוח נדרש.") });
       return;
     }
     if (form.line_items.length === 0 || !form.line_items[0].description.trim()) {
-      setMessage({ type: "error", text: "At least one line item with a description is required." });
+      setMessage({ type: "error", text: localized("At least one line item with a description is required.", "مطلوب بند واحد على الأقل مع وصف.", "נדרש לפחות פריט שורה אחד עם תיאור.") });
       return;
     }
 
@@ -149,10 +159,10 @@ function AdminInvoiceFormPage({
 
       if (isEditing) {
         await updateInvoice(editingInvoiceId, payload);
-        setMessage({ type: "success", text: "Invoice updated." });
+        setMessage({ type: "success", text: localized("Invoice updated.", "تم تحديث الفاتورة.", "החשבונית עודכנה.") });
       } else {
         await createInvoice(payload);
-        setMessage({ type: "success", text: "Invoice created." });
+        setMessage({ type: "success", text: localized("Invoice created.", "تم إنشاء الفاتورة.", "החשבונית נוצרה.") });
       }
 
       setTimeout(() => onNavigate("admin-invoices"), 1500);
@@ -164,13 +174,13 @@ function AdminInvoiceFormPage({
   }
 
   const layoutProps = { activePage, currentUser, isDarkMode, language, onLanguageChange, onLogout, onNavigate, onToggleDarkMode };
-  const title = isEditing ? "Edit Invoice" : "New Invoice";
-  const subtitle = isEditing ? "Update invoice details" : "Create a new invoice";
+  const title = isEditing ? loc({ en: "Edit Invoice", ar: "تعديل الفاتورة", he: "ערוך חשבונית" }) : loc({ en: "New Invoice", ar: "فاتورة جديدة", he: "חשבונית חדשה" });
+  const subtitle = isEditing ? loc({ en: "Update invoice details", ar: "تحديث تفاصيل الفاتورة", he: "עדכן פרטי חשבונית" }) : loc({ en: "Create a new invoice", ar: "إنشاء فاتورة جديدة", he: "צור חשבונית חדשה" });
 
   if (loading) {
     return (
-      <AdminLayout {...layoutProps} title={title} subtitle="Loading invoice...">
-        <div className="admin-empty-state">Loading...</div>
+      <AdminLayout {...layoutProps} title={title} subtitle={localized("Loading invoice...", "جار تحميل الفاتورة...", "טוען חשבונית...")}>
+        <div className="admin-empty-state">{localized("Loading...", "جار التحميل...", "טוען...")}</div>
       </AdminLayout>
     );
   }
@@ -188,7 +198,7 @@ function AdminInvoiceFormPage({
         <form className="admin-panel-card" onSubmit={handleSubmit}>
           <div className="invoice-form-grid">
             <label className="full-field">
-              <span>Customer Name *</span>
+              <span>{localized("Customer Name *", "اسم العميل *", "שם הלקוח *")}</span>
               <input
                 type="text"
                 value={form.customer_name}
@@ -198,7 +208,7 @@ function AdminInvoiceFormPage({
             </label>
 
             <label>
-              <span>Customer Email</span>
+              <span>{localized("Customer Email", "البريد الإلكتروني للعميل", "אימייל הלקוח")}</span>
               <input
                 type="email"
                 value={form.customer_email}
@@ -207,7 +217,7 @@ function AdminInvoiceFormPage({
             </label>
 
             <label>
-              <span>Customer Phone</span>
+              <span>{localized("Customer Phone", "هاتف العميل", "טלפון הלקוח")}</span>
               <input
                 type="text"
                 value={form.customer_phone}
@@ -216,20 +226,20 @@ function AdminInvoiceFormPage({
             </label>
 
             <label>
-              <span>Status</span>
+              <span>{localized("Status", "الحالة", "סטטוס")}</span>
               <select
                 value={form.status}
                 onChange={(e) => setField("status", e.target.value)}
               >
-                <option value="draft">Draft</option>
-                <option value="issued">Issued</option>
-                <option value="paid">Paid</option>
-                <option value="cancelled">Cancelled</option>
+                <option value="draft">{localized("Draft", "مسودة", "טיוטה")}</option>
+                <option value="issued">{localized("Issued", "صادر", "הונפק")}</option>
+                <option value="paid">{localized("Paid", "مدفوع", "שולם")}</option>
+                <option value="cancelled">{localized("Cancelled", "ملغي", "בוטל")}</option>
               </select>
             </label>
 
             <label>
-              <span>Currency</span>
+              <span>{localized("Currency", "العملة", "מטבע")}</span>
               <select
                 value={form.currency}
                 onChange={(e) => setField("currency", e.target.value)}
@@ -241,7 +251,7 @@ function AdminInvoiceFormPage({
             </label>
 
             <label>
-              <span>Issue Date</span>
+              <span>{localized("Issue Date", "تاريخ الإصدار", "תאריך הנפקה")}</span>
               <input
                 type="date"
                 value={form.issue_date}
@@ -250,7 +260,7 @@ function AdminInvoiceFormPage({
             </label>
 
             <label>
-              <span>Due Date</span>
+              <span>{localized("Due Date", "تاريخ الاستحقاق", "תאריך יעד")}</span>
               <input
                 type="date"
                 value={form.due_date}
@@ -259,7 +269,7 @@ function AdminInvoiceFormPage({
             </label>
 
             <label className="full-field">
-              <span>Notes</span>
+              <span>{localized("Notes", "ملاحظات", "הערות")}</span>
               <textarea
                 value={form.notes}
                 onChange={(e) => setField("notes", e.target.value)}
@@ -270,13 +280,13 @@ function AdminInvoiceFormPage({
           </div>
 
           <div className="admin-section-head" style={{ marginTop: "24px" }}>
-            <h2>Line Items</h2>
+            <h2>{localized("Line Items", "بنود الفاتورة", "פריטי שורה")}</h2>
             <button
               type="button"
               className="secondary-action"
               onClick={addLineItem}
             >
-              + Add Line Item
+              + {localized("Add Line Item", "إضافة بند", "הוסף פריט שורה")}
             </button>
           </div>
 
@@ -284,10 +294,10 @@ function AdminInvoiceFormPage({
             <table className="admin-table admin-invoice-line-items-table">
               <thead>
                 <tr>
-                  <th style={{ width: "38%" }}>Description *</th>
-                  <th style={{ width: "14%" }}>Qty</th>
-                  <th style={{ width: "18%" }}>Unit Price</th>
-                  <th style={{ width: "15%" }}>Total</th>
+                  <th style={{ width: "38%" }}>{localized("Description *", "الوصف *", "תיאור *")}</th>
+                  <th style={{ width: "14%" }}>{localized("Qty", "الكمية", "כמות")}</th>
+                  <th style={{ width: "18%" }}>{localized("Unit Price", "سعر الوحدة", "מחיר יחידה")}</th>
+                  <th style={{ width: "15%" }}>{localized("Total", "الإجمالي", "סה\"כ")}</th>
                   <th style={{ width: "15%" }}></th>
                 </tr>
               </thead>
@@ -299,7 +309,7 @@ function AdminInvoiceFormPage({
                         type="text"
                         value={item.description}
                         onChange={(e) => updateLineItem(index, "description", e.target.value)}
-                        placeholder="Item description"
+                        placeholder={localized("Item description", "وصف البند", "תיאור פריט")}
                         required
                       />
                     </td>
@@ -331,7 +341,7 @@ function AdminInvoiceFormPage({
                         onClick={() => removeLineItem(index)}
                         style={{ color: "#a52222" }}
                       >
-                        Remove
+                        {localized("Remove", "إزالة", "הסר")}
                       </button>
                     </td>
                   </tr>
@@ -342,10 +352,10 @@ function AdminInvoiceFormPage({
 
           <div className="admin-invoice-totals-preview">
             <div className="total-row">
-              <span className="total-label">Total</span>
+              <span className="total-label">{localized("Total", "الإجمالي", "סה\"כ")}</span>
               <span className="total-amount">{form.currency === "ILS" ? "\u20AA" : "$"}{subtotal.toFixed(2)}</span>
             </div>
-            <p className="total-note">Frontend preview only. Final totals calculated on backend.</p>
+            <p className="total-note">{localized("Frontend preview only. Final totals calculated on backend.", "معاينة فقط. الإجمالي النهائي يحسب في الخادم.", "תצוגה מקדימה בלבד. הסכומים הסופיים מחושבים בשרת.")}</p>
           </div>
 
           <div className="invoice-form-actions">
@@ -354,14 +364,14 @@ function AdminInvoiceFormPage({
               className="secondary-action"
               onClick={() => onNavigate("admin-invoices")}
             >
-              Cancel
+              {localized("Cancel", "إلغاء", "ביטול")}
             </button>
             <button
               type="submit"
               className="primary-action"
               disabled={saving}
             >
-              {saving ? "Saving..." : isEditing ? "Update Invoice" : "Create Invoice"}
+              {saving ? localized("Saving...", "جار الحفظ...", "שומר...") : isEditing ? localized("Update Invoice", "تحديث الفاتورة", "עדכן חשבונית") : localized("Create Invoice", "إنشاء فاتورة", "צור חשבונית")}
             </button>
           </div>
         </form>

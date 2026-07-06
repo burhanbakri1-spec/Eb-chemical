@@ -16,6 +16,12 @@ function AdminOrdersTable({
   products,
   t,
 }) {
+  function localized(en, ar, he) {
+    if (language === "ar") return ar;
+    if (language === "he") return he;
+    return en;
+  }
+
   if (orders.length === 0) {
     return <div className="empty-panel compact-empty">{t("admin.noOrders")}</div>;
   }
@@ -39,7 +45,7 @@ function AdminOrdersTable({
             <th>{t("checkout.phone")}</th>
             <th>{t("checkout.city")}</th>
             <th>{t("common.total")}</th>
-            <th>{language === "ar" ? "نقاط EB" : "EB Points"}</th>
+            <th>{localized("EB Points", "نقاط EB", "נקודות EB")}</th>
             <th>{t("admin.orderStatus")}</th>
             <th>{t("admin.createdBy")}</th>
             {canAssign && <th>{t("admin.assignedEmployee")}</th>}

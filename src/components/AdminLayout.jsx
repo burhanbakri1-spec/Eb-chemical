@@ -31,71 +31,71 @@ const navSections = [
   {
     id: "platform",
     icon: Building2,
-    label: { en: "Platform", ar: "المنصة" },
+    label: { en: "Platform", ar: "المنصة", he: "פלטפורמה" },
     roles: ["super_admin"],
     items: [
-      { key: "admin-platform-companies", icon: Building2, label: { en: "Companies", ar: "الشركات" } },
-      { key: "admin-platform-users", icon: Users, label: { en: "Users", ar: "المستخدمون" } },
-      { key: "admin-platform-memberships", icon: ShieldCheck, label: { en: "Memberships", ar: "العضويات" } },
+      { key: "admin-platform-companies", icon: Building2, label: { en: "Companies", ar: "الشركات", he: "חברות" } },
+      { key: "admin-platform-users", icon: Users, label: { en: "Users", ar: "المستخدمون", he: "משתמשים" } },
+      { key: "admin-platform-memberships", icon: ShieldCheck, label: { en: "Memberships", ar: "العضويات", he: "חברויות" } },
     ],
   },
   {
     id: "dashboard",
     icon: Grid3X3,
-    label: { en: "Dashboard", ar: "لوحة التحكم" },
-    items: [{ key: "admin", icon: Grid3X3, label: { en: "Dashboard", ar: "لوحة التحكم" } }],
+    label: { en: "Dashboard", ar: "لوحة التحكم", he: "לוח בקרה" },
+    items: [{ key: "admin", icon: Grid3X3, label: { en: "Dashboard", ar: "لوحة التحكم", he: "לוח בקרה" } }],
   },
   {
     id: "catalog",
     icon: Cuboid,
-    label: { en: "Catalog", ar: "الكتالوج" },
+    label: { en: "Catalog", ar: "الكتالوج", he: "קטלוג" },
     items: [
-      { key: "admin-products", icon: Package, label: { en: "Products", ar: "المنتجات" } },
-      { key: "admin-categories", icon: FolderTree, label: { en: "Categories", ar: "الأقسام" } },
-      { key: "admin-brands", icon: Tag, label: { en: "Brands", ar: "العلامات التجارية" } },
+      { key: "admin-products", icon: Package, label: { en: "Products", ar: "المنتجات", he: "מוצרים" } },
+      { key: "admin-categories", icon: FolderTree, label: { en: "Categories", ar: "الأقسام", he: "קטגוריות" } },
+      { key: "admin-brands", icon: Tag, label: { en: "Brands", ar: "العلامات التجارية", he: "מותגים" } },
     ],
   },
   {
     id: "storefront",
     icon: Store,
-    label: { en: "Storefront", ar: "واجهة المتجر" },
+    label: { en: "Storefront", ar: "واجهة المتجر", he: "חנות" },
     items: [
-      { key: "admin-vlogs", icon: Film, label: { en: "Vlogs", ar: "الفيديوهات" } },
-      { key: "admin-store-locator", icon: MapPin, label: { en: "Store Locator", ar: "مواقع المتاجر" } },
-      { key: "admin-website-media", icon: Images, label: { en: "Website Media", ar: "صور الموقع" } },
+      { key: "admin-vlogs", icon: Film, label: { en: "Vlogs", ar: "الفيديوهات", he: "בלוגים" } },
+      { key: "admin-store-locator", icon: MapPin, label: { en: "Store Locator", ar: "مواقع المتاجر", he: "מיקומי חנויות" } },
+      { key: "admin-website-media", icon: Images, label: { en: "Website Media", ar: "صور الموقع", he: "מדיה אתר" } },
     ],
   },
   {
     id: "operations",
     icon: ClipboardList,
-    label: { en: "Operations", ar: "العمليات" },
+    label: { en: "Operations", ar: "العمليات", he: "פעולות" },
     items: [
-      { key: "admin-orders", icon: ShoppingCart, label: { en: "Orders", ar: "الطلبات" } },
-      { key: "admin-invoices", icon: FileText, label: { en: "Invoices", ar: "الفواتير" } },
-      { key: "admin-delivery", icon: MapPin, label: { en: "Delivery", ar: "التوصيل" } },
-      { key: "admin-reviews", icon: Star, label: { en: "Reviews", ar: "التقييمات" } },
-      { key: "admin-inventory", icon: Boxes, label: { en: "Inventory", ar: "المخزون" } },
+      { key: "admin-orders", icon: ShoppingCart, label: { en: "Orders", ar: "الطلبات", he: "הזמנות" } },
+      { key: "admin-invoices", icon: FileText, label: { en: "Invoices", ar: "الفواتير", he: "חשבוניות" } },
+      { key: "admin-delivery", icon: MapPin, label: { en: "Delivery", ar: "التوصيل", he: "משלוחים" } },
+      { key: "admin-reviews", icon: Star, label: { en: "Reviews", ar: "التقييمات", he: "ביקורות" } },
+      { key: "admin-inventory", icon: Boxes, label: { en: "Inventory", ar: "المخزون", he: "מלאי" } },
     ],
   },
   {
     id: "people",
     icon: Users,
-    label: { en: "People", ar: "الأشخاص" },
+    label: { en: "People", ar: "الأشخاص", he: "אנשים" },
     items: [
-      { key: "admin-customers", icon: UserCircle, label: { en: "Customers", ar: "العملاء" } },
-      { key: "admin-staff", icon: ShieldCheck, label: { en: "Staff", ar: "الموظفون" } },
+      { key: "admin-customers", icon: UserCircle, label: { en: "Customers", ar: "العملاء", he: "לקוחות" } },
+      { key: "admin-staff", icon: ShieldCheck, label: { en: "Staff", ar: "الموظفون", he: "צוות" } },
     ],
   },
   {
     id: "configuration",
     icon: Settings,
-    label: { en: "Configuration", ar: "الإعدادات" },
+    label: { en: "Configuration", ar: "الإعدادات", he: "תצורה" },
     items: [
-      { key: "admin-settings", icon: Settings, label: { en: "Settings", ar: "الإعدادات" } },
-      { key: "admin-product-settings", icon: Package, label: { en: "Product Settings", ar: "إعدادات المنتجات" } },
-      { key: "admin-reports", icon: ClipboardList, label: { en: "Reports", ar: "التقارير" } },
-      { key: "admin-activity-log", icon: ClipboardList, label: { en: "Activity Log", ar: "سجل النشاط" } },
-      { key: "admin-custom-modules", icon: Cuboid, label: { en: "Module Builder", ar: "منشئ الوحدات" } },
+      { key: "admin-settings", icon: Settings, label: { en: "Settings", ar: "الإعدادات", he: "הגדרות" } },
+      { key: "admin-product-settings", icon: Package, label: { en: "Product Settings", ar: "إعدادات المنتجات", he: "הגדרות מוצר" } },
+      { key: "admin-reports", icon: ClipboardList, label: { en: "Reports", ar: "التقارير", he: "דוחות" } },
+      { key: "admin-activity-log", icon: ClipboardList, label: { en: "Activity Log", ar: "سجل النشاط", he: "יומן פעילות" } },
+      { key: "admin-custom-modules", icon: Cuboid, label: { en: "Module Builder", ar: "منشئ الوحدات", he: "בונה מודולים" } },
     ],
   },
 ];
@@ -115,7 +115,8 @@ const childAliases = {
 };
 
 function localize(value, language) {
-  return value?.[language] || value?.en || "";
+  if (!value) return "";
+  return value[language] || value.ar || value.en || "";
 }
 
 function normalizedActive(activePage) {
@@ -146,7 +147,7 @@ function AdminLayout({
         ? [{
             id: "custom-modules",
             icon: Cuboid,
-            label: { en: "Custom Modules", ar: "الوحدات المخصصة" },
+            label: { en: "Custom Modules", ar: "الوحدات المخصصة", he: "מודולים מותאמים אישית" },
             items: customModules
               .filter((module) => module.enabled !== false)
               .map((module) => ({
@@ -154,7 +155,7 @@ function AdminLayout({
                 page: "admin-custom-entry-list",
                 options: { customModuleKey: module.key },
                 icon: FolderTree,
-                label: { en: module.label, ar: module.label },
+                label: { en: module.label, ar: module.label, he: module.label },
               })),
           }]
         : [];
@@ -191,16 +192,16 @@ function AdminLayout({
   }, [activeKey, visibleNavSections]);
 
   const labels = {
-    admin: language === "ar" ? "الإدارة" : "Admin",
-    menu: language === "ar" ? "القائمة" : "Menu",
-    signOut: language === "ar" ? "تسجيل الخروج" : "Sign Out",
-    language: language === "ar" ? "English" : "العربية",
-    darkMode: language === "ar" ? "الوضع الليلي" : "Dark mode",
-    lightMode: language === "ar" ? "الوضع الفاتح" : "Light mode",
+    admin: language === "ar" ? "الإدارة" : language === "he" ? "ניהול" : "Admin",
+    menu: language === "ar" ? "القائمة" : language === "he" ? "תפריט" : "Menu",
+    signOut: language === "ar" ? "تسجيل الخروج" : language === "he" ? "התנתק" : "Sign Out",
+    language: language === "ar" ? "English" : language === "he" ? "English" : "العربية",
+    darkMode: language === "ar" ? "الوضع الليلي" : language === "he" ? "מצב כהה" : "Dark mode",
+    lightMode: language === "ar" ? "الوضع الفاتح" : language === "he" ? "מצב בהיר" : "Light mode",
   };
 
   return (
-    <section className={`admin-layout ${isDarkMode ? "admin-dark" : ""}`} dir={language === "ar" ? "rtl" : "ltr"}>
+    <section className={`admin-layout ${isDarkMode ? "admin-dark" : ""}`} dir={language === "ar" || language === "he" ? "rtl" : "ltr"}>
       <button className="admin-mobile-menu" onClick={() => setMobileOpen(true)} type="button">
         <Archive size={16} />
         {labels.menu}
@@ -294,7 +295,7 @@ function AdminLayout({
           <div className="admin-userbar">
             <button className="admin-icon-button admin-language-button" aria-label={labels.language} onClick={onLanguageChange} type="button">
               <Languages size={15} />
-              <span>{language === "ar" ? "EN" : "AR"}</span>
+              <span>{language === "ar" ? "EN" : language === "he" ? "AR" : "HE"}</span>
             </button>
             <button className="admin-icon-button" aria-label={isDarkMode ? labels.lightMode : labels.darkMode} onClick={onToggleDarkMode} type="button">
               {isDarkMode ? <Sun size={15} /> : <Moon size={15} />}

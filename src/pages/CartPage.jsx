@@ -49,6 +49,27 @@ const cartCopy = {
     unlockShipping: (amount, currency) => `أضف ${amount} ${currency} للحصول على شحن مجاني`,
     youMightAlsoLike: "قد يعجبك أيضًا",
   },
+  he: {
+    addToCart: "הוסף לסל",
+    cartTitle: "העגלה שלך",
+    checkout: "המשך לתשלום",
+    continueShopping: "המשך בקניות",
+    emptyCart: "רוקן עגלה",
+    emptyTitle: "אין מוצרים בעגלה שלך",
+    featured: "מוצר מובלט",
+    freeShipping: "מזל טוב! קיבלת משלוח חינם!",
+    loginToAccount: "התחבר לחשבון שלך",
+    needAnythingElse: "צריך עוד משהו?",
+    quickIntro: "מוצרים נבחרים שמתאימים להזמנה שלך.",
+    quickTitle: "תפוס את זה לפני שייגמר",
+    remove: "הסר",
+    shippingInfo: "מידע משלוח",
+    size: "מידה",
+    color: "צבע",
+    totalDue: "סה\"כ לתשלום (היום)",
+    unlockShipping: (amount, currency) => `הוסף ${amount} ${currency} לקבלת משלוח חינם`,
+    youMightAlsoLike: "אולי תאהב גם",
+  },
 };
 
 function RecommendedProductCard({
@@ -232,7 +253,7 @@ function CartPage({
             </header>
 
             {compactRecommendations.length > 0 && (
-              <section className="cart-upsell-strip" aria-label={isArabic ? "اقتراحات سريعة" : "Quick suggestions"}>
+              <section className="cart-upsell-strip" aria-label={isArabic ? "اقتراحات سريعة" : language === "he" ? "הצעות מהירות" : "Quick suggestions"}>
                 <div className="cart-upsell-heading">
                   <strong>{text.quickTitle}</strong>
                   <span>{text.quickIntro}</span>

@@ -399,7 +399,7 @@ function EmployeeDashboardPage({
           onClick={() => setActiveTab("website-media")}
           type="button"
         >
-          {language === "ar" ? "صور الموقع" : "Website Media"}
+          {language === "ar" ? "صور الموقع" : language === "he" ? "מדיה אתר" : "Website Media"}
         </button>
         )}
       </div>
@@ -575,7 +575,7 @@ function EmployeeDashboardPage({
                 })}
               </div>
               <label>
-                {language === "ar" ? "اللون / الحجم" : "Color / size"}
+                {language === "ar" ? "اللون / الحجم" : language === "he" ? "צבע / מידה" : "Color / size"}
                 <select
                   onChange={(event) => setSelectedVariantId(event.target.value)}
                   value={selectedVariantId}
