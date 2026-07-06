@@ -13,9 +13,18 @@ export const adminModuleRegistry = Object.freeze([
     key: "products",
     label: { en: "Products", ar: "المنتجات" },
     description: "Products, brands, and inventory management.",
-    pageKeys: ["admin-products", "admin-products-new", "admin-product-settings", "admin-brands", "admin-brands-new", "admin-inventory"],
+    pageKeys: ["admin-products", "admin-products-new", "admin-brands", "admin-brands-new", "admin-inventory"],
     requiredPermission: "products.view",
     defaultEnabled: true,
+  },
+  {
+    key: "product_settings",
+    label: { en: "Product Settings", ar: "إعدادات المنتجات" },
+    description: "Configure company-specific product form, fields, variants, media, and storefront product details.",
+    pageKeys: ["admin-product-settings"],
+    requiredPermission: "product_settings.manage",
+    requiredRoles: ["admin", "company_admin"],
+    defaultEnabled: false,
   },
   {
     key: "categories",
@@ -126,13 +135,20 @@ const moduleByPageKey = new Map(
   adminModuleRegistry.flatMap((module) => module.pageKeys.map((pageKey) => [pageKey, module])),
 );
 
-export function defaultAdminModules() {
-  return Object.fromEntries(adminModuleRegistry.map((module) => [module.key, module.defaultEnabled]));
+export function defaultAdminModules(companyId = "") {
+  return Object.fromEntries(
+    adminModuleRegistry.map((module) => [
+      module.key,
+      module.key === "product_settings" && companyId === "eb-chemical"
+        ? true
+        : module.defaultEnabled,
+    ]),
+  );
 }
 
-export function resolveAdminModules(settings = {}) {
+export function resolveAdminModules(settings = {}, companyId = "") {
   const configured = settings?.adminModules;
-  const defaults = defaultAdminModules();
+  const defaults = defaultAdminModules(companyId);
   if (!configured || typeof configured !== "object" || Array.isArray(configured)) return defaults;
 
   return Object.fromEntries(

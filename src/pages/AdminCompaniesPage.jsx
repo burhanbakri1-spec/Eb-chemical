@@ -75,7 +75,7 @@ function cloneForm(company = emptyForm) {
       language: company.settings?.language || "",
       supportEmail: company.settings?.supportEmail || "",
       supportPhone: company.settings?.supportPhone || "",
-      adminModules: resolveAdminModules(company.settings),
+      adminModules: resolveAdminModules(company.settings, company.id),
     },
   };
 }

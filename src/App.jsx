@@ -325,8 +325,8 @@ function App() {
   const checkoutTrackedRef = React.useRef(false);
   const t = React.useMemo(() => createTranslator(language), [language]);
   const enabledAdminModules = React.useMemo(
-    () => resolveAdminModules(companyContext?.settings),
-    [companyContext?.settings],
+    () => resolveAdminModules(companyContext?.settings, companyContext?.id),
+    [companyContext?.id, companyContext?.settings],
   );
   const adminModulesContextValue = React.useMemo(
     () => ({

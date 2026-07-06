@@ -10,6 +10,7 @@ export const permissionGroups = [
       { key: "products.create", labelKey: "permissions.productsCreate" },
       { key: "products.update", labelKey: "permissions.productsUpdate" },
       { key: "products.delete", labelKey: "permissions.productsDelete" },
+      { key: "product_settings.manage", labelKey: "permissions.productSettingsManage" },
     ],
   },
   {
