@@ -5,6 +5,7 @@ import AdminOrdersTable from "../components/AdminOrdersTable.jsx";
 import WebsiteMediaManager from "../components/WebsiteMediaManager.jsx";
 import { uploadImage, uploadImages } from "../utils/api.js";
 import { isVariantVisible } from "../utils/productVariants.js";
+import { enabledProductField, productFieldLabel } from "../data/productSchema.js";
 import {
   adminCategoriesStorageKey,
   defaultAdminCategories,
@@ -121,6 +122,7 @@ function createLocalizedCopy(en, ar) {
 
 function normalizeFormVariant(variant = {}, index = 0, product = {}) {
   return {
+    ...variant,
     id: variant.id || `${product.id || "product"}-variant-${index}`,
     color_name: variant.color_name || variant.colorName || "Default",
     color_value: variant.color_value || variant.colorValue || "",
@@ -130,6 +132,7 @@ function normalizeFormVariant(variant = {}, index = 0, product = {}) {
     image_url: variant.image_url || variant.imageUrl || variant.image || "",
     sort_order: Number(variant.sort_order ?? variant.sortOrder ?? index),
     isVisible: isVariantVisible(variant),
+    attributes: variant.attributes && typeof variant.attributes === "object" ? { ...variant.attributes } : {},
   };
 }
 
@@ -137,7 +140,7 @@ function cleanupDuplicateVariants(variants) {
   const groups = new Map();
 
   variants.forEach((variant) => {
-    const key = `${(variant.color_name || "").toLowerCase()}|${(variant.color_value || "").toLowerCase()}|${(variant.size || "").toLowerCase()}`;
+    const key = `${(variant.color_name || "").toLowerCase()}|${(variant.color_value || "").toLowerCase()}|${(variant.size || "").toLowerCase()}|${JSON.stringify(variant.attributes || {})}`;
     if (!groups.has(key)) groups.set(key, []);
     groups.get(key).push(variant);
   });
@@ -344,6 +347,9 @@ function createProductFromForm(form) {
       mainImage: form.dsiMainImage || "",
     },
     detailStatements: form.detailStatements || [],
+    customFields: form.customFields || {},
+    customMedia: form.customMedia || {},
+    customShowcase: form.customShowcase || {},
     createdAt: form.createdAt || new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
@@ -593,7 +599,7 @@ function ProductsListPage({ categories, filters, onAdd, onDeleteProduct, onEdit,
   );
 }
 
-function ProductWizard({ categories, editingProduct, onCancel, onSave }) {
+function ProductWizard({ categories, editingProduct, language, onCancel, onSave, productSchema }) {
   const [step, setStep] = React.useState("basic");
   const initialCategoryOptions = getSelectableAdminCategories(categories, editingProduct?.categoryId);
   const [uploadError, setUploadError] = React.useState("");
@@ -651,13 +657,58 @@ function ProductWizard({ categories, editingProduct, onCancel, onSave }) {
     labelAr: editingProduct?.badge?.ar || "",
     active: editingProduct?.isActive !== false,
     featured: Boolean(editingProduct?.isFeatured),
+    newArrival: Boolean(editingProduct?.isNewArrival),
     bestseller: Boolean(editingProduct?.isBestseller),
     detailStatements: editingProduct?.detailStatements || editingProduct?.detail_statements || [],
+    customFields: editingProduct?.customFields || {},
+    customMedia: editingProduct?.customMedia || {},
+    customShowcase: editingProduct?.customShowcase || {},
   }));
 
-  const tabs = ["basic", "variants", "media", "seo", "showcase"];
-  const tabLabels = ["Basic", "Variants", "Media", "SEO", "Showcase"];
+  const enabledTabs = productSchema.tabs.filter((tab) => tab.enabled !== false).sort((a, b) => a.sortOrder - b.sortOrder);
+  const tabs = enabledTabs.map((tab) => tab.key);
+  const tabLabels = enabledTabs.map((tab) => tab.label?.[language] || tab.label?.en || tab.key);
   const selectableCategories = getSelectableAdminCategories(categories, form.categoryId);
+  const knownFieldKeys = new Set([
+    "nameEn", "nameAr", "slug", "sku", "categoryId", "brand", "shortDescription", "shortDescriptionAr",
+    "fullDescription", "fullDescriptionAr", "howToUse", "ingredients", "benefits", "skinTypes", "concerns",
+    "active", "featured", "newArrival", "bestseller", "label", "labelAr", "metaTitle", "metaDescription",
+  ]);
+  const builtInMediaKeys = new Set(["image", "hoverImage", "videoUrl", "galleryImages", "detailStatements", "dsiHowItWorks1", "dsiHowItWorks2", "dsiHowItWorks3", "dsiImpact1", "dsiImpact2", "dsiSafeToUse", "dsiPracticalBanner", "dsiIngredients", "dsiFaq"]);
+  const variantAttributes = productSchema.variantAttributes.filter((field) => field.enabled !== false).sort((a, b) => a.sortOrder - b.sortOrder);
+
+  React.useEffect(() => {
+    if (!tabs.includes(step)) setStep(tabs[0] || "basic");
+  }, [step, tabs.join("|")]);
+
+  function schemaValue(field, bucket = "customFields") {
+    if (knownFieldKeys.has(field.key)) return form[field.key] ?? field.defaultValue ?? "";
+    return form[bucket]?.[field.key] ?? field.defaultValue ?? (field.type === "multi_select" ? [] : "");
+  }
+
+  function setSchemaValue(field, value, bucket = "customFields") {
+    setForm((current) => knownFieldKeys.has(field.key)
+      ? { ...current, [field.key]: value }
+      : { ...current, [bucket]: { ...(current[bucket] || {}), [field.key]: value } });
+  }
+
+  function renderSchemaField(field, bucket = "customFields") {
+    const label = productFieldLabel(field, language);
+    const value = schemaValue(field, bucket);
+    if (field.key === "categoryId") {
+      return <label key={field.key}>{label}{field.required ? " *" : ""}<select required={field.required} value={value} onChange={(event) => setSchemaValue(field, event.target.value, bucket)}>{selectableCategories.map((category) => <option key={category.id} value={category.id}>{getText(category.name)}</option>)}</select></label>;
+    }
+    if (field.type === "boolean") return <label className="checkbox-line" key={field.key}><input checked={value === true} type="checkbox" onChange={(event) => setSchemaValue(field, event.target.checked, bucket)} />{label}</label>;
+    if (field.type === "textarea") return <label key={field.key}>{label}{field.required ? " *" : ""}<textarea required={field.required} value={value || ""} onChange={(event) => setSchemaValue(field, event.target.value, bucket)} /></label>;
+    if (field.type === "select") return <label key={field.key}>{label}{field.required ? " *" : ""}<select required={field.required} value={value || ""} onChange={(event) => setSchemaValue(field, event.target.value, bucket)}><option value="">Select…</option>{(field.options || []).map((option) => <option key={option.value} value={option.value}>{option.label?.[language] || option.label?.en || option.value}</option>)}</select></label>;
+    if (field.type === "multi_select") return <label key={field.key}>{label}<select multiple value={Array.isArray(value) ? value : []} onChange={(event) => setSchemaValue(field, [...event.target.selectedOptions].map((option) => option.value), bucket)}>{(field.options || []).map((option) => <option key={option.value} value={option.value}>{option.label?.[language] || option.label?.en || option.value}</option>)}</select></label>;
+    const type = ["number", "date", "url"].includes(field.type) ? field.type : "text";
+    return <label key={field.key}>{label}{field.required ? " *" : ""}<input required={field.required} type={type} value={value ?? ""} onChange={(event) => setSchemaValue(field, event.target.value, bucket)} /></label>;
+  }
+
+  function mediaEnabled(key) {
+    return Boolean(enabledProductField(productSchema, key));
+  }
 
   function change(event) {
     const { checked, name, type, value } = event.target;
@@ -689,7 +740,11 @@ function ProductWizard({ categories, editingProduct, onCancel, onSave }) {
     setForm((current) => ({
       ...current,
       variants: (current.variants || []).map((variant, variantIndex) =>
-        variantIndex === index ? { ...variant, [field]: value } : variant,
+        variantIndex === index
+          ? ["color_name", "color_value", "size"].includes(field)
+            ? { ...variant, [field]: value }
+            : { ...variant, attributes: { ...(variant.attributes || {}), [field]: value } }
+          : variant,
       ),
     }));
   }
@@ -854,7 +909,13 @@ function ProductWizard({ categories, editingProduct, onCancel, onSave }) {
 
   async function submit(event) {
     event.preventDefault();
-    const result = await onSave(createProductFromForm(form));
+    const payload = createProductFromForm(form);
+    payload.customFields = Object.fromEntries(productSchema.fields.filter((field) => field.enabled !== false && !knownFieldKeys.has(field.key)).map((field) => [field.key, form.customFields?.[field.key] ?? field.defaultValue ?? ""]));
+    payload.customMedia = Object.fromEntries(productSchema.mediaFields.filter((field) => field.enabled !== false && !builtInMediaKeys.has(field.key)).map((field) => [field.key, form.customMedia?.[field.key] ?? field.defaultValue ?? ""]));
+    payload.customShowcase = Object.fromEntries(productSchema.showcaseSections.filter((section) => section.enabled !== false).map((section) => [section.key, Object.fromEntries((section.fields || []).filter((field) => field.enabled !== false).map((field) => [field.key, form.customShowcase?.[section.key]?.[field.key] ?? field.defaultValue ?? ""]))]));
+    const customVariantKeys = new Set(variantAttributes.filter((field) => !["color_name", "color_value", "size"].includes(field.key)).map((field) => field.key));
+    payload.variants = payload.variants.map((variant) => ({ ...variant, attributes: Object.fromEntries(Object.entries(variant.attributes || {}).filter(([key]) => customVariantKeys.has(key))) }));
+    const result = await onSave(payload);
     if (result?.ok) onCancel();
   }
 
@@ -870,26 +931,7 @@ function ProductWizard({ categories, editingProduct, onCancel, onSave }) {
       <form className="admin-form admin-wizard-form" onSubmit={submit}>
         {step === "basic" && (
           <>
-            <label>Product Name *<input name="nameEn" required value={form.nameEn} onChange={change} /></label>
-            <label>Arabic Product Name<input name="nameAr" value={form.nameAr} onChange={change} /></label>
-            <label>Slug<input name="slug" value={form.slug} onChange={change} /></label>
-            <label>SKU<input name="sku" value={form.sku} onChange={change} /></label>
-            <label>Category *<select name="categoryId" required value={form.categoryId} onChange={change}>{selectableCategories.map((category) => <option key={category.id} value={category.id}>{getText(category.name)}</option>)}</select></label>
-            <label>Brand<input name="brand" value={form.brand} onChange={change} /></label>
-            <label>Short Description<textarea name="shortDescription" value={form.shortDescription} onChange={change} /></label>
-            <label>Full Description<textarea name="fullDescription" value={form.fullDescription} onChange={change} /></label>
-            <label>How to Use<textarea name="howToUse" value={form.howToUse} onChange={change} /></label>
-            <label>Ingredients<textarea name="ingredients" value={form.ingredients} onChange={change} /></label>
-            <label>Benefits<textarea name="benefits" value={form.benefits} onChange={change} /></label>
-            <label>Skin Types<input name="skinTypes" value={form.skinTypes} onChange={change} /></label>
-            <label>Concerns<input name="concerns" value={form.concerns} onChange={change} /></label>
-            <div className="admin-checkbox-grid full-field">
-              {["active", "featured", "newArrival", "bestseller"].map((field) => (
-                <label className="checkbox-line" key={field}><input name={field} type="checkbox" checked={form[field]} onChange={change} />{field.replace(/([A-Z])/g, " $1")}</label>
-              ))}
-            </div>
-            <label>Label<input name="label" value={form.label} onChange={change} /></label>
-            <label>Label Arabic<input name="labelAr" value={form.labelAr} onChange={change} /></label>
+            {productSchema.fields.filter((field) => field.tab === "basic" && field.enabled !== false).sort((a, b) => a.sortOrder - b.sortOrder).map((field) => renderSchemaField(field))}
             <p className="admin-note full-field">Pricing managed per variant. Set price, sale price, and stock individually for each variant below.</p>
           </>
         )}
@@ -901,7 +943,7 @@ function ProductWizard({ categories, editingProduct, onCancel, onSave }) {
                 Add Variant
               </button>
             </div>
-            <div className="variant-generator-panel">
+            {variantAttributes.some((field) => field.key === "color_name") && variantAttributes.some((field) => field.key === "size") && <div className="variant-generator-panel">
               <div>
                 <strong>Variant Generator</strong>
                 <p>Enter each color on a new line: name|hex|optional image URL. Separate sizes with commas.</p>
@@ -941,13 +983,18 @@ function ProductWizard({ categories, editingProduct, onCancel, onSave }) {
               <button className="admin-primary-button compact-action" onClick={generateVariants} type="button">
                 Generate Variants
               </button>
-            </div>
+            </div>}
             <div className="admin-variant-grid">
               {(form.variants || []).map((variant, index) => (
                 <div className="admin-variant-row" key={variant.id || index}>
-                  <label>Color name<input required value={variant.color_name} onChange={(event) => updateVariant(index, "color_name", event.target.value)} /></label>
-                  <label>Color value<input value={variant.color_value} onChange={(event) => updateVariant(index, "color_value", event.target.value)} /></label>
-                  <label>Size<input required value={variant.size} onChange={(event) => updateVariant(index, "size", event.target.value)} /></label>
+                  {variantAttributes.map((field) => {
+                    const value = ["color_name", "color_value", "size"].includes(field.key) ? variant[field.key] : variant.attributes?.[field.key] ?? field.defaultValue ?? "";
+                    if (field.type === "boolean") return <label className="checkbox-line" key={field.key}><input checked={value === true} type="checkbox" onChange={(event) => updateVariant(index, field.key, event.target.checked)} />{productFieldLabel(field, language)}</label>;
+                    if (field.type === "select") return <label key={field.key}>{productFieldLabel(field, language)}<select required={field.required} value={value} onChange={(event) => updateVariant(index, field.key, event.target.value)}><option value="">Select…</option>{(field.options || []).map((option) => <option key={option.value} value={option.value}>{option.label?.[language] || option.label?.en || option.value}</option>)}</select></label>;
+                    if (field.type === "multi_select") return <label key={field.key}>{productFieldLabel(field, language)}<select multiple value={Array.isArray(value) ? value : []} onChange={(event) => updateVariant(index, field.key, [...event.target.selectedOptions].map((option) => option.value))}>{(field.options || []).map((option) => <option key={option.value} value={option.value}>{option.label?.[language] || option.label?.en || option.value}</option>)}</select></label>;
+                    if (field.type === "textarea") return <label key={field.key}>{productFieldLabel(field, language)}<textarea required={field.required} value={value} onChange={(event) => updateVariant(index, field.key, event.target.value)} /></label>;
+                    return <label key={field.key}>{productFieldLabel(field, language)}<input required={field.required} type={field.type === "number" ? "number" : "text"} value={value} onChange={(event) => updateVariant(index, field.key, event.target.value)} /></label>;
+                  })}
                   <label>Price<input min="0" required type="number" value={variant.price} onChange={(event) => updateVariant(index, "price", event.target.value)} /></label>
                   <label>Stock<input min="0" required type="number" value={variant.stock} onChange={(event) => updateVariant(index, "stock", event.target.value)} /></label>
                   <label>
@@ -979,10 +1026,10 @@ function ProductWizard({ categories, editingProduct, onCancel, onSave }) {
         )}
         {step === "media" && (
           <>
-            <MediaField label="Featured Image" name="image" value={form.image} onChange={change} />
-            <MediaField label="Second / Hover Image" name="hoverImage" value={form.hoverImage} onChange={change} />
-            <label>Video URL<input name="videoUrl" value={form.videoUrl} onChange={change} /></label>
-            <div className="full-field admin-gallery-editor">
+            {mediaEnabled("image") && <MediaField label={productFieldLabel(enabledProductField(productSchema, "image"), language)} name="image" value={form.image} onChange={change} />}
+            {mediaEnabled("hoverImage") && <MediaField label={productFieldLabel(enabledProductField(productSchema, "hoverImage"), language)} name="hoverImage" value={form.hoverImage} onChange={change} />}
+            {mediaEnabled("videoUrl") && <label>{productFieldLabel(enabledProductField(productSchema, "videoUrl"), language)}<input name="videoUrl" value={form.videoUrl} onChange={change} /></label>}
+            {mediaEnabled("galleryImages") && <div className="full-field admin-gallery-editor">
               <div className="admin-inline-heading">
                 <strong>Vertical Gallery Images</strong>
                 <label className="admin-upload-button">
@@ -1021,7 +1068,7 @@ function ProductWizard({ categories, editingProduct, onCancel, onSave }) {
                 ))}
               </div>
               {uploadError && <div className="message-panel error full-field">{uploadError}</div>}
-            </div>
+            </div>}
             <div className="full-field">
               <strong>Product Details Section Images</strong>
               <div className="admin-dsi-grid">
@@ -1035,12 +1082,12 @@ function ProductWizard({ categories, editingProduct, onCancel, onSave }) {
                   { key: "dsiPracticalBanner", label: "Practical banner image" },
                   { key: "dsiIngredients", label: "Ingredients section image" },
                   { key: "dsiFaq", label: "FAQ side image" },
-                ].map(({ key, label }) => (
-                  <MediaField key={key} label={label} name={key} value={form[key] || ""} onChange={change} />
+                ].filter(({ key }) => mediaEnabled(key)).map(({ key, label }) => (
+                  <MediaField key={key} label={productFieldLabel(enabledProductField(productSchema, key), language) || label} name={key} value={form[key] || ""} onChange={change} />
                 ))}
               </div>
             </div>
-            <div className="full-field">
+            {mediaEnabled("detailStatements") && <div className="full-field">
               <strong>Product Details Banner Statements</strong>
               <div className="admin-dsi-grid">
                 {(form.detailStatements || []).map((statement, index) => (
@@ -1098,16 +1145,35 @@ function ProductWizard({ categories, editingProduct, onCancel, onSave }) {
                   + Add statement
                 </button>
               </div>
-            </div>
+            </div>}
+            {productSchema.mediaFields.filter((field) => field.enabled !== false && !builtInMediaKeys.has(field.key)).sort((a, b) => a.sortOrder - b.sortOrder).map((field) => renderSchemaField(field, "customMedia"))}
           </>
         )}
         {step === "seo" && (
           <>
-            <label>Meta Title<input name="metaTitle" value={form.metaTitle} onChange={change} /></label>
-            <label>Meta Description<textarea name="metaDescription" value={form.metaDescription} onChange={change} /></label>
+            {productSchema.fields.filter((field) => field.tab === "seo" && field.enabled !== false).sort((a, b) => a.sortOrder - b.sortOrder).map((field) => renderSchemaField(field))}
           </>
         )}
-        {step === "showcase" && <div className="full-field"><EmptyState title={form.id ? "Showcase content can be added for this product." : "Save the product first to manage its showcase content."} /></div>}
+        {step === "showcase" && (
+          <div className="full-field product-showcase-form-sections">
+            {productSchema.showcaseSections.filter((section) => section.enabled !== false).map((section) => (
+              <section className="product-showcase-form-section" key={section.key}>
+                <h3>{section.title?.[language] || section.title?.en || section.key}</h3>
+                {(section.fields || []).filter((field) => field.enabled !== false).map((field) => {
+                  const value = form.customShowcase?.[section.key]?.[field.key] ?? field.defaultValue ?? "";
+                  const setValue = (nextValue) => setForm((current) => ({ ...current, customShowcase: { ...(current.customShowcase || {}), [section.key]: { ...(current.customShowcase?.[section.key] || {}), [field.key]: nextValue } } }));
+                  if (field.type === "textarea") return <label key={field.key}>{productFieldLabel(field, language)}<textarea value={value} onChange={(event) => setValue(event.target.value)} /></label>;
+                  if (field.type === "boolean") return <label className="checkbox-line" key={field.key}><input checked={value === true} type="checkbox" onChange={(event) => setValue(event.target.checked)} />{productFieldLabel(field, language)}</label>;
+                  if (field.type === "select") return <label key={field.key}>{productFieldLabel(field, language)}<select value={value} onChange={(event) => setValue(event.target.value)}><option value="">Select…</option>{(field.options || []).map((option) => <option key={option.value} value={option.value}>{option.label?.[language] || option.label?.en || option.value}</option>)}</select></label>;
+                  if (field.type === "multi_select") return <label key={field.key}>{productFieldLabel(field, language)}<select multiple value={Array.isArray(value) ? value : []} onChange={(event) => setValue([...event.target.selectedOptions].map((option) => option.value))}>{(field.options || []).map((option) => <option key={option.value} value={option.value}>{option.label?.[language] || option.label?.en || option.value}</option>)}</select></label>;
+                  return <label key={field.key}>{productFieldLabel(field, language)}<input type={field.type === "number" ? "number" : field.type === "date" ? "date" : field.type === "url" ? "url" : "text"} value={value} onChange={(event) => setValue(event.target.value)} /></label>;
+                })}
+                {!section.fields?.length && <p className="admin-note">This section uses the existing EB Chemical product content.</p>}
+              </section>
+            ))}
+          </div>
+        )}
+        {step === "custom_sections" && <>{productSchema.fields.filter((field) => field.tab === "custom_sections" && field.enabled !== false).sort((a, b) => a.sortOrder - b.sortOrder).map((field) => renderSchemaField(field))}</>}
         <div className="form-actions full-field">
           <button className="secondary-action" disabled={tabs.indexOf(step) === 0} onClick={() => setStep(tabs[tabs.indexOf(step) - 1])} type="button">Previous</button>
           <button className="secondary-action" disabled={tabs.indexOf(step) === tabs.length - 1} onClick={() => setStep(tabs[tabs.indexOf(step) + 1])} type="button">Next</button>
@@ -1297,6 +1363,7 @@ function AdminDashboardPage({
   onToggleDarkMode,
   orders,
   products,
+  productSchema,
   reviews,
   statusMessage,
   t,
@@ -1462,7 +1529,7 @@ function AdminDashboardPage({
       case "admin-products":
         return <ProductsListPage categories={adminCategories} filters={filters} onAdd={() => { setEditingProduct(null); onNavigate("admin-products-new"); }} onDeleteProduct={onDeleteProduct} onEdit={(product) => { setEditingProduct(product); onNavigate("admin-products-new"); }} products={products} readOnly={readOnly} setFilters={setFilters} />;
       case "admin-products-new":
-        return <ProductWizard categories={adminCategories} editingProduct={editingProduct} onCancel={() => onNavigate("admin-products")} onSave={onSaveProduct} />;
+        return <ProductWizard categories={adminCategories} editingProduct={editingProduct} language={language} onCancel={() => onNavigate("admin-products")} onSave={onSaveProduct} productSchema={productSchema} />;
       case "admin-categories":
         return renderSimpleTable("categories");
       case "admin-categories-new":

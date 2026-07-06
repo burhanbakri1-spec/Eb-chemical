@@ -13,7 +13,7 @@ export const adminModuleRegistry = Object.freeze([
     key: "products",
     label: { en: "Products", ar: "المنتجات" },
     description: "Products, brands, and inventory management.",
-    pageKeys: ["admin-products", "admin-products-new", "admin-brands", "admin-brands-new", "admin-inventory"],
+    pageKeys: ["admin-products", "admin-products-new", "admin-product-settings", "admin-brands", "admin-brands-new", "admin-inventory"],
     requiredPermission: "products.view",
     defaultEnabled: true,
   },

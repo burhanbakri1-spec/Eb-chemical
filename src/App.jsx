@@ -17,6 +17,7 @@ import AdminInvoiceViewPage from "./pages/AdminInvoiceViewPage.jsx";
 import AdminDeliveryZonesPage from "./pages/AdminDeliveryZonesPage.jsx";
 import AdminActivityLogPage from "./pages/AdminActivityLogPage.jsx";
 import AdminReportsPage from "./pages/AdminReportsPage.jsx";
+import AdminProductSettingsPage from "./pages/AdminProductSettingsPage.jsx";
 import CartPage from "./pages/CartPage.jsx";
 import CheckoutPage from "./pages/CheckoutPage.jsx";
 import CleanupsPage from "./pages/CleanupsPage.jsx";
@@ -96,6 +97,8 @@ import {
 import { isVariantVisible } from "./utils/productVariants.js";
 import { fetchCompanyContext } from "./utils/companyContextApi.js";
 import { fetchCustomModules } from "./utils/customModulesApi.js";
+import { createDefaultProductSchema } from "./data/productSchema.js";
+import { fetchProductSchema } from "./utils/productSchemaApi.js";
 import {
   trackAddToCart,
   trackInitiateCheckout,
@@ -147,6 +150,7 @@ const pagePaths = {
   "admin-staff-new": "/admin/staff/new",
   "admin-employees": "/admin/staff",
   "admin-settings": "/admin/settings",
+  "admin-product-settings": "/admin/product-settings",
   "admin-custom-modules": "/admin/custom-modules",
   "admin-custom-modules-new": "/admin/custom-modules/new",
   "admin-invoices": "/admin/invoices",
@@ -181,6 +185,7 @@ const adminPageKeys = [
   "admin-staff-new",
   "admin-employees",
   "admin-settings",
+  "admin-product-settings",
   "admin-custom-modules",
   "admin-custom-modules-new",
   "admin-custom-modules-edit",
@@ -203,6 +208,7 @@ const platformAdminPageKeys = [
 ];
 
 const customAdminPageKeys = [
+  "admin-product-settings",
   "admin-custom-modules",
   "admin-custom-modules-new",
   "admin-custom-modules-edit",
@@ -299,6 +305,7 @@ function App() {
   const [websiteMediaError, setWebsiteMediaError] = React.useState("");
   const [companyContext, setCompanyContext] = React.useState(null);
   const [companyContextLoaded, setCompanyContextLoaded] = React.useState(false);
+  const [productSchema, setProductSchema] = React.useState(createDefaultProductSchema);
   const [customModules, setCustomModules] = React.useState([]);
   const [customModulesLoaded, setCustomModulesLoaded] = React.useState(false);
   const [currentUser, setUser] = React.useState(getCurrentUser);
@@ -392,6 +399,7 @@ function App() {
     loadWebsiteMedia();
     hydrateUser();
     loadCompanyContext();
+    loadProductSchema();
   }, []);
 
   React.useEffect(() => {
@@ -500,6 +508,10 @@ function App() {
     } finally {
       setCompanyContextLoaded(true);
     }
+  }
+
+  async function loadProductSchema() {
+    setProductSchema(await fetchProductSchema());
   }
 
   async function loadCustomModules(user = currentUser) {
@@ -1282,6 +1294,7 @@ function App() {
             onViewProduct={handleViewProduct}
             product={activeDemoProduct}
             products={demoProducts}
+            productSchema={productSchema}
             t={t}
           />
         )}
@@ -1438,6 +1451,7 @@ function App() {
             onStatusChange={handleOrderStatusChange}
             orders={orders}
             products={demoProducts}
+            productSchema={productSchema}
             homepageOffers={homepageOffers}
             homepageCategoryCards={homepageCategoryCards}
             isDarkMode={isAdminDarkMode}
@@ -1454,6 +1468,20 @@ function App() {
             websiteMedia={websiteMedia}
             onSaveWebsiteMedia={handleSaveWebsiteMedia}
             onDeleteWebsiteMedia={handleDeleteWebsiteMedia}
+          />
+        )}
+
+        {activePage === "admin-product-settings" && (
+          <AdminProductSettingsPage
+            currentUser={currentUser}
+            isDarkMode={isAdminDarkMode}
+            language={language}
+            onLanguageChange={() => setLanguage((currentLanguage) => currentLanguage === "en" ? "ar" : "en")}
+            onLogout={handleAdminLogout}
+            onNavigate={navigate}
+            onSchemaChanged={setProductSchema}
+            onToggleDarkMode={() => setIsAdminDarkMode((current) => !current)}
+            productSchema={productSchema}
           />
         )}
 

@@ -12,6 +12,7 @@ import { StorefrontEmptyState, StorefrontLoadingState } from "../components/Stor
 import { categories } from "../data/categories.js";
 import { neutralImage as placeholderImage, resolveImageUrl, showNeutralImage } from "../utils/images.js";
 import { isVariantVisible } from "../utils/productVariants.js";
+import { createDefaultProductSchema, productFieldLabel } from "../data/productSchema.js";
 
 const productText = {
   en: {
@@ -96,6 +97,7 @@ function normalizeProductVariants(product = {}) {
       stock: Math.max(0, Number(variant.stock ?? variant.stockQty ?? product.stockQty ?? 24)),
       image: variant.image_url || variant.imageUrl || variant.image || "",
       sortOrder: Number(variant.sort_order ?? variant.sortOrder ?? index),
+      attributes: variant.attributes && typeof variant.attributes === "object" ? variant.attributes : {},
     }));
   }
 
@@ -208,6 +210,7 @@ function ProductDetailsPage({
   onNavigate,
   onViewProduct,
   product,
+  productSchema = createDefaultProductSchema(),
   products = [],
   t,
 }) {
@@ -215,6 +218,7 @@ function ProductDetailsPage({
   const productVariants = React.useMemo(() => normalizeProductVariants(product), [product]);
   const [selectedSize, setSelectedSize] = React.useState(productVariants[0]?.size || "");
   const [selectedColor, setSelectedColor] = React.useState(productVariants[0]?.colorName || "Default");
+  const [selectedVariantId, setSelectedVariantId] = React.useState(productVariants[0]?.id || "");
   const [quantity, setQuantity] = React.useState(1);
   const [selectedType, setSelectedType] = React.useState(product?.detailOptions?.productTypes?.[0]?.id || "standard");
   const [selectedUse, setSelectedUse] = React.useState(product?.detailOptions?.uses?.[0]?.id || "default");
@@ -234,6 +238,7 @@ function ProductDetailsPage({
     const nextVariants = normalizeProductVariants(product);
     setSelectedColor(nextVariants[0]?.colorName || "Default");
     setSelectedSize(nextVariants[0]?.size || "");
+    setSelectedVariantId(nextVariants[0]?.id || "");
     setQuantity(1);
     setSelectedType(product?.detailOptions?.productTypes?.[0]?.id || "standard");
     setSelectedUse(product?.detailOptions?.uses?.[0]?.id || "default");
@@ -306,6 +311,7 @@ function ProductDetailsPage({
   const colorOptions = Array.from(new Map(productVariants.map((variant) => [normalizeText(variant.colorName), variant])).values());
   const sizeOptions = productVariants.filter((variant) => normalizeText(variant.colorName) === normalizeText(selectedColor));
   const selectedVariant =
+    productVariants.find((variant) => variant.id === selectedVariantId) ||
     sizeOptions.find((variant) => normalizeText(variant.size) === normalizeText(selectedSize)) ||
     sizeOptions[0] ||
     productVariants[0];
@@ -387,6 +393,54 @@ function ProductDetailsPage({
   const floatingLabel = selectedVariant
     ? `${selectedColor !== "Default" ? `${selectedColor} / ` : ""}${selectedOption.size}`
     : "Unavailable";
+  const enabledVariantAttributes = productSchema.variantAttributes.filter((field) => field.enabled !== false && field.storefrontVisible !== false);
+  const hasVariantAttribute = (key) => enabledVariantAttributes.some((field) => field.key === key);
+  const customVariantAttributes = enabledVariantAttributes.filter((field) => !["color_name", "color_value", "size"].includes(field.key));
+  const showcaseVisible = (key) => productSchema.showcaseSections.some((section) => section.key === key && section.enabled !== false && section.storefrontVisible !== false);
+  const storefrontMediaVisible = (key) => productSchema.mediaFields.some((field) => field.key === key && field.enabled !== false && field.storefrontVisible === true);
+  const fieldValue = (field) => {
+    const directValues = {
+      shortDescription: localized(product.shortDescription, language),
+      shortDescriptionAr: localized(product.shortDescription, language),
+      fullDescription: localized(product.longDescription, language),
+      fullDescriptionAr: localized(product.longDescription, language),
+    };
+    if (Object.prototype.hasOwnProperty.call(directValues, field.key)) return directValues[field.key];
+    const value = product[field.key] ?? product.customFields?.[field.key];
+    return value && typeof value === "object" && !Array.isArray(value) ? localized(value, language) : value;
+  };
+  const displaySchemaValue = (field, value) => {
+    const optionLabel = (entry) => field.options?.find((option) => option.value === entry)?.label?.[language]
+      || field.options?.find((option) => option.value === entry)?.label?.en
+      || entry;
+    if (Array.isArray(value)) return value.map(optionLabel).join(", ");
+    if (["select", "multi_select"].includes(field.type)) return optionLabel(value);
+    if (typeof value === "boolean") return value ? "Yes" : "No";
+    return String(value);
+  };
+  const storefrontFields = productSchema.fields
+    .filter((field) => field.enabled !== false && field.storefrontVisible === true)
+    .filter((field) => !["nameEn", "nameAr", "brand", "label", "labelAr", "shortDescriptionAr", "fullDescriptionAr"].includes(field.key))
+    .map((field) => ({ field, value: fieldValue(field) }))
+    .filter(({ value }) => Array.isArray(value) ? value.length : value !== null && value !== undefined && value !== "" && value !== false);
+  const builtInMediaKeys = new Set(["image", "hoverImage", "videoUrl", "galleryImages", "detailStatements", "dsiHowItWorks1", "dsiHowItWorks2", "dsiHowItWorks3", "dsiImpact1", "dsiImpact2", "dsiSafeToUse", "dsiPracticalBanner", "dsiIngredients", "dsiFaq"]);
+  const storefrontDetails = [
+    ...storefrontFields,
+    ...productSchema.mediaFields
+      .filter((field) => field.enabled !== false && field.storefrontVisible === true && !builtInMediaKeys.has(field.key))
+      .map((field) => ({ field, value: product.customMedia?.[field.key] }))
+      .filter(({ value }) => value !== null && value !== undefined && value !== ""),
+  ];
+  const dynamicShowcaseSections = productSchema.showcaseSections
+    .filter((section) => section.enabled !== false && section.storefrontVisible !== false && section.fields?.length)
+    .map((section) => ({
+      ...section,
+      values: section.fields
+        .filter((field) => field.enabled !== false && field.storefrontVisible !== false)
+        .map((field) => ({ field, value: product.customShowcase?.[section.key]?.[field.key] }))
+        .filter(({ value }) => Array.isArray(value) ? value.length : value !== null && value !== undefined && value !== "" && value !== false),
+    }))
+    .filter((section) => section.values.length);
 
   function getStatements() {
     const customStatements = product.detailStatements || product.detail_statements;
@@ -577,7 +631,7 @@ function ProductDetailsPage({
             </button>
           </div>
 
-          {colorOptions.length > 1 && (
+          {hasVariantAttribute("color_name") && colorOptions.length > 1 && (
             <div className="pi-color-field">
               <p className="pi-label">{language === "ar" ? "اللون" : "Color"}</p>
               <div className="pi-color-card">
@@ -589,7 +643,7 @@ function ProductDetailsPage({
                       <button
                         className={selectedColor === option.colorName ? "pi-color-swatch active" : "pi-color-swatch"}
                         key={option.colorName}
-                        onClick={() => setSelectedColor(option.colorName)}
+                        onClick={() => { setSelectedColor(option.colorName); setSelectedSize(option.size); setSelectedVariantId(option.id); }}
                         style={{ background: option.colorValue || "#1db7d8" }}
                         title={option.colorName}
                         type="button"
@@ -603,7 +657,7 @@ function ProductDetailsPage({
           )}
 
           <div className="pi-pill-grid">
-            <div>
+            {hasVariantAttribute("size") && <div>
               <p className="pi-label">{txt.size}</p>
               <div className="pi-pill-row">
                 {sizeOptions.map((option) => (
@@ -611,7 +665,7 @@ function ProductDetailsPage({
                     className={selectedSize === option.size ? "pi-pill active" : "pi-pill"}
                     disabled={option.stock <= 0}
                     key={option.size}
-                    onClick={() => setSelectedSize(option.size)}
+                    onClick={() => { setSelectedSize(option.size); setSelectedVariantId(option.id); }}
                     type="button"
                   >
                     {option.size}
@@ -619,7 +673,7 @@ function ProductDetailsPage({
                   </button>
                 ))}
               </div>
-            </div>
+            </div>}
             <div>
               <p className="pi-label">{txt.use}</p>
               <div className="pi-pill-row">
@@ -636,6 +690,19 @@ function ProductDetailsPage({
               </div>
             </div>
           </div>
+
+          {customVariantAttributes.map((field) => {
+            const options = Array.from(new Map(productVariants.map((variant) => [variant.attributes?.[field.key], variant])).values()).filter((variant) => variant.attributes?.[field.key] !== undefined && variant.attributes?.[field.key] !== "");
+            if (!options.length) return null;
+            return (
+              <div className="pi-pill-grid" key={field.key}>
+                <div>
+                  <p className="pi-label">{productFieldLabel(field, language)}</p>
+                  <div className="pi-pill-row">{options.map((variant) => <button className={selectedVariant?.id === variant.id ? "pi-pill active" : "pi-pill"} key={variant.id} onClick={() => { setSelectedVariantId(variant.id); setSelectedColor(variant.colorName); setSelectedSize(variant.size); }} type="button">{String(variant.attributes[field.key])}</button>)}</div>
+                </div>
+              </div>
+            );
+          })}
 
           <div className="pi-cta-bar">
             <div className="pi-price">{selectedOption.price} {t("common.ils")}</div>
@@ -685,6 +752,20 @@ function ProductDetailsPage({
         </aside>
       </section>
 
+      {storefrontDetails.length > 0 && (
+        <section className="detail-schema-fields-section">
+          <div className="detail-section-title center"><h2>{txt.productInfo}</h2></div>
+          <dl className="detail-schema-fields">
+            {storefrontDetails.map(({ field, value }) => (
+              <div key={field.key}>
+                <dt>{productFieldLabel(field, language)}</dt>
+                <dd>{field.type === "image_url" ? <ProductImage alt={productFieldLabel(field, language)} src={value} /> : displaySchemaValue(field, value)}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      )}
+
       <section className="detail-reviews-section">
         <div className="detail-section-title center">
           <h2>{txt.reviews}</h2>
@@ -707,7 +788,7 @@ function ProductDetailsPage({
         </div>
       </section>
 
-      <section className="detail-how-section">
+      {showcaseVisible("how_it_works") && <section className="detail-how-section">
         <div className="detail-how-copy">
           <h2>{txt.how}</h2>
           <div className="detail-step-line">
@@ -728,9 +809,9 @@ function ProductDetailsPage({
         <figure className="detail-how-image">
           <ProductImage alt={localized(steps[activeStep]?.title, language)} src={getHowItWorksImage(activeStep + 1) || steps[activeStep]?.image || product.image || placeholderImage} />
         </figure>
-      </section>
+      </section>}
 
-      <section className="detail-impact-section" ref={impactRef}>
+      {showcaseVisible("impact") && <section className="detail-impact-section" ref={impactRef}>
         <h2>{txt.impact}</h2>
         <div className="detail-impact-images">
           <ProductImage
@@ -746,9 +827,9 @@ function ProductDetailsPage({
             style={{ transform: `translate(${parallax * 74}px, ${parallax * -96}px) rotate(${6 + parallax * 2}deg)` }}
           />
         </div>
-      </section>
+      </section>}
 
-      <section className="detail-safe-section">
+      {showcaseVisible("safe_to_use") && <section className="detail-safe-section">
         <figure>
           <ProductImage alt={productName} src={detailImages.safeToUse || product.hoverImage || product.image} />
         </figure>
@@ -770,9 +851,9 @@ function ProductDetailsPage({
             {localized(safeSurfaces[activeSurface]?.note, language, txt.surfaceNote)}
           </p>
         </div>
-      </section>
+      </section>}
 
-      <section
+      {storefrontMediaVisible("detailStatements") && <section
         className="detail-statement-carousel"
         onMouseDown={(event) => setDragStart(event.clientX)}
         onMouseUp={(event) => handleStatementDragEnd(event.clientX)}
@@ -790,9 +871,9 @@ function ProductDetailsPage({
             <button aria-label={statement} className={activeStatement === index ? "active" : ""} key={`${statement}-dot`} onClick={() => setActiveStatement(index)} type="button" />
           ))}
         </div>
-      </section>
+      </section>}
 
-      <section className="detail-formula-section">
+      {showcaseVisible("ingredients") && <section className="detail-formula-section">
         <div>
           <h2>{txt.formulaTitle}</h2>
           <p>{txt.formulaText}</p>
@@ -801,7 +882,16 @@ function ProductDetailsPage({
         <figure>
           <ProductImage alt={productName} src={ingredientsImage || product.image || placeholderImage} />
         </figure>
-      </section>
+      </section>}
+
+      {dynamicShowcaseSections.map((section) => (
+        <section className="detail-schema-showcase-section" key={section.key}>
+          <h2>{section.title?.[language] || section.title?.en || section.key}</h2>
+          <dl className="detail-schema-fields">
+            {section.values.map(({ field, value }) => <div key={field.key}><dt>{productFieldLabel(field, language)}</dt><dd>{field.type === "image_url" ? <ProductImage alt={productFieldLabel(field, language)} src={value} /> : displaySchemaValue(field, value)}</dd></div>)}
+          </dl>
+        </section>
+      ))}
 
       {relatedProducts.length > 0 && (
         <section className="detail-related-section">
@@ -835,7 +925,7 @@ function ProductDetailsPage({
         </section>
       )}
 
-      <section className="detail-faq-section">
+      {showcaseVisible("faq") && <section className="detail-faq-section">
         <figure>
           <ProductImage alt={productName} src={faqImage || product.hoverImage || product.image || placeholderImage} />
         </figure>
@@ -846,7 +936,7 @@ function ProductDetailsPage({
           <h3>{txt.productInfo}</h3>
           <AccordionList items={productInfo} language={language} />
         </div>
-      </section>
+      </section>}
 
       <FloatingAddToCart disabled={!selectedVariant || selectedVariant.stock <= 0} language={language} onAdd={handleAddSelectedToCart} product={product} selectedLabel={floatingLabel} txt={txt} />
     </main>
