@@ -1486,6 +1486,8 @@ function App() {
             websiteMediaHiddenKeys={websiteMediaHiddenKeys}
             onSaveWebsiteMedia={handleSaveWebsiteMedia}
             onDeleteWebsiteMedia={handleDeleteWebsiteMedia}
+            websiteTexts={websiteTexts}
+            onTextsChanged={setWebsiteTexts}
           />
         )}
 

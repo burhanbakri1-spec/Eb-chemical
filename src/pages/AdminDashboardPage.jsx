@@ -1483,16 +1483,23 @@ function AdminDashboardPage({
     return () => { active = false; };
   }, []);
 
+  const accountSnapshotRef = React.useRef(null);
+
   async function handleAccountTypeChange(customerId, newAccountType) {
-    let snapshot = null;
+    accountSnapshotRef.current = null;
     setApiCustomers((current) => {
-      snapshot = current;
+      accountSnapshotRef.current = current;
       return current.map((c) => (c.id === customerId ? { ...c, accountType: newAccountType } : c));
     });
     try {
-      await updateUserAccountType(customerId, newAccountType);
+      const result = await updateUserAccountType(customerId, newAccountType);
+      if (result && result.accountType) {
+        setApiCustomers((current) =>
+          current.map((c) => (c.id === customerId ? { ...c, accountType: result.accountType } : c)),
+        );
+      }
     } catch {
-      if (snapshot) setApiCustomers(snapshot);
+      if (accountSnapshotRef.current) setApiCustomers(accountSnapshotRef.current);
     }
   }
 

@@ -30,6 +30,7 @@ export const allPermissions = [
   "customers.view",
   "employees.view",
   "website_media.manage",
+  "website_texts.manage",
 ];
 
 const seedUsers = [

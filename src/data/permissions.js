@@ -34,6 +34,7 @@ export const permissionGroups = [
     titleKey: "admin.storefront",
     permissions: [
       { key: "website_media.manage", labelKey: "permissions.websiteMediaManage" },
+      { key: "website_texts.manage", labelKey: "permissions.websiteTextsManage" },
     ],
   },
 ];

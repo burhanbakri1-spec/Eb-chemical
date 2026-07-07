@@ -5,6 +5,7 @@ import AdminProductTable from "../components/AdminProductTable.jsx";
 import StatusBadge from "../components/StatusBadge.jsx";
 import WorkTimer from "../components/WorkTimer.jsx";
 import WebsiteMediaManager from "../components/WebsiteMediaManager.jsx";
+import AdminWebsiteTextsPage from "./AdminWebsiteTextsPage.jsx";
 import { hasPermission, permissionGroups } from "../data/permissions.js";
 import { fetchDeliveryZones } from "../utils/deliveryZonesApi.js";
 
@@ -64,6 +65,8 @@ function EmployeeDashboardPage({
   workSession,
   websiteMedia = [],
   websiteMediaHiddenKeys = [],
+  websiteTexts = [],
+  onTextsChanged,
 }) {
   const [activeTab, setActiveTab] = React.useState("overview");
   const [editingProduct, setEditingProduct] = React.useState(null);
@@ -101,11 +104,12 @@ function EmployeeDashboardPage({
   const canUpdateOrderStatus = hasPermission(currentUser, "orders.updateStatus");
   const canDeleteOrders = hasPermission(currentUser, "orders.delete");
   const canManageWebsiteMedia = hasPermission(currentUser, "website_media.manage");
+  const canManageWebsiteTexts = hasPermission(currentUser, "website_texts.manage");
   const hasProductPermission =
     canViewProducts || canCreateProducts || canUpdateProducts || canDeleteProducts;
   const hasOrderPermission =
     canViewOrders || canCreateOrders || canUpdateOrderStatus || canDeleteOrders;
-  const hasAnyPermission = currentUser.permissions?.length > 0 || canManageWebsiteMedia;
+  const hasAnyPermission = currentUser.permissions?.length > 0 || canManageWebsiteMedia || canManageWebsiteTexts;
 
   const assignedOrders = orders.filter((order) => {
     const assignedId = order.assignedToEmployeeId || order.handledByEmployeeId;
@@ -176,7 +180,10 @@ function EmployeeDashboardPage({
     if (activeTab === "website-media" && !canManageWebsiteMedia) {
       setActiveTab("overview");
     }
-  }, [activeTab, canManageWebsiteMedia]);
+    if (activeTab === "website-texts" && !canManageWebsiteTexts) {
+      setActiveTab("overview");
+    }
+  }, [activeTab, canManageWebsiteMedia, canManageWebsiteTexts]);
 
   React.useEffect(() => {
     fetchDeliveryZones()
@@ -435,6 +442,15 @@ function EmployeeDashboardPage({
           type="button"
         >
           {language === "ar" ? "صور الموقع" : language === "he" ? "מדיה אתר" : "Website Media"}
+        </button>
+        )}
+        {canManageWebsiteTexts && (
+        <button
+          className={activeTab === "website-texts" ? "nav-link active" : "nav-link"}
+          onClick={() => setActiveTab("website-texts")}
+          type="button"
+        >
+          {language === "ar" ? "نصوص الموقع" : language === "he" ? "טקסטים באתר" : "Website Texts"}
         </button>
         )}
       </div>
@@ -696,6 +712,19 @@ function EmployeeDashboardPage({
           language={language}
           onDelete={onDeleteWebsiteMedia}
           onSave={onSaveWebsiteMedia}
+        />
+      )}
+
+      {activeTab === "website-texts" && canManageWebsiteTexts && (
+        <AdminWebsiteTextsPage
+          currentUser={currentUser}
+          language={language}
+          onNavigate={onNavigate}
+          onTextsChanged={onTextsChanged}
+          onLanguageChange={() => {}}
+          onLogout={() => {}}
+          isDarkMode={false}
+          onToggleDarkMode={() => {}}
         />
       )}
 

@@ -300,6 +300,7 @@ export const translations = {
       customersView: "View Customers",
       employeesView: "View Employees",
       websiteMediaManage: "Manage Website Media",
+      websiteTextsManage: "Manage website texts",
     },
     websiteManagement: {
       websiteTexts: "Website Texts",
@@ -758,6 +759,7 @@ export const translations = {
       customersView: "צפייה בלקוחות",
       employeesView: "צפייה בעובדים",
       websiteMediaManage: "ניהול מדיה באתר",
+      websiteTextsManage: "ניהול טקסטים באתר",
     },
     websiteManagement: {
       websiteTexts: "טקסטים באתר",
@@ -1223,6 +1225,7 @@ export const translations = {
       customersView: "عرض العملاء",
       employeesView: "عرض الموظفين",
       websiteMediaManage: "إدارة صور الموقع",
+      websiteTextsManage: "إدارة نصوص الموقع",
     },
     websiteManagement: {
       websiteTexts: "نصوص الموقع",
