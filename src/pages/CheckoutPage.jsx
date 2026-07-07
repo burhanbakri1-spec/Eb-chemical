@@ -126,23 +126,32 @@ function CheckoutPage({
         delivery_zone_id: selectedZone ? selectedZone.id : "",
         pointsRedeemed: pointsToRedeem,
       });
-      const whatsappUrl = buildWhatsAppOrderUrl({
-        customer: { ...submittedForm, ...(order?.customer || {}) },
-        items: order?.items?.length ? order.items : submittedItems,
-        total: order?.total ?? submittedTotal,
-      });
 
       setOrderPlaced(true);
-      if (typeof window !== "undefined") {
-        trackContact({ method: "whatsapp", url: whatsappUrl });
-        window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+      setOrderError("");
+
+      try {
+        const whatsappUrl = buildWhatsAppOrderUrl({
+          customer: { ...submittedForm, ...(order?.customer || {}) },
+          items: order?.items?.length ? order.items : submittedItems,
+          total: order?.total ?? submittedTotal,
+          language: language,
+        });
+        if (typeof window !== "undefined") {
+          trackContact({ method: "whatsapp", url: whatsappUrl });
+          window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+        }
+      } catch (postError) {
+        console.warn("Post-order action skipped:", postError);
       }
     } catch (error) {
-      setOrderError(error?.message || localized(
-        "Unable to create order. Please try again.",
-        "تعذر إنشاء الطلب. يرجى المحاولة مرة أخرى.",
-        "לא ניתן ליצור הזמנה. נסה שוב.",
-      ));
+      if (!orderPlaced) {
+        setOrderError(error?.message || localized(
+          "Unable to create order. Please try again.",
+          "تعذر إنشاء الطلب. يرجى المحاولة مرة أخرى.",
+          "לא ניתן ליצור הזמנה. נסה שוב.",
+        ));
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -151,13 +160,16 @@ function CheckoutPage({
   const isPlaced = orderPlaced && lastOrder;
   const messageItems = isPlaced ? lastOrder.items : cartItems;
   const messageTotal = isPlaced ? lastOrder.total : orderTotal;
-  const whatsappUrl = buildWhatsAppOrderUrl(isPlaced ? lastOrder : {
-    customer: form,
-    items: getMessageItems(messageItems, products, language),
-    total: orderTotal,
-    subtotal: total,
-    delivery_price: deliveryPrice,
-    delivery_city_name: selectedZone ? selectedZone.city_name : "",
+  const whatsappUrl = buildWhatsAppOrderUrl({
+    ...(isPlaced ? lastOrder : {
+      customer: form,
+      items: getMessageItems(messageItems, products, language),
+      total: orderTotal,
+      subtotal: total,
+      delivery_price: deliveryPrice,
+      delivery_city_name: selectedZone ? selectedZone.city_name : "",
+    }),
+    language,
   });
 
   if (cartItems.length === 0 && !orderPlaced) {
