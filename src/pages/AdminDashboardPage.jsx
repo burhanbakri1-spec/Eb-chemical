@@ -1259,7 +1259,7 @@ function ProductWizard({ categories, editingProduct, language, onCancel, onSave,
   );
 }
 
-function GenericEntityForm({ fields, initial, language, onCancel, onSave, title }) {
+function GenericEntityForm({ fields, initial, language, onCancel, onSave, submitLabel, title }) {
   const [form, setForm] = React.useState(initial);
   function change(event) {
     const { checked, name, type, value } = event.target;
@@ -1278,7 +1278,7 @@ function GenericEntityForm({ fields, initial, language, onCancel, onSave, title 
         })}
         <div className="form-actions full-field">
           <button className="secondary-action" onClick={onCancel} type="button">{localized("Cancel", "إلغاء", "ביטול", language)}</button>
-          <button className="admin-primary-button" type="submit">{localized("Create", "إنشاء", "צור", language)}</button>
+          <button className="admin-primary-button" type="submit">{submitLabel || localized("Create", "إنشاء", "צור", language)}</button>
         </div>
       </form>
     </section>
@@ -1453,6 +1453,8 @@ function AdminDashboardPage({
   const [editingProduct, setEditingProduct] = React.useState(null);
   const [filters, setFilters] = React.useState({ brand: "all", category: "all", search: "", status: "all" });
   const [adminCategories, setAdminCategories] = React.useState(() => readStorage(storageKeys.categories, defaultAdminCategories));
+  const [editingCategoryId, setEditingCategoryId] = React.useState("");
+  const [categoryMessage, setCategoryMessage] = React.useState(null);
   const [brands, setBrands] = React.useState(() => readStorage(storageKeys.brands, [{ id: "eb-chemical", name: "EB Chemical", slug: "eb-chemical", country: "Palestine", active: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }]));
   const [vlogs, setVlogs] = React.useState(() => readStorage(storageKeys.vlogs, []));
   const [vlogHero, setVlogHero] = React.useState(() => readStorage(storageKeys.vlogHero, { image: "", title: "EB Chemical care stories" }));
@@ -1496,6 +1498,77 @@ function AdminDashboardPage({
   function saveInventory(next) { setInventoryRows(next); writeStorage(storageKeys.inventory, next); }
   function saveMovements(next) { setMovements(next); writeStorage(storageKeys.movements, next); }
 
+  function categoryFormFields(excludeCategoryId = "") {
+    return [
+      { name: "name", label: localized("Category Name *", "اسم التصنيف *", "שם קטגוריה *", language), required: true },
+      { name: "image", label: localized("Icon / Image", "الأيقونة / الصورة", "אייקון / תמונה", language), type: "media" },
+      {
+        name: "parentId",
+        label: localized("Parent Category", "التصنيف الأب", "קטגוריית אב", language),
+        type: "select",
+        options: [
+          { value: "", label: localized("None (top-level)", "لا شيء (المستوى الأعلى)", "ללא (רמה עליונה)", language) },
+          ...adminCategories
+            .filter((category) => category.id !== excludeCategoryId)
+            .map((category) => ({ value: category.id, label: getText(category.name, language) || category.id })),
+        ],
+      },
+      { name: "active", label: localized("Active", "نشط", "פעיל", language), type: "checkbox" },
+    ];
+  }
+
+  function categoryToForm(category) {
+    return {
+      name: getText(category?.name, language) || getText(category?.name) || "",
+      image: category?.image || "",
+      parentId: category?.parentId || "",
+      active: category?.active !== false,
+    };
+  }
+
+  function saveEditedCategory(form) {
+    const category = adminCategories.find((item) => item.id === editingCategoryId);
+    if (!category) return;
+    const name = String(form.name || "").trim();
+    if (!name) {
+      setCategoryMessage({ type: "error", text: localized("Category name is required.", "اسم التصنيف مطلوب.", "שם הקטגוריה נדרש.", language) });
+      return;
+    }
+    const next = adminCategories.map((item) =>
+      item.id === editingCategoryId
+        ? {
+            ...item,
+            name: createLocalizedCopy(name, name),
+            image: form.image || "",
+            parentId: form.parentId || "",
+            active: form.active !== false,
+            updatedAt: new Date().toISOString(),
+          }
+        : item,
+    );
+    saveCategories(next);
+    setEditingCategoryId("");
+    setCategoryMessage({ type: "success", text: localized("Category updated.", "تم تحديث التصنيف.", "הקטגוריה עודכנה.", language) });
+  }
+
+  function deleteCategory(categoryId) {
+    const hasProducts = products.some((product) => product.categoryId === categoryId);
+    const hasChildren = adminCategories.some((category) => category.parentId === categoryId);
+    if (hasProducts || hasChildren) {
+      setCategoryMessage({
+        type: "error",
+        text: hasProducts
+          ? localized("Cannot delete this category while products use it.", "لا يمكن حذف هذا التصنيف لأنه مستخدم في منتجات.", "לא ניתן למחוק קטגוריה זו כל עוד מוצרים משתמשים בה.", language)
+          : localized("Cannot delete this category while it has child categories.", "لا يمكن حذف هذا التصنيف لأنه يحتوي على تصنيفات فرعية.", "לא ניתן למחוק קטגוריה זו כל עוד יש לה קטגוריות משנה.", language),
+      });
+      return;
+    }
+    if (!window.confirm(localized("Delete this category?", "حذف هذا التصنيف؟", "למחוק קטגוריה זו?", language))) return;
+    saveCategories(adminCategories.filter((category) => category.id !== categoryId));
+    if (editingCategoryId === categoryId) setEditingCategoryId("");
+    setCategoryMessage({ type: "success", text: localized("Category deleted.", "تم حذف التصنيف.", "הקטגוריה נמחקה.", language) });
+  }
+
   function renderSimpleTable(kind) {
     const config = {
       categories: { rows: adminCategories, add: "admin-categories-new", search: localized("Search by name...", "بحث بالاسم...", "חפש לפי שם...", language), title: localized("Add Category", "إضافة تصنيف", "הוסף קטגוריה", language) },
@@ -1511,6 +1584,24 @@ function AdminDashboardPage({
             <label>{localized("Hero Title", "عنوان البطل", "כותרת גיבור", language)}<input value={vlogHero.title} onChange={(event) => setVlogHero((current) => ({ ...current, title: event.target.value }))} /></label>
             <button className="admin-primary-button" onClick={() => writeStorage(storageKeys.vlogHero, vlogHero)} type="button">{localized("Save Hero", "حفظ البطل", "שמור גיבור", language)}</button>
           </div>
+        )}
+        {kind === "categories" && categoryMessage && (
+          <div className={`message-panel ${categoryMessage.type === "error" ? "error" : "success"}`}>
+            {categoryMessage.text}
+            <button className="message-dismiss" type="button" onClick={() => setCategoryMessage(null)}>&times;</button>
+          </div>
+        )}
+        {kind === "categories" && editingCategoryId && (
+          <GenericEntityForm
+            key={editingCategoryId}
+            fields={categoryFormFields(editingCategoryId)}
+            initial={categoryToForm(adminCategories.find((category) => category.id === editingCategoryId))}
+            language={language}
+            onCancel={() => setEditingCategoryId("")}
+            onSave={saveEditedCategory}
+            submitLabel={localized("Save Category", "حفظ التصنيف", "שמור קטגוריה", language)}
+            title={localized("Edit Category", "تعديل التصنيف", "ערוך קטגוריה", language)}
+          />
         )}
         <Toolbar addLabel={config.title} onAdd={readOnly ? null : () => onNavigate(config.add)}>
           <SearchField placeholder={config.search} value="" onChange={() => {}} />
@@ -1534,7 +1625,7 @@ function AdminDashboardPage({
                 ) : kind === "vlogs" ? (
                   <><td>{row.thumbnail ? <img className="admin-thumb" src={row.thumbnail} alt="" /> : "-"}</td><td>{row.title}</td><td>{row.featured ? localized("Featured", "مميز", "מומלץ", language) : localized("Standard", "عادي", "רגיל", language)}</td><td><Badge>{row.active === false ? localized("Inactive", "غير نشط", "לא פעיל", language) : localized("Active", "نشط", "פעיל", language)}</Badge></td><td>{formatDate(row.createdAt, language)}</td><td>-</td></>
                 ) : (
-                  <><td>{row.image ? <img className="admin-thumb" src={row.image} alt="" /> : <span className="admin-logo-mini">C</span>}</td><td>{getText(row.name)}</td><td>{row.parentId || localized("None", "لا شيء", "ללא", language)}</td><td><Badge>{row.active === false ? localized("Inactive", "غير نشط", "לא פעיל", language) : localized("Active", "نشط", "פעיל", language)}</Badge></td><td>{formatDate(row.createdAt, language)}</td><td>{formatDate(row.updatedAt, language)}</td><td>-</td></>
+                  <><td>{row.image ? <img className="admin-thumb" src={row.image} alt="" /> : <span className="admin-logo-mini">C</span>}</td><td>{getText(row.name)}</td><td>{row.parentId || localized("None", "لا شيء", "ללא", language)}</td><td><Badge>{row.active === false ? localized("Inactive", "غير نشط", "לא פעיל", language) : localized("Active", "نشط", "פעיל", language)}</Badge></td><td>{formatDate(row.createdAt, language)}</td><td>{formatDate(row.updatedAt, language)}</td><td><div className="row-actions"><button className="text-action" disabled={readOnly} onClick={() => { setCategoryMessage(null); setEditingCategoryId(row.id); }} type="button">{localized("Edit", "تعديل", "ערוך", language)}</button><button className="text-action danger" disabled={readOnly} onClick={() => deleteCategory(row.id)} type="button">{localized("Delete", "حذف", "מחק", language)}</button></div></td></>
                 )}
               </tr>
             )) : <tr><td colSpan="7"><EmptyState title={kind === "vlogs" ? localized("No vlogs yet", "لا توجد مدونات بعد", "אין בלוגים עדיין", language) : localized("No records yet", "لا توجد سجلات بعد", "אין רשומות עדיין", language)} description={kind === "vlogs" ? localized("Create your first vlog entry for the storefront.", "أنشئ أول مدونة للمتجر.", "צור רשומת בלוג ראשונה לחנות.", language) : ""} /></td></tr>}

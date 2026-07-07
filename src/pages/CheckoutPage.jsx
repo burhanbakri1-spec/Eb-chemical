@@ -113,6 +113,7 @@ function CheckoutPage({
 
   async function handleSubmit(event) {
     event.preventDefault();
+    if (isSubmitting || orderPlaced) return;
     setOrderError("");
     setIsSubmitting(true);
 
@@ -137,7 +138,11 @@ function CheckoutPage({
         window.open(whatsappUrl, "_blank", "noopener,noreferrer");
       }
     } catch (error) {
-      setOrderError(error.message);
+      setOrderError(error?.message || localized(
+        "Unable to create order. Please try again.",
+        "تعذر إنشاء الطلب. يرجى المحاولة مرة أخرى.",
+        "לא ניתן ליצור הזמנה. נסה שוב.",
+      ));
     } finally {
       setIsSubmitting(false);
     }

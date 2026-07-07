@@ -1219,20 +1219,27 @@ function App() {
       });
 
       const purchasedItems = order?.items?.length ? order.items : cartItems;
-      trackPurchase({
-        contentIds: purchasedItems.map(getCartTrackingId),
-        value: order?.total ?? cartTotal,
-        numItems: purchasedItems.reduce((sum, item) => sum + Number(item.quantity || 0), 0),
-        orderId: order?.id || order?.orderId || order?.order_id,
-      });
+      try {
+        trackPurchase({
+          contentIds: purchasedItems.map(getCartTrackingId),
+          value: order?.total ?? cartTotal,
+          numItems: purchasedItems.reduce((sum, item) => sum + Number(item.quantity || 0), 0),
+          orderId: order?.id || order?.orderId || order?.order_id,
+        });
+      } catch (trackingError) {
+        console.warn("Purchase tracking skipped after order creation:", trackingError);
+      }
 
       setOrders((currentOrders) => [order, ...currentOrders]);
       setLastOrder(order);
       setCheckoutMessage(t("checkout.orderPlacedSuccessfully"));
       setCartItems([]);
       if (currentUser) {
-        const refreshedUser = await fetchCurrentUser();
-        setUser(refreshedUser);
+        fetchCurrentUser()
+          .then(setUser)
+          .catch((refreshError) => {
+            console.warn("User refresh skipped after order creation:", refreshError);
+          });
       }
       return order;
     } catch (error) {

@@ -22,22 +22,26 @@ function AdminOrdersTable({
     return en;
   }
 
-  if (orders.length === 0) {
+  const safeOrders = Array.isArray(orders) ? orders : [];
+  const safeProducts = Array.isArray(products) ? products : [];
+
+  if (safeOrders.length === 0) {
     return <div className="empty-panel compact-empty">{t("admin.noOrders")}</div>;
   }
 
   function getItemSummary(order) {
-    return order.items
+    return (Array.isArray(order.items) ? order.items : [])
       .map((item) => {
-        const product = products.find((entry) => entry.id === item.productId);
-        return `${product?.name[language] || item.slug} ${item.size} x${item.quantity}`;
+        const product = safeProducts.find((entry) => entry.id === item.productId);
+        const productName = product?.name?.[language] || product?.name?.en || item.productName || item.slug || item.productId || "-";
+        return `${productName} ${item.size || item.selectedSize || ""} x${item.quantity || 1}`.trim();
       })
       .join(", ");
   }
 
   return (
-    <div className="admin-table-wrap">
-      <table className="admin-table">
+    <div className="admin-table-wrap admin-orders-table-wrap">
+      <table className="admin-table admin-orders-table">
         <thead>
           <tr>
             <th>{t("admin.orderId")}</th>
@@ -56,13 +60,13 @@ function AdminOrdersTable({
           </tr>
         </thead>
         <tbody>
-          {orders.map((order) => (
+          {safeOrders.map((order) => (
             <tr key={order.id}>
-              <td>{order.id}</td>
-              <td>{order.customer.name}</td>
-              <td>{order.customer.phone}</td>
-              <td>{order.customer.city}</td>
-              <td>{order.total} {t("common.ils")}</td>
+              <td className="order-id-cell">{order.id}</td>
+              <td className="order-customer-cell">{order.customer?.name || "-"}</td>
+              <td>{order.customer?.phone || "-"}</td>
+              <td>{order.customer?.city || "-"}</td>
+              <td className="order-total-cell">{Number(order.total || 0).toFixed(2)} {t("common.ils")}</td>
               <td>
                 +{Math.max(0, Number(order.pointsEarned || 0))}
                 {Number(order.pointsRedeemed || 0) > 0 && (
@@ -85,7 +89,7 @@ function AdminOrdersTable({
                   </select>
                 )}
               </td>
-              <td>
+              <td className="order-user-cell">
                 {order.createdByEmployeeName || order.createdBy?.name || order.createdBy?.role || "-"}
                 {order.createdBy?.role && (
                   <span className="table-muted">{order.createdBy.role}</span>
@@ -109,9 +113,9 @@ function AdminOrdersTable({
                   </select>
                 </td>
               )}
-              <td>{order.lastUpdatedBy?.name || "-"}</td>
-              <td>{new Date(order.createdAt).toLocaleDateString()}</td>
-              <td>{getItemSummary(order)}</td>
+              <td className="order-user-cell">{order.lastUpdatedBy?.name || "-"}</td>
+              <td className="order-date-cell">{order.createdAt ? new Date(order.createdAt).toLocaleDateString() : "-"}</td>
+              <td className="order-items-cell">{getItemSummary(order) || "-"}</td>
               {canDelete && (
                 <td>
                   <button

@@ -6536,6 +6536,48 @@ main.admin-panel-main {
   letter-spacing: 0;
 }
 
+.admin-layout .admin-orders-table-wrap {
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+}
+
+.admin-layout .admin-orders-table {
+  min-width: 1080px;
+  table-layout: fixed;
+}
+
+.admin-layout .admin-orders-table th,
+.admin-layout .admin-orders-table td {
+  padding: 10px 11px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+.admin-layout .admin-orders-table .order-id-cell {
+  width: 112px;
+}
+
+.admin-layout .admin-orders-table .order-customer-cell,
+.admin-layout .admin-orders-table .order-user-cell {
+  width: 120px;
+}
+
+.admin-layout .admin-orders-table .order-total-cell,
+.admin-layout .admin-orders-table .order-date-cell {
+  width: 96px;
+}
+
+.admin-layout .admin-orders-table .order-items-cell {
+  min-width: 180px;
+  line-height: 1.45;
+}
+
+.admin-layout .admin-orders-table .status-inline-select {
+  max-width: 100%;
+}
+
 .admin-layout .primary-action,
 .admin-layout .admin-form button[type="submit"] {
   background: var(--admin-primary) !important;

@@ -1,5 +1,14 @@
 import { apiRequest } from "./api.js";
 
+function normalizeOrderResponse(response) {
+  const order = response?.order || response?.data || response;
+  if (order && typeof order === "object" && !Array.isArray(order)) {
+    const id = order.id || order.orderId || order.order_id;
+    if (id) return { ...order, id };
+  }
+  return null;
+}
+
 export async function getOrders(currentUser) {
   if (!currentUser) {
     return [];
@@ -37,7 +46,7 @@ export async function createOrder({
       item.lineTotal ?? Number(item.price || 0) * Number(item.quantity || 1),
   }));
 
-  return apiRequest("/orders", {
+  const response = await apiRequest("/orders", {
     method: "POST",
     body: JSON.stringify({
       customer,
@@ -51,6 +60,11 @@ export async function createOrder({
       createdByEmployeeName,
     }),
   });
+  const order = normalizeOrderResponse(response);
+  if (!order) {
+    throw new Error("Unable to confirm the saved order response.");
+  }
+  return order;
 }
 
 export async function updateOrderStatus(orderId, status) {
