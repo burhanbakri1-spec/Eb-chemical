@@ -63,7 +63,11 @@ function CheckoutPage({
       .catch(() => setDeliveryZones([]));
   }, []);
 
-  const deliveryPrice = selectedZone ? Number(selectedZone.delivery_price) : 0;
+  const rawDelivery = selectedZone ? Number(selectedZone.delivery_price) : 0;
+  const freeDeliveryThreshold = 500;
+  const productSubtotal = Number(total || 0);
+  const isFreeDelivery = productSubtotal >= freeDeliveryThreshold;
+  const deliveryPrice = isFreeDelivery ? 0 : rawDelivery;
   const availablePoints = currentUser?.role === "customer" ? Math.max(0, Math.floor(Number(currentUser.ebPoints || 0))) : 0;
   const maxRedeemablePoints = Math.min(
     Math.floor(availablePoints / 100) * 100,
@@ -74,7 +78,7 @@ function CheckoutPage({
     (_, index) => index * 100,
   );
   const pointsDiscount = pointsToRedeem / 20;
-  const orderTotal = Math.max(0, Number(total || 0) - pointsDiscount) + deliveryPrice;
+  const orderTotal = Math.max(0, productSubtotal - pointsDiscount) + deliveryPrice;
 
   React.useEffect(() => {
     if (pointsToRedeem > maxRedeemablePoints) setPointsToRedeem(maxRedeemablePoints);
@@ -314,10 +318,10 @@ function CheckoutPage({
               </div>
             );
           })}
-          {deliveryPrice > 0 && (
+          {(deliveryPrice > 0 || isFreeDelivery) && (
             <div className="summary-row">
               <span>{localized("Delivery", "التوصيل", "משלוח")}{selectedZone ? ` (${selectedZone.city_name})` : ""}</span>
-              <strong>{deliveryPrice.toFixed(2)} {t("common.ils")}</strong>
+              <strong>{isFreeDelivery ? localized("Free", "مجاني", "חינם") : `${deliveryPrice.toFixed(2)} ${t("common.ils")}`}</strong>
             </div>
           )}
           {pointsDiscount > 0 && (

@@ -1107,7 +1107,7 @@ function App() {
 
   async function handleAssignEmployee(orderId, employeeId) {
     if (!employeeId) {
-      return;
+      return { ok: false, message: t("admin.unassigned") };
     }
 
     try {

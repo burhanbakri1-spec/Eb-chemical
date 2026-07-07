@@ -66,6 +66,8 @@ export function buildWhatsAppOrderMessage({
     parts.push(`المجموع الفرعي: ${Number(sub).toFixed(2)} شيكل`);
     if (Number(deliveryPrice) > 0) {
       parts.push(`التوصيل: ${Number(deliveryPrice).toFixed(2)} شيكل`);
+    } else {
+      parts.push(`التوصيل: مجاني`);
     }
     parts.push(`الإجمالي: ${Number(total).toFixed(2)} شيكل`);
     parts.push("");
@@ -92,6 +94,8 @@ export function buildWhatsAppOrderMessage({
   parts.push(`Subtotal: ${Number(sub).toFixed(2)} ILS`);
   if (Number(deliveryPrice) > 0) {
     parts.push(`Delivery: ${Number(deliveryPrice).toFixed(2)} ILS`);
+  } else {
+    parts.push(`Delivery: Free`);
   }
   parts.push(`Total: ${Number(total).toFixed(2)} ILS`);
   parts.push("");

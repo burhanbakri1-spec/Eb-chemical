@@ -162,9 +162,9 @@ function CartPage({
     typeof total === "number"
       ? total
       : cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const shippingGoal = 120;
-  const shippingProgress = Math.min(100, Math.round((cartTotal / shippingGoal) * 100));
-  const remainingForShipping = Math.max(0, shippingGoal - cartTotal);
+  const freeDeliveryThreshold = 500;
+  const shippingProgress = Math.min(100, Math.round((cartTotal / freeDeliveryThreshold) * 100));
+  const remainingForShipping = Math.max(0, freeDeliveryThreshold - cartTotal);
 
   function getProduct(item) {
     return products.find((product) => product.id === item.productId || product.slug === item.slug);

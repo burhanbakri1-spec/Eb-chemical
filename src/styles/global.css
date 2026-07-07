@@ -6539,43 +6539,61 @@ main.admin-panel-main {
 .admin-layout .admin-orders-table-wrap {
   max-width: 100%;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   overscroll-behavior-inline: contain;
 }
 
 .admin-layout .admin-orders-table {
-  min-width: 1080px;
+  min-width: 960px;
+  width: 100%;
   table-layout: fixed;
 }
 
 .admin-layout .admin-orders-table th,
 .admin-layout .admin-orders-table td {
-  padding: 10px 11px;
+  padding: 8px 8px;
   white-space: normal;
   overflow-wrap: anywhere;
   word-break: normal;
+  vertical-align: middle;
+  font-size: 13px;
 }
 
 .admin-layout .admin-orders-table .order-id-cell {
-  width: 112px;
+  width: 100px;
+  font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .admin-layout .admin-orders-table .order-customer-cell,
 .admin-layout .admin-orders-table .order-user-cell {
-  width: 120px;
+  width: 90px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .admin-layout .admin-orders-table .order-total-cell,
 .admin-layout .admin-orders-table .order-date-cell {
-  width: 96px;
+  width: 80px;
+  white-space: nowrap;
 }
 
 .admin-layout .admin-orders-table .order-items-cell {
-  min-width: 180px;
-  line-height: 1.45;
+  min-width: 120px;
+  max-width: 200px;
+  line-height: 1.35;
+  font-size: 12px;
 }
 
 .admin-layout .admin-orders-table .status-inline-select {
-  max-width: 100%;
+  width: 110px;
+  min-width: 0;
+  min-height: 28px;
+  font-size: 12px;
+  padding: 2px 4px;
 }
 
 .admin-layout .primary-action,
