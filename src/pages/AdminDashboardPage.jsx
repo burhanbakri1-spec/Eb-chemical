@@ -194,6 +194,7 @@ function normalizeFormVariant(variant = {}, index = 0, product = {}) {
     color_value: variant.color_value || variant.colorValue || "",
     size: variant.size || product.size || "500ml",
     price: Number(variant.price ?? product.price ?? 0),
+    wholesalePrice: variant.wholesalePrice != null ? Number(variant.wholesalePrice) : undefined,
     stock: Math.max(0, Number(variant.stock ?? variant.stockQty ?? product.stockQty ?? 0)),
     image_url: variant.image_url || variant.imageUrl || variant.image || "",
     sort_order: Number(variant.sort_order ?? variant.sortOrder ?? index),
@@ -344,6 +345,7 @@ function createProductFromForm(form) {
       ...normalizeFormVariant(variant, index, form),
       id: variant.id || `${id}-variant-${index}`,
       price: Number(variant.price || 0),
+      wholesalePrice: variant.wholesalePrice != null ? Number(variant.wholesalePrice) : undefined,
       stock: Math.max(0, Number(variant.stock || 0)),
       sort_order: index,
     }));
@@ -676,6 +678,7 @@ function ProductWizard({ categories, editingProduct, language, onCancel, onSave,
     colorsText: "Default|#1db7d8",
     sizesText: "500ml, 1L, 5L",
     defaultPrice: "18",
+    defaultWholesalePrice: "",
     defaultStock: "24",
   });
   const [form, setForm] = React.useState(() => ({
@@ -871,6 +874,7 @@ function ProductWizard({ categories, editingProduct, language, onCancel, onSave,
                 color_value: color.value,
                 size,
                 price: variantGenerator.defaultPrice,
+                wholesalePrice: variantGenerator.defaultWholesalePrice || undefined,
                 stock: variantGenerator.defaultStock,
                 image_url: color.imageUrl || current.image || "",
               },
@@ -1047,6 +1051,15 @@ function ProductWizard({ categories, editingProduct, language, onCancel, onSave,
                 />
               </label>
               <label>
+                {localized("Default wholesale price", "سعر الجملة الافتراضي", "מחיר סיטונאי ברירת מחדל", language)}
+                <input
+                  min="0"
+                  type="number"
+                  value={variantGenerator.defaultWholesalePrice}
+                  onChange={(event) => updateVariantGenerator("defaultWholesalePrice", event.target.value)}
+                />
+              </label>
+              <label>
                 {localized("Default stock", "المخزون الافتراضي", "מלאי ברירת מחדל", language)}
                 <input
                   min="0"
@@ -1071,6 +1084,7 @@ function ProductWizard({ categories, editingProduct, language, onCancel, onSave,
                     return <label key={field.key}>{productFieldLabel(field, language)}<input required={field.required} type={field.type === "number" ? "number" : "text"} value={value} onChange={(event) => updateVariant(index, field.key, event.target.value)} /></label>;
                   })}
                   <label>{localized("Price", "السعر", "מחיר", language)}<input min="0" required type="number" value={variant.price} onChange={(event) => updateVariant(index, "price", event.target.value)} /></label>
+                  <label>{localized("Wholesale Price", "سعر الجملة", "מחיר סיטונאי", language)}<input min="0" type="number" value={variant.wholesalePrice ?? ""} onChange={(event) => updateVariant(index, "wholesalePrice", event.target.value ? Number(event.target.value) : undefined)} /></label>
                   <label>{localized("Stock", "المخزون", "מלאי", language)}<input min="0" required type="number" value={variant.stock} onChange={(event) => updateVariant(index, "stock", event.target.value)} /></label>
                   <label>
                     {localized("Variant image", "صورة البديل", "תמונת וריאציה", language)}
@@ -1492,12 +1506,9 @@ function AdminDashboardPage({
       return current.map((c) => (c.id === customerId ? { ...c, accountType: newAccountType } : c));
     });
     try {
-      const result = await updateUserAccountType(customerId, newAccountType);
-      if (result && result.accountType) {
-        setApiCustomers((current) =>
-          current.map((c) => (c.id === customerId ? { ...c, accountType: result.accountType } : c)),
-        );
-      }
+      await updateUserAccountType(customerId, newAccountType);
+      const updated = await fetchCustomers();
+      setApiCustomers(updated ?? []);
     } catch {
       if (accountSnapshotRef.current) setApiCustomers(accountSnapshotRef.current);
     }

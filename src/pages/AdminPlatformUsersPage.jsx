@@ -170,6 +170,7 @@ function AdminPlatformUsersPage({
           name: form.name.trim(),
           email: form.email.trim().toLowerCase(),
           role: form.role,
+          accountType: form.accountType,
           phone: form.phone.trim(),
           department: form.department.trim(),
           password: form.password,

@@ -717,14 +717,11 @@ function EmployeeDashboardPage({
 
       {activeTab === "website-texts" && canManageWebsiteTexts && (
         <AdminWebsiteTextsPage
+          embedded
           currentUser={currentUser}
           language={language}
           onNavigate={onNavigate}
           onTextsChanged={onTextsChanged}
-          onLanguageChange={() => {}}
-          onLogout={() => {}}
-          isDarkMode={false}
-          onToggleDarkMode={() => {}}
         />
       )}
 

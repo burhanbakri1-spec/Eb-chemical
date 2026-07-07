@@ -33,6 +33,7 @@ function AdminWebsiteTextsPage({
   onNavigate,
   onTextsChanged,
   onToggleDarkMode,
+  embedded = false,
 }) {
   function localized(en, ar, he) {
     if (language === "ar") return ar;
@@ -116,6 +117,62 @@ function AdminWebsiteTextsPage({
     (item) => !normalizedSearch || `${item.key} ${item.label}`.toLowerCase().includes(normalizedSearch),
   );
 
+  const content = (
+    <section className="admin-panel-card website-texts-manager">
+      <div className="website-media-tabs" role="tablist">
+        {websiteTextGroups.map((group) => (
+          <button
+            aria-selected={selectedGroup === group.key}
+            className={selectedGroup === group.key ? "active" : ""}
+            key={group.key}
+            onClick={() => setSelectedGroup(group.key)}
+            role="tab"
+            type="button"
+          >
+            {group.label[language] || group.label.en}
+            <span>{items.filter((item) => item.group === group.key).length}</span>
+          </button>
+        ))}
+      </div>
+      <input
+        aria-label={localized("Search texts", "بحث النصوص", "חיפוש טקסטים")}
+        onChange={(event) => setSearch(event.target.value)}
+        placeholder={localized("Search texts", "بحث النصوص", "חיפוש טקסטים")}
+        type="search"
+        value={search}
+      />
+      {message && <p className="admin-success-message" role="status">{message}</p>}
+      {error && <p className="admin-error-message" role="alert">{error}</p>}
+      {loading ? (
+        <p>{localized("Loading texts...", "جارٍ تحميل النصوص...", "טוען טקסטים...")}</p>
+      ) : (
+        <div className="website-texts-list">
+          {visibleItems.map((item) => (
+            <article className="website-text-card" key={item.key}>
+              <header>
+                <div>
+                  <strong>{item.label}</strong>
+                  <code>{item.key}</code>
+                </div>
+              </header>
+              <div className="website-text-fields">
+                <label>{localized("English text", "النص الإنجليزي", "טקסט באנגלית")}<textarea value={item.valueEn} onChange={(event) => updateItem(item.key, { valueEn: event.target.value })} /></label>
+                <label dir="rtl">{localized("Arabic text", "النص العربي", "טקסט בערבית")}<textarea value={item.valueAr} onChange={(event) => updateItem(item.key, { valueAr: event.target.value })} /></label>
+                <label dir="rtl">{localized("Hebrew text", "النص العبري", "טקסט בעברית")}<textarea value={item.valueHe} onChange={(event) => updateItem(item.key, { valueHe: event.target.value })} /></label>
+              </div>
+              <div className="website-media-actions">
+                <button className="admin-primary-button" disabled={savingKey === item.key} onClick={() => saveItem(item)} type="button"><Save size={15} />{localized("Save text", "حفظ النص", "שמור טקסט")}</button>
+                <button className="secondary-action" disabled={savingKey === item.key} onClick={() => resetItem(item)} type="button"><RotateCcw size={15} />{localized("Reset to default", "إعادة للافتراضي", "איפוס לברירת מחדל")}</button>
+              </div>
+            </article>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+
+  if (embedded) return content;
+
   return (
     <AdminLayout
       activePage="admin-website-texts"
@@ -129,57 +186,7 @@ function AdminWebsiteTextsPage({
       subtitle={localized("Edit safe, company-specific storefront text overrides.", "تعديل نصوص واجهة المتجر الخاصة بالشركة بأمان.", "עריכת טקסטים בטוחים וייחודיים לחברה.")}
       title={localized("Website Texts", "نصوص الموقع", "טקסטים באתר")}
     >
-      <section className="admin-panel-card website-texts-manager">
-        <div className="website-media-tabs" role="tablist">
-          {websiteTextGroups.map((group) => (
-            <button
-              aria-selected={selectedGroup === group.key}
-              className={selectedGroup === group.key ? "active" : ""}
-              key={group.key}
-              onClick={() => setSelectedGroup(group.key)}
-              role="tab"
-              type="button"
-            >
-              {group.label[language] || group.label.en}
-              <span>{items.filter((item) => item.group === group.key).length}</span>
-            </button>
-          ))}
-        </div>
-        <input
-          aria-label={localized("Search texts", "بحث النصوص", "חיפוש טקסטים")}
-          onChange={(event) => setSearch(event.target.value)}
-          placeholder={localized("Search texts", "بحث النصوص", "חיפוש טקסטים")}
-          type="search"
-          value={search}
-        />
-        {message && <p className="admin-success-message" role="status">{message}</p>}
-        {error && <p className="admin-error-message" role="alert">{error}</p>}
-        {loading ? (
-          <p>{localized("Loading texts...", "جارٍ تحميل النصوص...", "טוען טקסטים...")}</p>
-        ) : (
-          <div className="website-texts-list">
-            {visibleItems.map((item) => (
-              <article className="website-text-card" key={item.key}>
-                <header>
-                  <div>
-                    <strong>{item.label}</strong>
-                    <code>{item.key}</code>
-                  </div>
-                </header>
-                <div className="website-text-fields">
-                  <label>{localized("English text", "النص الإنجليزي", "טקסט באנגלית")}<textarea value={item.valueEn} onChange={(event) => updateItem(item.key, { valueEn: event.target.value })} /></label>
-                  <label dir="rtl">{localized("Arabic text", "النص العربي", "טקסט בערבית")}<textarea value={item.valueAr} onChange={(event) => updateItem(item.key, { valueAr: event.target.value })} /></label>
-                  <label dir="rtl">{localized("Hebrew text", "النص العبري", "טקסט בעברית")}<textarea value={item.valueHe} onChange={(event) => updateItem(item.key, { valueHe: event.target.value })} /></label>
-                </div>
-                <div className="website-media-actions">
-                  <button className="admin-primary-button" disabled={savingKey === item.key} onClick={() => saveItem(item)} type="button"><Save size={15} />{localized("Save text", "حفظ النص", "שמור טקסט")}</button>
-                  <button className="secondary-action" disabled={savingKey === item.key} onClick={() => resetItem(item)} type="button"><RotateCcw size={15} />{localized("Reset to default", "إعادة للافتراضي", "איפוס לברירת מחדל")}</button>
-                </div>
-              </article>
-            ))}
-          </div>
-        )}
-      </section>
+      {content}
     </AdminLayout>
   );
 }
