@@ -6369,7 +6369,9 @@ main.admin-panel-main {
   align-content: start;
   gap: 18px;
   width: 100%;
+  min-width: 0;
   padding: 22px;
+  overflow-x: auto;
 }
 
 .admin-panel-card,

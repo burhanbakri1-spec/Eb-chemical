@@ -127,7 +127,7 @@ function AdminPlatformUsersPage({
       name: user.name || "",
       email: user.email || "",
       role: user.role || "customer",
-      accountType: user.accountType || "retail",
+      accountType: user.accountType === "wholesale" ? "trader" : (user.accountType || "retail"),
       phone: user.phone || "",
       department: user.department || "",
       password: "",
@@ -262,10 +262,9 @@ function AdminPlatformUsersPage({
                 </label>
                 <label className="admin-field">
                   <span>{localized("Account Type", "نوع الحساب", "סוג חשבון")}</span>
-                  <select value={form.accountType} onChange={(e) => handleFormChange("accountType", e.target.value)}>
+                  <select value={form.accountType === "wholesale" ? "trader" : form.accountType} onChange={(e) => handleFormChange("accountType", e.target.value)}>
                     <option value="retail">{localized("Retail customer", "عميل عادي", "לקוח רגיל")}</option>
                     <option value="trader">{localized("Trader", "تاجر", "סוחר")}</option>
-                    <option value="wholesale">{localized("Wholesale", "جملة", "סיטונאי")}</option>
                   </select>
                 </label>
                 <label className="admin-field">
@@ -325,7 +324,7 @@ function AdminPlatformUsersPage({
                         <td><strong>{user.name || "-"}</strong></td>
                         <td>{user.email || "-"}</td>
                         <td><code>{user.role}</code></td>
-                        <td>{user.accountType === "trader" ? localized("Trader", "تاجر", "סוחר") : user.accountType === "wholesale" ? localized("Wholesale", "جملة", "סיטונאי") : localized("Retail customer", "عميل عادي", "לקוח רגיל")}</td>
+                        <td>{user.accountType === "trader" || user.accountType === "wholesale" ? localized("Trader", "تاجر", "סוחר") : localized("Retail customer", "عميل عادي", "לקוח רגיל")}</td>
                         <td>{user.phone || "-"}</td>
                         <td>{user.department || "-"}</td>
                         <td>
