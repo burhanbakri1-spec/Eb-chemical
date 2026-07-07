@@ -6544,50 +6544,45 @@ main.admin-panel-main {
 }
 
 .admin-layout .admin-orders-table {
-  min-width: 900px;
+  min-width: 1300px;
   width: 100%;
   table-layout: auto;
 }
 
 .admin-layout .admin-orders-table th,
 .admin-layout .admin-orders-table td {
-  padding: 8px 6px;
-  white-space: normal;
-  overflow-wrap: anywhere;
+  padding: 8px 10px;
+  white-space: nowrap;
   word-break: normal;
   vertical-align: middle;
   font-size: 13px;
 }
 
 .admin-layout .admin-orders-table .order-id-cell {
-  width: 10%;
-  min-width: 80px;
+  min-width: 110px;
+  max-width: 160px;
   font-size: 11px;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .admin-layout .admin-orders-table .order-customer-cell,
 .admin-layout .admin-orders-table .order-user-cell {
-  width: 8%;
-  min-width: 70px;
+  min-width: 100px;
+  max-width: 160px;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .admin-layout .admin-orders-table .order-total-cell,
 .admin-layout .admin-orders-table .order-date-cell {
-  width: 7%;
-  min-width: 60px;
-  white-space: nowrap;
+  min-width: 80px;
 }
 
 .admin-layout .admin-orders-table .order-items-cell {
-  width: 20%;
-  min-width: 100px;
-  max-width: 300px;
+  min-width: 200px;
+  max-width: 320px;
+  white-space: normal;
   line-height: 1.35;
   font-size: 12px;
 }

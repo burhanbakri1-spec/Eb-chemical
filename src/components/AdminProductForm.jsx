@@ -241,6 +241,7 @@ function AdminProductForm({ categoryOptions, editingProduct, language, onCancel,
     colorsText: "Default|#1db7d8",
     sizesText: "500ml, 1L, 5L",
     defaultPrice: "18",
+    defaultWholesalePrice: "",
     defaultStock: "24",
   });
 
@@ -446,6 +447,7 @@ function AdminProductForm({ categoryOptions, editingProduct, language, onCancel,
                 color_value: color.value,
                 size,
                 price: variantGenerator.defaultPrice,
+                wholesalePrice: variantGenerator.defaultWholesalePrice || undefined,
                 stock: variantGenerator.defaultStock,
                 image_url: color.imageUrl || currentForm.image || "",
               },
@@ -875,6 +877,15 @@ function AdminProductForm({ categoryOptions, editingProduct, language, onCancel,
               type="number"
               value={variantGenerator.defaultPrice}
               onChange={(event) => updateVariantGenerator("defaultPrice", event.target.value)}
+            />
+          </label>
+          <label>
+            {localized("Default wholesale price", "سعر الجملة الافتراضي", "מחיר סיטונאי ברירת מחדל")}
+            <input
+              min="0"
+              type="number"
+              value={variantGenerator.defaultWholesalePrice}
+              onChange={(event) => updateVariantGenerator("defaultWholesalePrice", event.target.value)}
             />
           </label>
           <label>

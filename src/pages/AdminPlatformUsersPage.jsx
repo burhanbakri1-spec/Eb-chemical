@@ -263,9 +263,9 @@ function AdminPlatformUsersPage({
                 <label className="admin-field">
                   <span>{localized("Account Type", "نوع الحساب", "סוג חשבון")}</span>
                   <select value={form.accountType} onChange={(e) => handleFormChange("accountType", e.target.value)}>
-                    <option value="retail">retail</option>
-                    <option value="trader">trader</option>
-                    <option value="wholesale">wholesale</option>
+                    <option value="retail">{localized("Retail customer", "عميل عادي", "לקוח רגיל")}</option>
+                    <option value="trader">{localized("Trader", "تاجر", "סוחר")}</option>
+                    <option value="wholesale">{localized("Wholesale", "جملة", "סיטונאי")}</option>
                   </select>
                 </label>
                 <label className="admin-field">
@@ -325,7 +325,7 @@ function AdminPlatformUsersPage({
                         <td><strong>{user.name || "-"}</strong></td>
                         <td>{user.email || "-"}</td>
                         <td><code>{user.role}</code></td>
-                        <td>{user.accountType || "retail"}</td>
+                        <td>{user.accountType === "trader" ? localized("Trader", "تاجر", "סוחר") : user.accountType === "wholesale" ? localized("Wholesale", "جملة", "סיטונאי") : localized("Retail customer", "عميل عادي", "לקוח רגיל")}</td>
                         <td>{user.phone || "-"}</td>
                         <td>{user.department || "-"}</td>
                         <td>
