@@ -23,8 +23,20 @@ function currencySymbol(code) {
 function formatDate(dateStr) {
   if (!dateStr) return "\u2014";
   const d = new Date(dateStr);
-  if (Number.isNaN(d.getTime())) return dateStr;
+  if (Number.isNaN(d.getTime())) return "\u2014";
   return d.toLocaleDateString("en-CA");
+}
+
+function formatMoney(value) {
+  const number = Number(value);
+  return Number.isFinite(number) ? number.toFixed(2) : "0.00";
+}
+
+function normalizeInvoiceRows(result) {
+  if (Array.isArray(result)) return result;
+  if (Array.isArray(result?.data)) return result.data;
+  if (Array.isArray(result?.invoices)) return result.invoices;
+  return [];
 }
 
 function AdminInvoicesPage({
@@ -143,7 +155,7 @@ function AdminInvoicesPage({
 
         {loading ? (
           <div className="admin-empty-state">{localized("Loading invoices...", "جار تحميل الفواتير...", "טוען חשבוניות...")}</div>
-        ) : invoices.length === 0 ? (
+        ) : !Array.isArray(invoices) || invoices.length === 0 ? (
           <div className="admin-empty-state">
             <strong>{localized("No invoices yet", "لا توجد فواتير بعد", "אין חשבוניות עדיין")}</strong>
             <p>{localized("Create your first invoice to get started.", "أنشئ فاتورتك الأولى للبدء.", "צור את החשבונית הראשונה שלך כדי להתחיל.")}</p>
@@ -165,35 +177,36 @@ function AdminInvoicesPage({
                 </tr>
               </thead>
               <tbody>
-                {invoices.map((inv) => (
-                  <tr key={inv.id}>
-                    <td><strong>{inv.invoice_number}</strong></td>
-                    <td>{inv.customer_name}</td>
+                {(Array.isArray(invoices) ? invoices : []).map((inv, index) => (
+                  <tr key={inv?.id || inv?.invoice_number || index}>
+                    <td><strong>{inv?.invoice_number || "\u2014"}</strong></td>
+                    <td>{inv?.customer_name || "\u2014"}</td>
                     <td>
-                      <span className="admin-tag" style={statusStyle(inv.status)}>
-                        {statusLabels[inv.status] || inv.status}
+                      <span className="admin-tag" style={statusStyle(inv?.status)}>
+                        {statusLabels[inv?.status] || inv?.status || statusLabels.draft}
                       </span>
                     </td>
-                    <td>{formatDate(inv.issue_date)}</td>
-                    <td>{currencySymbol(inv.currency)}{Number(inv.total).toFixed(2)}</td>
+                    <td>{formatDate(inv?.issue_date)}</td>
+                    <td>{currencySymbol(inv?.currency || "ILS")}{formatMoney(inv?.total)}</td>
                     <td>
                       <div className="action-group">
                         <button
                           className="secondary-action"
-                          onClick={() => onNavigate("admin-invoices-view", { invoiceId: inv.id })}
+                          onClick={() => onNavigate("admin-invoices-view", { invoiceId: inv?.id })}
                           type="button"
+                          disabled={!inv?.id}
                         >
                           {localized("View", "عرض", "צפה")}
                         </button>
                         <button
                           className="secondary-action"
-                          onClick={() => onNavigate("admin-invoices-edit", { invoiceId: inv.id })}
+                          onClick={() => onNavigate("admin-invoices-edit", { invoiceId: inv?.id })}
                           type="button"
-                          disabled={inv.status === "void" || inv.status === "cancelled"}
+                          disabled={!inv?.id || inv.status === "void" || inv.status === "cancelled"}
                         >
                           {localized("Edit", "تعديل", "ערוך")}
                         </button>
-                        {inv.status !== "void" && inv.status !== "cancelled" && (
+                        {inv?.id && inv.status !== "void" && inv.status !== "cancelled" && (
                           <button
                             className="secondary-action"
                             onClick={() => handleVoid(inv.id)}

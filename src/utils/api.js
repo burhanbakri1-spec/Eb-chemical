@@ -33,14 +33,23 @@ export function getStoredUser() {
 export async function apiRequest(path, options = {}) {
   const token = getToken();
   const url = `${apiBaseUrl}${path}`;
-  const response = await fetch(url, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...(options.headers || {}),
-    },
-  });
+  let response;
+  try {
+    response = await fetch(url, {
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(options.headers || {}),
+      },
+    });
+  } catch (error) {
+    console.error("API request could not reach server", {
+      endpoint: path,
+      message: error?.message,
+    });
+    throw new Error("Unable to reach the server. Please check your connection and try again.");
+  }
 
   if (response.status === 204) {
     return null;

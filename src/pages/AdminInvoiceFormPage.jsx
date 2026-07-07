@@ -15,7 +15,25 @@ function calculateLineTotal(item) {
 }
 
 function calculateSubtotal(items) {
-  return items.reduce((sum, item) => sum + item.total, 0);
+  return (Array.isArray(items) ? items : []).reduce((sum, item) => sum + Number(item?.total || 0), 0);
+}
+
+function dateInputValue(value) {
+  if (typeof value !== "string") return "";
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime()) ? "" : value.slice(0, 10);
+}
+
+function normalizeLineItems(value) {
+  const rows = Array.isArray(value) ? value : [];
+  return rows.length
+    ? rows.map((item) => ({
+        description: item?.description || "",
+        quantity: Number(item?.quantity || 1),
+        unit_price: Number(item?.unit_price || 0),
+        total: Number(item?.total || 0),
+      }))
+    : [emptyLineItem()];
 }
 
 function AdminInvoiceFormPage({
@@ -67,20 +85,15 @@ function AdminInvoiceFormPage({
         const inv = await fetchInvoice(editingInvoiceId);
         if (!cancelled) {
           setForm({
-            customer_name: inv.customer_name || "",
-            customer_email: inv.customer_email || "",
-            customer_phone: inv.customer_phone || "",
-            status: inv.status || "draft",
-            currency: inv.currency || "ILS",
-            issue_date: inv.issue_date ? inv.issue_date.slice(0, 10) : "",
-            due_date: inv.due_date ? inv.due_date.slice(0, 10) : "",
-            notes: inv.notes || "",
-            line_items: (inv.line_items || []).map((item) => ({
-              description: item.description || "",
-              quantity: item.quantity || 1,
-              unit_price: item.unit_price || 0,
-              total: item.total || 0,
-            })),
+            customer_name: inv?.customer_name || "",
+            customer_email: inv?.customer_email || "",
+            customer_phone: inv?.customer_phone || "",
+            status: inv?.status || "draft",
+            currency: inv?.currency || "ILS",
+            issue_date: dateInputValue(inv?.issue_date),
+            due_date: dateInputValue(inv?.due_date),
+            notes: inv?.notes || "",
+            line_items: normalizeLineItems(inv?.line_items),
           });
         }
       } catch (error) {
@@ -99,7 +112,7 @@ function AdminInvoiceFormPage({
 
   function updateLineItem(index, field, value) {
     setForm((prev) => {
-      const items = prev.line_items.map((item, i) => {
+      const items = (Array.isArray(prev.line_items) ? prev.line_items : [emptyLineItem()]).map((item, i) => {
         if (i !== index) return item;
         const updated = { ...item, [field]: field === "description" ? value : Number(value || 0) };
         updated.total = calculateLineTotal(updated);
@@ -112,20 +125,21 @@ function AdminInvoiceFormPage({
   function addLineItem() {
     setForm((prev) => ({
       ...prev,
-      line_items: [...prev.line_items, emptyLineItem()],
+      line_items: [...(Array.isArray(prev.line_items) ? prev.line_items : []), emptyLineItem()],
     }));
   }
 
   function removeLineItem(index) {
     setForm((prev) => {
-      const items = prev.line_items.filter((_, i) => i !== index);
+      const items = (Array.isArray(prev.line_items) ? prev.line_items : []).filter((_, i) => i !== index);
       return items.length === 0
         ? { ...prev, line_items: [emptyLineItem()] }
         : { ...prev, line_items: items };
     });
   }
 
-  const subtotal = calculateSubtotal(form.line_items);
+  const lineItems = Array.isArray(form.line_items) ? form.line_items : [emptyLineItem()];
+  const subtotal = calculateSubtotal(lineItems);
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -133,7 +147,7 @@ function AdminInvoiceFormPage({
       setMessage({ type: "error", text: localized("Customer name is required.", "اسم العميل مطلوب.", "שם הלקוח נדרש.") });
       return;
     }
-    if (form.line_items.length === 0 || !form.line_items[0].description.trim()) {
+    if (lineItems.length === 0 || !lineItems[0].description.trim()) {
       setMessage({ type: "error", text: localized("At least one line item with a description is required.", "مطلوب بند واحد على الأقل مع وصف.", "נדרש לפחות פריט שורה אחד עם תיאור.") });
       return;
     }
@@ -150,7 +164,7 @@ function AdminInvoiceFormPage({
         issue_date: form.issue_date,
         due_date: form.due_date || null,
         notes: form.notes.trim() || null,
-        line_items: form.line_items.map((item) => ({
+        line_items: lineItems.map((item) => ({
           description: item.description.trim(),
           quantity: item.quantity,
           unit_price: item.unit_price,
@@ -302,7 +316,7 @@ function AdminInvoiceFormPage({
                 </tr>
               </thead>
               <tbody>
-                {form.line_items.map((item, index) => (
+                {lineItems.map((item, index) => (
                   <tr key={index}>
                     <td>
                       <input

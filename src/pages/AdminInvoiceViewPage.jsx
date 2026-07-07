@@ -19,8 +19,13 @@ const currencySymbols = {
 function formatDate(dateStr) {
   if (!dateStr) return "\u2014";
   const d = new Date(dateStr);
-  if (Number.isNaN(d.getTime())) return dateStr;
+  if (Number.isNaN(d.getTime())) return "\u2014";
   return d.toLocaleDateString("en-CA");
+}
+
+function formatMoney(value) {
+  const number = Number(value);
+  return Number.isFinite(number) ? number.toFixed(2) : "0.00";
 }
 
 function PrintStyles() {
@@ -112,8 +117,8 @@ function AdminInvoiceViewPage({
     );
   }
 
-  const lineItems = invoice.line_items || [];
-  const subtotal = lineItems.reduce((sum, item) => sum + Number(item.total || 0), 0);
+  const lineItems = Array.isArray(invoice.line_items) ? invoice.line_items : [];
+  const subtotal = lineItems.reduce((sum, item) => sum + Number(item?.total || 0), 0);
   const sc = statusColors[invoice.status] || statusColors.draft;
 
   return (
@@ -175,20 +180,20 @@ function AdminInvoiceViewPage({
           <tbody>
             {lineItems.map((item, index) => (
               <tr key={index}>
-                <td>{item.description}</td>
-                <td className="text-center">{item.quantity}</td>
-                <td className="text-right">{currencySymbols[invoice.currency] || invoice.currency}{Number(item.unit_price || 0).toFixed(2)}</td>
-                <td className="text-right">{currencySymbols[invoice.currency] || invoice.currency}{Number(item.total || 0).toFixed(2)}</td>
+                <td>{item?.description || "\u2014"}</td>
+                <td className="text-center">{Number(item?.quantity || 0)}</td>
+                <td className="text-right">{currencySymbols[invoice.currency] || invoice.currency}{formatMoney(item?.unit_price)}</td>
+                <td className="text-right">{currencySymbols[invoice.currency] || invoice.currency}{formatMoney(item?.total)}</td>
               </tr>
             ))}
           </tbody>
         </table>
 
         <div className="invoice-summary">
-          <div className="summary-row"><span>{localized("Subtotal", "المجموع الفرعي", "סכום ביניים")}</span><span>{currencySymbols[invoice.currency] || invoice.currency}{Number(invoice.subtotal || subtotal).toFixed(2)}</span></div>
-          {Number(invoice.discount_total) > 0 && <div className="summary-row"><span>{localized("Discount", "الخصم", "הנחה")}</span><span>-{currencySymbols[invoice.currency] || invoice.currency}{Number(invoice.discount_total).toFixed(2)}</span></div>}
-          {Number(invoice.tax_total) > 0 && <div className="summary-row"><span>{localized("Tax", "الضريبة", "מס")}</span><span>{currencySymbols[invoice.currency] || invoice.currency}{Number(invoice.tax_total).toFixed(2)}</span></div>}
-          <div className="summary-row summary-total"><span>{localized("Total", "الإجمالي", "סה\"כ")}</span><span>{currencySymbols[invoice.currency] || invoice.currency}{Number(invoice.total).toFixed(2)}</span></div>
+          <div className="summary-row"><span>{localized("Subtotal", "المجموع الفرعي", "סכום ביניים")}</span><span>{currencySymbols[invoice.currency] || invoice.currency}{formatMoney(invoice.subtotal || subtotal)}</span></div>
+          {Number(invoice.discount_total) > 0 && <div className="summary-row"><span>{localized("Discount", "الخصم", "הנחה")}</span><span>-{currencySymbols[invoice.currency] || invoice.currency}{formatMoney(invoice.discount_total)}</span></div>}
+          {Number(invoice.tax_total) > 0 && <div className="summary-row"><span>{localized("Tax", "الضريبة", "מס")}</span><span>{currencySymbols[invoice.currency] || invoice.currency}{formatMoney(invoice.tax_total)}</span></div>}
+          <div className="summary-row summary-total"><span>{localized("Total", "الإجمالي", "סה\"כ")}</span><span>{currencySymbols[invoice.currency] || invoice.currency}{formatMoney(invoice.total)}</span></div>
         </div>
 
         {invoice.notes && (
