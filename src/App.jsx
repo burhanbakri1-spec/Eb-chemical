@@ -508,9 +508,22 @@ function App() {
   }, [isAdminDarkMode]);
 
   const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+
+  function effectiveItemPrice(item) {
+    const isTrader = currentUser?.accountType === "trader" || currentUser?.accountType === "wholesale";
+    if (!isTrader) return Number(item.price || 0);
+    const product = demoProducts.find((p) => p.id === item.productId || p.slug === item.slug);
+    if (!product || !Array.isArray(product.variants)) return Number(item.price || 0);
+    const variant = product.variants.find((v) =>
+      v.id === item.variantId || v.size === (item.selectedSize || item.size),
+    );
+    if (!variant || !variant.wholesalePrice || Number(variant.wholesalePrice) <= 0) return Number(item.price || 0);
+    return Number(variant.wholesalePrice);
+  }
+
   const cartTotal = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
+    (sum, item) => sum + effectiveItemPrice(item) * item.quantity,
+    0,
   );
 
   async function loadCompanyContext() {

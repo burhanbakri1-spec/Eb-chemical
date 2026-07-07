@@ -44,6 +44,7 @@ const emptyForm = {
   name: "",
   email: "",
   role: "customer",
+  accountType: "retail",
   phone: "",
   department: "",
   password: "",
@@ -126,6 +127,7 @@ function AdminPlatformUsersPage({
       name: user.name || "",
       email: user.email || "",
       role: user.role || "customer",
+      accountType: user.accountType || "retail",
       phone: user.phone || "",
       department: user.department || "",
       password: "",
@@ -154,6 +156,7 @@ function AdminPlatformUsersPage({
         if (form.name !== editingUser.name) changes.name = form.name.trim();
         if (form.email !== editingUser.email) changes.email = form.email.trim().toLowerCase();
         if (form.role !== editingUser.role) changes.role = form.role;
+        if (form.accountType !== (editingUser.accountType || "retail")) changes.accountType = form.accountType;
         if (form.phone !== (editingUser.phone || "")) changes.phone = form.phone.trim();
         if (form.department !== (editingUser.department || "")) changes.department = form.department.trim();
         if (form.isActive !== (editingUser.isActive !== false)) changes.isActive = form.isActive;
@@ -258,6 +261,14 @@ function AdminPlatformUsersPage({
                   </select>
                 </label>
                 <label className="admin-field">
+                  <span>{localized("Account Type", "نوع الحساب", "סוג חשבון")}</span>
+                  <select value={form.accountType} onChange={(e) => handleFormChange("accountType", e.target.value)}>
+                    <option value="retail">retail</option>
+                    <option value="trader">trader</option>
+                    <option value="wholesale">wholesale</option>
+                  </select>
+                </label>
+                <label className="admin-field">
                   <span>{localized("Phone", "الهاتف", "טלפון")}</span>
                   <input type="text" value={form.phone} onChange={(e) => handleFormChange("phone", e.target.value)} />
                 </label>
@@ -298,6 +309,7 @@ function AdminPlatformUsersPage({
                     <th>{localized("Name", "الاسم", "שם")}</th>
                     <th>{localized("Email", "البريد الإلكتروني", "אימייל")}</th>
                     <th>{localized("Role", "الدور", "תפקיד")}</th>
+                    <th>{localized("Account Type", "نوع الحساب", "סוג חשבון")}</th>
                     <th>{localized("Phone", "الهاتف", "טלפון")}</th>
                     <th>{localized("Department", "القسم", "מחלקה")}</th>
                     <th>{localized("Status", "الحالة", "סטטוס")}</th>
@@ -313,6 +325,7 @@ function AdminPlatformUsersPage({
                         <td><strong>{user.name || "-"}</strong></td>
                         <td>{user.email || "-"}</td>
                         <td><code>{user.role}</code></td>
+                        <td>{user.accountType || "retail"}</td>
                         <td>{user.phone || "-"}</td>
                         <td>{user.department || "-"}</td>
                         <td>

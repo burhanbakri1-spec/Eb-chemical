@@ -158,10 +158,24 @@ function CartPage({
   const isArabic = language === "ar";
   const text = cartCopy[language] || cartCopy.en;
   const currency = t("common.ils");
-  const cartTotal =
-    typeof total === "number"
-      ? total
-      : cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+  function effectiveItemPrice(item) {
+    const isTrader = currentUser?.accountType === "trader" || currentUser?.accountType === "wholesale";
+    if (!isTrader) return Number(item.price || 0);
+    const product = products.find((p) => p.id === item.productId || p.slug === item.slug);
+    if (!product || !Array.isArray(product.variants)) return Number(item.price || 0);
+    const variant = product.variants.find((v) =>
+      v.id === item.variantId || v.size === (item.selectedSize || item.size),
+    );
+    if (!variant || !variant.wholesalePrice || Number(variant.wholesalePrice) <= 0) return Number(item.price || 0);
+    return Number(variant.wholesalePrice);
+  }
+
+  const displayCartTotal = cartItems.reduce(
+    (sum, item) => sum + effectiveItemPrice(item) * item.quantity,
+    0,
+  );
+  const cartTotal = typeof total === "number" ? total : displayCartTotal;
   const freeDeliveryThreshold = 500;
   const shippingProgress = Math.min(100, Math.round((cartTotal / freeDeliveryThreshold) * 100));
   const remainingForShipping = Math.max(0, freeDeliveryThreshold - cartTotal);
@@ -280,7 +294,8 @@ function CartPage({
                 const product = getProduct(item);
                 const productName = getLocalized(product?.name, item.productName || item.slug);
                 const productBadge = getLocalized(product?.badge, text.featured);
-                const lineTotal = item.price * item.quantity;
+                const itemPrice = effectiveItemPrice(item);
+                const lineTotal = itemPrice * item.quantity;
                 const itemAvailable = isCartItemAvailable(item);
 
                 return (

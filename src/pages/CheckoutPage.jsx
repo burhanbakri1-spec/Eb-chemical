@@ -63,6 +63,18 @@ function CheckoutPage({
       .catch(() => setDeliveryZones([]));
   }, []);
 
+  function effectiveItemPrice(item) {
+    const isTrader = currentUser?.accountType === "trader" || currentUser?.accountType === "wholesale";
+    if (!isTrader) return Number(item.price || 0);
+    const product = products.find((p) => p.id === item.productId || p.slug === item.slug);
+    if (!product || !Array.isArray(product.variants)) return Number(item.price || 0);
+    const variant = product.variants.find((v) =>
+      v.id === item.variantId || v.size === (item.selectedSize || item.size),
+    );
+    if (!variant || !variant.wholesalePrice || Number(variant.wholesalePrice) <= 0) return Number(item.price || 0);
+    return Number(variant.wholesalePrice);
+  }
+
   const rawDelivery = selectedZone ? Number(selectedZone.delivery_price) : 0;
   const freeDeliveryThreshold = 500;
   const productSubtotal = Number(total || 0);
@@ -306,6 +318,8 @@ function CheckoutPage({
           {messageItems.map((item) => {
             const product = products.find((entry) => entry.id === item.productId);
             const productName = product?.name?.[language] || item.productName || item.slug;
+            const displayPrice = effectiveItemPrice(item);
+            const displayLineTotal = item.lineTotal ?? displayPrice * item.quantity;
 
             return (
               <div className="summary-line" key={item.cartId || `${item.productId}-${item.selectedSize || item.size}`}>
@@ -313,7 +327,7 @@ function CheckoutPage({
                   {productName} - {item.selectedSize || item.size} x{item.quantity}
                 </span>
                 <strong>
-                  {(item.lineTotal ?? item.price * item.quantity)} {t("common.ils")}
+                  {displayLineTotal} {t("common.ils")}
                 </strong>
               </div>
             );

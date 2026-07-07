@@ -32,6 +32,7 @@ function normalizeVariant(variant = {}, index = 0, product = {}) {
     color_value: variant.color_value || variant.colorValue || "",
     size: variant.size || product.sizes?.[0]?.size || "500ml",
     price: Number(variant.price ?? product.sizes?.[0]?.price ?? 0),
+    wholesalePrice: variant.wholesalePrice != null ? Number(variant.wholesalePrice) : undefined,
     stock: Math.max(0, Number(variant.stock ?? variant.stockQty ?? product.stockQty ?? 0)),
     image_url: variant.image_url || variant.imageUrl || variant.image || "",
     sort_order: Number(variant.sort_order ?? variant.sortOrder ?? index),
@@ -499,6 +500,7 @@ function AdminProductForm({ categoryOptions, editingProduct, language, onCancel,
         ...normalizeVariant(variant, index, form),
         id: variant.id || `${form.id || slug}-variant-${index}`,
         price: Number(variant.price || 0),
+        wholesalePrice: variant.wholesalePrice != null ? Number(variant.wholesalePrice) : undefined,
         stock: Math.max(0, Number(variant.stock || 0)),
         sort_order: index,
       }));
@@ -922,6 +924,15 @@ function AdminProductForm({ categoryOptions, editingProduct, language, onCancel,
                   type="number"
                   value={variant.price}
                   onChange={(event) => updateVariant(index, "price", event.target.value)}
+                />
+              </label>
+              <label>
+                {localized("Wholesale Price", "سعر الجملة", "מחיר סיטונאי")}
+                <input
+                  min="0"
+                  type="number"
+                  value={variant.wholesalePrice ?? ""}
+                  onChange={(event) => updateVariant(index, "wholesalePrice", event.target.value ? Number(event.target.value) : undefined)}
                 />
               </label>
               <label>

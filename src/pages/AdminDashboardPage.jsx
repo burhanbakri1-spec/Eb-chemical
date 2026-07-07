@@ -11,6 +11,7 @@ import {
   defaultAdminCategories,
   getSelectableAdminCategories,
 } from "../utils/adminCategories.js";
+import { fetchCustomers, updateUserAccountType } from "../utils/customersApi.js";
 
 const storageKeys = {
   brands: "ebAdminBrands",
@@ -1462,6 +1463,37 @@ function AdminDashboardPage({
   const [inventoryRows, setInventoryRows] = React.useState(() => readStorage(storageKeys.inventory, {}));
   const [movements, setMovements] = React.useState(() => readStorage(storageKeys.movements, []));
   const [stockModalOpen, setStockModalOpen] = React.useState(false);
+  const [apiCustomers, setApiCustomers] = React.useState([]);
+  const [customersLoading, setCustomersLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    let active = true;
+    setCustomersLoading(true);
+    fetchCustomers().then((result) => {
+      if (active) {
+        setApiCustomers(result);
+        setCustomersLoading(false);
+      }
+    }).catch(() => {
+      if (active) {
+        setApiCustomers([]);
+        setCustomersLoading(false);
+      }
+    });
+    return () => { active = false; };
+  }, []);
+
+  async function handleAccountTypeChange(customerId, newAccountType) {
+    const previous = apiCustomers;
+    setApiCustomers((current) =>
+      current.map((c) => (c.id === customerId ? { ...c, accountType: newAccountType } : c)),
+    );
+    try {
+      await updateUserAccountType(customerId, newAccountType);
+    } catch {
+      setApiCustomers(previous);
+    }
+  }
 
   const role = currentUser?.role;
   const canEdit = role === "admin" || role === "manager";
@@ -1687,12 +1719,16 @@ function AdminDashboardPage({
   }
 
   function renderCustomers() {
+    const displayCustomers = apiCustomers.length > 0 ? apiCustomers : customers;
     return (
       <section className="admin-panel-card">
         <Toolbar><SearchField placeholder={localized("Search name, email, or phone...", "بحث بالاسم أو البريد الإلكتروني أو الهاتف...", "חפש שם, אימייל או טלפון...", language)} value="" onChange={() => {}} /><select><option>{localized("Status", "الحالة", "סטטוס", language)}</option></select><select><option>{localized("10 / page", "10 / صفحة", "10 / עמוד", language)}</option><option>{localized("25 / page", "25 / صفحة", "25 / עמוד", language)}</option><option>{localized("50 / page", "50 / صفحة", "50 / עמוד", language)}</option><option>{localized("100 / page", "100 / صفحة", "100 / עמוד", language)}</option></select></Toolbar>
         <AdminTable>
-          <thead><tr><th>{localized("Name", "الاسم", "שם", language)}</th><th>{localized("Email", "البريد الإلكتروني", "אימייל", language)}</th><th>{localized("Phone", "الهاتف", "טלפון", language)}</th><th>{localized("Status", "الحالة", "סטטוס", language)}</th><th>{localized("Orders", "الطلبات", "הזמנות", language)}</th><th>{localized("Created", "تاريخ الإنشاء", "נוצר", language)}</th><th>{localized("Updated", "آخر تحديث", "עודכן", language)}</th><th>{localized("Actions", "الإجراءات", "פעולות", language)}</th></tr></thead>
-          <tbody>{customers.length ? customers.map((customer) => <tr key={`${customer.email}-${customer.phone}`}><td>{customer.name}</td><td>{customer.email}</td><td>{customer.phone}</td><td><Badge>{customer.status}</Badge></td><td>{customer.orders}</td><td>{formatDate(customer.createdAt, language)}</td><td>{formatDate(customer.updatedAt, language)}</td><td>-</td></tr>) : <tr><td colSpan="8">{localized("No customers yet.", "لا يوجد عملاء بعد.", "אין לקוחות עדיין.", language)}</td></tr>}</tbody>
+          <thead><tr><th>{localized("Name", "الاسم", "שם", language)}</th><th>{localized("Email", "البريد الإلكتروني", "אימייל", language)}</th><th>{localized("Phone", "الهاتف", "טלפון", language)}</th><th>{localized("Account Type", "نوع الحساب", "סוג חשבון", language)}</th><th>{localized("Status", "الحالة", "סטטוס", language)}</th><th>{localized("Orders", "الطلبات", "הזמנות", language)}</th><th>{localized("Created", "تاريخ الإنشاء", "נוצר", language)}</th><th>{localized("Updated", "آخر تحديث", "עודכן", language)}</th></tr></thead>
+          <tbody>{displayCustomers.length ? displayCustomers.map((customer) => {
+            const isApi = !!customer.id;
+            return <tr key={`${customer.email}-${customer.phone}`}><td>{customer.name}</td><td>{customer.email}</td><td>{customer.phone}</td><td>{isApi ? <select className="admin-select" value={customer.accountType || "retail"} onChange={(e) => handleAccountTypeChange(customer.id, e.target.value)}><option value="retail">retail</option><option value="trader">trader</option><option value="wholesale">wholesale</option></select> : <Badge>retail</Badge>}</td><td><Badge>{customer.status || (customer.isActive !== false ? "Active" : "Inactive")}</Badge></td><td>{customer.orders || customer.orderCount || 0}</td><td>{formatDate(customer.createdAt, language)}</td><td>{formatDate(customer.updatedAt, language)}</td></tr>;
+          }) : <tr><td colSpan="8">{customersLoading ? localized("Loading...", "جار التحميل...", "טוען...", language) : localized("No customers yet.", "لا يوجد عملاء بعد.", "אין לקוחות עדיין.", language)}</td></tr>}</tbody>
         </AdminTable>
       </section>
     );

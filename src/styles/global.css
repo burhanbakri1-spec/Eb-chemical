@@ -6544,14 +6544,14 @@ main.admin-panel-main {
 }
 
 .admin-layout .admin-orders-table {
-  min-width: 960px;
+  min-width: 900px;
   width: 100%;
-  table-layout: fixed;
+  table-layout: auto;
 }
 
 .admin-layout .admin-orders-table th,
 .admin-layout .admin-orders-table td {
-  padding: 8px 8px;
+  padding: 8px 6px;
   white-space: normal;
   overflow-wrap: anywhere;
   word-break: normal;
@@ -6560,7 +6560,8 @@ main.admin-panel-main {
 }
 
 .admin-layout .admin-orders-table .order-id-cell {
-  width: 100px;
+  width: 10%;
+  min-width: 80px;
   font-size: 11px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -6569,7 +6570,8 @@ main.admin-panel-main {
 
 .admin-layout .admin-orders-table .order-customer-cell,
 .admin-layout .admin-orders-table .order-user-cell {
-  width: 90px;
+  width: 8%;
+  min-width: 70px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -6577,13 +6579,15 @@ main.admin-panel-main {
 
 .admin-layout .admin-orders-table .order-total-cell,
 .admin-layout .admin-orders-table .order-date-cell {
-  width: 80px;
+  width: 7%;
+  min-width: 60px;
   white-space: nowrap;
 }
 
 .admin-layout .admin-orders-table .order-items-cell {
-  min-width: 120px;
-  max-width: 200px;
+  width: 20%;
+  min-width: 100px;
+  max-width: 300px;
   line-height: 1.35;
   font-size: 12px;
 }
