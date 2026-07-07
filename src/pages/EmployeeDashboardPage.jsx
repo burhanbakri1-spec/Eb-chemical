@@ -6,6 +6,7 @@ import StatusBadge from "../components/StatusBadge.jsx";
 import WorkTimer from "../components/WorkTimer.jsx";
 import WebsiteMediaManager from "../components/WebsiteMediaManager.jsx";
 import { hasPermission, permissionGroups } from "../data/permissions.js";
+import { fetchDeliveryZones } from "../utils/deliveryZonesApi.js";
 
 const statuses = ["Pending", "Processing", "Completed", "Cancelled"];
 
@@ -74,6 +75,8 @@ function EmployeeDashboardPage({
   const [draftItems, setDraftItems] = React.useState([]);
   const [message, setMessage] = React.useState(null);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [deliveryZones, setDeliveryZones] = React.useState([]);
+  const [selectedDeliveryZone, setSelectedDeliveryZone] = React.useState(null);
 
   if (!["admin", "employee", "staff", "manager"].includes(currentUser?.role)) {
     return (
@@ -149,6 +152,11 @@ function EmployeeDashboardPage({
       .slice(0, 8);
   }, [productQuery, products]);
   const draftTotal = draftItems.reduce((sum, item) => sum + item.lineTotal, 0);
+  const rawDelivery = selectedDeliveryZone ? Number(selectedDeliveryZone.delivery_price) : 0;
+  const freeDeliveryThreshold = 500;
+  const isFreeDelivery = draftTotal >= freeDeliveryThreshold;
+  const deliveryPrice = isFreeDelivery ? 0 : rawDelivery;
+  const orderTotal = draftTotal + deliveryPrice;
 
   React.useEffect(() => {
     if (!selectedProductId && products.length > 0) {
@@ -169,6 +177,12 @@ function EmployeeDashboardPage({
       setActiveTab("overview");
     }
   }, [activeTab, canManageWebsiteMedia]);
+
+  React.useEffect(() => {
+    fetchDeliveryZones()
+      .then((zones) => setDeliveryZones(Array.isArray(zones) ? zones : []))
+      .catch(() => setDeliveryZones([]));
+  }, []);
 
   function showMessage(type, text) {
     setMessage({ type, text });
@@ -235,6 +249,17 @@ function EmployeeDashboardPage({
     }));
   }
 
+  function handleDeliveryZoneChange(event) {
+    const zoneId = event.target.value;
+    const zone = zoneId ? deliveryZones.find((z) => z.id === zoneId) : null;
+    setSelectedDeliveryZone(zone);
+    setCustomer((currentCustomer) => ({
+      ...currentCustomer,
+      city: zone ? zone.city_name : "",
+      delivery_zone_id: zone ? zone.id : "",
+    }));
+  }
+
   function handleAddDraftItem(event) {
     event.preventDefault();
 
@@ -287,6 +312,11 @@ function EmployeeDashboardPage({
       return;
     }
 
+    if (deliveryZones.length > 0 && !selectedDeliveryZone) {
+      showMessage("error", language === "ar" ? "يرجى اختيار مدينة التوصيل." : language === "he" ? "אנא בחר עיר למשלוח." : "Please select a delivery city.");
+      return;
+    }
+
     setIsSubmitting(true);
     if (!onCreateOrder) {
       showMessage("error", t("employee.noPermissionAction"));
@@ -297,13 +327,17 @@ function EmployeeDashboardPage({
     const result = await onCreateOrder({
       customer,
       items: draftItems,
-      total: draftTotal,
+      total: orderTotal,
+      delivery_zone_id: selectedDeliveryZone ? selectedDeliveryZone.id : "",
+      delivery_price: deliveryPrice,
+      delivery_city_name: selectedDeliveryZone ? selectedDeliveryZone.city_name : "",
     });
     setIsSubmitting(false);
 
     if (result?.ok) {
       setCustomer(emptyCustomer);
       setDraftItems([]);
+      setSelectedDeliveryZone(null);
       showMessage("success", result.message);
       setActiveTab("orders");
     } else {
@@ -527,7 +561,23 @@ function EmployeeDashboardPage({
             </label>
             <label>
               {t("checkout.city")}
-              <input name="city" onChange={handleCustomerChange} required value={customer.city} />
+              {deliveryZones.length > 0 ? (
+                <select
+                  name="delivery_zone_id"
+                  onChange={handleDeliveryZoneChange}
+                  required
+                  value={selectedDeliveryZone ? selectedDeliveryZone.id : ""}
+                >
+                  <option disabled value="">{language === "ar" ? "اختر المدينة" : language === "he" ? "בחר עיר" : "Choose city"}</option>
+                  {deliveryZones.map((zone) => (
+                    <option key={zone.id} value={zone.id}>
+                      {zone.city_name}{zone.region ? ` (${zone.region})` : ""} &mdash; {Number(zone.delivery_price).toFixed(2)} &#x20AA;
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <input name="city" onChange={handleCustomerChange} required value={customer.city} />
+              )}
             </label>
             <label>
               {t("checkout.address")}
@@ -617,10 +667,16 @@ function EmployeeDashboardPage({
                   </div>
                 ))
               )}
+              {selectedDeliveryZone && (
+                <div className="summary-row">
+                  <span>{language === "ar" ? "التوصيل" : language === "he" ? "משלוח" : "Delivery"} ({selectedDeliveryZone.city_name})</span>
+                  <strong>{isFreeDelivery ? (language === "ar" ? "مجاني" : language === "he" ? "חינם" : "Free") : `${deliveryPrice.toFixed(2)} ${t("common.ils")}`}</strong>
+                </div>
+              )}
               <div className="summary-line total-row">
                 <span>{t("common.total")}</span>
                 <strong>
-                  {draftTotal} {t("common.ils")}
+                  {orderTotal} {t("common.ils")}
                 </strong>
               </div>
             </div>

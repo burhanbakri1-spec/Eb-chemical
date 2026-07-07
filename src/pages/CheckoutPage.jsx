@@ -255,7 +255,7 @@ function CheckoutPage({
                 required
                 value={selectedZone ? selectedZone.id : ""}
               >
-                <option value="">{t("checkout.cityPlaceholder")}</option>
+                <option disabled value="">{t("checkout.cityPlaceholder")}</option>
                 {deliveryZones.map((zone) => (
                   <option key={zone.id} value={zone.id}>
                     {zone.city_name}{zone.region ? ` (${zone.region})` : ""} &mdash; {Number(zone.delivery_price).toFixed(2)} &#x20AA;

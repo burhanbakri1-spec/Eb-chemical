@@ -1484,14 +1484,15 @@ function AdminDashboardPage({
   }, []);
 
   async function handleAccountTypeChange(customerId, newAccountType) {
-    const previous = apiCustomers;
-    setApiCustomers((current) =>
-      current.map((c) => (c.id === customerId ? { ...c, accountType: newAccountType } : c)),
-    );
+    let snapshot = null;
+    setApiCustomers((current) => {
+      snapshot = current;
+      return current.map((c) => (c.id === customerId ? { ...c, accountType: newAccountType } : c));
+    });
     try {
       await updateUserAccountType(customerId, newAccountType);
     } catch {
-      setApiCustomers(previous);
+      if (snapshot) setApiCustomers(snapshot);
     }
   }
 
