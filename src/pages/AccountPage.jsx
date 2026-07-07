@@ -12,11 +12,6 @@ function getLocalized(value, language, fallback = "") {
   return value[language] || value.en || value.ar || fallback;
 }
 
-function localized(en, ar, he) {
-  if (language === "ar") return ar;
-  if (language === "he") return he;
-  return en;
-}
 
 function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitReview, orders, products, t }) {
   const [activeTab, setActiveTab] = React.useState("orders");
@@ -27,6 +22,12 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
     orderId: "",
   });
   const [reviewMessage, setReviewMessage] = React.useState("");
+
+  function localized(en, ar, he) {
+    if (language === "ar") return ar;
+    if (language === "he") return he;
+    return en;
+  }
 
   const copy = {
     orderHistory: localized("Order History", "سجل الطلبات", "היסטוריית הזמנות"),
@@ -84,7 +85,9 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
     );
   }
 
-  const customerOrders = orders.filter(
+  const safeOrders = Array.isArray(orders) ? orders : [];
+  const safeProducts = Array.isArray(products) ? products : [];
+  const customerOrders = safeOrders.filter(
     (order) => order.customerUserId === currentUser.id || order.customer_user_id === currentUser.id
   );
   const reviewableOrders = customerOrders.filter((order) => order.status === "Completed");
@@ -92,9 +95,16 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
   const totalPointsEarned = Math.max(0, Number(currentUser.totalPointsEarned || 0));
   const totalPointsRedeemed = Math.max(0, Number(currentUser.totalPointsRedeemed || 0));
 
-  const featuredProducts = products.slice(0, 4);
-  const promoProduct = products[0];
-  const pointsProduct = products[1] || products[0];
+  const featuredProducts = safeProducts.slice(0, 4);
+  const promoProduct = safeProducts[0];
+  const pointsProduct = safeProducts[1] || safeProducts[0];
+
+  function formatDate(dateStr, lang) {
+    if (!dateStr) return "-";
+    try {
+      return new Date(dateStr).toLocaleDateString();
+    } catch { return "-"; }
+  }
 
   function renderOrderHistory() {
     return (
@@ -112,14 +122,14 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
               <article className="customer-order-card" key={order.id}>
                 <div>
                   <strong>{order.id}</strong>
-                  <span>{new Date(order.createdAt || order.created_at).toLocaleDateString()}</span>
+                  <span>{order.createdAt || order.created_at ? new Date(order.createdAt || order.created_at).toLocaleDateString() : "-"}</span>
                 </div>
                 <StatusBadge status={order.status} t={t} />
                 <p>
                   {(order.items || [])
                     .map((item) => {
-                      const product = products.find((entry) => entry.id === item.productId || entry.id === item.product_id);
-                      return `${getLocalized(product?.name, language, item.productName || item.slug)} ${item.size || item.selectedSize || ""} x${item.quantity}`;
+                      const product = safeProducts.find((entry) => entry.id === item.productId || entry.id === item.product_id);
+                      return `${getLocalized(product?.name, language, item.productName || item.slug)} ${item.size || item.selectedSize || ""} x${item.quantity ?? 1}`;
                     })
                     .join(", ")}
                 </p>
@@ -280,7 +290,7 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
             <span><strong>{copy.name}</strong>{currentUser.name}</span>
             <span><strong>{copy.email}</strong>{currentUser.email}</span>
             <span><strong>{copy.phone}</strong>{currentUser.phone || "—"}</span>
-            <span><strong>{copy.role}</strong>{currentUser.role}</span>
+            <span><strong>{copy.role}</strong>{(currentUser.accountType === "trader" || currentUser.accountType === "wholesale") ? localized("Trader", "تاجر", "סוחר") : localized("Retail customer", "عميل عادي", "לקוח רגיל")}</span>
           </div>
           <button className="dark-action" type="button">{copy.addAddress} +</button>
         </div>
