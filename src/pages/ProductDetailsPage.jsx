@@ -233,6 +233,7 @@ function AccordionList({ items, language }) {
 }
 
 function ProductDetailsPage({
+  currentUser,
   isLoading = false,
   language,
   loadError = "",
@@ -345,9 +346,13 @@ function ProductDetailsPage({
     sizeOptions.find((variant) => normalizeText(variant.size) === normalizeText(selectedSize)) ||
     sizeOptions[0] ||
     productVariants[0];
+  const isTrader = currentUser?.accountType === "trader" || currentUser?.accountType === "wholesale";
+  const wholesalePrice = isTrader && selectedVariant?.wholesalePrice && Number(selectedVariant.wholesalePrice) > 0
+    ? Number(selectedVariant.wholesalePrice)
+    : null;
   const selectedOption = selectedVariant
-    ? { size: selectedVariant.size, price: selectedVariant.price }
-    : { size: "", price: 0 };
+    ? { size: selectedVariant.size, price: selectedVariant.price, wholesalePrice }
+    : { size: "", price: 0, wholesalePrice: null };
   const typeOptions = product.detailOptions?.productTypes || [
     { id: "standard", label: { en: "Standard bottle", ar: "العبوة الأساسية" }, image: product.image },
   ];
@@ -738,7 +743,13 @@ function ProductDetailsPage({
           })}
 
           <div className="pi-cta-bar">
-            <div className="pi-price">{selectedOption.price} {t("common.ils")}</div>
+            <div className="pi-price">
+              {selectedOption.wholesalePrice ? (
+                <><del>{selectedOption.price} {t("common.ils")}</del> {selectedOption.wholesalePrice} {t("common.ils")}</>
+              ) : (
+                <>{selectedOption.price} {t("common.ils")}</>
+              )}
+            </div>
             <div className="pi-qty-row">
               <button onClick={() => setQuantity((value) => Math.max(1, value - 1))} type="button">−</button>
               <span>{quantity}</span>

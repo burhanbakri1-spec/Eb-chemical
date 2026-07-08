@@ -7586,7 +7586,7 @@ html[dir="rtl"] .cart-empty-overlay {
 
 .account-dashboard-grid {
   display: grid;
-  grid-template-columns: 430px minmax(420px, 1fr) 420px;
+  grid-template-columns: 320px minmax(420px, 1fr) 320px;
   gap: 18px;
   align-items: start;
 }
@@ -7600,9 +7600,7 @@ html[dir="rtl"] .cart-empty-overlay {
 
 .account-side-menu,
 .account-main-card,
-.account-promo-card,
-.account-points-card,
-.account-redeem-card {
+.account-summary-card {
   border-radius: 18px;
   background: #f6f6f3;
 }
@@ -7681,13 +7679,7 @@ html[dir="rtl"] .cart-empty-overlay {
   background: #f2f3ee;
 }
 
-.account-promo-card span,
-.account-points-card span {
-  display: block;
-  margin-bottom: 8px;
-  font-size: 17px;
-  font-weight: 400;
-}
+
 
 .account-promo-card strong {
   position: relative;
@@ -7848,6 +7840,50 @@ html[dir="rtl"] .cart-empty-overlay {
   font-size: 18px;
 }
 
+.account-summary-card {
+  display: grid;
+  gap: 14px;
+  padding: 32px 28px;
+  border-radius: 18px;
+  background: #f6f6f3;
+  text-align: center;
+  align-content: start;
+  justify-items: center;
+}
+
+.account-summary-image {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  border-radius: 60px;
+  background: #eeede8;
+}
+
+.account-summary-card h2 {
+  margin: 0;
+  font-size: 24px;
+  letter-spacing: -0.03em;
+  word-break: break-word;
+}
+
+.account-summary-subtitle {
+  margin: 0;
+  color: #64645e;
+  font-size: 15px;
+  word-break: break-word;
+}
+
+.account-trader-badge {
+  display: inline-flex;
+  padding: 8px 20px;
+  border-radius: 999px;
+  background: #eaf7fb;
+  color: #061f33;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
 .account-product-row {
   display: grid;
   grid-template-columns: repeat(4, minmax(220px, 1fr));
@@ -7983,16 +8019,12 @@ html[dir="rtl"] .cart-empty-overlay {
 
 @media (max-width: 1280px) {
   .account-dashboard-grid {
-    grid-template-columns: 320px 1fr;
+    grid-template-columns: 260px 1fr 260px;
   }
 
   .account-right-column {
     grid-column: 1 / -1;
     grid-template-columns: 220px 1fr;
-  }
-
-  .account-redeem-card {
-    min-height: 280px;
   }
 }
 
@@ -8029,6 +8061,11 @@ html[dir="rtl"] .cart-empty-overlay {
 
   .account-profile-fields {
     grid-template-columns: 1fr;
+  }
+
+  .account-summary-image {
+    width: 100px;
+    height: 100px;
   }
 }
 
@@ -9191,8 +9228,6 @@ html[dir="rtl"] .floating-word-window {
 .checkout-wide-button,
 .mini-add-button,
 .recommendation-copy button,
-.account-promo-card button,
-.account-redeem-card button,
 .account-info-card .dark-action,
 .admin-form button[type="submit"],
 .employee-page .admin-section > button,
@@ -9210,8 +9245,7 @@ html[dir="rtl"] .floating-word-window {
 .checkout-wide-button:hover,
 .mini-add-button:hover,
 .recommendation-copy button:hover,
-.account-promo-card button:hover,
-.account-redeem-card button:hover,
+
 .admin-form button[type="submit"]:hover {
   background: #2bb7dc !important;
   color: var(--brand-navy) !important;
@@ -9308,8 +9342,7 @@ html[dir="rtl"] .floating-word-window {
 .checkout-form,
 .auth-kinfill-card,
 .account-main-card,
-.account-promo-card,
-.account-points-card,
+.account-summary-card,
 .account-info-card,
 .cart-items-panel,
 .cart-summary-panel,

@@ -239,7 +239,7 @@ function createShopCategoryConfig(allHeroImage, websiteMedia = []) {
   };
 }
 
-function ShopProductCard({ language, onAddToCart, onViewProduct, product, t, websiteTexts = [] }) {
+function ShopProductCard({ currentUser, language, onAddToCart, onViewProduct, product, t, websiteTexts = [] }) {
   function localized(en, ar, he) {
     if (language === "ar") return ar;
     if (language === "he") return he;
@@ -254,6 +254,11 @@ function ShopProductCard({ language, onAddToCart, onViewProduct, product, t, web
     : hasVariantModel
       ? null
       : product.sizes?.[0] || null;
+  const isTrader = currentUser?.accountType === "trader" || currentUser?.accountType === "wholesale";
+  const effectivePrice = isTrader && firstVisibleVariant?.wholesalePrice && Number(firstVisibleVariant.wholesalePrice) > 0
+    ? Number(firstVisibleVariant.wholesalePrice)
+    : firstSize?.price || 0;
+
   const mainImage = resolveImageUrl(
     product.productsPageImage,
     product.image,
@@ -330,9 +335,14 @@ function ShopProductCard({ language, onAddToCart, onViewProduct, product, t, web
         </div>
         <div className="shop-product-price-row">
           <strong>
-            {firstSize ? `${firstSize.price} ${t("common.ils")}` : "Unavailable"}
+            {firstSize ? `${effectivePrice} ${t("common.ils")}` : "Unavailable"}
           </strong>
-          {oldPrice && (
+          {isTrader && firstSize && effectivePrice < firstSize.price && (
+            <del>
+              {firstSize.price} {t("common.ils")}
+            </del>
+          )}
+          {!isTrader && oldPrice && (
             <del>
               {oldPrice} {t("common.ils")}
             </del>
@@ -350,6 +360,7 @@ function ShopProductCard({ language, onAddToCart, onViewProduct, product, t, web
 
 function ProductsPage({
   activeCategory,
+  currentUser,
   isLoading = false,
   language,
   loadError = "",
@@ -557,6 +568,7 @@ function ProductsPage({
       {visibleProducts.length ? <div className="shop-product-grid">
         {visibleProducts.map((product) => (
           <ShopProductCard
+            currentUser={currentUser}
             key={product.id}
             language={language}
             onAddToCart={onAddToCart}

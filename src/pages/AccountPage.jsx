@@ -1,5 +1,5 @@
 import React from "react";
-import { resolveImageUrl, showNeutralImage } from "../utils/images.js";
+import { neutralImage, resolveImageUrl, showNeutralImage } from "../utils/images.js";
 import StatusBadge from "../components/StatusBadge.jsx";
 
 function formatPrice(value, t) {
@@ -38,14 +38,7 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
     noOrders: localized("You haven't placed any orders yet.", "لم تقم بإنشاء أي طلبات بعد.", "עדיין לא ביצעת הזמנות."),
     startShopping: localized("Start shopping", "ابدأ التسوق", "התחל לקנות"),
     accountTitle: localized("My Account", "حسابي", "החשבון שלי"),
-    pointsTitle: localized("Your Points", "نقاطك", "הנקודות שלך"),
-    pointsText: localized("Spend 100 points for a discount", "استخدم 100 نقطة للحصول على خصم", "100 נקודות להנחה"),
-    availablePoints: localized("Available points", "النقاط المتاحة", "נקודות זמינות"),
-    totalEarned: localized("Total earned", "إجمالي النقاط المكتسبة", "סה\"כ נקודות שנצברו"),
-    totalRedeemed: localized("Total redeemed", "إجمالي النقاط المستخدمة", "סה\"כ נקודות שנפדו"),
     orderPoints: localized("Points earned from this order", "النقاط المكتسبة من هذا الطلب", "נקודות שהרווחת מהזמנה זו"),
-    redeem: localized("Redeem points", "استبدال النقاط", "פדה נקודות"),
-    howRedeem: localized("How to redeem", "كيف أستخدمها", "איך לפדות"),
     addressTitle: localized("Default Address", "العنوان الافتراضي", "כתובת ברירת מחדל"),
     addressFallback: localized("No address added yet", "لم يتم إضافة عنوان بعد", "עדיין לא נוספה כתובת"),
     addAddress: localized("Add a new address", "إضافة عنوان جديد", "הוסף כתובת חדשה"),
@@ -91,13 +84,7 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
     (order) => order.customerUserId === currentUser.id || order.customer_user_id === currentUser.id
   );
   const reviewableOrders = customerOrders.filter((order) => order.status === "Completed");
-  const availablePoints = Math.max(0, Number(currentUser.ebPoints || 0));
-  const totalPointsEarned = Math.max(0, Number(currentUser.totalPointsEarned || 0));
-  const totalPointsRedeemed = Math.max(0, Number(currentUser.totalPointsRedeemed || 0));
-
   const featuredProducts = safeProducts.slice(0, 4);
-  const promoProduct = safeProducts[0];
-  const pointsProduct = safeProducts[1] || safeProducts[0];
 
   function formatDate(dateStr) {
     if (!dateStr) return "-";
@@ -346,20 +333,6 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
             </button>
           </nav>
 
-          <article className="account-promo-card">
-            <span>{localized("Subscribe and save", "عروض خاصة", "הירשם וחסוך")}</span>
-            <strong>{localized("20% off selected products", "خصومات مستمرة على المنتجات المختارة", "20% הנחה על מוצרים נבחרים")}</strong>
-            {promoProduct && (
-              <img
-                alt={getLocalized(promoProduct.name, language, promoProduct.slug)}
-                onError={showNeutralImage}
-                src={resolveImageUrl(promoProduct.image, promoProduct.fallbackImage)}
-              />
-            )}
-            <button onClick={() => onNavigate("products")} type="button">
-              {localized("Shop now", "تسوق الآن", "קנה עכשיו")}
-            </button>
-          </article>
         </aside>
 
         <main className="account-center-column">
@@ -379,34 +352,20 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
         </main>
 
         <aside className="account-right-column">
-          <article className="account-points-card">
-            <span>{copy.pointsTitle}</span>
-            <strong>{availablePoints.toLocaleString()}</strong>
-            <small>{copy.availablePoints}</small>
-            <div className="account-points-breakdown">
-              <span>
-                <b>{totalPointsEarned.toLocaleString()}</b>
-                {copy.totalEarned}
+          <article className="account-summary-card">
+            <img
+              alt=""
+              className="account-summary-image"
+              onError={showNeutralImage}
+              src={neutralImage}
+            />
+            <h2>{currentUser.name}</h2>
+            <p className="account-summary-subtitle">{currentUser.email}</p>
+            {(currentUser.accountType === "trader" || currentUser.accountType === "wholesale") && (
+              <span className="account-trader-badge">
+                {localized("Trader Account", "حساب تاجر", "חשבון סוחר")}
               </span>
-              <span>
-                <b>{totalPointsRedeemed.toLocaleString()}</b>
-                {copy.totalRedeemed}
-              </span>
-            </div>
-          </article>
-          <article className="account-redeem-card">
-            {pointsProduct && (
-              <img
-                alt={getLocalized(pointsProduct.name, language, pointsProduct.slug)}
-                onError={showNeutralImage}
-                src={resolveImageUrl(pointsProduct.image, pointsProduct.fallbackImage)}
-              />
             )}
-            <h3>{copy.pointsText}</h3>
-            <div>
-              <button type="button">{copy.howRedeem}</button>
-              <button type="button">{copy.redeem}</button>
-            </div>
           </article>
         </aside>
       </div>

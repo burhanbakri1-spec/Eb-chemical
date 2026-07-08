@@ -1370,6 +1370,7 @@ function App() {
         {activePage === "products" && (
           <ProductsPage
             activeCategory={activeCategory}
+            currentUser={currentUser}
             isLoading={productsLoading || websiteMediaLoading}
             language={language}
             loadError={productsError}
@@ -1386,6 +1387,7 @@ function App() {
 
         {activePage === "product" && (
           <ProductDetailsPage
+            currentUser={currentUser}
             isLoading={productsLoading}
             language={language}
             loadError={productsError}
