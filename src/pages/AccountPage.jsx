@@ -99,10 +99,13 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
   const promoProduct = safeProducts[0];
   const pointsProduct = safeProducts[1] || safeProducts[0];
 
-  function formatDate(dateStr, lang) {
+  function formatDate(dateStr) {
     if (!dateStr) return "-";
     try {
-      return new Date(dateStr).toLocaleDateString();
+      const date = new Date(dateStr);
+      if (Number.isNaN(date.getTime())) return "-";
+      const locale = language === "ar" ? "ar" : language === "he" ? "he-IL" : "en-US";
+      return date.toLocaleDateString(locale);
     } catch { return "-"; }
   }
 
@@ -122,7 +125,7 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
               <article className="customer-order-card" key={order.id}>
                 <div>
                   <strong>{order.id}</strong>
-                  <span>{safeDate(order.createdAt || order.created_at)}</span>
+                  <span>{formatDate(order.createdAt || order.created_at)}</span>
                 </div>
                 <StatusBadge status={order.status} t={t} />
                 <p>
