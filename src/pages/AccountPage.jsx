@@ -1,6 +1,7 @@
 import React from "react";
-import { neutralImage, resolveImageUrl, showNeutralImage } from "../utils/images.js";
+import { neutralImage, showNeutralImage } from "../utils/images.js";
 import StatusBadge from "../components/StatusBadge.jsx";
+import ProductCard from "../components/ProductCard.jsx";
 
 function formatPrice(value, t) {
   return `${Number(value || 0).toLocaleString()} ${t("common.ils")}`;
@@ -20,13 +21,15 @@ function normalizePhone(phone) {
   return digits.replace(/^0+/, "") || digits;
 }
 
-function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitReview, orders, products, t }) {
+function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitReview, onAddToCart, orders, products, t }) {
   const [activeTab, setActiveTab] = React.useState("orders");
   const [reviewForm, setReviewForm] = React.useState({
-    type: "store",
+    type: "website",
     rating: 5,
     comment: "",
     orderId: "",
+    productId: "",
+    employeeId: "",
   });
   const [reviewMessage, setReviewMessage] = React.useState("");
 
@@ -39,7 +42,7 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
   const copy = {
     orderHistory: localized("Order History", "سجل الطلبات", "היסטוריית הזמנות"),
     personalInfo: localized("Personal Information", "المعلومات الشخصية", "מידע אישי"),
-    viewedProducts: localized("Recently Viewed", "المنتجات المعروضة", "מוצרים שנצפו לאחרונה"),
+    viewedProducts: localized("Recently Viewed", "המוצרים המומלצים", "מוצרים שנצפו לאחרונה"),
     subscriptions: localized("Manage Subscriptions", "الاشتراكات", "נהל מינויים"),
     logout: localized("Logout", "تسجيل الخروج", "התנתק"),
     noOrders: localized("You haven't placed any orders yet.", "لم تقم بإنشاء أي طلبات بعد.", "עדיין לא ביצעת הזמנות."),
@@ -66,11 +69,15 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
     reviews: localized("Reviews", "التقييمات", "ביקורות"),
     writeReview: localized("Write a review", "اكتب تقييماً", "כתוב ביקורת"),
     reviewType: localized("Review type", "نوع التقييم", "סוג ביקורת"),
-    storeReview: localized("Store Review", "تقييم عام", "ביקורת כללית"),
+    productReview: localized("Product Review", "تقييم منتج", "ביקורת מוצר"),
+    websiteReview: localized("Website Review", "تقييم الموقع", "ביקורת אתר"),
+    orderReview: localized("Order Review", "تقييم الطلب", "ביקורת הזמנה"),
     employeeReview: localized("Employee Review", "تقييم الموظف", "ביקורת עובד"),
+    relatedProduct: localized("Related product", "المنتج المرتبط", "מוצר קשור"),
+    relatedOrder: localized("Related order", "الطلب المرتبط", "הזמנה קשורה"),
+    relatedEmployee: localized("Employee", "الموظف", "עובד"),
     rating: localized("Rating", "التقييم", "דירוג"),
     reviewComment: localized("Review text", "نص التقييم", "טקסט הביקורת"),
-    relatedOrder: localized("Related order", "الطلب المرتبط", "הזמנה קשורה"),
     submitReview: localized("Submit review", "إرسال التقييم", "שלח ביקורת"),
     reviewSaved: localized("Review saved successfully", "تم حفظ التقييم بنجاح", "הביקורת נשמרה בהצלחה"),
   };
@@ -99,6 +106,15 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
       || (userPhone && order.customer?.phone && normalizePhone(order.customer.phone) === userPhone)
   );
   const reviewableOrders = customerOrders.filter((order) => order.status === "Completed");
+  const reviewedEmployees = Array.from(
+    new Map(
+      reviewableOrders.flatMap((order) => {
+        const empId = order.handledByEmployeeId || order.assignedToEmployeeId || "";
+        const empName = order.createdByEmployeeName || order.createdBy?.name || "";
+        return empId && empName ? [[empId, { id: empId, name: empName }]] : [];
+      }),
+    ).values(),
+  );
   const availablePoints = Math.max(0, Number(currentUser.ebPoints || 0));
   const totalPointsEarned = Math.max(0, Number(currentUser.totalPointsEarned || 0));
   const totalPointsRedeemed = Math.max(0, Number(currentUser.totalPointsRedeemed || 0));
@@ -155,18 +171,27 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
 
   function updateReviewField(event) {
     const { name, value } = event.target;
-    setReviewForm((currentForm) => ({
-      ...currentForm,
-      [name]: name === "rating" ? Number(value) : value,
-    }));
+    setReviewForm((currentForm) => {
+      const updated = { ...currentForm, [name]: name === "rating" ? Number(value) : value };
+      if (name === "type") {
+        updated.productId = "";
+        updated.orderId = "";
+        updated.employeeId = "";
+      }
+      return updated;
+    });
   }
 
   async function submitReview(event) {
     event.preventDefault();
-    if (!reviewableOrders.length) return;
+    if (reviewForm.type === "website" || reviewForm.type === "product") {
+      if (reviewForm.type === "product" && !reviewForm.productId) return;
+    } else if (!reviewableOrders.length) {
+      return;
+    }
     const selectedOrder =
       reviewableOrders.find((order) => order.id === reviewForm.orderId) || reviewableOrders[0];
-    await onSubmitReview?.({
+    const review = {
       type: reviewForm.type,
       rating: reviewForm.rating,
       customerName: currentUser.name,
@@ -174,40 +199,59 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
         en: reviewForm.comment,
         ar: reviewForm.comment,
       },
-      orderId: selectedOrder.id,
-      employeeId:
-        reviewForm.type === "employee"
-          ? selectedOrder.handledByEmployeeId || selectedOrder.assignedToEmployeeId || ""
-          : "",
-      employeeName:
-        reviewForm.type === "employee"
-          ? selectedOrder.createdByEmployeeName || selectedOrder.createdBy?.name || ""
-          : "",
       isActive: true,
-    });
+    };
+    if (reviewForm.type === "product") {
+      review.productId = reviewForm.productId;
+      review.orderId = reviewForm.orderId || selectedOrder?.id || "";
+    } else if (reviewForm.type === "order") {
+      review.orderId = reviewForm.orderId || selectedOrder?.id || "";
+    } else if (reviewForm.type === "employee") {
+      review.orderId = reviewForm.orderId || selectedOrder?.id || "";
+      const emp = reviewedEmployees.find((e) => e.id === reviewForm.employeeId);
+      review.employeeId = reviewForm.employeeId || selectedOrder?.handledByEmployeeId || selectedOrder?.assignedToEmployeeId || "";
+      review.employeeName = emp?.name || selectedOrder?.createdByEmployeeName || selectedOrder?.createdBy?.name || "";
+    }
+    await onSubmitReview?.(review);
     setReviewMessage(copy.reviewSaved);
-    setReviewForm({ type: "store", rating: 5, comment: "", orderId: "" });
+    setReviewForm({ type: "website", rating: 5, comment: "", orderId: "", productId: "", employeeId: "" });
   }
 
   function renderReviews() {
+    const showOrderField = reviewForm.type === "order" || reviewForm.type === "product" || reviewForm.type === "employee";
+    const hasCompletedOrders = reviewableOrders.length > 0;
     return (
       <section className="account-main-card account-review-panel">
         <h2>{copy.writeReview}</h2>
-        {reviewableOrders.length === 0 ? (
-          <p>{copy.noOrders}</p>
-        ) : (
-          <form className="account-review-form" onSubmit={submitReview}>
-            {reviewMessage && <div className="message-panel success">{reviewMessage}</div>}
+        <form className="account-review-form" onSubmit={submitReview}>
+          {reviewMessage && <div className="message-panel success">{reviewMessage}</div>}
+          <label>
+            {copy.reviewType}
+            <select name="type" onChange={updateReviewField} value={reviewForm.type}>
+              <option value="product">{copy.productReview}</option>
+              <option value="website">{copy.websiteReview}</option>
+              <option value="order">{copy.orderReview}</option>
+              <option value="employee">{copy.employeeReview}</option>
+            </select>
+          </label>
+          {reviewForm.type === "product" && (
             <label>
-              {copy.reviewType}
-              <select name="type" onChange={updateReviewField} value={reviewForm.type}>
-                <option value="store">{copy.storeReview}</option>
-                <option value="employee">{copy.employeeReview}</option>
+              {copy.relatedProduct}
+              <select name="productId" onChange={updateReviewField} value={reviewForm.productId} required>
+                <option value="">{localized("Select a product", "اختر منتج", "בחר מוצר")}</option>
+                {safeProducts.map((product) => (
+                  <option key={product.id} value={product.id}>
+                    {getLocalized(product.name, language, product.slug)}
+                  </option>
+                ))}
               </select>
             </label>
+          )}
+          {showOrderField && hasCompletedOrders && (
             <label>
               {copy.relatedOrder}
               <select name="orderId" onChange={updateReviewField} value={reviewForm.orderId}>
+                <option value="">{localized("Select an order", "اختر طلب", "בחר הזמנה")}</option>
                 {reviewableOrders.map((order) => (
                   <option key={order.id} value={order.id}>
                     {order.id}
@@ -215,30 +259,43 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
                 ))}
               </select>
             </label>
+          )}
+          {reviewForm.type === "employee" && reviewedEmployees.length > 0 && (
             <label>
-              {copy.rating}
-              <select name="rating" onChange={updateReviewField} value={reviewForm.rating}>
-                {[5, 4, 3, 2, 1].map((rating) => (
-                  <option key={rating} value={rating}>
-                    {"★".repeat(rating)}
+              {copy.relatedEmployee}
+              <select name="employeeId" onChange={updateReviewField} value={reviewForm.employeeId}>
+                <option value="">{localized("Select an employee", "اختر موظف", "בחר עובד")}</option>
+                {reviewedEmployees.map((emp) => (
+                  <option key={emp.id} value={emp.id}>
+                    {emp.name}
                   </option>
                 ))}
               </select>
             </label>
-            <label className="full-field">
-              {copy.reviewComment}
-              <textarea
-                name="comment"
-                onChange={updateReviewField}
-                required
-                value={reviewForm.comment}
-              />
-            </label>
-            <button className="primary-action" type="submit">
-              {copy.submitReview}
-            </button>
-          </form>
-        )}
+          )}
+          <label>
+            {copy.rating}
+            <select name="rating" onChange={updateReviewField} value={reviewForm.rating}>
+              {[5, 4, 3, 2, 1].map((rating) => (
+                <option key={rating} value={rating}>
+                  {"★".repeat(rating)}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="full-field">
+            {copy.reviewComment}
+            <textarea
+              name="comment"
+              onChange={updateReviewField}
+              required
+              value={reviewForm.comment}
+            />
+          </label>
+          <button className="primary-action" type="submit">
+            {copy.submitReview}
+          </button>
+        </form>
       </section>
     );
   }
@@ -250,32 +307,17 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
           <h2>{copy.viewedProducts}</h2>
           <p>{copy.discover}</p>
         </div>
-        <div className="account-product-row">
-          {featuredProducts.map((product) => {
-            const firstSize = product.sizes?.[0];
-            return (
-              <button
-                className="account-product-card"
-                key={product.id}
-                onClick={() => onNavigate("product", { slug: product.slug })}
-                type="button"
-              >
-                <span className="account-product-badge">
-                  {localized("Featured product", "منتج مميز", "מוצר מובלט")}
-                </span>
-                <span className="account-product-image-wrap">
-                  <img
-                    alt={getLocalized(product.name, language, product.slug)}
-                    onError={showNeutralImage}
-                    src={resolveImageUrl(product.image, product.fallbackImage)}
-                  />
-                </span>
-                <strong>{getLocalized(product.name, language, product.slug)}</strong>
-                <small>{getLocalized(product.shortDescription, language, "")}</small>
-                {firstSize && <span>{t("common.from")} {formatPrice(firstSize.price, t)}</span>}
-              </button>
-            );
-          })}
+        <div className="product-grid">
+          {featuredProducts.map((product) => (
+            <ProductCard
+              key={product.id}
+              language={language}
+              product={product}
+              onAddToCart={onAddToCart}
+              onViewProduct={(slug) => onNavigate("product", { slug })}
+              t={t}
+            />
+          ))}
         </div>
       </section>
     );

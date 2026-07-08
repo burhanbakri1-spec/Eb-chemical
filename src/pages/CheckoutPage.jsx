@@ -86,7 +86,7 @@ function CheckoutPage({
   const availablePoints = currentUser?.role === "customer" ? Math.max(0, Math.floor(Number(currentUser.ebPoints || 0))) : 0;
   const maxRedeemablePoints = Math.min(
     Math.floor(availablePoints / 100) * 100,
-    Math.floor(Math.max(0, Number(total || 0)) / 5) * 100,
+    Math.floor(Math.max(0, productSubtotal) / 5) * 100,
   );
   const redemptionOptions = Array.from(
     { length: Math.floor(maxRedeemablePoints / 100) + 1 },
@@ -304,8 +304,8 @@ function CheckoutPage({
                 {redemptionOptions.map((points) => (
                   <option key={points} value={points}>
                     {points === 0
-                      ? localized(`Available: ${availablePoints} points — no discount`, `المتاح: ${availablePoints} نقطة — بدون خصم`, `זמין: ${availablePoints} נקודות — ללא הנחה`)
-                      : `${points} ${localized("points", "نقطة", "נקודות")} = ${(points / 20).toFixed(2)} ${t("common.ils")}`}
+                      ? localized("No discount", "بدون خصم", "ללא הנחה")
+                      : localized(`Use ${points} points = ${(points / 20).toFixed(2)} ILS discount`, `استخدم ${points} نقطة = خصم ${(points / 20).toFixed(2)} شيكل`, `השתמש ${points} נקודות = הנחה של ${(points / 20).toFixed(2)} ש"ח`)}
                   </option>
                 ))}
               </select>

@@ -1511,6 +1511,7 @@ function App() {
           <AccountPage
             currentUser={currentUser}
             language={language}
+            onAddToCart={handleAddToCart}
             onLogout={handleLogout}
             onNavigate={navigate}
             onSubmitReview={handleSubmitReview}

@@ -37,6 +37,9 @@ export function buildWhatsAppOrderMessage({
   delivery_price,
   delivery_city_name,
   language = "en",
+  pointsEarned,
+  pointsRedeemed,
+  discountFromPoints,
 } = {}) {
   const isAr = language === "ar";
   const productLines = items.length
@@ -45,6 +48,9 @@ export function buildWhatsAppOrderMessage({
   const deliveryCity = delivery_city_name || customer.delivery_city_name || "";
   const deliveryPrice = delivery_price ?? customer.delivery_price ?? 0;
   const sub = subtotal ?? (total - Number(deliveryPrice));
+  const earnedPoints = Math.max(0, Number(pointsEarned ?? customer.pointsEarned ?? 0));
+  const redeemedPoints = Math.max(0, Number(pointsRedeemed ?? customer.pointsRedeemed ?? 0));
+  const pointsDiscount = Math.max(0, Number(discountFromPoints ?? customer.discountFromPoints ?? 0));
 
   if (isAr) {
     const parts = [
@@ -70,6 +76,15 @@ export function buildWhatsAppOrderMessage({
       parts.push(`التوصيل: مجاني`);
     }
     parts.push(`الإجمالي: ${Number(total).toFixed(2)} شيكل`);
+    if (earnedPoints > 0) {
+      parts.push(`نقاط EB المكتسبة: ${earnedPoints}`);
+    }
+    if (redeemedPoints > 0) {
+      parts.push(`نقاط EB المستخدمة: ${redeemedPoints}`);
+    }
+    if (pointsDiscount > 0) {
+      parts.push(`الخصم: ${pointsDiscount.toFixed(2)} شيكل`);
+    }
     parts.push("");
     parts.push(`الملاحظات: ${formatValue(customer.notes, "لا يوجد")}`);
     return parts.join("\n");
@@ -98,6 +113,15 @@ export function buildWhatsAppOrderMessage({
     parts.push(`Delivery: Free`);
   }
   parts.push(`Total: ${Number(total).toFixed(2)} ILS`);
+  if (earnedPoints > 0) {
+    parts.push(`EB Points earned: ${earnedPoints}`);
+  }
+  if (redeemedPoints > 0) {
+    parts.push(`EB Points redeemed: ${redeemedPoints}`);
+  }
+  if (pointsDiscount > 0) {
+    parts.push(`Discount: ${pointsDiscount.toFixed(2)} ILS`);
+  }
   parts.push("");
   parts.push(`Notes: ${formatValue(customer.notes, "None")}`);
   return parts.join("\n");
