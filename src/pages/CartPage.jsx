@@ -163,12 +163,15 @@ function CartPage({
     const isTrader = currentUser?.accountType === "trader" || currentUser?.accountType === "wholesale";
     if (!isTrader) return Number(item.price || 0);
     const product = products.find((p) => p.id === item.productId || p.slug === item.slug);
-    if (!product || !Array.isArray(product.variants)) return Number(item.price || 0);
-    const variant = product.variants.find((v) =>
-      v.id === item.variantId || v.size === (item.selectedSize || item.size),
-    );
-    if (!variant || !variant.wholesalePrice || Number(variant.wholesalePrice) <= 0) return Number(item.price || 0);
-    return Number(variant.wholesalePrice);
+    if (!product) return Number(item.price || 0);
+    if (Array.isArray(product.variants)) {
+      const variant = product.variants.find((v) =>
+        v.id === item.variantId || v.size === (item.selectedSize || item.size),
+      );
+      if (variant?.wholesalePrice != null && Number(variant.wholesalePrice) > 0) return Number(variant.wholesalePrice);
+    }
+    if (product.wholesalePrice != null && Number(product.wholesalePrice) > 0) return Number(product.wholesalePrice);
+    return Number(item.price || 0);
   }
 
   const displayCartTotal = cartItems.reduce(

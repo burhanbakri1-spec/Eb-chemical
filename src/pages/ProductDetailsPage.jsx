@@ -123,6 +123,7 @@ function normalizeProductVariants(product = {}) {
       colorValue: variant.color_value || variant.colorValue || "",
       size: (variant.size || "500ml").trim(),
       price: Number(variant.price || 0),
+      wholesalePrice: variant.wholesalePrice != null ? Number(variant.wholesalePrice) : (product.wholesalePrice != null ? Number(product.wholesalePrice) : undefined),
       stock: Math.max(0, Number(variant.stock ?? variant.stockQty ?? product.stockQty ?? 24)),
       image: variant.image_url || variant.imageUrl || variant.image || "",
       sortOrder: Number(variant.sort_order ?? variant.sortOrder ?? index),
@@ -136,6 +137,7 @@ function normalizeProductVariants(product = {}) {
     colorValue: "",
     size: (sizeOption.size || "500ml").trim(),
     price: Number(sizeOption.price || 0),
+    wholesalePrice: sizeOption.wholesalePrice != null ? Number(sizeOption.wholesalePrice) : (product.wholesalePrice != null ? Number(product.wholesalePrice) : undefined),
     stock: Math.max(0, Number(product.stockQty ?? 24)),
     image: product.image || "",
     sortOrder: index,
@@ -347,8 +349,12 @@ function ProductDetailsPage({
     sizeOptions[0] ||
     productVariants[0];
   const isTrader = currentUser?.accountType === "trader" || currentUser?.accountType === "wholesale";
-  const wholesalePrice = isTrader && selectedVariant?.wholesalePrice && Number(selectedVariant.wholesalePrice) > 0
-    ? Number(selectedVariant.wholesalePrice)
+  const wholesalePrice = isTrader
+    ? (selectedVariant?.wholesalePrice != null && Number(selectedVariant.wholesalePrice) > 0
+        ? Number(selectedVariant.wholesalePrice)
+        : (product?.wholesalePrice != null && Number(product.wholesalePrice) > 0
+            ? Number(product.wholesalePrice)
+            : null))
     : null;
   const selectedOption = selectedVariant
     ? { size: selectedVariant.size, price: selectedVariant.price, wholesalePrice }
@@ -558,8 +564,13 @@ function ProductDetailsPage({
       return;
     }
 
+    const effectiveVariant = {
+      ...selectedVariant,
+      price: selectedOption.wholesalePrice ?? selectedVariant.price,
+    };
+
     for (let count = 0; count < quantity; count += 1) {
-      onAddToCart(product, selectedOption.size, selectedVariant);
+      onAddToCart(product, selectedOption.size, effectiveVariant);
     }
   }
 

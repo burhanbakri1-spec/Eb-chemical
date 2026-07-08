@@ -12,6 +12,13 @@ function getLocalized(value, language, fallback = "") {
   return value[language] || value.en || value.ar || fallback;
 }
 
+function normalizePhone(phone) {
+  if (!phone) return "";
+  const digits = String(phone).replace(/[^\d]/g, "");
+  if (digits.startsWith("970")) return digits.slice(3);
+  if (digits.startsWith("972")) return digits.slice(3);
+  return digits.replace(/^0+/, "") || digits;
+}
 
 function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitReview, orders, products, t }) {
   const [activeTab, setActiveTab] = React.useState("orders");
@@ -38,6 +45,10 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
     noOrders: localized("You haven't placed any orders yet.", "لم تقم بإنشاء أي طلبات بعد.", "עדיין לא ביצעת הזמנות."),
     startShopping: localized("Start shopping", "ابدأ التسوق", "התחל לקנות"),
     accountTitle: localized("My Account", "حسابي", "החשבון שלי"),
+    ebPoints: localized("EB Points", "نقاط EB", "נקודות EB"),
+    availablePoints: localized("Available points", "النقاط المتاحة", "נקודות זמינות"),
+    earnedPoints: localized("Earned points", "النقاط المكتسبة", "נקודות שנצברו"),
+    redeemedPoints: localized("Redeemed points", "النقاط المستخدمة", "נקודות שנוצלו"),
     orderPoints: localized("Points earned from this order", "النقاط المكتسبة من هذا الطلب", "נקודות שהרווחת מהזמנה זו"),
     addressTitle: localized("Default Address", "العنوان الافتراضي", "כתובת ברירת מחדל"),
     addressFallback: localized("No address added yet", "لم يتم إضافة عنوان بعد", "עדיין לא נוספה כתובת"),
@@ -80,10 +91,17 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
 
   const safeOrders = Array.isArray(orders) ? orders : [];
   const safeProducts = Array.isArray(products) ? products : [];
+  const userPhone = normalizePhone(currentUser.phone);
   const customerOrders = safeOrders.filter(
-    (order) => order.customerUserId === currentUser.id || order.customer_user_id === currentUser.id
+    (order) =>
+      order.customerUserId === currentUser.id
+      || order.customer_user_id === currentUser.id
+      || (userPhone && order.customer?.phone && normalizePhone(order.customer.phone) === userPhone)
   );
   const reviewableOrders = customerOrders.filter((order) => order.status === "Completed");
+  const availablePoints = Math.max(0, Number(currentUser.ebPoints || 0));
+  const totalPointsEarned = Math.max(0, Number(currentUser.totalPointsEarned || 0));
+  const totalPointsRedeemed = Math.max(0, Number(currentUser.totalPointsRedeemed || 0));
   const featuredProducts = safeProducts.slice(0, 4);
 
   function formatDate(dateStr) {
@@ -366,6 +384,21 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
                 {localized("Trader Account", "حساب تاجر", "חשבון סוחר")}
               </span>
             )}
+          </article>
+          <article className="account-points-card">
+            <span>{copy.ebPoints}</span>
+            <strong>{availablePoints.toLocaleString()}</strong>
+            <small>{copy.availablePoints}</small>
+            <div className="account-points-breakdown">
+              <span>
+                <b>{totalPointsEarned.toLocaleString()}</b>
+                {copy.earnedPoints}
+              </span>
+              <span>
+                <b>{totalPointsRedeemed.toLocaleString()}</b>
+                {copy.redeemedPoints}
+              </span>
+            </div>
           </article>
         </aside>
       </div>

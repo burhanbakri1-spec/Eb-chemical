@@ -255,8 +255,12 @@ function ShopProductCard({ currentUser, language, onAddToCart, onViewProduct, pr
       ? null
       : product.sizes?.[0] || null;
   const isTrader = currentUser?.accountType === "trader" || currentUser?.accountType === "wholesale";
-  const effectivePrice = isTrader && firstVisibleVariant?.wholesalePrice && Number(firstVisibleVariant.wholesalePrice) > 0
-    ? Number(firstVisibleVariant.wholesalePrice)
+  const effectivePrice = isTrader
+    ? (firstVisibleVariant?.wholesalePrice != null && Number(firstVisibleVariant.wholesalePrice) > 0
+        ? Number(firstVisibleVariant.wholesalePrice)
+        : (product.wholesalePrice != null && Number(product.wholesalePrice) > 0
+            ? Number(product.wholesalePrice)
+            : firstSize?.price || 0))
     : firstSize?.price || 0;
 
   const mainImage = resolveImageUrl(

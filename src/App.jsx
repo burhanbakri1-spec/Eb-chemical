@@ -513,12 +513,15 @@ function App() {
     const isTrader = currentUser?.accountType === "trader" || currentUser?.accountType === "wholesale";
     if (!isTrader) return Number(item.price || 0);
     const product = demoProducts.find((p) => p.id === item.productId || p.slug === item.slug);
-    if (!product || !Array.isArray(product.variants)) return Number(item.price || 0);
-    const variant = product.variants.find((v) =>
-      v.id === item.variantId || v.size === (item.selectedSize || item.size),
-    );
-    if (!variant || !variant.wholesalePrice || Number(variant.wholesalePrice) <= 0) return Number(item.price || 0);
-    return Number(variant.wholesalePrice);
+    if (!product) return Number(item.price || 0);
+    if (Array.isArray(product.variants)) {
+      const variant = product.variants.find((v) =>
+        v.id === item.variantId || v.size === (item.selectedSize || item.size),
+      );
+      if (variant?.wholesalePrice != null && Number(variant.wholesalePrice) > 0) return Number(variant.wholesalePrice);
+    }
+    if (product.wholesalePrice != null && Number(product.wholesalePrice) > 0) return Number(product.wholesalePrice);
+    return Number(item.price || 0);
   }
 
   const cartTotal = cartItems.reduce(
@@ -804,13 +807,22 @@ function App() {
       return;
     }
 
+    const isTrader = currentUser?.accountType === "trader" || currentUser?.accountType === "wholesale";
+    const effectivePrice = isTrader
+      ? (selectedVariant?.wholesalePrice != null && Number(selectedVariant.wholesalePrice) > 0
+          ? Number(selectedVariant.wholesalePrice)
+          : (product.wholesalePrice != null && Number(product.wholesalePrice) > 0
+              ? Number(product.wholesalePrice)
+              : Number(selectedSize.price) || 0))
+      : Number(selectedSize.price) || 0;
+
     const selectedVariantId = selectedVariant?.id || selectedSize.id || "";
     const cartId = `${product.id}-${selectedVariantId || selectedSize.size}`;
 
     trackAddToCart({
       contentName: getTrackingName(product.name, language, product.slug),
       contentIds: [product.id || product.slug],
-      value: Number(selectedSize.price) || 0,
+      value: effectivePrice,
       quantity: 1,
       category: product.categoryId || product.categoryKey || "",
     });
@@ -844,7 +856,7 @@ function App() {
           variantId: selectedVariantId,
           colorName: selectedVariant?.colorName || selectedVariant?.color_name || selectedSize.colorName || selectedSize.color_name || "",
           colorValue: selectedVariant?.colorValue || selectedVariant?.color_value || selectedSize.colorValue || selectedSize.color_value || "",
-          price: selectedSize.price,
+          price: effectivePrice,
           quantity: 1,
         },
       ];
