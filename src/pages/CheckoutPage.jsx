@@ -300,15 +300,21 @@ function CheckoutPage({
           {currentUser?.role === "customer" && (
             <label className="full-field">
               {localized("Redeem EB Points", "استخدام نقاط EB", "מימוש נקודות EB")}
-              <select value={pointsToRedeem} onChange={(event) => setPointsToRedeem(Number(event.target.value))}>
-                {redemptionOptions.map((points) => (
-                  <option key={points} value={points}>
-                    {points === 0
-                      ? localized("No discount", "بدون خصم", "ללא הנחה")
-                      : localized(`Use ${points} points = ${(points / 20).toFixed(2)} ILS discount`, `استخدم ${points} نقطة = خصم ${(points / 20).toFixed(2)} شيكل`, `השתמש ${points} נקודות = הנחה של ${(points / 20).toFixed(2)} ש"ח`)}
-                  </option>
-                ))}
-              </select>
+              {redemptionOptions.length > 1 ? (
+                <select value={pointsToRedeem} onChange={(event) => setPointsToRedeem(Number(event.target.value))}>
+                  {redemptionOptions.map((points) => (
+                    <option key={points} value={points}>
+                      {points === 0
+                        ? localized("No discount", "بدون خصم", "ללא הנחה")
+                        : localized(`Use ${points} points = ${(points / 20).toFixed(2)} ILS discount`, `استخدم ${points} نقطة = خصم ${(points / 20).toFixed(2)} شيكل`, `השתמש ${points} נקודות = הנחה של ${(points / 20).toFixed(2)} ש"ח`)}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <select disabled>
+                  <option>{localized("No points available", "لا توجد نقاط متاحة للاستخدام", "אין נקודות זמינות לשימוש")}</option>
+                </select>
+              )}
             </label>
           )}
           <button className="primary-action large" disabled={isSubmitting || orderPlaced} type="submit">

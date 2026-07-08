@@ -49,6 +49,7 @@ import {
   logoutUser,
   registerCustomer,
   setCurrentUser,
+  updateCurrentUser,
 } from "./utils/auth.js";
 import {
   assignOrderEmployee,
@@ -1515,6 +1516,7 @@ function App() {
             onLogout={handleLogout}
             onNavigate={navigate}
             onSubmitReview={handleSubmitReview}
+            onUpdateUser={updateCurrentUser}
             orders={orders}
             products={demoProducts}
             t={t}

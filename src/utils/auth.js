@@ -51,6 +51,15 @@ export async function fetchCurrentUser() {
   return user;
 }
 
+export async function updateCurrentUser(updates) {
+  const updated = await apiRequest("/auth/me", {
+    method: "PATCH",
+    body: JSON.stringify(updates),
+  });
+  setCurrentUser(updated);
+  return updated;
+}
+
 export async function logoutUser() {
   try {
     return await apiRequest("/auth/logout", {

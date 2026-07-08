@@ -1,7 +1,6 @@
 import React from "react";
-import { neutralImage, showNeutralImage } from "../utils/images.js";
+import { neutralImage, resolveImageUrl, showNeutralImage } from "../utils/images.js";
 import StatusBadge from "../components/StatusBadge.jsx";
-import ProductCard from "../components/ProductCard.jsx";
 
 function formatPrice(value, t) {
   return `${Number(value || 0).toLocaleString()} ${t("common.ils")}`;
@@ -21,8 +20,11 @@ function normalizePhone(phone) {
   return digits.replace(/^0+/, "") || digits;
 }
 
-function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitReview, onAddToCart, orders, products, t }) {
+function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitReview, onAddToCart, onUpdateUser, orders, products, t }) {
   const [activeTab, setActiveTab] = React.useState("orders");
+  const [isEditing, setIsEditing] = React.useState(false);
+  const [editForm, setEditForm] = React.useState({ name: "", email: "", phone: "", city: "", address: "" });
+  const [editMessage, setEditMessage] = React.useState("");
   const [reviewForm, setReviewForm] = React.useState({
     type: "website",
     rating: 5,
@@ -80,6 +82,12 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
     reviewComment: localized("Review text", "نص التقييم", "טקסט הביקורת"),
     submitReview: localized("Submit review", "إرسال التقييم", "שלח ביקורת"),
     reviewSaved: localized("Review saved successfully", "تم حفظ التقييم بنجاح", "הביקורת נשמרה בהצלחה"),
+    save: localized("Save", "حفظ", "שמור"),
+    cancel: localized("Cancel", "إلغاء", "בטל"),
+    profileUpdated: localized("Profile updated successfully", "تم تحديث الملف الشخصي بنجاح", "הפרופיל עודכן בהצלחה"),
+    city: localized("City", "المدينة", "עיר"),
+    address: localized("Address", "العنوان", "כתובת"),
+    noEmployeeAssigned: localized("No employee assigned to this order", "لا يوجد موظف مرتبط بهذا الطلب", "אין עובד משויך להזמנה זו"),
   };
 
   if (!currentUser) {
@@ -106,19 +114,24 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
       || (userPhone && order.customer?.phone && normalizePhone(order.customer.phone) === userPhone)
   );
   const reviewableOrders = customerOrders.filter((order) => order.status === "Completed");
-  const reviewedEmployees = Array.from(
-    new Map(
-      reviewableOrders.flatMap((order) => {
-        const empId = order.handledByEmployeeId || order.assignedToEmployeeId || "";
-        const empName = order.createdByEmployeeName || order.createdBy?.name || "";
-        return empId && empName ? [[empId, { id: empId, name: empName }]] : [];
-      }),
-    ).values(),
-  );
   const availablePoints = Math.max(0, Number(currentUser.ebPoints || 0));
   const totalPointsEarned = Math.max(0, Number(currentUser.totalPointsEarned || 0));
   const totalPointsRedeemed = Math.max(0, Number(currentUser.totalPointsRedeemed || 0));
+  const orderedProductIds = new Set(
+    customerOrders.flatMap((o) => (o.items || []).map((item) => item.productId || item.product_id)),
+  );
+  const orderedProducts = safeProducts.filter((p) => orderedProductIds.has(p.id));
   const featuredProducts = safeProducts.slice(0, 4);
+
+  function orderPointsDisplay(order) {
+    const earned = Math.max(0, Number(order.pointsEarned || 0));
+    if (earned > 0) return earned;
+    if (!order.items || !order.items.length) return 0;
+    const subtotal = order.items.reduce((sum, item) => sum + Math.max(0, Number(item.lineTotal || item.price * item.quantity || 0)), 0);
+    const discount = Math.max(0, Number(order.discountFromPoints || 0));
+    const paid = Math.max(0, subtotal - discount);
+    return Math.floor(paid);
+  }
 
   function formatDate(dateStr) {
     if (!dateStr) return "-";
@@ -159,7 +172,7 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
                 </p>
                 <strong>{formatPrice(order.total, t)}</strong>
                 <small className="account-order-points">
-                  {copy.orderPoints}: {Math.max(0, Number(order.pointsEarned || 0))}
+                  {copy.orderPoints}: {orderPointsDisplay(order)}
                 </small>
               </article>
             ))}
@@ -182,15 +195,19 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
     });
   }
 
+  const employeeForOrder = React.useMemo(() => {
+    if (!reviewForm.orderId) return null;
+    const order = customerOrders.find((o) => o.id === reviewForm.orderId);
+    if (!order) return null;
+    const empId = order.handledByEmployeeId || order.assignedToEmployeeId || "";
+    const empName = order.createdByEmployeeName || order.createdBy?.name || "";
+    return empId && empName ? { id: empId, name: empName } : null;
+  }, [reviewForm.orderId, customerOrders]);
+
   async function submitReview(event) {
     event.preventDefault();
-    if (reviewForm.type === "website" || reviewForm.type === "product") {
-      if (reviewForm.type === "product" && !reviewForm.productId) return;
-    } else if (!reviewableOrders.length) {
-      return;
-    }
-    const selectedOrder =
-      reviewableOrders.find((order) => order.id === reviewForm.orderId) || reviewableOrders[0];
+    if (reviewForm.type === "product" && !reviewForm.productId) return;
+    if ((reviewForm.type === "order" || reviewForm.type === "employee") && !reviewForm.orderId) return;
     const review = {
       type: reviewForm.type,
       rating: reviewForm.rating,
@@ -203,14 +220,12 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
     };
     if (reviewForm.type === "product") {
       review.productId = reviewForm.productId;
-      review.orderId = reviewForm.orderId || selectedOrder?.id || "";
     } else if (reviewForm.type === "order") {
-      review.orderId = reviewForm.orderId || selectedOrder?.id || "";
+      review.orderId = reviewForm.orderId;
     } else if (reviewForm.type === "employee") {
-      review.orderId = reviewForm.orderId || selectedOrder?.id || "";
-      const emp = reviewedEmployees.find((e) => e.id === reviewForm.employeeId);
-      review.employeeId = reviewForm.employeeId || selectedOrder?.handledByEmployeeId || selectedOrder?.assignedToEmployeeId || "";
-      review.employeeName = emp?.name || selectedOrder?.createdByEmployeeName || selectedOrder?.createdBy?.name || "";
+      review.orderId = reviewForm.orderId || "";
+      review.employeeId = employeeForOrder?.id || "";
+      review.employeeName = employeeForOrder?.name || "";
     }
     await onSubmitReview?.(review);
     setReviewMessage(copy.reviewSaved);
@@ -218,8 +233,7 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
   }
 
   function renderReviews() {
-    const showOrderField = reviewForm.type === "order" || reviewForm.type === "product" || reviewForm.type === "employee";
-    const hasCompletedOrders = reviewableOrders.length > 0;
+    const hasOrders = customerOrders.length > 0;
     return (
       <section className="account-main-card account-review-panel">
         <h2>{copy.writeReview}</h2>
@@ -239,7 +253,7 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
               {copy.relatedProduct}
               <select name="productId" onChange={updateReviewField} value={reviewForm.productId} required>
                 <option value="">{localized("Select a product", "اختر منتج", "בחר מוצר")}</option>
-                {safeProducts.map((product) => (
+                {orderedProducts.map((product) => (
                   <option key={product.id} value={product.id}>
                     {getLocalized(product.name, language, product.slug)}
                   </option>
@@ -247,12 +261,12 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
               </select>
             </label>
           )}
-          {showOrderField && hasCompletedOrders && (
+          {(reviewForm.type === "order" || reviewForm.type === "employee") && hasOrders && (
             <label>
               {copy.relatedOrder}
-              <select name="orderId" onChange={updateReviewField} value={reviewForm.orderId}>
+              <select name="orderId" onChange={updateReviewField} value={reviewForm.orderId} required>
                 <option value="">{localized("Select an order", "اختر طلب", "בחר הזמנה")}</option>
-                {reviewableOrders.map((order) => (
+                {customerOrders.map((order) => (
                   <option key={order.id} value={order.id}>
                     {order.id}
                   </option>
@@ -260,17 +274,14 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
               </select>
             </label>
           )}
-          {reviewForm.type === "employee" && reviewedEmployees.length > 0 && (
+          {reviewForm.type === "employee" && reviewForm.orderId && (
             <label>
               {copy.relatedEmployee}
-              <select name="employeeId" onChange={updateReviewField} value={reviewForm.employeeId}>
-                <option value="">{localized("Select an employee", "اختر موظف", "בחר עובד")}</option>
-                {reviewedEmployees.map((emp) => (
-                  <option key={emp.id} value={emp.id}>
-                    {emp.name}
-                  </option>
-                ))}
-              </select>
+              {employeeForOrder ? (
+                <input disabled type="text" value={employeeForOrder.name} />
+              ) : (
+                <input disabled type="text" value={copy.noEmployeeAssigned} />
+              )}
             </label>
           )}
           <label>
@@ -307,20 +318,83 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
           <h2>{copy.viewedProducts}</h2>
           <p>{copy.discover}</p>
         </div>
-        <div className="product-grid">
-          {featuredProducts.map((product) => (
-            <ProductCard
-              key={product.id}
-              language={language}
-              product={product}
-              onAddToCart={onAddToCart}
-              onViewProduct={(slug) => onNavigate("product", { slug })}
-              t={t}
-            />
-          ))}
+        <div className="account-product-row">
+          {safeProducts.slice(0, 4).map((product) => {
+            const firstSize = product.sizes?.[0];
+            const mainImage = resolveImageUrl(product.image, product.fallbackImage);
+            return (
+              <article className="account-product-card" key={product.id}>
+                <button
+                  className="account-product-image-wrap"
+                  onClick={() => onNavigate("product", { slug: product.slug })}
+                  type="button"
+                >
+                  <img
+                    alt={getLocalized(product.name, language, product.slug)}
+                    onError={showNeutralImage}
+                    src={mainImage}
+                  />
+                </button>
+                <strong>{getLocalized(product.name, language, product.slug)}</strong>
+                <small>{getLocalized(product.shortDescription, language, "")}</small>
+                <div className="account-product-card-footer">
+                  {firstSize && <span>{t("common.from")} {formatPrice(firstSize.price, t)}</span>}
+                  <button
+                    className="add-to-cart-icon"
+                    onClick={() => onAddToCart(product, firstSize?.size)}
+                    title={copy.addToCart}
+                    type="button"
+                  >
+                    +
+                  </button>
+                </div>
+              </article>
+            );
+          })}
         </div>
       </section>
     );
+  }
+
+  function startEditing() {
+    setEditForm({
+      name: currentUser.name || "",
+      email: currentUser.email || "",
+      phone: currentUser.phone || "",
+      city: currentUser.city || "",
+      address: currentUser.address || "",
+    });
+    setEditMessage("");
+    setIsEditing(true);
+  }
+
+  function cancelEditing() {
+    setIsEditing(false);
+    setEditMessage("");
+  }
+
+  function handleEditField(event) {
+    const { name, value } = event.target;
+    setEditForm((prev) => ({ ...prev, [name]: value }));
+  }
+
+  async function saveProfile(event) {
+    event.preventDefault();
+    if (!editForm.name || !editForm.email) return;
+    try {
+      const updated = await onUpdateUser({
+        name: editForm.name,
+        email: editForm.email,
+        phone: editForm.phone,
+        city: editForm.city,
+        address: editForm.address,
+      });
+      Object.assign(currentUser, updated);
+      setEditMessage(copy.profileUpdated);
+      setIsEditing(false);
+    } catch {
+      setEditMessage(localized("Failed to update profile", "فشل تحديث الملف الشخصي", "נכשל בעדכון הפרופיל"));
+    }
   }
 
   function renderPersonalInfo() {
@@ -329,20 +403,39 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
         <div className="account-main-card account-info-card">
           <div className="account-info-head">
             <h2>{copy.addressTitle}</h2>
-            <div>
-              <button type="button">{copy.edit}</button>
-              <button type="button">{copy.delete}</button>
-            </div>
+            {!isEditing && (
+              <div>
+                <button onClick={startEditing} type="button">{copy.edit}</button>
+              </div>
+            )}
           </div>
-          <p>{currentUser.city || currentUser.address || copy.addressFallback}</p>
-          <hr />
-          <div className="account-profile-fields">
-            <span><strong>{copy.name}</strong>{currentUser.name}</span>
-            <span><strong>{copy.email}</strong>{currentUser.email}</span>
-            <span><strong>{copy.phone}</strong>{currentUser.phone || "—"}</span>
-            <span><strong>{copy.role}</strong>{(currentUser.accountType === "trader" || currentUser.accountType === "wholesale") ? localized("Trader", "تاجر", "סוחר") : localized("Retail customer", "عميل عادي", "לקוח רגיל")}</span>
-          </div>
-          <button className="dark-action" type="button">{copy.addAddress} +</button>
+          {editMessage && <div className="message-panel success">{editMessage}</div>}
+          {isEditing ? (
+            <form className="account-profile-form" onSubmit={saveProfile}>
+              <div className="account-profile-fields">
+                <label><strong>{copy.name}</strong><input name="name" onChange={handleEditField} required type="text" value={editForm.name} /></label>
+                <label><strong>{copy.email}</strong><input name="email" onChange={handleEditField} required type="email" value={editForm.email} /></label>
+                <label><strong>{copy.phone}</strong><input name="phone" onChange={handleEditField} type="tel" value={editForm.phone} /></label>
+                <label><strong>{copy.city}</strong><input name="city" onChange={handleEditField} type="text" value={editForm.city} /></label>
+                <label className="full-field"><strong>{copy.address}</strong><input name="address" onChange={handleEditField} type="text" value={editForm.address} /></label>
+              </div>
+              <div className="account-profile-actions">
+                <button className="primary-action" type="submit">{copy.save}</button>
+                <button className="secondary-action" onClick={cancelEditing} type="button">{copy.cancel}</button>
+              </div>
+            </form>
+          ) : (
+            <>
+              <p>{currentUser.city || currentUser.address || copy.addressFallback}</p>
+              <hr />
+              <div className="account-profile-fields">
+                <span><strong>{copy.name}</strong>{currentUser.name}</span>
+                <span><strong>{copy.email}</strong>{currentUser.email}</span>
+                <span><strong>{copy.phone}</strong>{currentUser.phone || "—"}</span>
+                <span><strong>{copy.role}</strong>{(currentUser.accountType === "trader" || currentUser.accountType === "wholesale") ? localized("Trader", "تاجر", "סוחר") : localized("Retail customer", "عميل عادي", "לקוח רגיל")}</span>
+              </div>
+            </>
+          )}
         </div>
       </section>
     );

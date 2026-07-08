@@ -7894,12 +7894,13 @@ html[dir="rtl"] .cart-empty-overlay {
 
 .account-product-card {
   display: grid;
-  gap: 10px;
+  gap: 6px;
   border: 0;
-  background: transparent;
+  background: #f0eee8;
   text-align: start;
-  cursor: pointer;
-  padding: 6px;
+  border-radius: 18px;
+  overflow: hidden;
+  padding: 0 0 14px;
 }
 
 .account-product-image-wrap {
@@ -7907,58 +7908,79 @@ html[dir="rtl"] .cart-empty-overlay {
   overflow: hidden;
   display: grid;
   place-items: center;
-  border-radius: 18px;
+  border: 0;
   background: #f4f3ed;
+  cursor: pointer;
+  padding: 0;
+  width: 100%;
 }
 
 .account-product-image-wrap img {
   width: 100%;
   height: 100%;
-  object-fit: contain;
-  padding: 28px;
+  object-fit: cover;
   transition: transform 240ms ease;
 }
 
-.account-product-card:hover img {
+.account-product-image-wrap:hover img {
   transform: scale(1.045);
 }
 
-.account-product-badge {
-  width: fit-content;
-  margin: 0 0 -44px 22px;
-  z-index: 2;
-  border-radius: 999px;
-  background: rgba(255,255,255,.88);
-  padding: 6px 16px;
-  font-size: 13px;
-  font-weight: 500;
-}
-
-[dir="rtl"] .account-product-badge {
-  margin: 0 22px -44px 0;
-}
-
 .account-product-card strong {
-  font-size: 18px;
-  line-height: 1.2;
+  font-size: 16px;
+  line-height: 1.25;
   margin: 0;
-}
-
-.account-product-card small {
-  color: #686862;
-  font-size: 14px;
-  line-height: 1.35;
-  margin: 0;
+  padding: 0 12px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-.account-product-card > span:last-child {
-  font-size: 16px;
-  font-weight: 400;
-  margin-top: 2px;
+.account-product-card small {
+  color: #686862;
+  font-size: 13px;
+  line-height: 1.35;
+  margin: 0;
+  padding: 0 12px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.account-product-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 12px;
+  margin-top: 4px;
+}
+
+.account-product-card-footer span {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.add-to-cart-icon {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 999px;
+  background: #11110f;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.add-to-cart-icon:hover {
+  background: #333;
 }
 
 .account-info-card {
@@ -8010,7 +8032,8 @@ html[dir="rtl"] .cart-empty-overlay {
   margin-bottom: 28px;
 }
 
-.account-profile-fields span {
+.account-profile-fields span,
+.account-profile-fields label {
   display: grid;
   gap: 5px;
   border-radius: 16px;
@@ -8022,6 +8045,41 @@ html[dir="rtl"] .cart-empty-overlay {
 .account-profile-fields strong {
   color: #6c6c64;
   font-size: 14px;
+}
+
+.account-profile-fields input {
+  border: 1px solid rgba(17,17,15,.15);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 15px;
+  background: #fff;
+  color: #11110f;
+}
+
+.account-profile-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.account-profile-actions .primary-action,
+.account-profile-actions .secondary-action {
+  border: 0;
+  border-radius: 14px;
+  padding: 14px 28px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.account-profile-actions .primary-action {
+  background: #11110f;
+  color: #fff;
+}
+
+.account-profile-actions .secondary-action {
+  background: #e5e5e0;
+  color: #11110f;
 }
 
 @media (max-width: 1280px) {
