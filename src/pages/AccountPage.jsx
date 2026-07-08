@@ -122,7 +122,7 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
               <article className="customer-order-card" key={order.id}>
                 <div>
                   <strong>{order.id}</strong>
-                  <span>{order.createdAt || order.created_at ? new Date(order.createdAt || order.created_at).toLocaleDateString() : "-"}</span>
+                  <span>{safeDate(order.createdAt || order.created_at)}</span>
                 </div>
                 <StatusBadge status={order.status} t={t} />
                 <p>

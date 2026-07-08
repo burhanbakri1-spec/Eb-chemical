@@ -39,13 +39,12 @@ function PointsIcon({ type }) {
   );
 }
 
-function localized(en, ar, he) {
-  if (language === "ar") return ar;
-  if (language === "he") return he;
-  return en;
-}
-
 function EBPointsPage({ currentUser, language, onNavigate, websiteMedia = [] }) {
+  function localized(en, ar, he) {
+    if (language === "ar") return ar;
+    if (language === "he") return he;
+    return en;
+  }
   const resolvedLifestyleImage = getWebsiteMediaImage(
     websiteMedia,
     "eb_points_lifestyle",

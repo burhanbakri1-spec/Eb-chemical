@@ -1506,9 +1506,14 @@ function AdminDashboardPage({
       return current.map((c) => (c.id === customerId ? { ...c, accountType: newAccountType } : c));
     });
     try {
-      await updateUserAccountType(customerId, newAccountType);
-      const updated = await fetchCustomers();
-      setApiCustomers(updated ?? []);
+      const result = await updateUserAccountType(customerId, newAccountType);
+      if (result?.accountType) {
+        setApiCustomers((current) =>
+          current.map((c) =>
+            c.id === customerId ? { ...c, accountType: result.accountType } : c,
+          ),
+        );
+      }
     } catch {
       if (accountSnapshotRef.current) setApiCustomers(accountSnapshotRef.current);
     }

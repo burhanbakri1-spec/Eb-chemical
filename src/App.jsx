@@ -1005,7 +1005,11 @@ function App() {
           : [savedProduct, ...currentProducts];
       });
       setAdminMessage(t("admin.productSaved"));
-      await refreshProducts();
+      try {
+        await refreshProducts();
+      } catch (refreshError) {
+        console.warn("Products refresh failed after successful save", refreshError);
+      }
       return { ok: true, message: t("admin.productSaved"), product: savedProduct };
     } catch (error) {
       setAdminMessage(error.message);
@@ -1024,7 +1028,11 @@ function App() {
         currentProducts.filter((product) => product.id !== productId)
       );
       setAdminMessage(t("admin.productDeleted"));
-      await refreshProducts();
+      try {
+        await refreshProducts();
+      } catch (refreshError) {
+        console.warn("Products refresh failed after successful delete", refreshError);
+      }
       return { ok: true, message: t("admin.productDeleted") };
     } catch (error) {
       setAdminMessage(error.message);
@@ -1050,7 +1058,11 @@ function App() {
             )
           : [savedEmployee, ...currentEmployees];
       });
-      await refreshEmployees();
+      try {
+        await refreshEmployees();
+      } catch (refreshError) {
+        console.warn("Employees refresh failed after successful save", refreshError);
+      }
       const message = exists
         ? t("admin.employeeSaved")
         : t("employee.employeeCreatedSuccessfully");
@@ -1073,7 +1085,11 @@ function App() {
         currentEmployees.filter((employee) => employee.id !== employeeId)
       );
       setAdminMessage(t("admin.employeeDeleted"));
-      await refreshEmployees();
+      try {
+        await refreshEmployees();
+      } catch (refreshError) {
+        console.warn("Employees refresh failed after successful delete", refreshError);
+      }
       return { ok: true, message: t("admin.employeeDeleted") };
     } catch (error) {
       setAdminMessage(error.message);
@@ -1093,7 +1109,11 @@ function App() {
         )
       );
       setAdminMessage(t("admin.employeeUpdated"));
-      await refreshEmployees();
+      try {
+        await refreshEmployees();
+      } catch (refreshError) {
+        console.warn("Employees refresh failed after successful status change", refreshError);
+      }
       return { ok: true, message: t("admin.employeeUpdated") };
     } catch (error) {
       setAdminMessage(error.message);
@@ -1110,7 +1130,11 @@ function App() {
         )
       );
       setAdminMessage(t("admin.orderUpdated"));
-      await refreshOrders();
+      try {
+        await refreshOrders();
+      } catch (refreshError) {
+        console.warn("Orders refresh failed after successful status change", refreshError);
+      }
       return { ok: true, message: t("employee.statusUpdatedSuccessfully"), order: updatedOrder };
     } catch (error) {
       setAdminMessage(error.message);
@@ -1131,7 +1155,11 @@ function App() {
         )
       );
       setAdminMessage(t("admin.orderUpdated"));
-      await refreshOrders();
+      try {
+        await refreshOrders();
+      } catch (refreshError) {
+        console.warn("Orders refresh failed after successful assign", refreshError);
+      }
       return { ok: true, message: t("admin.orderUpdated"), order: updatedOrder };
     } catch (error) {
       setAdminMessage(error.message);
@@ -1146,9 +1174,16 @@ function App() {
 
     try {
       await deleteOrder(orderId);
-      await refreshOrders();
+      setOrders((currentOrders) =>
+        currentOrders.filter((order) => order.id !== orderId)
+      );
       const message = t("employee.orderDeletedSuccessfully");
       setAdminMessage(message);
+      try {
+        await refreshOrders();
+      } catch (refreshError) {
+        console.warn("Orders refresh failed after successful delete", refreshError);
+      }
       return { ok: true, message };
     } catch (error) {
       setAdminMessage(error.message);
@@ -1248,16 +1283,20 @@ function App() {
       console.warn("Purchase tracking skipped after order creation:", trackingError);
     }
 
-    setOrders((currentOrders) => [order, ...currentOrders]);
-    setLastOrder(order);
-    setCheckoutMessage(t("checkout.orderPlacedSuccessfully"));
-    setCartItems([]);
-    if (currentUser) {
-      fetchCurrentUser()
-        .then(setUser)
-        .catch((refreshError) => {
-          console.warn("User refresh skipped after order creation:", refreshError);
-        });
+    try {
+      setOrders((currentOrders) => [order, ...currentOrders]);
+      setLastOrder(order);
+      setCheckoutMessage(t("checkout.orderPlacedSuccessfully"));
+      setCartItems([]);
+      if (currentUser) {
+        fetchCurrentUser()
+          .then(setUser)
+          .catch((refreshError) => {
+            console.warn("User refresh skipped after order creation:", refreshError);
+          });
+      }
+    } catch (postSaveError) {
+      console.warn("Post-order state update error (non-fatal):", postSaveError);
     }
     return order;
   }
@@ -1271,7 +1310,11 @@ function App() {
         createdByEmployeeName: isPortalOperator ? currentUser.name : "",
       });
       setOrders((currentOrders) => [order, ...currentOrders]);
-      await refreshOrders();
+      try {
+        await refreshOrders();
+      } catch (refreshError) {
+        console.warn("Orders refresh failed after successful employee order creation", refreshError);
+      }
       return { ok: true, message: t("employee.orderCreatedSuccessfully"), order };
     } catch (error) {
       return { ok: false, message: error.message };

@@ -1,10 +1,12 @@
 import { apiRequest } from "./api.js";
 
 function normalizeOrderResponse(response) {
+  if (!response) return null;
   const order = response?.order || response?.data || response;
   if (order && typeof order === "object" && !Array.isArray(order)) {
     const id = order.id || order.orderId || order.order_id;
     if (id) return { ...order, id };
+    return order;
   }
   return null;
 }
@@ -72,21 +74,24 @@ export async function createOrder({
 }
 
 export async function updateOrderStatus(orderId, status) {
-  return apiRequest(`/orders/${orderId}/status`, {
+  const response = await apiRequest(`/orders/${orderId}/status`, {
     method: "PUT",
     body: JSON.stringify({ status }),
   });
+  return normalizeOrderResponse(response) || { id: orderId, status };
 }
 
 export async function assignOrderEmployee(orderId, employeeId) {
-  return apiRequest(`/orders/${orderId}/assign-employee`, {
+  const response = await apiRequest(`/orders/${orderId}/assign-employee`, {
     method: "PUT",
     body: JSON.stringify({ employeeId }),
   });
+  return normalizeOrderResponse(response) || { id: orderId, handledByEmployeeId: employeeId };
 }
 
 export async function deleteOrder(orderId) {
-  return apiRequest(`/orders/${orderId}`, {
+  await apiRequest(`/orders/${orderId}`, {
     method: "DELETE",
   });
+  return true;
 }

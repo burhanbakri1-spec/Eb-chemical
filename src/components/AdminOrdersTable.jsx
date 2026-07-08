@@ -25,6 +25,16 @@ function AdminOrdersTable({
   const safeOrders = Array.isArray(orders) ? orders : [];
   const safeProducts = Array.isArray(products) ? products : [];
 
+  function safeDate(dateStr) {
+    if (!dateStr) return "-";
+    try {
+      const date = new Date(dateStr);
+      return Number.isNaN(date.getTime()) ? "-" : date.toLocaleDateString();
+    } catch {
+      return "-";
+    }
+  }
+
   if (safeOrders.length === 0) {
     return <div className="empty-panel compact-empty">{t("admin.noOrders")}</div>;
   }
@@ -114,7 +124,7 @@ function AdminOrdersTable({
                 </td>
               )}
               <td className="order-user-cell">{order.lastUpdatedBy?.name || "-"}</td>
-              <td className="order-date-cell">{order.createdAt ? new Date(order.createdAt).toLocaleDateString() : "-"}</td>
+              <td className="order-date-cell">{safeDate(order.createdAt)}</td>
               <td className="order-items-cell">{getItemSummary(order) || "-"}</td>
               {canDelete && (
                 <td>
