@@ -1,4 +1,5 @@
 export const WHATSAPP_NUMBER = "972599130765";
+const FREE_DELIVERY_THRESHOLD = 500;
 
 function formatValue(value, fallback = "Not provided") {
   const normalized = value == null ? "" : String(value).trim();
@@ -40,17 +41,36 @@ export function buildWhatsAppOrderMessage({
   pointsEarned,
   pointsRedeemed,
   discountFromPoints,
+  isFreeDelivery,
 } = {}) {
   const isAr = language === "ar";
   const productLines = items.length
     ? items.map((item, index) => (isAr ? formatOrderItemAr(item, index) : formatOrderItem(item, index))).join("\n\n")
     : (isAr ? "لا توجد منتجات" : "No products listed");
   const deliveryCity = delivery_city_name || customer.delivery_city_name || "";
-  const deliveryPrice = delivery_price ?? customer.delivery_price ?? 0;
-  const sub = subtotal ?? (total - Number(deliveryPrice));
+  const rawDeliveryPrice = Number(delivery_price ?? customer.delivery_price ?? 0);
+  const sub = subtotal ?? (total - rawDeliveryPrice);
+  const freeDelivery = isFreeDelivery ?? (sub >= FREE_DELIVERY_THRESHOLD);
+  const displayDeliveryPrice = freeDelivery ? 0 : rawDeliveryPrice;
   const earnedPoints = Math.max(0, Number(pointsEarned ?? customer.pointsEarned ?? 0));
   const redeemedPoints = Math.max(0, Number(pointsRedeemed ?? customer.pointsRedeemed ?? 0));
   const pointsDiscount = Math.max(0, Number(discountFromPoints ?? customer.discountFromPoints ?? 0));
+
+  function addPointsLines(parts) {
+    parts.push(`EB Points earned: ${earnedPoints}`);
+    parts.push(`EB Points redeemed: ${redeemedPoints}`);
+    if (pointsDiscount > 0) {
+      parts.push(`Discount: ${pointsDiscount.toFixed(2)} ILS`);
+    }
+  }
+
+  function addPointsLinesAr(parts) {
+    parts.push(`نقاط EB المكتسبة: ${earnedPoints}`);
+    parts.push(`نقاط EB المستخدمة: ${redeemedPoints}`);
+    if (pointsDiscount > 0) {
+      parts.push(`الخصم: ${pointsDiscount.toFixed(2)} شيكل`);
+    }
+  }
 
   if (isAr) {
     const parts = [
@@ -70,21 +90,13 @@ export function buildWhatsAppOrderMessage({
       parts.push(`المدينة: ${deliveryCity}`);
     }
     parts.push(`المجموع الفرعي: ${Number(sub).toFixed(2)} شيكل`);
-    if (Number(deliveryPrice) > 0) {
-      parts.push(`التوصيل: ${Number(deliveryPrice).toFixed(2)} شيكل`);
+    if (displayDeliveryPrice > 0) {
+      parts.push(`التوصيل: ${displayDeliveryPrice.toFixed(2)} شيكل`);
     } else {
       parts.push(`التوصيل: مجاني`);
     }
     parts.push(`الإجمالي: ${Number(total).toFixed(2)} شيكل`);
-    if (earnedPoints > 0) {
-      parts.push(`نقاط EB المكتسبة: ${earnedPoints}`);
-    }
-    if (redeemedPoints > 0) {
-      parts.push(`نقاط EB المستخدمة: ${redeemedPoints}`);
-    }
-    if (pointsDiscount > 0) {
-      parts.push(`الخصم: ${pointsDiscount.toFixed(2)} شيكل`);
-    }
+    addPointsLinesAr(parts);
     parts.push("");
     parts.push(`الملاحظات: ${formatValue(customer.notes, "لا يوجد")}`);
     return parts.join("\n");
@@ -107,21 +119,13 @@ export function buildWhatsAppOrderMessage({
     parts.push(`City: ${deliveryCity}`);
   }
   parts.push(`Subtotal: ${Number(sub).toFixed(2)} ILS`);
-  if (Number(deliveryPrice) > 0) {
-    parts.push(`Delivery: ${Number(deliveryPrice).toFixed(2)} ILS`);
+  if (displayDeliveryPrice > 0) {
+    parts.push(`Delivery: ${displayDeliveryPrice.toFixed(2)} ILS`);
   } else {
     parts.push(`Delivery: Free`);
   }
   parts.push(`Total: ${Number(total).toFixed(2)} ILS`);
-  if (earnedPoints > 0) {
-    parts.push(`EB Points earned: ${earnedPoints}`);
-  }
-  if (redeemedPoints > 0) {
-    parts.push(`EB Points redeemed: ${redeemedPoints}`);
-  }
-  if (pointsDiscount > 0) {
-    parts.push(`Discount: ${pointsDiscount.toFixed(2)} ILS`);
-  }
+  addPointsLines(parts);
   parts.push("");
   parts.push(`Notes: ${formatValue(customer.notes, "None")}`);
   return parts.join("\n");

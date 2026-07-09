@@ -104,6 +104,38 @@ export async function uploadImage(file) {
   };
 }
 
+export async function uploadAvatar(file) {
+  const token = getToken();
+
+  if (!token) {
+    throw new Error("Authentication required.");
+  }
+
+  const formData = new FormData();
+  formData.append("image", file);
+
+  const response = await fetch(`${apiBaseUrl}/uploads/avatar`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: formData,
+  });
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(data.message || "Avatar upload failed.");
+  }
+
+  const url = data.url || data.path || "";
+  return {
+    ...data,
+    url,
+    path: data.path || url,
+  };
+}
+
 export async function uploadImages(files = []) {
   const fileList = Array.from(files).filter(Boolean);
   if (!fileList.length) {

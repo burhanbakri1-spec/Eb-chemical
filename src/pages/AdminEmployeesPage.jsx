@@ -2,6 +2,7 @@ import React from "react";
 import AdminLayout from "../components/AdminLayout.jsx";
 import EmployeeForm from "../components/EmployeeForm.jsx";
 import EmployeeTable from "../components/EmployeeTable.jsx";
+import EmployeePerformanceView from "../components/EmployeePerformanceView.jsx";
 
 function AdminEmployeesPage({
   activePage = "admin-staff",
@@ -12,10 +13,13 @@ function AdminEmployeesPage({
   onLanguageChange,
   onDeleteEmployee,
   onLogout,
+  onModerateReview,
   onNavigate,
   onSaveEmployee,
   onToggleDarkMode,
   onToggleEmployeeStatus,
+  orders,
+  reviews,
   sessions,
   statusMessage,
   t,
@@ -27,14 +31,19 @@ function AdminEmployeesPage({
   }
 
   const [editingEmployee, setEditingEmployee] = React.useState(null);
+  const [viewingEmployee, setViewingEmployee] = React.useState(null);
   const [localMessage, setLocalMessage] = React.useState(null);
   const [formKey, setFormKey] = React.useState(0);
-  const title = activePage === "admin-staff-new"
-    ? localized("New Staff Member", "موظف جديد", "חבר צוות חדש")
-    : localized("Staff", "الموظفون", "צוות");
-  const subtitle = activePage === "admin-staff-new"
-    ? localized("Create a staff account", "إنشاء حساب موظف جديد", "צור חשבון צוות")
-    : localized("Manage staff accounts, roles, and permissions", "إدارة حسابات الموظفين والأدوار والصلاحيات", "ניהול חשבונות צוות, תפקידים והרשאות");
+  const title = viewingEmployee
+    ? localized("Performance", "الأداء", "ביצועים")
+    : activePage === "admin-staff-new"
+      ? localized("New Staff Member", "موظف جديد", "חבר צוות חדש")
+      : localized("Staff", "الموظفون", "צוות");
+  const subtitle = viewingEmployee
+    ? `${viewingEmployee.name}`
+    : activePage === "admin-staff-new"
+      ? localized("Create a staff account", "إنشاء حساب موظف جديد", "צור חשבון צוות")
+      : localized("Manage staff accounts, roles, and permissions", "إدارة حسابات الموظفين والأدوار والصلاحيات", "ניהול חשבונות צוות, תפקידים והרשאות");
 
   const layoutProps = {
     activePage,
@@ -84,7 +93,18 @@ function AdminEmployeesPage({
         </div>
       )}
 
-      {activePage === "admin-staff-new" ? (
+      {viewingEmployee ? (
+        <EmployeePerformanceView
+          employee={viewingEmployee}
+          language={language}
+          onBack={() => setViewingEmployee(null)}
+          onModerateReview={onModerateReview}
+          orders={orders || []}
+          reviews={reviews || []}
+          sessions={sessions || []}
+          t={t}
+        />
+      ) : activePage === "admin-staff-new" ? (
         <section className="admin-panel-card">
           <div className="admin-role-info">
             <strong>{localized("Admin", "مسؤول", "מנהל")}</strong>
@@ -121,6 +141,7 @@ function AdminEmployeesPage({
             onDelete={onDeleteEmployee}
             onEdit={handleEdit}
             onToggleStatus={onToggleEmployeeStatus}
+            onViewPerformance={(employee) => setViewingEmployee(employee)}
             sessions={sessions}
             t={t}
           />

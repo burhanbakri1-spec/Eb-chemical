@@ -1,6 +1,7 @@
 import React from "react";
 import { neutralImage, resolveImageUrl, showNeutralImage } from "../utils/images.js";
 import StatusBadge from "../components/StatusBadge.jsx";
+import { uploadAvatar } from "../utils/api.js";
 
 function formatPrice(value, t) {
   return `${Number(value || 0).toLocaleString()} ${t("common.ils")}`;
@@ -34,6 +35,7 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
     employeeId: "",
   });
   const [reviewMessage, setReviewMessage] = React.useState("");
+  const [avatarUploading, setAvatarUploading] = React.useState(false);
 
   function localized(en, ar, he) {
     if (language === "ar") return ar;
@@ -44,7 +46,7 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
   const copy = {
     orderHistory: localized("Order History", "سجل الطلبات", "היסטוריית הזמנות"),
     personalInfo: localized("Personal Information", "المعلومات الشخصية", "מידע אישי"),
-    viewedProducts: localized("Recently Viewed", "המוצרים המומלצים", "מוצרים שנצפו לאחרונה"),
+    viewedProducts: localized("Recommended Products", "المنتجات المعروضة", "מוצרים שנצפו לאחרונה"),
     subscriptions: localized("Manage Subscriptions", "الاشتراكات", "נהל מינויים"),
     logout: localized("Logout", "تسجيل الخروج", "התנתק"),
     noOrders: localized("You haven't placed any orders yet.", "لم تقم بإنشاء أي طلبات بعد.", "עדיין לא ביצעת הזמנות."),
@@ -389,11 +391,30 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
         city: editForm.city,
         address: editForm.address,
       });
-      Object.assign(currentUser, updated);
+      if (updated) Object.assign(currentUser, updated);
       setEditMessage(copy.profileUpdated);
       setIsEditing(false);
     } catch {
       setEditMessage(localized("Failed to update profile", "فشل تحديث الملف الشخصي", "נכשל בעדכון הפרופיל"));
+    }
+  }
+
+  async function handleAvatarUpload(event) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setAvatarUploading(true);
+    try {
+      const result = await uploadAvatar(file);
+      const avatarUrl = result.url || result.path || "";
+      if (avatarUrl) {
+        await onUpdateUser({ avatarUrl });
+        currentUser.avatarUrl = avatarUrl;
+      }
+    } catch {
+      console.warn("Avatar upload failed");
+    } finally {
+      setAvatarUploading(false);
+      event.target.value = "";
     }
   }
 
@@ -506,12 +527,24 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
 
         <aside className="account-right-column">
           <article className="account-summary-card">
-            <img
-              alt=""
-              className="account-summary-image"
-              onError={showNeutralImage}
-              src={neutralImage}
-            />
+            <label className="account-avatar-upload">
+              <img
+                alt=""
+                className="account-summary-image"
+                onError={showNeutralImage}
+                src={currentUser.avatarUrl || neutralImage}
+              />
+              {avatarUploading ? (
+                <span className="account-avatar-overlay">
+                  {localized("Uploading...", "جاري الرفع...", "מעלה...")}
+                </span>
+              ) : (
+                <span className="account-avatar-overlay">
+                  {localized("Change", "تغيير", "שנה")}
+                </span>
+              )}
+              <input accept="image/*" hidden type="file" onChange={handleAvatarUpload} />
+            </label>
             <h2>{currentUser.name}</h2>
             <p className="account-summary-subtitle">{currentUser.email}</p>
             {(currentUser.accountType === "trader" || currentUser.accountType === "wholesale") && (

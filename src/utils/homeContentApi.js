@@ -37,8 +37,17 @@ export async function deleteHomepageOffer(offerId) {
   });
 }
 
-export function fetchReviews() {
-  return apiRequest("/reviews");
+export function fetchReviews(type) {
+  const query = type ? `?type=${type}` : "";
+  return apiRequest(`/reviews${query}`);
+}
+
+export function fetchProductReviews(productId) {
+  return apiRequest(`/reviews/product/${productId}`);
+}
+
+export function fetchEmployeeReviews(employeeId) {
+  return apiRequest(`/reviews/employee/${employeeId}`);
 }
 
 export function fetchAllReviews() {

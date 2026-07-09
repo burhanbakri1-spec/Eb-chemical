@@ -838,10 +838,9 @@ function HomePage({
   ];
   const siteReviews = reviews.filter(
     (review) =>
-      (review.type === "store" || review.type === "site" || !review.employeeId) &&
+      (review.type === "website" || review.type === "store" || review.type === "site" || !review.employeeId) &&
       review.isActive !== false &&
-      review.isApproved !== false &&
-      (review.status || "approved") === "approved",
+      review.isApproved !== false
   );
 
   const avgRating = siteReviews.length

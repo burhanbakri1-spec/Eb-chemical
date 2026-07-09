@@ -260,6 +260,7 @@ export const translations = {
       employeeDeleted: "Employee deleted successfully",
       employeeUpdated: "Employee updated successfully",
       orderUpdated: "Order status updated",
+      performance: "Performance",
     },
     footer: {
       newsletterTitle: "Stay updated with our latest offers",
@@ -719,6 +720,7 @@ export const translations = {
       metaTitle: "כותרת SEO",
       metaDescription: "תיאור SEO",
       uploadImageEn: "העלה תמונה",
+      performance: "ביצועים",
     },
     footer: {
       newsletterTitle: "הישאר מעודכן במבצעים האחרונים שלנו",
@@ -1185,6 +1187,7 @@ export const translations = {
       metaTitle: "عنوان محركات البحث",
       metaDescription: "وصف محركات البحث",
       uploadImageEn: "رفع صورة",
+      performance: "الأداء",
     },
     footer: {
       newsletterTitle: "خليك على اطلاع بأحدث العروض",

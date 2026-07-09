@@ -154,6 +154,13 @@ function CheckoutPage({
           customer: { ...submittedForm, ...(order?.customer || {}) },
           items: order?.items?.length ? order.items : submittedItems,
           total: order?.total ?? submittedTotal,
+          subtotal: total,
+          delivery_price: deliveryPrice,
+          delivery_city_name: selectedZone ? selectedZone.city_name : "",
+          isFreeDelivery,
+          pointsEarned: order?.pointsEarned ?? 0,
+          pointsRedeemed: pointsToRedeem,
+          discountFromPoints: pointsDiscount,
           language: language,
         });
         if (typeof window !== "undefined") {
@@ -187,6 +194,10 @@ function CheckoutPage({
       subtotal: total,
       delivery_price: deliveryPrice,
       delivery_city_name: selectedZone ? selectedZone.city_name : "",
+      isFreeDelivery,
+      pointsEarned: 0,
+      pointsRedeemed: pointsToRedeem,
+      discountFromPoints: pointsDiscount,
     }),
     language,
   });
@@ -218,8 +229,8 @@ function CheckoutPage({
           {checkoutMessage || t("checkout.success")}
           {lastOrder && <div>
             <span>{localized("Points earned", "النقاط المكتسبة", "נקודות שנצברו")}: {Number(lastOrder.pointsEarned || 0)}</span>
-            {lastOrder.pointsRedeemed > 0 && <span> · {localized("Points redeemed", "النقاط المستخدمة", "נקודות שנפדו")}: {Number(lastOrder.pointsRedeemed)}</span>}
-            {lastOrder.discountFromPoints > 0 && <span> · {localized("Discount", "الخصم", "הנחה")}: {Number(lastOrder.discountFromPoints).toFixed(2)} {t("common.ils")}</span>}
+            <span> · {localized("Points redeemed", "النقاط المستخدمة", "נקודות שנפדו")}: {Number(lastOrder.pointsRedeemed || 0)}</span>
+            {Number(lastOrder.discountFromPoints || 0) > 0 && <span> · {localized("Discount", "الخصم", "הנחה")}: {Number(lastOrder.discountFromPoints).toFixed(2)} {t("common.ils")}</span>}
           </div>}
         </div>
       )}

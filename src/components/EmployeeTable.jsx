@@ -27,6 +27,7 @@ function EmployeeTable({
   onDelete,
   onEdit,
   onToggleStatus,
+  onViewPerformance,
   sessions,
   t,
 }) {
@@ -66,6 +67,11 @@ function EmployeeTable({
               <td>{employee.permissions?.length || 0}</td>
               <td>
                 <div className="row-actions">
+                  {onViewPerformance && (
+                    <button className="text-action" onClick={() => onViewPerformance(employee)}>
+                      {t("admin.performance")}
+                    </button>
+                  )}
                   <button className="text-action" onClick={() => onEdit(employee)}>
                     {t("admin.editEmployee")}
                   </button>

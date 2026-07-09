@@ -1776,10 +1776,13 @@ function App() {
             onLanguageChange={handleLanguageChange}
             onDeleteEmployee={handleDeleteEmployee}
             onLogout={handleAdminLogout}
+            onModerateReview={handleModerateReview}
             onNavigate={navigate}
             onSaveEmployee={handleSaveEmployee}
             onToggleDarkMode={() => setIsAdminDarkMode((current) => !current)}
             onToggleEmployeeStatus={handleToggleEmployeeStatus}
+            orders={orders}
+            reviews={reviews}
             sessions={employeeSessions}
             statusMessage={adminMessage}
             t={t}
