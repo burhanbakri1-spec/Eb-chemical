@@ -1223,6 +1223,12 @@ function App() {
     setHomepageOffers(await fetchAllHomepageOffers());
   }
 
+  async function handleUpdateUser(updates) {
+    const updated = await updateCurrentUser(updates);
+    setUser(updated);
+    return updated;
+  }
+
   async function handleSubmitReview(review) {
     const savedReview = await submitCustomerReview(review);
     setReviews(await fetchReviews());
@@ -1231,7 +1237,14 @@ function App() {
 
   async function handleModerateReview(reviewId, status, isActive = true) {
     const updatedReview = await updateReviewStatus(reviewId, status, isActive);
-    setReviews(await fetchAllReviews());
+    const freshReviews = await fetchAllReviews();
+    setReviews([...freshReviews]);
+    const msgs = {
+      approved: { en: "Review approved", ar: "تم قبول التقييم", he: "הביקורת אושרה" },
+      rejected: { en: "Review rejected", ar: "تم رفض التقييم", he: "הביקורת נדחתה" },
+      hidden: { en: "Review hidden", ar: "تم إخفاء التقييم", he: "הביקורת הוסתרה" },
+    };
+    setAdminMessage(msgs[status]?.[language] || msgs.approved[language]);
     return updatedReview;
   }
 
@@ -1516,7 +1529,7 @@ function App() {
             onLogout={handleLogout}
             onNavigate={navigate}
             onSubmitReview={handleSubmitReview}
-            onUpdateUser={updateCurrentUser}
+            onUpdateUser={handleUpdateUser}
             orders={orders}
             products={demoProducts}
             t={t}

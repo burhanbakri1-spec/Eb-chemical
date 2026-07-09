@@ -36,6 +36,9 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
   });
   const [reviewMessage, setReviewMessage] = React.useState("");
   const [avatarUploading, setAvatarUploading] = React.useState(false);
+  const [saving, setSaving] = React.useState(false);
+  const [submittingReview, setSubmittingReview] = React.useState(false);
+  const [avatarMessage, setAvatarMessage] = React.useState("");
 
   function localized(en, ar, he) {
     if (language === "ar") return ar;
@@ -83,7 +86,7 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
     rating: localized("Rating", "التقييم", "דירוג"),
     reviewComment: localized("Review text", "نص التقييم", "טקסט הביקורת"),
     submitReview: localized("Submit review", "إرسال التقييم", "שלח ביקורת"),
-    reviewSaved: localized("Review saved successfully", "تم حفظ التقييم بنجاح", "הביקורת נשמרה בהצלחה"),
+    reviewSaved: localized("Review submitted and awaiting admin approval", "تم إرسال التقييم وهو بانتظار موافقة الإدارة", "הביקורת נשלחה ומחכה לאישור מנהל"),
     save: localized("Save", "حفظ", "שמור"),
     cancel: localized("Cancel", "إلغاء", "בטל"),
     profileUpdated: localized("Profile updated successfully", "تم تحديث الملف الشخصي بنجاح", "הפרופיל עודכן בהצלחה"),
@@ -208,8 +211,11 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
 
   async function submitReview(event) {
     event.preventDefault();
+    if (submittingReview) return;
     if (reviewForm.type === "product" && !reviewForm.productId) return;
     if ((reviewForm.type === "order" || reviewForm.type === "employee") && !reviewForm.orderId) return;
+    setSubmittingReview(true);
+    setReviewMessage("");
     const review = {
       type: reviewForm.type,
       rating: reviewForm.rating,
@@ -229,9 +235,15 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
       review.employeeId = employeeForOrder?.id || "";
       review.employeeName = employeeForOrder?.name || "";
     }
-    await onSubmitReview?.(review);
-    setReviewMessage(copy.reviewSaved);
-    setReviewForm({ type: "website", rating: 5, comment: "", orderId: "", productId: "", employeeId: "" });
+    try {
+      await onSubmitReview?.(review);
+      setReviewMessage(copy.reviewSaved);
+      setReviewForm({ type: "website", rating: 5, comment: "", orderId: "", productId: "", employeeId: "" });
+    } catch {
+      setReviewMessage(localized("Failed to submit review, try again", "فشل إرسال التقييم، حاول مرة أخرى", "נכשל בשליחת הביקורת, נסה שוב"));
+    } finally {
+      setSubmittingReview(false);
+    }
   }
 
   function renderReviews() {
@@ -305,8 +317,8 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
               value={reviewForm.comment}
             />
           </label>
-          <button className="primary-action" type="submit">
-            {copy.submitReview}
+          <button className="primary-action" disabled={submittingReview} type="submit">
+            {submittingReview ? localized("Sending...", "جارٍ الإرسال...", "שולח...") : copy.submitReview}
           </button>
         </form>
       </section>
@@ -383,6 +395,7 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
   async function saveProfile(event) {
     event.preventDefault();
     if (!editForm.name || !editForm.email) return;
+    setSaving(true);
     try {
       const updated = await onUpdateUser({
         name: editForm.name,
@@ -391,11 +404,14 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
         city: editForm.city,
         address: editForm.address,
       });
-      if (updated) Object.assign(currentUser, updated);
-      setEditMessage(copy.profileUpdated);
+      if (updated) {
+        setEditMessage(localized("Profile updated successfully", "تم تحديث البيانات بنجاح", "הפרופיל עודכן בהצלחה"));
+      }
       setIsEditing(false);
     } catch {
       setEditMessage(localized("Failed to update profile", "فشل تحديث الملف الشخصي", "נכשל בעדכון הפרופיל"));
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -403,15 +419,16 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
     const file = event.target.files?.[0];
     if (!file) return;
     setAvatarUploading(true);
+    setAvatarMessage("");
     try {
       const result = await uploadAvatar(file);
       const avatarUrl = result.url || result.path || "";
       if (avatarUrl) {
         await onUpdateUser({ avatarUrl });
-        currentUser.avatarUrl = avatarUrl;
+        setAvatarMessage(localized("Profile image updated", "تم تحديث صورة الحساب بنجاح", "תמונת הפרופיל עודכנה בהצלחה"));
       }
     } catch {
-      console.warn("Avatar upload failed");
+      setAvatarMessage(localized("Image upload failed, try again", "فشل رفع الصورة، حاول مرة أخرى", "העלאה נכשלה, נסה שוב"));
     } finally {
       setAvatarUploading(false);
       event.target.value = "";
@@ -441,8 +458,8 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
                 <label className="full-field"><strong>{copy.address}</strong><input name="address" onChange={handleEditField} type="text" value={editForm.address} /></label>
               </div>
               <div className="account-profile-actions">
-                <button className="primary-action" type="submit">{copy.save}</button>
-                <button className="secondary-action" onClick={cancelEditing} type="button">{copy.cancel}</button>
+                <button className="primary-action" disabled={saving} type="submit">{saving ? localized("Saving...", "جارٍ الحفظ...", "שומר...") : copy.save}</button>
+                <button className="secondary-action" disabled={saving} onClick={cancelEditing} type="button">{copy.cancel}</button>
               </div>
             </form>
           ) : (
@@ -526,6 +543,7 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
         </main>
 
         <aside className="account-right-column">
+          {avatarMessage && <div className="message-panel success" style={{ marginBottom: "0.5rem" }}>{avatarMessage}</div>}
           <article className="account-summary-card">
             <label className="account-avatar-upload">
               <img

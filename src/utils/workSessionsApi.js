@@ -23,3 +23,9 @@ export function fetchEmployeeWorkSessions() {
 export function fetchWorkSessionsForEmployee(employeeId) {
   return apiRequest(`/work-sessions/employees/${employeeId}`);
 }
+
+export function sendHeartbeat() {
+  return apiRequest("/work-sessions/heartbeat", {
+    method: "POST",
+  });
+}
