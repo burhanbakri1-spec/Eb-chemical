@@ -7233,7 +7233,8 @@ html[dir="rtl"] .admin-nav-button.active::before {
 }
 
 .detail-schema-fields-section {
-  padding: clamp(58px, 8vw, 118px) var(--page-gutter);
+  padding: clamp(72px, 10vw, 140px) var(--page-gutter);
+  padding-bottom: clamp(80px, 12vw, 160px);
   background: #fffdf8;
 }
 
@@ -15745,8 +15746,20 @@ html[dir="rtl"] .product-detail-floating-cart {
   border-radius: 26px;
   object-fit: cover;
   box-shadow: 0 30px 90px rgba(6, 31, 51, 0.12);
-  transition: transform 220ms linear;
+  transition: transform 600ms cubic-bezier(0.22, 1, 0.36, 1);
   will-change: transform;
+}
+
+@media (max-width: 768px) {
+  .detail-impact-images img {
+    transition: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .detail-impact-images img {
+    transition: none !important;
+  }
 }
 
 .detail-safe-section,
