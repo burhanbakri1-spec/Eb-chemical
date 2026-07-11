@@ -22,7 +22,7 @@ function WorkTimer({ compact = false, session, t }) {
 
   React.useEffect(() => {
     if (!session?.loginTime || session?.logoutTime) return;
-    let hidden = false;
+    let hidden = document.hidden;
     const onVisChange = () => { hidden = document.hidden; };
     document.addEventListener("visibilitychange", onVisChange);
     const hbTimer = window.setInterval(async () => {

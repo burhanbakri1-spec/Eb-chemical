@@ -26,6 +26,7 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
   const [isEditing, setIsEditing] = React.useState(false);
   const [editForm, setEditForm] = React.useState({ name: "", email: "", phone: "", city: "", address: "" });
   const [editMessage, setEditMessage] = React.useState("");
+  const [editMessageType, setEditMessageType] = React.useState("success");
   const [reviewForm, setReviewForm] = React.useState({
     type: "website",
     rating: 5,
@@ -39,6 +40,8 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
   const [saving, setSaving] = React.useState(false);
   const [submittingReview, setSubmittingReview] = React.useState(false);
   const [avatarMessage, setAvatarMessage] = React.useState("");
+  const [avatarMessageType, setAvatarMessageType] = React.useState("success");
+  const [avatarVersion, setAvatarVersion] = React.useState(Date.now());
 
   function localized(en, ar, he) {
     if (language === "ar") return ar;
@@ -379,12 +382,14 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
       address: currentUser.address || "",
     });
     setEditMessage("");
+    setEditMessageType("success");
     setIsEditing(true);
   }
 
   function cancelEditing() {
     setIsEditing(false);
     setEditMessage("");
+    setEditMessageType("success");
   }
 
   function handleEditField(event) {
@@ -405,10 +410,12 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
         address: editForm.address,
       });
       if (updated) {
+        setEditMessageType("success");
         setEditMessage(localized("Profile updated successfully", "تم تحديث البيانات بنجاح", "הפרופיל עודכן בהצלחה"));
       }
       setIsEditing(false);
     } catch {
+      setEditMessageType("error");
       setEditMessage(localized("Failed to update profile", "فشل تحديث الملف الشخصي", "נכשל בעדכון הפרופיל"));
     } finally {
       setSaving(false);
@@ -420,14 +427,18 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
     if (!file) return;
     setAvatarUploading(true);
     setAvatarMessage("");
+    setAvatarMessageType("success");
     try {
       const result = await uploadAvatar(file);
       const avatarUrl = result.url || result.path || "";
       if (avatarUrl) {
         await onUpdateUser({ avatarUrl });
+        setAvatarVersion(Date.now());
+        setAvatarMessageType("success");
         setAvatarMessage(localized("Profile image updated", "تم تحديث صورة الحساب بنجاح", "תמונת הפרופיל עודכנה בהצלחה"));
       }
     } catch {
+      setAvatarMessageType("error");
       setAvatarMessage(localized("Image upload failed, try again", "فشل رفع الصورة، حاول مرة أخرى", "העלאה נכשלה, נסה שוב"));
     } finally {
       setAvatarUploading(false);
@@ -447,7 +458,7 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
               </div>
             )}
           </div>
-          {editMessage && <div className="message-panel success">{editMessage}</div>}
+          {editMessage && <div className={`message-panel ${editMessageType === "error" ? "error" : "success"}`}>{editMessage}</div>}
           {isEditing ? (
             <form className="account-profile-form" onSubmit={saveProfile}>
               <div className="account-profile-fields">
@@ -543,14 +554,14 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
         </main>
 
         <aside className="account-right-column">
-          {avatarMessage && <div className="message-panel success" style={{ marginBottom: "0.5rem" }}>{avatarMessage}</div>}
+          {avatarMessage && <div className={`message-panel ${avatarMessageType === "error" ? "error" : "success"}`} style={{ marginBottom: "0.5rem" }}>{avatarMessage}</div>}
           <article className="account-summary-card">
             <label className="account-avatar-upload">
               <img
                 alt=""
                 className="account-summary-image"
                 onError={showNeutralImage}
-                src={currentUser.avatarUrl || neutralImage}
+                src={currentUser.avatarUrl ? `${currentUser.avatarUrl}${currentUser.avatarUrl.includes("?") ? "&" : "?"}v=${avatarVersion}` : neutralImage}
               />
               {avatarUploading ? (
                 <span className="account-avatar-overlay">

@@ -1225,20 +1225,22 @@ function App() {
 
   async function handleUpdateUser(updates) {
     const updated = await updateCurrentUser(updates);
+    setCurrentUser(updated);
     setUser(updated);
     return updated;
   }
 
   async function handleSubmitReview(review) {
     const savedReview = await submitCustomerReview(review);
-    setReviews(await fetchReviews());
+    setReviews((currentReviews) => [savedReview, ...currentReviews.filter((item) => item.id !== savedReview.id)]);
     return savedReview;
   }
 
   async function handleModerateReview(reviewId, status, isActive = true) {
     const updatedReview = await updateReviewStatus(reviewId, status, isActive);
-    const freshReviews = await fetchAllReviews();
-    setReviews([...freshReviews]);
+    setReviews((currentReviews) =>
+      currentReviews.map((review) => (review.id === updatedReview.id ? updatedReview : review)),
+    );
     const msgs = {
       approved: { en: "Review approved", ar: "تم قبول التقييم", he: "הביקורת אושרה" },
       rejected: { en: "Review rejected", ar: "تم رفض التقييم", he: "הביקורת נדחתה" },

@@ -11,16 +11,18 @@ function formatMinutes(minutes = 0) {
 const MAX_OPEN_SESSION_MINUTES = 10;
 
 function getSessionDuration(session) {
-  if (session.totalMinutes != null) return session.totalMinutes;
+  if (session.totalMinutes != null) return Math.max(0, Math.round(Number(session.totalMinutes) || 0));
   const loginTime = session.loginTime ? new Date(session.loginTime) : null;
-  if (!loginTime) return 0;
+  if (!loginTime || Number.isNaN(loginTime.getTime())) return 0;
 
   if (session.logoutTime) {
-    return Math.max(0, Math.round((new Date(session.logoutTime) - loginTime) / 60000));
+    const logoutTime = new Date(session.logoutTime);
+    return Number.isNaN(logoutTime.getTime()) ? 0 : Math.max(0, Math.round((logoutTime - loginTime) / 60000));
   }
 
   if (session.lastActivityAt) {
-    return Math.max(0, Math.round((new Date(session.lastActivityAt) - loginTime) / 60000));
+    const lastActivityAt = new Date(session.lastActivityAt);
+    return Number.isNaN(lastActivityAt.getTime()) ? 0 : Math.max(0, Math.round((lastActivityAt - loginTime) / 60000));
   }
 
   return Math.min(MAX_OPEN_SESSION_MINUTES, Math.max(0, Math.round((Date.now() - loginTime) / 60000)));
@@ -42,15 +44,20 @@ function EmployeePerformanceView({
   const [modMessage, setModMessage] = React.useState("");
 
   React.useEffect(() => {
-    if (!employee?.email) return;
+    if (!employee?.id && !employee?.email) return;
     setLogsLoaded(false);
-    fetchActivityLogs({ actor_email: employee.email, limit: 200 })
+    fetchActivityLogs({ limit: 500 })
       .then((data) => {
-        setActivityLogs(data?.logs || []);
+        const rows = Array.isArray(data?.logs) ? data.logs : Array.isArray(data) ? data : [];
+        setActivityLogs(rows.filter((log) => {
+          const ids = [log.actor_id, log.actor_user_id, log.user_id, log.userId, log.employeeId].filter(Boolean);
+          const emails = [log.actor_email, log.email, log.userEmail].filter(Boolean).map((value) => String(value).toLowerCase());
+          return ids.includes(employee.id) || (employee.email && emails.includes(String(employee.email).toLowerCase()));
+        }));
         setLogsLoaded(true);
       })
       .catch(() => setLogsLoaded(true));
-  }, [employee?.email]);
+  }, [employee?.email, employee?.id]);
 
   function localized(en, ar, he) {
     if (language === "ar") return ar;
@@ -228,7 +235,7 @@ function EmployeePerformanceView({
               return (
                 <tr key={order.id}>
                   <td><strong>{order.id}</strong></td>
-                  <td>{formatDateTime(order.createdAt || order.created_at || order.date || order.updatedAt)}</td>
+                  <td>{formatDateTime(order.createdAt || order.created_at || order.updatedAt || order.updated_at || order.date)}</td>
                   <td>{custName}</td>
                   <td>{custPhone}</td>
                   <td><span className="admin-status-pill">{order.status || "-"}</span></td>
@@ -349,11 +356,11 @@ function EmployeePerformanceView({
           </thead>
           <tbody>
             {activityLogs.length === 0 && (
-              <tr><td colSpan={4}>{localized("No activity logs found", "لا توجد سجلات نشاط", "אין יומני פעילות")}</td></tr>
+              <tr><td colSpan={4}>{localized("No employee activity logs found", "لا توجد تعديلات مسجلة لهذا الموظف", "לא נמצאו יומני פעילות לעובד זה")}</td></tr>
             )}
             {activityLogs.map((log) => (
               <tr key={log.id}>
-                <td>{formatDateTime(log.created_at)}</td>
+                <td>{formatDateTime(log.created_at || log.createdAt || log.date)}</td>
                 <td>{log.action || "-"}</td>
                 <td>{log.entity_type || "-"}{log.entity_id ? ` #${String(log.entity_id).slice(-8)}` : ""}</td>
                 <td>{log.changes ? JSON.stringify(log.changes).slice(0, 100) : log.details || log.description || "-"}</td>
