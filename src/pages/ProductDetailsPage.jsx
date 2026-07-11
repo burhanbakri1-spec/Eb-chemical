@@ -290,12 +290,6 @@ function ProductDetailsPage({
   });
 
   React.useEffect(() => {
-    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const isNarrow = window.innerWidth <= 768;
-    if (prefersReduced || isNarrow) {
-      setParallax(0);
-      return;
-    }
     function handleScroll() {
       const section = impactRef.current;
       if (!section) {
@@ -865,13 +859,13 @@ function ProductDetailsPage({
             alt={productName}
             className="impact-left"
             src={detailImages.impact1 || detailImages.impact || product.image}
-            style={{ transform: `translateY(${parallax * 10}px)` }}
+            style={{ transform: `translateY(${parallax * 82}px) rotate(${-6 - parallax * 2}deg)` }}
           />
           <ProductImage
             alt={productName}
             className="impact-right"
             src={detailImages.impact2 || detailImages.impact || product.hoverImage || product.image}
-            style={{ transform: `translateY(${parallax * -10}px)` }}
+            style={{ transform: `translate(${parallax * 74}px, ${parallax * -96}px) rotate(${6 + parallax * 2}deg)` }}
           />
         </div>
       </section>}
