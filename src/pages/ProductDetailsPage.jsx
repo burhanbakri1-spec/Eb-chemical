@@ -261,9 +261,11 @@ function ProductDetailsPage({
   const [activeStatement, setActiveStatement] = React.useState(0);
   const [dragStart, setDragStart] = React.useState(null);
   const [parallax, setParallax] = React.useState(0);
+  const [heroParallax, setHeroParallax] = React.useState(0);
   const [openAccordionIndex, setOpenAccordionIndex] = React.useState(null);
   const reviewsRef = React.useRef(null);
   const relatedRef = React.useRef(null);
+  const heroRef = React.useRef(null);
   const impactRef = React.useRef(null);
   const galleryScrollRef = React.useRef(null);
 
@@ -290,20 +292,42 @@ function ProductDetailsPage({
   });
 
   React.useEffect(() => {
+    let frame = 0;
+    const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)");
+    const desktopViewport = window.matchMedia?.("(min-width: 1024px)");
+
     function handleScroll() {
-      const section = impactRef.current;
-      if (!section) {
-        setParallax(0);
-        return;
-      }
-      const rect = section.getBoundingClientRect();
-      const viewportCenter = window.innerHeight / 2;
-      const progress = (viewportCenter - rect.top) / Math.max(rect.height, 1);
-      setParallax(Math.max(-1, Math.min(1, progress * 2 - 1)));
+      if (frame) return;
+      frame = window.requestAnimationFrame(() => {
+        frame = 0;
+        const section = impactRef.current;
+        if (!section) {
+          setParallax(0);
+        } else {
+          const rect = section.getBoundingClientRect();
+          const viewportCenter = window.innerHeight / 2;
+          const progress = (viewportCenter - rect.top) / Math.max(rect.height, 1);
+          setParallax(Math.max(-1, Math.min(1, progress * 2 - 1)));
+        }
+
+        const hero = heroRef.current;
+        if (!hero || reducedMotion?.matches || desktopViewport?.matches === false) {
+          setHeroParallax(0);
+          return;
+        }
+        const heroRect = hero.getBoundingClientRect();
+        const heroProgress = (window.innerHeight - heroRect.top) / Math.max(heroRect.height + window.innerHeight, 1);
+        setHeroParallax(Math.max(-1, Math.min(1, heroProgress * 2 - 1)));
+      });
     }
     handleScroll();
     window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+    window.addEventListener("resize", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleScroll);
+      if (frame) window.cancelAnimationFrame(frame);
+    };
   }, []);
 
   React.useEffect(() => {
@@ -594,12 +618,19 @@ function ProductDetailsPage({
     setDragStart(null);
   }
 
+  const heroMainStyle = heroParallax
+    ? { transform: `translate3d(0, ${heroParallax * 18}px, 0)` }
+    : undefined;
+  const heroGalleryStyle = heroParallax
+    ? { transform: `translate3d(0, ${heroParallax * -18}px, 0)` }
+    : undefined;
+
   return (
     <main className="product-detail-redesign">
-      <section className="detail-kinfill-hero">
+      <section className="detail-kinfill-hero" ref={heroRef}>
         <div className="detail-kinfill-media">
           {product.badge && <span className="detail-subscribe-badge">{localized(product.badge, language)}</span>}
-          <div className="detail-kinfill-main-column">
+          <div className="detail-kinfill-main-column" style={heroMainStyle}>
             <div className="detail-kinfill-main-sticky">
               <img
                 className="current-product-image"
@@ -613,7 +644,7 @@ function ProductDetailsPage({
             </div>
           </div>
 
-          <div className="detail-kinfill-gallery-column" ref={galleryScrollRef}>
+          <div className="detail-kinfill-gallery-column" ref={galleryScrollRef} style={heroGalleryStyle}>
             {uniqueGallery.slice(1).map((image, index) => (
               <picture className="detail-kinfill-gallery-picture" key={image || index}>
                 <img
