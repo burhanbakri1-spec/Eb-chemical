@@ -1206,21 +1206,43 @@ function App() {
 
   async function handleSaveOffer(offer) {
     const savedOffer = await saveHomepageOffer(offer);
-    const nextOffers = await fetchAllHomepageOffers();
-    setHomepageOffers(nextOffers);
+    setHomepageOffers((currentOffers) => {
+      const exists = currentOffers.some((item) => item.id === savedOffer.id);
+      return exists
+        ? currentOffers.map((item) => (item.id === savedOffer.id ? savedOffer : item))
+        : [savedOffer, ...currentOffers];
+    });
+    try {
+      const nextOffers = await fetchAllHomepageOffers();
+      setHomepageOffers(nextOffers);
+    } catch (refreshError) {
+      console.warn("Homepage offers refresh failed after successful save", refreshError);
+    }
     return savedOffer;
   }
 
   async function handleSaveCategoryCard(card) {
     const savedCard = await saveHomepageCategoryCard(card);
-    const nextCards = await fetchAllHomepageCategoryCards();
-    setHomepageCategoryCards(nextCards);
+    setHomepageCategoryCards((currentCards) =>
+      currentCards.map((item) => (item.key === savedCard.key ? savedCard : item)),
+    );
+    try {
+      const nextCards = await fetchAllHomepageCategoryCards();
+      setHomepageCategoryCards(nextCards);
+    } catch (refreshError) {
+      console.warn("Homepage category cards refresh failed after successful save", refreshError);
+    }
     return savedCard;
   }
 
   async function handleDeleteOffer(offerId) {
     await deleteHomepageOffer(offerId);
-    setHomepageOffers(await fetchAllHomepageOffers());
+    setHomepageOffers((currentOffers) => currentOffers.filter((offer) => offer.id !== offerId));
+    try {
+      setHomepageOffers(await fetchAllHomepageOffers());
+    } catch (refreshError) {
+      console.warn("Homepage offers refresh failed after successful delete", refreshError);
+    }
   }
 
   async function handleUpdateUser(updates) {
@@ -1252,7 +1274,12 @@ function App() {
 
   async function handleDeleteReview(reviewId) {
     await deleteReviewApi(reviewId);
-    setReviews(await fetchAllReviews());
+    setReviews((currentReviews) => currentReviews.filter((review) => review.id !== reviewId));
+    try {
+      setReviews(await fetchAllReviews());
+    } catch (refreshError) {
+      console.warn("Reviews refresh failed after successful delete", refreshError);
+    }
   }
 
   async function handleSaveWebsiteMedia(item) {
