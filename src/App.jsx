@@ -1268,13 +1268,19 @@ function App() {
       rejected: { en: "Review rejected", ar: "تم رفض التقييم", he: "הביקורת נדחתה" },
       hidden: { en: "Review hidden", ar: "تم إخفاء التقييم", he: "הביקורת הוסתרה" },
     };
-    setAdminMessage(msgs[status]?.[language] || msgs.approved[language]);
+    const successMsgs = {
+      approved: { en: "Review approved successfully", ar: "تم قبول التقييم بنجاح", he: "הביקורת אושרה בהצלחה" },
+      rejected: { en: "Review rejected successfully", ar: "تم رفض التقييم بنجاح", he: "הביקורת נדחתה בהצלחה" },
+      hidden: { en: "Review hidden successfully", ar: "تم إخفاء التقييم بنجاح", he: "הביקורת הוסתרה בהצלחה" },
+    };
+    setAdminMessage(successMsgs[status]?.[language] || msgs[status]?.[language] || successMsgs.approved[language]);
     return updatedReview;
   }
 
   async function handleDeleteReview(reviewId) {
     await deleteReviewApi(reviewId);
     setReviews((currentReviews) => currentReviews.filter((review) => review.id !== reviewId));
+    setAdminMessage({ en: "Review deleted successfully", ar: "تم حذف التقييم بنجاح", he: "הביקורת נמחקה בהצלחה" }[language]);
     try {
       setReviews(await fetchAllReviews());
     } catch (refreshError) {

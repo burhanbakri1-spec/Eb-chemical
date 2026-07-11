@@ -1479,6 +1479,7 @@ function AdminDashboardPage({
   const [stockModalOpen, setStockModalOpen] = React.useState(false);
   const [apiCustomers, setApiCustomers] = React.useState([]);
   const [customersLoading, setCustomersLoading] = React.useState(true);
+  const [customerMessage, setCustomerMessage] = React.useState(null);
 
   React.useEffect(() => {
     let active = true;
@@ -1501,6 +1502,7 @@ function AdminDashboardPage({
 
   async function handleAccountTypeChange(customerId, newAccountType) {
     accountSnapshotRef.current = null;
+    setCustomerMessage(null);
     setApiCustomers((current) => {
       accountSnapshotRef.current = current;
       return current.map((c) => (c.id === customerId ? { ...c, accountType: newAccountType } : c));
@@ -1510,12 +1512,20 @@ function AdminDashboardPage({
       if (result?.accountType) {
         setApiCustomers((current) =>
           current.map((c) =>
-            c.id === customerId ? { ...c, accountType: result.accountType } : c,
+            c.id === customerId ? { ...c, ...result } : c,
           ),
         );
       }
-    } catch {
+      setCustomerMessage({
+        type: "success",
+        text: localized("Customer account type updated successfully", "تم تحديث نوع حساب العميل بنجاح", "סוג חשבון הלקוח עודכן בהצלחה", language),
+      });
+    } catch (error) {
       if (accountSnapshotRef.current) setApiCustomers(accountSnapshotRef.current);
+      setCustomerMessage({
+        type: "error",
+        text: error?.message || localized("Failed to update customer account type", "فشل تحديث نوع حساب العميل", "עדכון סוג חשבון הלקוח נכשל", language),
+      });
     }
   }
 
@@ -1744,12 +1754,15 @@ function AdminDashboardPage({
 
   function renderCustomers() {
     const displayCustomers = apiCustomers.length > 0 ? apiCustomers : customers;
+    const customerStatusMessage = customerMessage
+      ? <div className={`message-panel ${customerMessage.type === "error" ? "error" : "success"}`}>{customerMessage.text}</div>
+      : null;
     return (
       <section className="admin-panel-card">
         <Toolbar><SearchField placeholder={localized("Search name, email, or phone...", "بحث بالاسم أو البريد الإلكتروني أو الهاتف...", "חפש שם, אימייל או טלפון...", language)} value="" onChange={() => {}} /><select><option>{localized("Status", "الحالة", "סטטוס", language)}</option></select><select><option>{localized("10 / page", "10 / صفحة", "10 / עמוד", language)}</option><option>{localized("25 / page", "25 / صفحة", "25 / עמוד", language)}</option><option>{localized("50 / page", "50 / صفحة", "50 / עמוד", language)}</option><option>{localized("100 / page", "100 / صفحة", "100 / עמוד", language)}</option></select></Toolbar>
         <AdminTable>
           <thead><tr><th>{localized("Name", "الاسم", "שם", language)}</th><th>{localized("Email", "البريد الإلكتروني", "אימייל", language)}</th><th>{localized("Phone", "الهاتف", "טלפון", language)}</th><th>{localized("Account Type", "نوع الحساب", "סוג חשבון", language)}</th><th>{localized("Status", "الحالة", "סטטוס", language)}</th><th>{localized("Orders", "الطلبات", "הזמנות", language)}</th><th>{localized("Created", "تاريخ الإنشاء", "נוצר", language)}</th><th>{localized("Updated", "آخر تحديث", "עודכן", language)}</th></tr></thead>
-          <tbody>{displayCustomers.length ? displayCustomers.map((customer) => {
+          <tbody>{customerStatusMessage && <tr><td colSpan="8">{customerStatusMessage}</td></tr>}{displayCustomers.length ? displayCustomers.map((customer) => {
             const isApi = !!customer.id;
             return <tr key={`${customer.email}-${customer.phone}`}><td>{customer.name}</td><td>{customer.email}</td><td>{customer.phone}</td><td>{isApi ? <select className="admin-select" value={customer.accountType === "trader" || customer.accountType === "wholesale" ? "trader" : "retail"} onChange={(e) => handleAccountTypeChange(customer.id, e.target.value)}><option value="retail">{localized("Retail customer", "عميل عادي", "לקוח רגיל", language)}</option><option value="trader">{localized("Trader", "تاجر", "סוחר", language)}</option></select> : <Badge>{localized("Retail customer", "عميل عادي", "לקוח רגיל", language)}</Badge>}</td><td><Badge>{customer.status || (customer.isActive !== false ? "Active" : "Inactive")}</Badge></td><td>{customer.orders || customer.orderCount || 0}</td><td>{formatDate(customer.createdAt, language)}</td><td>{formatDate(customer.updatedAt, language)}</td></tr>;
           }) : <tr><td colSpan="8">{customersLoading ? localized("Loading...", "جار التحميل...", "טוען...", language) : localized("No customers yet.", "لا يوجد عملاء بعد.", "אין לקוחות עדיין.", language)}</td></tr>}</tbody>

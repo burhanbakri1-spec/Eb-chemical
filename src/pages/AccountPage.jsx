@@ -36,6 +36,7 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
     employeeId: "",
   });
   const [reviewMessage, setReviewMessage] = React.useState("");
+  const [reviewMessageType, setReviewMessageType] = React.useState("success");
   const [avatarUploading, setAvatarUploading] = React.useState(false);
   const [saving, setSaving] = React.useState(false);
   const [submittingReview, setSubmittingReview] = React.useState(false);
@@ -219,6 +220,7 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
     if ((reviewForm.type === "order" || reviewForm.type === "employee") && !reviewForm.orderId) return;
     setSubmittingReview(true);
     setReviewMessage("");
+    setReviewMessageType("success");
     const review = {
       type: reviewForm.type,
       rating: reviewForm.rating,
@@ -240,9 +242,11 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
     }
     try {
       await onSubmitReview?.(review);
+      setReviewMessageType("success");
       setReviewMessage(copy.reviewSaved);
       setReviewForm({ type: "website", rating: 5, comment: "", orderId: "", productId: "", employeeId: "" });
-    } catch {
+    } catch (error) {
+      setReviewMessageType("error");
       setReviewMessage(localized("Failed to submit review, try again", "فشل إرسال التقييم، حاول مرة أخرى", "נכשל בשליחת הביקורת, נסה שוב"));
     } finally {
       setSubmittingReview(false);
@@ -255,7 +259,7 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
       <section className="account-main-card account-review-panel">
         <h2>{copy.writeReview}</h2>
         <form className="account-review-form" onSubmit={submitReview}>
-          {reviewMessage && <div className="message-panel success">{reviewMessage}</div>}
+          {reviewMessage && <div className={`message-panel ${reviewMessageType === "error" ? "error" : "success"}`}>{reviewMessage}</div>}
           <label>
             {copy.reviewType}
             <select name="type" onChange={updateReviewField} value={reviewForm.type}>
@@ -416,7 +420,7 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
         setEditMessage(localized("Profile updated successfully", "تم تحديث البيانات بنجاح", "הפרופיל עודכן בהצלחה"));
       }
       setIsEditing(false);
-    } catch {
+    } catch (error) {
       setEditMessageType("error");
       setEditMessage(localized("Failed to update profile", "فشل تحديث الملف الشخصي", "נכשל בעדכון הפרופיל"));
     } finally {
