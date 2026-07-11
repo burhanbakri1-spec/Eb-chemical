@@ -807,20 +807,6 @@ function ProductDetailsPage({
         </aside>
       </section>
 
-      {storefrontDetails.length > 0 && (
-        <section className="detail-schema-fields-section">
-          <div className="detail-section-title center"><h2>{txt.productInfo}</h2></div>
-          <dl className="detail-schema-fields">
-            {storefrontDetails.map(({ field, value }) => (
-              <div key={field.key}>
-                <dt>{productFieldLabel(field, language)}</dt>
-                <dd>{field.type === "image_url" ? <ProductImage alt={productFieldLabel(field, language)} src={value} /> : displaySchemaValue(field, value)}</dd>
-              </div>
-            ))}
-          </dl>
-        </section>
-      )}
-
       <section className="detail-reviews-section">
         <div className="detail-section-title center">
           <h2>{txt.reviews}</h2>
@@ -992,6 +978,20 @@ function ProductDetailsPage({
           <AccordionList items={productInfo} language={language} />
         </div>
       </section>}
+
+      {storefrontDetails.length > 0 && (
+        <section className="detail-schema-fields-section">
+          <div className="detail-section-title center"><h2>{txt.productInfo}</h2></div>
+          <dl className="detail-schema-fields">
+            {storefrontDetails.map(({ field, value }) => (
+              <div key={field.key}>
+                <dt>{productFieldLabel(field, language)}</dt>
+                <dd>{field.type === "image_url" ? <ProductImage alt={productFieldLabel(field, language)} src={value} /> : displaySchemaValue(field, value)}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      )}
 
       <FloatingAddToCart disabled={!selectedVariant || selectedVariant.stock <= 0} language={language} onAdd={handleAddSelectedToCart} product={product} selectedLabel={floatingLabel} txt={txt} />
     </main>
