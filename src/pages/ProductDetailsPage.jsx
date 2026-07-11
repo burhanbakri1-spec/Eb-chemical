@@ -290,16 +290,16 @@ function ProductDetailsPage({
   });
 
   React.useEffect(() => {
-    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (prefersReduced || window.innerWidth <= 768) {
-      setParallax(0);
-      return;
-    }
-
+    const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const desktopQuery = window.matchMedia("(min-width: 1024px)");
     let frame = 0;
 
     function updateParallax() {
       frame = 0;
+      if (reducedMotionQuery.matches || !desktopQuery.matches) {
+        setParallax(0);
+        return;
+      }
       const section = impactRef.current;
       if (!section) {
         setParallax(0);
@@ -307,10 +307,8 @@ function ProductDetailsPage({
       }
       const rect = section.getBoundingClientRect();
       const vh = window.innerHeight;
-      const sectionCenter = rect.top + rect.height / 2;
-      const viewportCenter = vh / 2;
-      const travel = Math.max(vh * 0.75, rect.height / 2);
-      const motion = (viewportCenter - sectionCenter) / travel;
+      const progress = (vh - rect.top) / Math.max(rect.height, 1);
+      const motion = progress * 2 - 1;
       setParallax(Math.max(-1, Math.min(1, motion)));
     }
 
@@ -322,9 +320,11 @@ function ProductDetailsPage({
     updateParallax();
     window.addEventListener("scroll", handleScroll, { passive: true });
     window.addEventListener("resize", handleScroll);
+    document.addEventListener("scroll", handleScroll, { capture: true, passive: true });
     return () => {
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("resize", handleScroll);
+      document.removeEventListener("scroll", handleScroll, { capture: true });
       if (frame) cancelAnimationFrame(frame);
     };
   }, []);
