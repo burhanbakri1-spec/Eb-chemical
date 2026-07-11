@@ -7233,7 +7233,8 @@ html[dir="rtl"] .admin-nav-button.active::before {
 }
 
 .detail-schema-fields-section {
-  padding: clamp(58px, 8vw, 118px) var(--page-gutter);
+  padding: clamp(80px, 10vw, 150px) var(--page-gutter);
+  padding-bottom: clamp(100px, 14vw, 190px);
   background: #fffdf8;
 }
 
@@ -7283,7 +7284,7 @@ html[dir="rtl"] .admin-nav-button.active::before {
 .detail-schema-fields-section .detail-section-title {
   max-width: 980px;
   margin-inline: auto;
-  margin-bottom: clamp(26px, 4vw, 46px);
+  margin-bottom: clamp(34px, 5vw, 56px);
 }
 
 .detail-schema-fields-section .detail-section-title h2 {
@@ -7302,11 +7303,11 @@ html[dir="rtl"] .admin-nav-button.active::before {
 .detail-schema-fields-section .detail-schema-fields > div {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
   min-width: 0;
   border: 1px solid rgba(6, 31, 51, 0.09);
   border-radius: 24px;
-  padding: clamp(22px, 3vw, 34px);
+  padding: clamp(24px, 3.4vw, 38px);
   background: rgba(255, 255, 255, 0.78);
   box-shadow: 0 18px 48px rgba(6, 31, 51, 0.06);
 }
@@ -7324,7 +7325,7 @@ html[dir="rtl"] .admin-nav-button.active::before {
   margin: 0;
   color: rgba(6, 31, 51, 0.76);
   font-size: clamp(1rem, 1.18vw, 1.15rem);
-  line-height: 1.85;
+  line-height: 1.9;
   text-align: start;
 }
 
