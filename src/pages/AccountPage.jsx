@@ -401,6 +401,8 @@ function AccountPage({ currentUser, language, onLogout, onNavigate, onSubmitRevi
     event.preventDefault();
     if (!editForm.name || !editForm.email) return;
     setSaving(true);
+    setEditMessage("");
+    setEditMessageType("success");
     try {
       const updated = await onUpdateUser({
         name: editForm.name,

@@ -52,12 +52,24 @@ export async function fetchCurrentUser() {
 }
 
 export async function updateCurrentUser(updates) {
-  const updated = await apiRequest("/auth/me", {
-    method: "PATCH",
-    body: JSON.stringify(updates),
-  });
-  setCurrentUser(updated);
-  return updated;
+  const controller = new AbortController();
+  const timeoutId = globalThis.setTimeout(() => controller.abort(), 15000);
+  try {
+    const updated = await apiRequest("/auth/me", {
+      method: "PATCH",
+      body: JSON.stringify(updates),
+      signal: controller.signal,
+    });
+    setCurrentUser(updated);
+    return updated;
+  } catch (error) {
+    if (error?.name === "AbortError") {
+      throw new Error("Profile update timed out. Please try again.");
+    }
+    throw error;
+  } finally {
+    globalThis.clearTimeout(timeoutId);
+  }
 }
 
 export async function logoutUser() {

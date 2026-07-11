@@ -44,6 +44,9 @@ export async function apiRequest(path, options = {}) {
       },
     });
   } catch (error) {
+    if (error?.name === "AbortError") {
+      throw error;
+    }
     console.error("API request could not reach server", {
       endpoint: path,
       message: error?.message,
