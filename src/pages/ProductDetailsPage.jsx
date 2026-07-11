@@ -864,13 +864,13 @@ function ProductDetailsPage({
             alt={productName}
             className="impact-left"
             src={detailImages.impact1 || detailImages.impact || product.image}
-            style={{ transform: `translateY(${parallax * 24}px) rotate(-6deg)` }}
+            style={{ transform: `translateY(${parallax * 40}px) rotate(-6deg)` }}
           />
           <ProductImage
             alt={productName}
             className="impact-right"
             src={detailImages.impact2 || detailImages.impact || product.hoverImage || product.image}
-            style={{ transform: `translateY(${parallax * -24}px) rotate(6deg)` }}
+            style={{ transform: `translateY(${parallax * -40}px) rotate(6deg)` }}
           />
         </div>
       </section>}
