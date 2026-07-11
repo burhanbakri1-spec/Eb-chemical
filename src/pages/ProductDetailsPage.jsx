@@ -295,20 +295,38 @@ function ProductDetailsPage({
       setParallax(0);
       return;
     }
-    function handleScroll() {
+
+    let frame = 0;
+
+    function updateParallax() {
+      frame = 0;
       const section = impactRef.current;
       if (!section) {
         setParallax(0);
         return;
       }
       const rect = section.getBoundingClientRect();
-      const viewportCenter = window.innerHeight / 2;
-      const progress = (viewportCenter - rect.top) / Math.max(rect.height, 1);
-      setParallax(Math.max(-1, Math.min(1, progress * 2 - 1)));
+      const vh = window.innerHeight;
+      const sectionCenter = rect.top + rect.height / 2;
+      const viewportCenter = vh / 2;
+      const travel = Math.max(vh * 0.75, rect.height / 2);
+      const motion = (viewportCenter - sectionCenter) / travel;
+      setParallax(Math.max(-1, Math.min(1, motion)));
     }
-    handleScroll();
+
+    function handleScroll() {
+      if (frame) return;
+      frame = requestAnimationFrame(updateParallax);
+    }
+
+    updateParallax();
     window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+    window.addEventListener("resize", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleScroll);
+      if (frame) cancelAnimationFrame(frame);
+    };
   }, []);
 
   React.useEffect(() => {
@@ -864,13 +882,13 @@ function ProductDetailsPage({
             alt={productName}
             className="impact-left"
             src={detailImages.impact1 || detailImages.impact || product.image}
-            style={{ transform: `translateY(${parallax * 40}px) rotate(-6deg)` }}
+            style={{ transform: `translateY(${parallax * 70}px) rotate(-6deg)` }}
           />
           <ProductImage
             alt={productName}
             className="impact-right"
             src={detailImages.impact2 || detailImages.impact || product.hoverImage || product.image}
-            style={{ transform: `translateY(${parallax * -40}px) rotate(6deg)` }}
+            style={{ transform: `translateY(${parallax * -70}px) rotate(6deg)` }}
           />
         </div>
       </section>}
